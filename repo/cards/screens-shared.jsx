@@ -65,7 +65,7 @@ const CardTabs = () =>
 
 
 // big NFC hero (used to push renewing the virtual card → pay from phone)
-const NfcHero = ({ onPrimary, body = 'Renová tu tarjeta y pagá directo desde tu celu con Apple Pay o Google Pay.', cta = 'Pedí tu nueva tarjeta virtual' }) =>
+const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu tarjeta y pagá directo desde tu celu con Apple Pay o Google Pay.', cta = 'Pedí tu nueva tarjeta virtual' }) =>
 <div style={{
   position: 'relative', borderRadius: 22, overflow: 'hidden', minHeight: 300,
   background: 'radial-gradient(120% 90% at 78% 0%, #6a3fb0 0%, #3a1c64 52%, #1c0c36 100%)',
@@ -77,6 +77,8 @@ const NfcHero = ({ onPrimary, body = 'Renová tu tarjeta y pagá directo desde t
     id="nfc-hero-phone-pos"
     class="nfc-hero-img"
     shape="rect"
+    src="cards/assets/nfc-hero-phone-pos.webp"
+    position="50% 28%"
     placeholder="Celu pagando en posnet"
     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', background: 'rgba(255,255,255,0.04)' }}>
     </image-slot>
@@ -88,7 +90,7 @@ const NfcHero = ({ onPrimary, body = 'Renová tu tarjeta y pagá directo desde t
       <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(207,255,46,0.16)', color: 'var(--c-lime-30)', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
         <LI name="celphone" size={13} color="var(--c-lime-30)" /> NUEVA FORMA DE PAGAR
       </div>
-      <div style={{ font: '500 23px Geist', letterSpacing: '-0.02em', marginTop: 10, lineHeight: 1.15, textShadow: '0 1px 12px rgba(20,8,40,0.6)' }}></div>
+      <div style={{ font: '500 23px Geist', letterSpacing: '-0.02em', marginTop: 10, lineHeight: 1.15, textShadow: '0 1px 12px rgba(20,8,40,0.6)' }}>{title}</div>
       <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.82)', marginTop: 6, lineHeight: 1.45, textShadow: '0 1px 10px rgba(20,8,40,0.5)' }}>{body}</div>
       <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
         <button onClick={onPrimary} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 18px', background: '#fff', color: LX.dark, font: '600 15px Inter' }}>{cta}</button>
