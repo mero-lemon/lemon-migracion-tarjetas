@@ -195,7 +195,7 @@ const ExteriorBanner = () =>
 
 // mode: 'replaceVirtual' | 'firstVirtual' | 'fisica' | 'renewFisica' | 'twoCards'
 // phase (renewFisica only): 'expiring' (default) | 'transit' | 'active'
-function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true }) {
+function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true, showNfcBanner = false, onNfc }) {
   // sensible default ownership per mode
   const renewCards = phase === 'active' ?
   [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }] :
@@ -220,6 +220,10 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
 
         {mode === 'firstVirtual' &&
         <NfcHero onPrimary={onPrimary} body="Pagá directo desde tu celu con Apple Pay o Google Pay, sin sacar la tarjeta." cta="Creá tu tarjeta virtual" />
+        }
+
+        {mode === 'renewFisica' && phase === 'expiring' && showNfcBanner &&
+        <NfcHero onPrimary={onNfc} cta="Pedí tu virtual con NFC" />
         }
 
         {mode === 'renewFisica' && phase === 'transit' &&

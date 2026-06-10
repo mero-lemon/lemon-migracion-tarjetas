@@ -391,6 +391,8 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           <TarjetasHub
           mode="renewFisica" phase={phase} onBack={onMenu}
           showExpiringBanner={meets}
+          showNfcBanner={Boolean(upsellVirtual)}
+          onNfc={() => setStep('virtual')}
           onCardTap={!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
           onActivate={() => setStep('delivery')}
