@@ -4,17 +4,17 @@ const { useState: useStateA, useEffect: useEffectA, useRef: useRefA } = React;
 // ── Menu (initial chooser, lives inside the phone) ──────────────
 function MenuScreen({ onPick }) {
   const sections = [
-  { label: 'Tarjeta virtual', items: [
-    { id: 'f1', icon: 'swap', bg: 'var(--c-lemon-5)', fg: 'var(--c-lemon-50)', t: 'Reemplazar la virtual de GP', s: 'Tenes una virtual de GP y querés una nueva (NFC).' },
-    { id: 'f1b', icon: 'lemon-add', bg: 'var(--c-lemon-5)', fg: 'var(--c-lemon-50)', t: 'Crear tu primera virtual (Pomelo)', s: 'Ya tenés física y querés virtual.' }]
-  },
-  { label: 'Tarjeta física', items: [
-    { id: 'pedirFisica', icon: 'celphone', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)', t: 'Pedir física de Pomelo', s: 'Ya tengo virtual de Pomelo y quiero una física.' },
-    { id: 'f4', icon: 'alert-time', bg: 'var(--c-orange-10)', fg: '#854600', t: 'Renovar física (por vencimiento)', s: 'Tu física actual de GP está por vencer y ya tenes la virtual de Pomelo.' },
-    { id: 'f4b', icon: 'swap', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)', t: 'Renovar física de GP (con virtual GP)', s: 'Tengo la virtual de GP: te ofrecemos la virtual NFC.' }]
-  },
   { label: 'Sin tarjetas', items: [
-    { id: 'f5', icon: 'card-on', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)', t: 'Elegí tu tarjeta', s: 'Onboarding para usuarios sin ninguna.' }]
+    { id: 'f5', icon: 'card-on', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)', t: 'No tengo ninguna', s: 'Onboarding: elegir mi primera tarjeta.' }]
+  },
+  { label: 'Todavía en GP · te ofrecemos NFC', items: [
+    { id: 'f1', icon: 'swap', bg: 'var(--c-lemon-5)', fg: 'var(--c-lemon-50)', t: 'Tengo virtual GP', s: 'La cambio por la virtual NFC (Pomelo).' },
+    { id: 'f1b', icon: 'lemon-add', bg: 'var(--c-lemon-5)', fg: 'var(--c-lemon-50)', t: 'Tengo solo física GP', s: 'Creo mi primera virtual con NFC.' },
+    { id: 'f4b', icon: 'alert-time', bg: 'var(--c-orange-10)', fg: '#854600', t: 'Se vence mi física GP · sin NFC', s: 'Pido la física nueva y activo NFC en la virtual.' }]
+  },
+  { label: 'Ya en Pomelo · ya tenés NFC', items: [
+    { id: 'pedirFisica', icon: 'celphone', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)', t: 'Tengo virtual Pomelo', s: 'Pido mi física (ya tengo NFC).' },
+    { id: 'f4', icon: 'swap', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)', t: 'Se vence mi física GP · con NFC', s: 'Solo renuevo la física, sin upsell de NFC.' }]
   }];
 
   return (
@@ -113,7 +113,7 @@ function Stage() {
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
           {showReqToggle &&
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: '500 12px Inter', color: '#6a6965', whiteSpace: 'nowrap' }}>Requisito US$100:</span>
+              <span style={{ font: '500 12px Inter', color: '#6a6965', whiteSpace: 'nowrap' }}>Saldo ≥ US$50:</span>
               <div style={{ display: 'flex', background: '#E0DFDA', borderRadius: 999, padding: 3 }}>
                 {[['No cumple', false], ['Cumple', true]].map(([lbl, val]) =>
               <button key={lbl} onClick={() => setMeets(val)} style={{

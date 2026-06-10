@@ -197,7 +197,7 @@ function Flow2({ onMenu, startStep = 'hub', onComplete }) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// FLOW 3 — Física CON requisito (US$100 invertidos)
+// FLOW 3 — Física CON requisito (≥ US$50 invertidos)
 // ════════════════════════════════════════════════════════════════
 function Flow3({ onMenu, meets, onMeet, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
@@ -216,7 +216,7 @@ function Flow3({ onMenu, meets, onMeet, startStep = 'hub', onComplete }) {
 
 function RequisitoScreen({ meets, onBack, onClose, onContinue, onInvest }) {
   const have = meets ? 240 : 40;
-  const need = 100;
+  const need = 50;
   return (
     <Anim k="reqinner" noWrap>
       <Screen footer={
@@ -234,7 +234,7 @@ function RequisitoScreen({ meets, onBack, onClose, onContinue, onInvest }) {
               {meets ? 'Ya podés pedir tu física' : 'Un paso antes de pedirla'}
             </div>
             <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-              Para tener tu Lemon Card física necesitás al menos <b style={{ color: LX.text1 }}>US$100</b> entre dólares digitales y acciones invertidas.
+              Para tener tu Lemon Card física necesitás al menos <b style={{ color: LX.text1 }}>US$50</b> entre dólares digitales y acciones invertidas.
             </div>
           </div>
 
@@ -251,7 +251,7 @@ function RequisitoScreen({ meets, onBack, onClose, onContinue, onInvest }) {
             </div>
             <Meter value={Math.min(1, have / need)} color={meets ? 'var(--c-lemon-50)' : LX.dark} />
             <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 8, font: '400 11px Inter', color: LX.text3 }}>
-              <span>US$ 0</span><span>Meta US$ 100</span>
+              <span>US$ 0</span><span>Meta US$ 50</span>
             </div>
             <Divider style={{ margin: '14px 0' }} />
             <Breakdown label="Dólares digitales (USDC)" icon="currency-dollar" v={meets ? 150 : 25} />
@@ -408,7 +408,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
     <Anim k="f4renew">
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Btn variant="primary" onClick={() => setStep('choose')}>Elegir cómo pedirla</Btn>
+            <Btn variant="primary" onClick={() => setStep(meets ? 'address' : 'req')}>Pedir mi nueva física</Btn>
             <Btn variant="ghost" onClick={() => setStep('hub')}>Ahora no</Btn>
           </div>
       }>
@@ -445,14 +445,12 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
         </Screen>
       </Anim>);
 
-  if (step === 'choose')
-  return <Anim k="f4choose"><RequisitoChooser headerTitle="Renovar tarjeta física" title="¿Cómo querés pedir la nueva?" subtitle="Estamos evaluando si la renovación pide un piso de inversión. Entrá a cualquiera de las dos para recorrerla." onBack={() => setStep('renew')} onPick={(r) => setStep(r === 'con' ? 'req' : 'address')} /></Anim>;
   if (step === 'req')
-  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep('choose')} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
+  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep('renew')} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
   if (step === 'portfolio')
   return <PortfolioScreen onBack={() => setStep('req')} onClose={onMenu} onComply={() => {onMeet && onMeet();setStep('address');}} />;
   if (step === 'address')
-  return <Anim k="f4addr"><AddressScreen onBack={() => setStep('choose')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f4addr"><AddressScreen onBack={() => setStep('renew')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
   if (step === 'delivery')
@@ -623,19 +621,20 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// PEDIR FÍSICA — elegís con / sin requisito y entra al flujo
+// PEDIR FÍSICA — el gate de saldo (≥ US$50) decide si pasa por requisito
 // ════════════════════════════════════════════════════════════════
 function PedirFisicaFlow({ onMenu, meets, onMeet, onComplete, onboarding }) {
-  const [route, setRoute] = useStateF(null);
-  if (route === 'sin') return <Flow2 onMenu={() => setRoute(null)} onComplete={onComplete} startStep={onboarding ? 'address' : 'hub'} />;
-  if (route === 'con') return <Flow3 onMenu={() => setRoute(null)} meets={meets} onMeet={onMeet} onComplete={onComplete} startStep={onboarding ? 'req' : 'hub'} />;
-  return <Anim k="reqchooser"><RequisitoChooser onBack={onMenu} onPick={setRoute} /></Anim>;
+  // Gate de saldo (≥ US$50 entre dólar digital + inversiones), evaluado al entrar:
+  // si cumple, camino directo; si no, pasa por la pantalla de requisito.
+  const [gateMet] = useStateF(meets);
+  if (gateMet) return <Flow2 onMenu={onMenu} onComplete={onComplete} startStep={onboarding ? 'address' : 'hub'} />;
+  return <Flow3 onMenu={onMenu} meets={meets} onMeet={onMeet} onComplete={onComplete} startStep={onboarding ? 'req' : 'hub'} />;
 }
 
 function RequisitoChooser({ onBack, onPick, headerTitle = 'Pedir tarjeta física', title = '¿Qué experiencia querés ver?', subtitle = 'Estamos evaluando si pedimos un piso de inversión. Entrá a cualquiera de las dos para recorrerla.' }) {
   const opts = [
   { id: 'sin', icon: 'celphone', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)', t: 'Sin requisitos', s: 'Camino directo: validás la dirección y la pedís.', tag: 'Más simple' },
-  { id: 'con', icon: 'stocks', bg: 'var(--c-solar-5)', fg: 'var(--c-solar-50)', t: 'Con requisito de US$100', s: 'Pide tener US$100 invertidos antes de pedir la física.', tag: 'Más fricción' }];
+  { id: 'con', icon: 'stocks', bg: 'var(--c-solar-5)', fg: 'var(--c-solar-50)', t: 'Con requisito de US$50', s: 'Pide tener US$50 invertidos antes de pedir la física.', tag: 'Más fricción' }];
 
   return (
     <Screen>
