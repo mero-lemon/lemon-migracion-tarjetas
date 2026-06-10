@@ -195,7 +195,7 @@ const ExteriorBanner = () =>
 
 // mode: 'replaceVirtual' | 'firstVirtual' | 'fisica' | 'renewFisica' | 'twoCards'
 // phase (renewFisica only): 'expiring' (default) | 'transit' | 'active'
-function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack }) {
+function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true }) {
   // sensible default ownership per mode
   const renewCards = phase === 'active' ?
   [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }] :
@@ -236,7 +236,7 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
           </div>
         }
 
-        {mode === 'renewFisica' && phase === 'expiring' &&
+        {mode === 'renewFisica' && phase === 'expiring' && showExpiringBanner &&
         <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
             <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
               <LI name="alert-time" size={22} color="#854600" style={{ flexShrink: 0, marginTop: 1 }} />
@@ -249,7 +249,7 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
             <button onClick={onPrimary} style={{ width: '100%', marginTop: 13, border: 0, cursor: 'pointer', borderRadius: 999, padding: '12px 18px', background: '#854600', color: '#fff', font: '600 15px Inter' }}>Pedir mi nueva Lemon Card</button>
           </div>}
 
-        <CardsModule cards={owned} />
+        <CardsModule cards={owned} onCardTap={onCardTap} />
 
         <ExteriorBanner />
 

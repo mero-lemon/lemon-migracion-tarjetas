@@ -149,7 +149,7 @@ const StatusPill = ({ status }) => {
 
 // a card row inside the "Tus tarjetas" module — vertical thumbnail, more margin
 const CardListItem = ({ variant, title, mask, status = 'Activa', activate, onTap, onActivate }) =>
-<div onClick={onTap} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '18px 18px', cursor: onTap ? 'pointer' : 'default' }}>
+<div onClick={() => onTap && onTap(variant)} style={{ display: 'flex', alignItems: 'center', gap: 18, padding: '18px 18px', cursor: onTap ? 'pointer' : 'default' }}>
     <CardThumb variant={variant} w={52} portrait />
     <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ font: '600 17px Inter', color: LX.text1 }}>{title}</div>

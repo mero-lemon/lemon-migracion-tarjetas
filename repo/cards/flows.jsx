@@ -389,6 +389,8 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
         <div style={{ height: '100%', position: 'relative' }}>
           <TarjetasHub
           mode="renewFisica" phase={phase} onBack={onMenu}
+          showExpiringBanner={Boolean(meets || upsellVirtual)}
+          onCardTap={(!meets && !upsellVirtual) ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
           onActivate={() => setStep('delivery')}
           onTrack={() => setTrack(true)} />
@@ -445,8 +447,10 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
         </Screen>
       </Anim>);
 
+  if (step === 'detail')
+  return <CardDetail onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => setStep('req')} />;
   if (step === 'req')
-  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep('renew')} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
+  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep(upsellVirtual ? 'renew' : 'detail')} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
   if (step === 'portfolio')
   return <PortfolioScreen onBack={() => setStep('req')} onClose={onMenu} onComply={() => {onMeet && onMeet();setStep('address');}} />;
   if (step === 'address')
@@ -456,6 +460,60 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   if (step === 'delivery')
   return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => {setPhase('active');setStep('hub');}} onMenu={onMenu} /></Anim>;
   return null;
+}
+
+// Card-home / detail screen (como el home real de la tarjeta). Para el usuario
+// que NO cumple el piso, escondemos la renovación acá adentro: el banner de
+// "vence pronto" vive debajo de la imagen y es el único acceso a renovar.
+function CardDetail({ onBack, onClose, onRenew }) {
+  const actions = [
+  { icon: 'pause', label: 'Pausar' },
+  { icon: 'view-balance-on', label: 'Ver datos' },
+  { icon: 'limits', label: 'Límites' },
+  { icon: 'click-to-pay', label: 'Eliminar de\nClick to Pay' }];
+
+  return (
+    <Anim k="f4detail" noWrap>
+      <Screen>
+        <StepHeader title="Lemon Card" onBack={onBack} onClose={onClose} />
+        <div style={{ padding: '10px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0 2px' }}>
+            <CardArt variant="fisica" width={210} portrait glow />
+          </div>
+
+          {/* banner de vencimiento — debajo de la imagen, donde queda más escondido */}
+          <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
+            <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
+              <LI name="alert-time" size={22} color="#854600" style={{ flexShrink: 0, marginTop: 1 }} />
+              <div style={{ flex: 1 }}>
+                <div style={{ font: '600 15px Inter', color: '#854600' }}>Tu Lemon Card física vence pronto</div>
+                <div style={{ font: '500 13px Inter', color: '#9a6a1a', marginTop: 3, lineHeight: 1.4 }}>Renovala para seguir usándola sin cortes.</div>
+              </div>
+            </div>
+            <button onClick={onRenew} style={{ width: '100%', marginTop: 13, border: 0, cursor: 'pointer', borderRadius: 999, padding: '12px 18px', background: '#854600', color: '#fff', font: '600 15px Inter' }}>Renovar mi Lemon Card</button>
+          </div>
+
+          {/* acciones de la tarjeta */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+            {actions.map((a) =>
+            <div key={a.label} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LI name={a.icon} size={22} color={LX.text1} />
+                </div>
+                <span style={{ font: '500 11px Inter', color: LX.text2, textAlign: 'center', lineHeight: 1.2, whiteSpace: 'pre-line' }}>{a.label}</span>
+              </div>
+            )}
+          </div>
+
+          <button style={{ alignSelf: 'center', display: 'inline-flex', alignItems: 'center', gap: 6, border: 0, background: 'transparent', cursor: 'pointer', font: '600 15px Inter', color: 'var(--text-brand)' }}>
+            Ver más <LI name="arrow-expand-more" size={18} color="var(--text-brand)" />
+          </button>
+
+          <PmNote>El usuario que no cumple el piso ya paga con NFC, así que no lo empujamos con un banner en el home: la renovación queda acá adentro, debajo de la tarjeta.</PmNote>
+        </div>
+      </Screen>
+    </Anim>);
+
 }
 
 // virtual-card upsell shown after "Pedir mi nueva Lemon Card" (Pomelo-migration user, no virtual yet)
