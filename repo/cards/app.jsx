@@ -93,7 +93,7 @@ function Stage() {
   }, []);
 
   const toMenu = () => setView('menu');
-  const showReqToggle = view === 'pedirFisica' || view === 'f5' || view === 'f4' || view === 'f4b';
+  const showReqToggle = view === 'f4' || view === 'f4b';
 
   return (
     <div style={{ minHeight: '100vh', background: '#E6E5E1', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui' }}>
@@ -113,9 +113,9 @@ function Stage() {
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 10 }}>
           {showReqToggle &&
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: '500 12px Inter', color: '#6a6965', whiteSpace: 'nowrap' }}>Saldo ≥ US$50:</span>
+              <span style={{ font: '500 12px Inter', color: '#6a6965', whiteSpace: 'nowrap' }}>Renovación física:</span>
               <div style={{ display: 'flex', background: '#E0DFDA', borderRadius: 999, padding: 3 }}>
-                {[['No cumple', false], ['Cumple', true]].map(([lbl, val]) =>
+                {[['No paga', false], ['Paga', true]].map(([lbl, val]) =>
               <button key={lbl} onClick={() => setMeets(val)} style={{
                 border: 0, cursor: 'pointer', borderRadius: 999, padding: '5px 13px', font: '600 12px Inter',
                 background: meets === val ? '#fff' : 'transparent', color: meets === val ? '#2a2a28' : '#8a8985',

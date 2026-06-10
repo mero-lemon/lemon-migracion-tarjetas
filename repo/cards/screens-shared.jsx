@@ -100,20 +100,23 @@ const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu ta
 
 
 // boutique física pitch (used when the user has no física yet)
-const BoutiqueHero = ({ onPrimary, compact, title = 'Tu Lemon, en la mano', badge = 'EDICIÓN FÍSICA', body = 'Metal-look, contactless y cashback en cripto en cada compra. Te llega a tu casa, lista para activar.', cta = 'Pedir tarjeta' }) =>
+const BoutiqueHero = ({ onPrimary, onActivate, compact, title = 'Tu Lemon, en la mano', badge = 'EDICIÓN FÍSICA', body = 'Metal-look, contactless y cashback en cripto en cada compra. Te llega a tu casa, lista para activar.', cta = 'Pedir tarjeta' }) =>
 compact ?
-<button onClick={onPrimary} style={{
-  position: 'relative', overflow: 'hidden', borderRadius: 18, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer',
+<div style={{
+  position: 'relative', overflow: 'hidden', borderRadius: 18, width: '100%',
   background: 'radial-gradient(120% 130% at 88% 10%, #14342f 0%, #0c1f23 60%, #080f12 100%)',
-  padding: '14px 16px', color: '#fff', display: 'flex', alignItems: 'center', gap: 14
+  padding: '14px 16px', color: '#fff'
 }}>
-    <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={66} portrait /></div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ font: '600 15px Inter', color: '#fff' }}>Pedí tu Lemon Card física</div>
-      <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.66)', marginTop: 2, lineHeight: 1.35 }}>Edición boutique, con envío a tu casa.</div>
-    </div>
-    <LI name="arrow-foward" size={18} color="var(--c-lime-30)" style={{ flexShrink: 0 }} />
-  </button> :
+    <button onClick={onPrimary} style={{ border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: 0, width: '100%', display: 'flex', alignItems: 'center', gap: 14 }}>
+      <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={66} portrait /></div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ font: '600 15px Inter', color: '#fff' }}>Pedí tu Lemon Card física</div>
+        <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.66)', marginTop: 2, lineHeight: 1.35 }}>Edición boutique, con envío a tu casa.</div>
+      </div>
+      <LI name="arrow-foward" size={18} color="var(--c-lime-30)" style={{ flexShrink: 0 }} />
+    </button>
+    <button onClick={onActivate} style={{ marginTop: 12, width: '100%', border: 0, cursor: 'pointer', borderRadius: 999, padding: '9px 14px', background: 'rgba(255,255,255,0.12)', color: '#fff', font: '600 13px Inter' }}>¿Ya tenés una? Activala</button>
+  </div> :
 
 <div style={{
   position: 'relative', borderRadius: 22, overflow: 'hidden',
@@ -131,7 +134,7 @@ compact ?
     <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.72)', marginTop: 6, lineHeight: 1.45 }}>{body}</div>
     <div style={{ display: 'flex', gap: 10, marginTop: 18 }}>
       <button onClick={onPrimary} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 18px', background: '#fff', color: LX.dark, font: '600 15px Inter' }}>{cta}</button>
-      <button style={{ border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 18px', background: 'rgba(255,255,255,0.12)', color: '#fff', font: '600 15px Inter', whiteSpace: 'nowrap' }}>Ya la tengo</button>
+      <button onClick={onActivate} style={{ border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 18px', background: 'rgba(255,255,255,0.12)', color: '#fff', font: '600 15px Inter', whiteSpace: 'nowrap' }}>Activar</button>
     </div>
   </div>;
 
@@ -214,7 +217,7 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
       <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         <CardTabs />
 
-        {mode === 'fisica' && <BoutiqueHero onPrimary={onPrimary} />}
+        {mode === 'fisica' && <BoutiqueHero onPrimary={onPrimary} onActivate={onActivate} />}
 
         {mode === 'replaceVirtual' && <NfcHero onPrimary={onPrimary} />}
 
@@ -256,8 +259,6 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
         <CardsModule cards={owned} onCardTap={onCardTap} />
 
         <ExteriorBanner />
-
-        <StatCards />
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
           <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>

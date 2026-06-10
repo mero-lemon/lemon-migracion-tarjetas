@@ -151,7 +151,6 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
             </div>
             <CardsModule cards={cards} onCardTap={(v) => { setOpenCard(cards.find((c) => c.variant === v) || cards[0]); setStep('cardDetail'); }} />
             <ExteriorBanner />
-            <StatCards />
           </div>
         </Screen>
       </Anim>);
@@ -221,10 +220,15 @@ function NfcSuccess({ onDone, onMenu }) {
 // ════════════════════════════════════════════════════════════════
 function Flow2({ onMenu, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
+  const back = () => startStep === 'hub' ? setStep('hub') : onMenu();
   if (step === 'hub')
-  return <Anim k="f2hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('address')} /></Anim>;
+  return <Anim k="f2hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('pay')} onActivate={() => setStep('activate')} /></Anim>;
+  if (step === 'pay')
+  return <Anim k="f2pay"><PaymentScreen onBack={back} onClose={onMenu} onPay={() => setStep('address')} /></Anim>;
+  if (step === 'activate')
+  return <CardActivation onBack={back} onClose={onMenu} onDone={onComplete || (() => setStep('hub'))} />;
   if (step === 'address')
-  return <Anim k="f2addr"><AddressScreen onBack={() => startStep === 'hub' ? setStep('hub') : onMenu()} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f2addr"><AddressScreen onBack={() => setStep('pay')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f2done"><OrderConfirmation onDone={onComplete || (() => setStep('hub'))} onMenu={onMenu} /></Anim>;
   return null;
@@ -393,6 +397,61 @@ const Breakdown = ({ label, icon, v }) =>
   </div>;
 
 
+// Pantalla de pago — reemplaza al requisito: pedir la física tiene un costo
+// que se descuenta del saldo. Se muestra a quien va a pedir/renovar la física.
+function PaymentScreen({ onBack, onClose, onPay, price = 5 }) {
+  return (
+    <Anim k="payinner" noWrap>
+      <Screen footer={<Btn variant="primary" leftIcon="currency-dollar" onClick={onPay}>Pagar y pedir mi tarjeta</Btn>}>
+        <StepHeader title="Tarjeta física" onBack={onBack} onClose={onClose} />
+        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Pedí tu Lemon Card física</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
+              Tiene un costo único de <b style={{ color: LX.text1 }}>US$ {price}</b>. Lo descontamos de tu saldo y te la enviamos a tu casa.
+            </div>
+          </div>
+
+          {/* detalle del cobro */}
+          <Surface pad={18}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ font: '400 14px Inter', color: LX.text2 }}>Lemon Card física</span>
+              <span style={{ font: '500 14px Geist', color: LX.text1 }}>US$ {price}</span>
+            </div>
+            <Divider style={{ margin: '10px 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ font: '400 14px Inter', color: LX.text2 }}>Envío a domicilio</span>
+              <span style={{ font: '600 13px Inter', color: 'var(--c-lemon-60)' }}>Gratis</span>
+            </div>
+            <Divider style={{ margin: '10px 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
+              <span style={{ font: '600 15px Inter', color: LX.text1 }}>Total</span>
+              <span style={{ font: '500 18px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>US$ {price}</span>
+            </div>
+          </Surface>
+
+          {/* método de pago */}
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="wallet" size={20} color={LX.text1} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 14px Inter', color: LX.text1 }}>Pagás con tu saldo</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Disponible: US$ 240</div>
+              </div>
+              <LI name="arrow-foward" size={18} color={LX.text3} />
+            </div>
+          </Surface>
+
+          <PmNote>Reemplazamos el piso de inversión por un cobro único: bajamos la fricción de "tenés que invertir" a "pagás un monto chico". Probar el precio y dejar el envío gratis como gancho.</PmNote>
+        </div>
+      </Screen>
+    </Anim>);
+
+}
+
+
 // ── helpers ─────────────────────────────────────────────────────
 function LoadingScreen({ title, sub, onDone }) {
   React.useEffect(() => {const t = setTimeout(onDone, 1500);return () => clearTimeout(t);}, []);
@@ -447,7 +506,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
     <Anim k="f4renew">
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Btn variant="primary" onClick={() => { if (meets) { setStep('address'); } else { setReqFrom('renew'); setStep('req'); } }}>Pedir mi nueva física</Btn>
+            <Btn variant="primary" onClick={() => { setReqFrom('renew'); setStep('pay'); }}>Pedir mi nueva física</Btn>
             <Btn variant="ghost" onClick={() => setStep('hub')}>Ahora no</Btn>
           </div>
       }>
@@ -467,7 +526,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
             <div>
               <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Te renovamos la física</div>
               <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-                Tu <b style={{ color: LX.text1 }}>•••• 4971</b> está por vencer. Te mandamos una nueva sin costo para que no cortes nada.
+                Tu <b style={{ color: LX.text1 }}>•••• 4971</b> está por vencer. Pedí la nueva para no cortar nada.
               </div>
             </div>
             <Surface pad={4}>
@@ -485,13 +544,11 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
       </Anim>);
 
   if (step === 'detail')
-  return <CardDetail variant="fisica" title="Lemon Card" mask="•••• 4971" expiring onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('req'); }} />;
-  if (step === 'req')
-  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep(reqFrom)} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
-  if (step === 'portfolio')
-  return <PortfolioScreen onBack={() => setStep('req')} onClose={onMenu} onComply={() => {onMeet && onMeet();setStep('address');}} />;
+  return <CardDetail variant="fisica" title="Lemon Card" mask="•••• 4971" expiring onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('pay'); }} />;
+  if (step === 'pay')
+  return <Anim k="f4pay"><PaymentScreen onBack={() => setStep(reqFrom)} onClose={onMenu} onPay={() => setStep('address')} /></Anim>;
   if (step === 'address')
-  return <Anim k="f4addr"><AddressScreen onBack={() => setStep('renew')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f4addr"><AddressScreen onBack={() => setStep('pay')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
   if (step === 'delivery')
@@ -661,7 +718,7 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="creating" onActivated={() => { setActivated(true); setRoute(null); }} />;
   if (route === 'cardDetail' && openCard) return <CardDetail variant={openCard.variant} title={openCard.title} mask={openCard.mask} nfc={openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} />;
   // física → mismo flujo que "Pedir física de Pomelo"; al terminar, vuelve acá con seguimiento
-  if (route === 'fisica') return <PedirFisicaFlow onMenu={() => setRoute(null)} meets={meets} onMeet={onMeet} onboarding onComplete={() => { setFisicaTransit(true); setRoute(null); }} />;
+  if (route === 'fisica') return <PedirFisicaFlow onMenu={() => setRoute(null)} onboarding onComplete={() => { setFisicaTransit(true); setRoute(null); }} />;
   if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} />;
   if (route === 'fisicaDelivery') return <Anim k="f5deliv"><DeliveryOnboarding onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} onMenu={onMenu} /></Anim>;
 
@@ -679,7 +736,7 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
     const tb = <TransitBanner onActivate={() => setRoute('fisicaActivate')} onTrack={() => setTrack(true)} />;
     if (pomelo) aboveCards = tb; else belowCards = tb;
   } else if (!fisicaActive) {
-    belowCards = <BoutiqueHero compact onPrimary={() => setRoute('fisica')} />;
+    belowCards = <BoutiqueHero compact onPrimary={() => setRoute('fisica')} onActivate={() => setRoute('fisicaActivate')} />;
   }
 
   return (
@@ -700,7 +757,6 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
           {pomelo &&
           <>
             <ExteriorBanner />
-            <StatCards />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
               <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
               <LI name="arrow-foward" size={16} color={LX.text3} />
@@ -724,14 +780,11 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
 }
 
 // ════════════════════════════════════════════════════════════════
-// PEDIR FÍSICA — el gate de saldo (≥ US$50) decide si pasa por requisito
+// PEDIR FÍSICA — pedir la tarjeta tiene un costo (pago, no requisitos)
 // ════════════════════════════════════════════════════════════════
-function PedirFisicaFlow({ onMenu, meets, onMeet, onComplete, onboarding }) {
-  // Gate de saldo (≥ US$50 entre dólar digital + inversiones), evaluado al entrar:
-  // si cumple, camino directo; si no, pasa por la pantalla de requisito.
-  const [gateMet] = useStateF(meets);
-  if (gateMet) return <Flow2 onMenu={onMenu} onComplete={onComplete} startStep={onboarding ? 'address' : 'hub'} />;
-  return <Flow3 onMenu={onMenu} meets={meets} onMeet={onMeet} onComplete={onComplete} startStep={onboarding ? 'req' : 'hub'} />;
+function PedirFisicaFlow({ onMenu, onComplete, onboarding }) {
+  // En onboarding entramos directo al pago; si no, mostramos el hub con el pitch.
+  return <Flow2 onMenu={onMenu} onComplete={onComplete} startStep={onboarding ? 'pay' : 'hub'} />;
 }
 
 function RequisitoChooser({ onBack, onPick, headerTitle = 'Pedir tarjeta física', title = '¿Qué experiencia querés ver?', subtitle = 'Estamos evaluando si pedimos un piso de inversión. Entrá a cualquiera de las dos para recorrerla.' }) {
