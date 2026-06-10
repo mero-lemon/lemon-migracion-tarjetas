@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Migración de tarjetas · Lemon</title>
+<link rel="stylesheet" href="cards/colors_and_type.css" />
+<link rel="stylesheet" href="cards/fonts/lemon-icons.css" />
+<style>
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+  html, body { margin: 0; padding: 0; background: #E6E5E1; }
+  body { font-family: Inter, system-ui, sans-serif; }
+  button { font-family: inherit; -webkit-tap-highlight-color: transparent; }
+  ::-webkit-scrollbar { width: 0; height: 0; }
+  @keyframes screenIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+  @keyframes lcspin { to { transform: rotate(360deg); } }
+  .lc-spin { animation: lcspin 0.9s linear infinite; }
+</style>
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="22" fill="#121212"/>
+    <rect x="30" y="22" width="40" height="56" rx="8" fill="#6a3fb0"/>
+    <circle cx="50" cy="50" r="11" fill="#160a2c"/>
+    <path d="M55 44c-7 .3-11 5-10 12 7-.3 11-5 10-12Z" fill="#cfa0ff"/>
+  </svg>
+</template>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="cards/image-slot.js"></script>
+<script type="text/babel" src="cards/ios-frame.jsx"></script>
+<script type="text/babel" src="cards/lemon-ui.jsx"></script>
+<script type="text/babel" src="cards/screens-shared.jsx"></script>
+<script type="text/babel" src="cards/flows.jsx"></script>
+<script type="text/babel" src="cards/app.jsx"></script>
+</body>
+</html>
