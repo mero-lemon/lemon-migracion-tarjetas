@@ -383,6 +383,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   const [phase, setPhase] = useStateF('expiring'); // expiring → transit → active
   const [track, setTrack] = useStateF(false);
   const [virtualDone, setVirtualDone] = useStateF(false); // ya pasó por el upsell de la virtual
+  const [reqFrom, setReqFrom] = useStateF('renew'); // adónde vuelve el back del requisito
   if (step === 'hub')
   return (
     <Anim k={'f4hub' + phase}>
@@ -390,7 +391,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           <TarjetasHub
           mode="renewFisica" phase={phase} onBack={onMenu}
           showExpiringBanner={Boolean(meets || upsellVirtual)}
-          onCardTap={(!meets && !upsellVirtual) ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
+          onCardTap={!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
           onActivate={() => setStep('delivery')}
           onTrack={() => setTrack(true)} />
@@ -410,7 +411,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
     <Anim k="f4renew">
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Btn variant="primary" onClick={() => setStep(meets ? 'address' : 'req')}>Pedir mi nueva física</Btn>
+            <Btn variant="primary" onClick={() => { if (meets) { setStep('address'); } else { setReqFrom('renew'); setStep('req'); } }}>Pedir mi nueva física</Btn>
             <Btn variant="ghost" onClick={() => setStep('hub')}>Ahora no</Btn>
           </div>
       }>
@@ -448,9 +449,9 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
       </Anim>);
 
   if (step === 'detail')
-  return <CardDetail onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => setStep('req')} />;
+  return <CardDetail onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('req'); }} />;
   if (step === 'req')
-  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep(upsellVirtual ? 'renew' : 'detail')} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
+  return <Anim k={'f4req' + meets}><RequisitoScreen meets={meets} onBack={() => setStep(reqFrom)} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
   if (step === 'portfolio')
   return <PortfolioScreen onBack={() => setStep('req')} onClose={onMenu} onComply={() => {onMeet && onMeet();setStep('address');}} />;
   if (step === 'address')
