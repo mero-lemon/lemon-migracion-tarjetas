@@ -315,8 +315,47 @@ const Sheet = ({ open, children, onClose }) => {
 
 };
 
+// ── Push notification (iOS-style, dentro del marco del teléfono) ─
+// Avisa que la tarjeta está activa y se puede sumar a la billetera.
+const WalletPush = ({ onTap, onDismiss, title = 'Tu Lemon Card ya está activa', body = 'Ya podés sumar tu tarjeta a tu Apple Wallet.' }) => {
+  const [closing, setClosing] = useState(false);
+  const close = (e) => { e.stopPropagation(); setClosing(true); setTimeout(() => onDismiss && onDismiss(), 220); };
+  return (
+    <div style={{
+      position: 'absolute', top: 58, left: 10, right: 10, zIndex: 55,
+      transform: closing ? 'translateY(-20px)' : 'translateY(0)',
+      opacity: closing ? 0 : 1,
+      transition: 'transform .25s ease, opacity .25s ease',
+      animation: closing ? 'none' : 'pushDrop .35s cubic-bezier(.2,.8,.2,1)'
+    }}>
+      <button onClick={onTap} style={{
+        width: '100%', display: 'flex', alignItems: 'flex-start', gap: 11, padding: '11px 12px',
+        background: 'rgba(248,248,246,0.86)', backdropFilter: 'blur(22px)', WebkitBackdropFilter: 'blur(22px)',
+        border: '1px solid rgba(255,255,255,0.55)', borderRadius: 16,
+        boxShadow: '0 14px 34px rgba(20,30,40,0.22)', cursor: 'pointer', textAlign: 'left'
+      }}>
+        <span style={{ width: 38, height: 38, borderRadius: 9, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Leaf size={20} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
+            <span style={{ font: '600 13px Inter', color: LX.text1 }}>Lemon</span>
+            <span style={{ font: '500 11px Inter', color: LX.text3 }}>ahora</span>
+          </div>
+          <div style={{ font: '600 13px Inter', color: LX.text1, marginTop: 2 }}>{title}</div>
+          <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 1, lineHeight: 1.35 }}>{body}</div>
+        </div>
+        {onDismiss &&
+        <span onClick={close} style={{ width: 22, height: 22, borderRadius: 999, background: 'rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, cursor: 'pointer', marginTop: 2 }}>
+          <LI name="close" size={12} color={LX.text2} />
+        </span>}
+      </button>
+    </div>);
+
+};
+
 Object.assign(window, {
   LX, LI, Leaf, Nfc, CardArt, Coin, CardThumb, Btn, WalletBtn, Surface, Divider,
-  Tag, PromoBadge, BigHeader, StepHeader, Meter, PmNote, Sheet,
+  Tag, PromoBadge, BigHeader, StepHeader, Meter, PmNote, Sheet, WalletPush,
   StatusPill, CardListItem, MonedaDePago
 });
