@@ -8,6 +8,8 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
   const [step, setStep] = useStateF(startStep);
   const [ack, setAck] = useStateF(false);
   const [openCard, setOpenCard] = useStateF(null);
+  const [pushOpen, setPushOpen] = useStateF(false);   // push visible en el home
+  const [walletAdded, setWalletAdded] = useStateF(false); // ¿ya sumó la nueva a la wallet?
   // standalone (f1/f1b): al terminar caemos en el home de tarjetas con la nueva.
   // embebido (Flow4/Flow5): devolvemos el control al flujo padre.
   const standalone = startStep === 'hub';
@@ -93,42 +95,12 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
 
 
   if (step === 'creating')
-  return <Anim k="f1load"><LoadingScreen title="Creando tu nueva tarjeta…" sub={replace ? 'Damos de baja la anterior y generamos los datos nuevos.' : 'Generamos los datos de tu nueva tarjeta virtual.'} onDone={() => setStep('success')} /></Anim>;
+  return <Anim k="f1load"><LoadingScreen title="Creando tu nueva tarjeta…" sub={replace ? 'Damos de baja la anterior y generamos los datos nuevos.' : 'Generamos los datos de tu nueva tarjeta virtual.'} onDone={() => setStep('activating')} /></Anim>;
 
-  if (step === 'success')
-  return (
-    <Anim k="f1succ">
-        <Screen scroll={false}>
-          {/* base: new virtual card detail */}
-          <StepHeader title="Tarjeta virtual" onBack={onMenu} />
-          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 24 }}>
-            <CardArt variant="virtual" width={250} glow />
-          </div>
-          {/* success sheet */}
-          <Sheet open={true} onClose={() => {}}>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¡Tu nueva virtual está lista!</div>
-              <div style={{ font: '500 13px Geist', color: LX.text2, marginTop: 6 }}>•••• 2291 · activa</div>
-            </div>
-            <div style={{ background: 'var(--c-lemon-5)', border: '1px solid var(--c-lemon-10)', borderRadius: 14, padding: '14px 16px', margin: '18px 0', display: 'flex', gap: 12, alignItems: 'center' }}>
-              <div style={{ width: 40, height: 40, borderRadius: 999, background: 'var(--c-lemon-50)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Nfc size={22} />
-              </div>
-              <div style={{ font: '500 13px Inter', color: 'var(--c-lemon-70)', lineHeight: 1.4 }}>
-                Sumala al celu y pagá apoyándolo en el posnet. Sin sacar la tarjeta, sin tipear nada.
-              </div>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <WalletBtn brand="apple" onClick={onActivated || (() => setStep('wallet'))} />
-              <Btn variant="ghost" onClick={standalone ? () => setStep('home') : (onActivated || onMenu)}>Más tarde</Btn>
-            </div>
-          </Sheet>
-        </Screen>
-      </Anim>);
-
-
-  if (step === 'wallet')
-  return <Anim k="f1wallet"><NfcSuccess onDone={finish} onMenu={onMenu} /></Anim>;
+  if (step === 'activating')
+  return <ActivatingCardScreen variant="virtual" onHome={() => {
+    if (standalone) { setPushOpen(true); setStep('home'); } else { onActivated && onActivated(); }
+  }} />;
 
   if (step === 'home') {
     // Home de tarjetas post-creación: se ve la nueva virtual y se entra al detalle de cada una.
@@ -136,28 +108,38 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
     [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 2291', status: 'Activa', nfc: true }] :
     [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' },
      { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 2291', status: 'Activa', nfc: true }];
+    const newCard = cards.find((c) => c.variant === 'virtual') || cards[0];
+    const openPush = () => { setPushOpen(false); setOpenCard(newCard); setStep('cardDetail'); };
     return (
       <Anim k="f1home">
-        <Screen>
-          <BigHeader title="Tarjetas" onBack={onMenu} />
-          <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <CardTabs />
-            <div style={{ display: 'flex', gap: 11, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 16, padding: '14px 16px' }}>
-              <LI name="feedback-positive" size={22} color="var(--c-lemon-50)" style={{ flexShrink: 0 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ font: '600 15px Inter', color: '#0F602C' }}>¡Tu tarjeta virtual está lista!</div>
-                <div style={{ font: '500 13px Inter', color: '#0F602C', opacity: 0.85, marginTop: 2 }}>Tocá una tarjeta para ver sus datos y opciones.</div>
-              </div>
+        <div style={{ height: '100%', position: 'relative' }}>
+          <Screen>
+            <BigHeader title="Tarjetas" onBack={onMenu} />
+            <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <CardTabs />
+              {!pushOpen &&
+              <div style={{ display: 'flex', gap: 11, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 16, padding: '14px 16px' }}>
+                <LI name="feedback-positive" size={22} color="var(--c-lemon-50)" style={{ flexShrink: 0 }} />
+                <div style={{ flex: 1 }}>
+                  <div style={{ font: '600 15px Inter', color: '#0F602C' }}>¡Tu tarjeta virtual está lista!</div>
+                  <div style={{ font: '500 13px Inter', color: '#0F602C', opacity: 0.85, marginTop: 2 }}>Tocá una tarjeta para ver sus datos y opciones.</div>
+                </div>
+              </div>}
+              <CardsModule cards={cards} onCardTap={(v) => { setOpenCard(cards.find((c) => c.variant === v) || cards[0]); setStep('cardDetail'); }} />
+              <ExteriorBanner />
             </div>
-            <CardsModule cards={cards} onCardTap={(v) => { setOpenCard(cards.find((c) => c.variant === v) || cards[0]); setStep('cardDetail'); }} />
-            <ExteriorBanner />
-          </div>
-        </Screen>
+          </Screen>
+          {pushOpen && <WalletPush onTap={openPush} onDismiss={() => setPushOpen(false)} />}
+        </div>
       </Anim>);
   }
 
   if (step === 'cardDetail' && openCard)
-  return <CardDetail variant={openCard.variant} title={openCard.title} mask={openCard.mask} nfc={openCard.nfc} onBack={() => setStep('home')} onClose={onMenu} />;
+  return <CardDetail
+    variant={openCard.variant} title={openCard.title} mask={openCard.mask}
+    nfc={openCard.nfc} walletAdded={openCard.variant === 'virtual' ? walletAdded : true}
+    onBack={() => setStep('home')} onClose={onMenu}
+    onAddWallet={() => setWalletAdded(true)} />;
 
   return null;
 }
@@ -226,7 +208,9 @@ function Flow2({ onMenu, startStep = 'hub', onComplete }) {
   if (step === 'pay')
   return <Anim k="f2pay"><PaymentScreen onBack={back} onClose={onMenu} onPay={() => setStep('address')} /></Anim>;
   if (step === 'activate')
-  return <CardActivation onBack={back} onClose={onMenu} onDone={onComplete || (() => setStep('hub'))} />;
+  return <CardActivation onBack={back} onClose={onMenu} onDone={() => setStep('activating')} />;
+  if (step === 'activating')
+  return <ActivatingCardScreen variant="fisica" onHome={onComplete || (() => setStep('hub'))} />;
   if (step === 'address')
   return <Anim k="f2addr"><AddressScreen onBack={() => setStep('pay')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
   if (step === 'done')
@@ -477,6 +461,8 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   const [track, setTrack] = useStateF(false);
   const [virtualDone, setVirtualDone] = useStateF(false); // ya pasó por el upsell de la virtual
   const [reqFrom, setReqFrom] = useStateF('renew'); // adónde vuelve el back del requisito
+  const [pushOpen, setPushOpen] = useStateF(false);
+  const [walletAddedNew, setWalletAddedNew] = useStateF(false); // wallet en la nueva física
   if (step === 'hub')
   return (
     <Anim k={'f4hub' + phase}>
@@ -486,14 +472,20 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           showExpiringBanner={meets}
           showNfcBanner={Boolean(upsellVirtual)}
           onNfc={() => setStep('virtual')}
-          onCardTap={!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
+          onCardTap={phase === 'active' ? ((v) => { if (v === 'fisica') setStep('detailNew'); }) : (!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined)}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
           onActivate={() => setStep('delivery')}
           onTrack={() => setTrack(true)} />
-        
+
           <Sheet open={track} onClose={() => setTrack(false)}>
             <TrackingContent onClose={() => setTrack(false)} />
           </Sheet>
+          {pushOpen &&
+          <WalletPush
+            onTap={() => { setPushOpen(false); setStep('detailNew'); }}
+            onDismiss={() => setPushOpen(false)}
+            title="Tu nueva Lemon Card ya está activa"
+            body="Ya podés sumar tu tarjeta a tu Apple Wallet." />}
         </div>
       </Anim>);
 
@@ -552,14 +544,22 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
   if (step === 'delivery')
-  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => {setPhase('active');setStep('hub');}} onMenu={onMenu} /></Anim>;
+  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => setStep('activating')} onMenu={onMenu} /></Anim>;
+  if (step === 'activating')
+  return <ActivatingCardScreen variant="fisica" onHome={() => { setPhase('active'); setPushOpen(true); setStep('hub'); }} />;
+  if (step === 'detailNew')
+  return <CardDetail variant="fisica" title="Lemon Card" mask="•••• 5520" nfc walletAdded={walletAddedNew} onBack={() => setStep('hub')} onClose={onMenu} onAddWallet={() => setWalletAddedNew(true)} />;
   return null;
 }
 
 // Card-home / detail screen (como el home real de cada tarjeta). Sirve para
 // virtual y física. Si la tarjeta vence (expiring) muestra debajo de la imagen
 // el banner de renovación — el único acceso a renovar para quien no cumple.
-function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = false, expiring = false, onBack, onClose, onRenew }) {
+// Si la tarjeta soporta NFC pero el usuario todavía no la sumó a la billetera,
+// mostramos el botón "Agregar a Apple Wallet" en vez del badge "En NFC".
+function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = false, walletAdded = false, expiring = false, onBack, onClose, onRenew, onAddWallet }) {
+  const showWalletBtn = nfc && !walletAdded;
+  const showNfcBadge = nfc && walletAdded;
   const actions = variant === 'virtual' ?
   [{ icon: 'pause', label: 'Pausar' }, { icon: 'view-balance-on', label: 'Ver datos' }, { icon: 'limits', label: 'Límites' }, { icon: 'celphone', label: 'Apple Pay' }] :
   [{ icon: 'pause', label: 'Pausar' }, { icon: 'view-balance-on', label: 'Ver datos' }, { icon: 'limits', label: 'Límites' }, { icon: 'click-to-pay', label: 'Eliminar de\nClick to Pay' }];
@@ -574,9 +574,17 @@ function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = fals
             {mask &&
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ font: '500 13px Geist', color: LX.text2 }}>{mask}</span>
-              {nfc && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 11px Inter', color: 'var(--c-lemon-60)' }}><LI name="celphone" size={13} color="var(--c-lemon-60)" /> En NFC</span>}
+              {showNfcBadge && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 11px Inter', color: 'var(--c-lemon-60)' }}><LI name="celphone" size={13} color="var(--c-lemon-60)" /> En NFC</span>}
             </div>}
           </div>
+
+          {showWalletBtn &&
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <WalletBtn brand="apple" onClick={onAddWallet} />
+            <div style={{ font: '400 12px Inter', color: LX.text2, textAlign: 'center', lineHeight: 1.4 }}>
+              Sumá tu tarjeta al celu y pagá apoyándolo en el posnet.
+            </div>
+          </div>}
 
           {expiring &&
           <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
@@ -713,23 +721,33 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   const [fisicaActive, setFisicaActive] = useStateF(false);   // física activada
   const [track, setTrack] = useStateF(false);
   const [openCard, setOpenCard] = useStateF(null);            // tarjeta abierta en su detalle
+  const [pushOpen, setPushOpen] = useStateF(false);           // push "tu tarjeta ya está activa"
+  const [pushVariant, setPushVariant] = useStateF(null);      // 'virtual' | 'fisica'
+  const [walletAdded, setWalletAdded] = useStateF({ virtual: !!pomelo, fisica: false });
+  const triggerPush = (v) => { setPushVariant(v); setPushOpen(true); };
 
   // virtual → activá tu tarjeta virtual (creando → lista → tab de tarjetas, ya activa)
-  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="creating" onActivated={() => { setActivated(true); setRoute(null); }} />;
-  if (route === 'cardDetail' && openCard) return <CardDetail variant={openCard.variant} title={openCard.title} mask={openCard.mask} nfc={openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} />;
+  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="creating" onActivated={() => { setActivated(true); setRoute(null); triggerPush('virtual'); }} />;
+  if (route === 'cardDetail' && openCard) return <CardDetail variant={openCard.variant} title={openCard.title} mask={openCard.mask} nfc={openCard.nfc} walletAdded={walletAdded[openCard.variant]} onBack={() => setRoute(null)} onClose={onMenu} onAddWallet={() => setWalletAdded((w) => ({ ...w, [openCard.variant]: true }))} />;
   // física → mismo flujo que "Pedir física de Pomelo"; al terminar, vuelve acá con seguimiento
   if (route === 'fisica') return <PedirFisicaFlow onMenu={() => setRoute(null)} onboarding onComplete={() => { setFisicaTransit(true); setRoute(null); }} />;
-  if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} />;
-  if (route === 'fisicaDelivery') return <Anim k="f5deliv"><DeliveryOnboarding onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} onMenu={onMenu} /></Anim>;
+  if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute('fisicaActivating'); }} />;
+  if (route === 'fisicaActivating') return <ActivatingCardScreen variant="fisica" onHome={() => { setRoute(null); triggerPush('fisica'); }} />;
+  if (route === 'fisicaDelivery') return <Anim k="f5deliv"><DeliveryOnboarding onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute('fisicaActivating'); }} onMenu={onMenu} /></Anim>;
 
   const cards = [
   activated ?
   { variant: 'virtual', title: 'Tarjeta virtual', mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: true } :
   { variant: 'virtual', title: 'Tarjeta virtual', mask: '••••', activate: true }];
 
-  if (fisicaActive) cards.push({ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' });
+  if (fisicaActive) cards.push({ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa', nfc: true });
 
   const openCardDetail = (v) => { const c = cards.find((x) => x.variant === v); if (c && !c.activate) { setOpenCard(c); setRoute('cardDetail'); } };
+  const openPushTarget = () => {
+    const c = cards.find((x) => x.variant === pushVariant);
+    if (c) { setOpenCard(c); setRoute('cardDetail'); }
+    setPushOpen(false);
+  };
 
   let aboveCards = null, belowCards = null;
   if (fisicaTransit) {
@@ -774,6 +792,12 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
       <Sheet open={track} onClose={() => setTrack(false)}>
         <TrackingContent onClose={() => setTrack(false)} />
       </Sheet>
+      {pushOpen &&
+      <WalletPush
+        onTap={openPushTarget}
+        onDismiss={() => setPushOpen(false)}
+        title={pushVariant === 'fisica' ? 'Tu Lemon Card ya está activa' : 'Tu tarjeta virtual ya está activa'}
+        body="Ya podés sumar tu tarjeta a tu Apple Wallet." />}
       </div>
     </Anim>);
 

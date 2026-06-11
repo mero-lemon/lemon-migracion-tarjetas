@@ -391,4 +391,42 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation });
+// ── Activating screen (reemplaza la sheet "Agregar a Apple Wallet") ─
+// Aparece justo después de crear/activar una tarjeta. El usuario vuelve
+// al inicio y más tarde recibe una push para sumarla a la billetera.
+function ActivatingCardScreen({ variant = 'virtual', onHome }) {
+  const backVariant = variant === 'virtual' ? 'fisica' : 'virtual';
+  return (
+    <Anim k={'activating' + variant} noWrap>
+      <Screen footer={<Btn variant="primary" onClick={onHome}>Volver al inicio</Btn>}>
+        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, padding: '32px 24px 12px', textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: 240, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <span style={{ position: 'absolute', top: 4, right: 22, font: '700 22px Geist', color: 'var(--c-nebula-50)' }}>✦</span>
+            <span style={{ position: 'absolute', bottom: 12, left: 14, font: '700 18px Geist', color: 'var(--c-lemon-50)' }}>✦</span>
+            <div style={{ position: 'absolute', transform: 'translate(-58px, 14px) rotate(-14deg)', opacity: 0.9, filter: 'saturate(0.92)' }}>
+              <CardArt variant={backVariant} width={130} portrait />
+            </div>
+            <div style={{ position: 'absolute', transform: 'translate(58px, 18px) rotate(12deg)', opacity: 0.85 }}>
+              <CardArt variant={backVariant === 'fisica' ? 'credito' : 'fisica'} width={130} portrait />
+            </div>
+            <div style={{ position: 'relative', zIndex: 2 }}>
+              <CardArt variant={variant} width={150} portrait glow />
+            </div>
+          </div>
+          <div>
+            <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.15 }}>Estamos activando tu tarjeta</div>
+            <div style={{ font: '400 15px Inter', color: LX.text2, marginTop: 12, lineHeight: 1.5, maxWidth: 320, margin: '12px auto 0' }}>
+              Te avisaremos cuando esté lista para que la adiciones a tu billetera virtual y comiences a pagar.
+            </div>
+          </div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 999, background: 'var(--c-lemon-5)', color: 'var(--c-lemon-70)', font: '600 12px Inter' }}>
+            <span className="lc-spin" style={{ width: 12, height: 12, borderRadius: 999, border: '2px solid var(--c-lemon-20)', borderTopColor: 'var(--c-lemon-50)', display: 'inline-block' }} />
+            Esto puede tardar unos minutos
+          </div>
+        </div>
+      </Screen>
+    </Anim>);
+
+}
+
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, ActivatingCardScreen });
