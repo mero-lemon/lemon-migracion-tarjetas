@@ -48,7 +48,7 @@ const CardsModule = ({ cards, onCardTap, onActivate }) =>
     {cards.map((c, i) =>
   <React.Fragment key={i}>
         {i > 0 && <Divider style={{ margin: '0 18px' }} />}
-        <CardListItem variant={c.variant} title={c.title} mask={c.mask} status={c.status} activate={c.activate} onTap={onCardTap} onActivate={onActivate} />
+        <CardListItem variant={c.variant} design={c.design} title={c.title} mask={c.mask} status={c.status} activate={c.activate} onTap={onCardTap} onActivate={onActivate} />
       </React.Fragment>
   )}
     <Divider style={{ margin: '0 18px' }} />
@@ -64,8 +64,9 @@ const CardTabs = () =>
   </div>;
 
 
-// big NFC hero (used to push renewing the virtual card → pay from phone)
-const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu tarjeta y pagá directo desde tu celu con Apple Pay o Google Pay.', cta = 'Pedí tu nueva tarjeta virtual' }) =>
+// big NFC hero (push: pedí la nueva virtual → sumala a Apple Pay → pagá)
+// Mensaje central: pedí tu nueva virtual, sumala a Apple Pay y empezá a pagar.
+const NfcHero = ({ onPrimary, title = 'Dejá la billetera en casa', body = 'Pedí tu nueva virtual, sumala a Apple Pay y pagá apoyando el celu — el bondi, el súper, las birras.', cta = 'Quiero Apple Pay' }) =>
 <div style={{
   position: 'relative', borderRadius: 22, overflow: 'hidden', minHeight: 300,
   background: 'radial-gradient(120% 90% at 78% 0%, #6a3fb0 0%, #3a1c64 52%, #1c0c36 100%)',
@@ -87,8 +88,8 @@ const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu ta
     <div style={{ position: 'absolute', top: -34, right: -44, width: 190, height: 190, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.18), transparent 70%)' }} />
     {/* text + CTA over the image */}
     <div style={{ position: 'relative', padding: '22px 20px 20px' }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(207,255,46,0.16)', color: 'var(--c-lime-30)', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
-        <LI name="celphone" size={13} color="var(--c-lime-30)" /> NUEVA FORMA DE PAGAR
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.16)', color: '#fff', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+        <LI name="celphone" size={13} color="#fff" /> NUEVA FORMA DE PAGAR
       </div>
       <div style={{ font: '500 23px Geist', letterSpacing: '-0.02em', marginTop: 10, lineHeight: 1.15, textShadow: '0 1px 12px rgba(20,8,40,0.6)' }}>{title}</div>
       <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.82)', marginTop: 6, lineHeight: 1.45, textShadow: '0 1px 10px rgba(20,8,40,0.5)' }}>{body}</div>
@@ -108,7 +109,7 @@ compact ?
   padding: '14px 16px', color: '#fff'
 }}>
     <button onClick={onPrimary} style={{ border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: 0, width: '100%', display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={66} portrait /></div>
+      <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={92} /></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ font: '600 15px Inter', color: '#fff' }}>Pedí tu Lemon Card física</div>
         <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.66)', marginTop: 2, lineHeight: 1.35 }}>Edición boutique, con envío a tu casa.</div>
@@ -163,8 +164,8 @@ const TransitBanner = ({ onActivate, onTrack }) =>
   background: 'var(--c-lime-40)', padding: '20px 18px'
 }}>
     {/* card peeking on the right */}
-    <div style={{ position: 'absolute', right: -34, top: '50%', transform: 'translateY(-50%) rotate(8deg)', opacity: 0.96 }}>
-      <CardArt variant="fisica" width={132} portrait />
+    <div style={{ position: 'absolute', right: -28, top: '50%', transform: 'translateY(-50%) rotate(8deg)', opacity: 0.96 }}>
+      <CardArt variant="fisica" width={150} />
     </div>
     <div style={{ position: 'relative', maxWidth: 215 }}>
       <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.dark }}>Tarjeta en proceso</div>
@@ -196,38 +197,147 @@ const ExteriorBanner = () =>
     <LI name="arrow-foward" size={18} color="var(--c-lime-40)" style={{ flexShrink: 0 }} />
   </button>;
 
+// "+" del header → elegí qué tarjeta sumar (física / crédito). La virtual
+// se crea desde el banner, no acá. No empuja: el usuario entra a propósito.
+function AddCardScreen({ onBack, onClose, onFisica, onCredito }) {
+  const opts = [
+  { id: 'fisica', variant: 'fisica', t: 'Prepaga física', s: 'Edición boutique, con envío a tu casa. Cashback en cripto.', cta: 'Pedir', onPick: onFisica },
+  { id: 'credito', variant: 'credito', t: 'Tarjeta de crédito', s: 'Respaldada con Bitcoin, sin historial crediticio.', cta: 'Pedir', onPick: onCredito }];
+
+  return (
+    <Screen>
+      <StepHeader title="Pedí una tarjeta" onBack={onBack} onClose={onClose} />
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué tarjeta querés sumar?</div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí la que más te sirva. La sumás a tu cuenta sin costo.</div>
+        </div>
+        {opts.map((o) =>
+        <button key={o.id} onClick={o.onPick} style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', cursor: 'pointer', background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 16, padding: 16 }}>
+            <CardThumb variant={o.variant} w={72} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '600 16px Inter', color: LX.text1 }}>{o.t}</div>
+              <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.4 }}>{o.s}</div>
+            </div>
+            <span style={{ flexShrink: 0, border: 0, borderRadius: 999, padding: '8px 18px', font: '600 14px Inter', background: LX.dark, color: '#fff' }}>{o.cta}</span>
+          </button>)}
+      </div>
+    </Screen>);
+
+}
+
+// Requisito física = 3 pagos con QR. Pantalla con la evolución de los pagos.
+function QrRequisito({ onBack, onClose, onContinue }) {
+  const [paid, setPaid] = useStateSh(1);
+  const need = 3;
+  const met = paid >= need;
+  const pagos = [
+  ['Cuervo Café', 'Hoy · 10:24', '$ 4.200'],
+  ['Coto', 'Ayer · 19:03', '$ 18.750'],
+  ['SUBE', 'Mar 2 jun · 08:11', '$ 2.000']];
+
+  return (
+    <Screen footer={
+    met ?
+    <Btn variant="primary" onClick={onContinue}>Pedir mi Lemon Card física</Btn> :
+    <Btn variant="brand" leftIcon="QR-Scanner" onClick={() => setPaid((p) => Math.min(need, p + 1))}>Simular un pago con QR</Btn>
+    }>
+      <StepHeader title="Tarjeta física" onBack={onBack} onClose={onClose} />
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>
+            {met ? '¡Ya podés pedir tu física!' : `Te ${need - paid === 1 ? 'falta' : 'faltan'} ${need - paid} ${need - paid === 1 ? 'pago' : 'pagos'} con QR`}
+          </div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
+            Hacé <b style={{ color: LX.text1 }}>3 pagos con QR</b> en comercios y desbloqueás tu Lemon Card física, gratis.
+          </div>
+        </div>
+
+        <Surface pad={18}>
+          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 12 }}>
+            <span style={{ font: '400 12px Inter', color: LX.text2 }}>Pagos con QR</span>
+            <span style={{ font: '500 30px Geist', letterSpacing: '-0.03em', color: met ? 'var(--c-lemon-50)' : LX.text1 }}>{paid}<span style={{ color: LX.text3, fontSize: 18 }}>/{need}</span></span>
+          </div>
+          <Meter value={paid / need} color={met ? 'var(--c-lemon-50)' : LX.dark} />
+          <Divider style={{ margin: '14px 0 4px' }} />
+          {pagos.map(([name, date, amt], i) =>
+          <React.Fragment key={i}>
+              {i > 0 && <Divider />}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', opacity: i < paid ? 1 : 0.5 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 999, background: i < paid ? 'var(--bg-positive-01)' : LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <LI name={i < paid ? 'feedback-positive' : 'QR-Scanner'} size={18} color={i < paid ? 'var(--c-lemon-50)' : LX.text3} />
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ font: '600 14px Inter', color: LX.text1 }}>{i < paid ? name : `Pago ${i + 1}`}</div>
+                  <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{i < paid ? date : 'Pendiente'}</div>
+                </div>
+                {i < paid && <span style={{ font: '500 14px Geist', color: LX.text1 }}>{amt}</span>}
+              </div>
+            </React.Fragment>)}
+        </Surface>
+
+        {met &&
+        <div style={{ display: 'flex', gap: 9, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 12, padding: '12px 14px' }}>
+          <LI name="feedback-positive" size={18} color="var(--c-lemon-50)" />
+          <span style={{ font: '500 13px Inter', color: '#0F602C' }}>Cumpliste el requisito. Seguí para pedir tu tarjeta.</span>
+        </div>}
+      </div>
+    </Screen>);
+
+}
+
+// Banner lime "Cambia gratis tu tarjeta virtual · Apple Pay" (home de tarjetas)
+const CambiaBanner = ({ onPrimary, first }) =>
+<button onClick={onPrimary} style={{ position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: 'var(--c-lime-40)', borderRadius: 18, padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
+    <div style={{ display: 'flex', flexShrink: 0 }}>
+      <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
+      <div style={{ transform: 'rotate(8deg)', marginLeft: -18 }}><CardArt design="green" width={52} /></div>
+    </div>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ font: '600 15px Inter', color: LX.dark }}>{first ? 'Creá tu tarjeta virtual' : 'Cambiá gratis tu tarjeta virtual'}</div>
+      <div style={{ font: '500 13px Inter', color: 'rgba(18,18,18,0.72)', marginTop: 2, lineHeight: 1.3 }}>{first ? 'Sumala a Apple Pay y empezá a pagar con el celu.' : 'Y empezá a pagar con Apple Pay.'}</div>
+    </div>
+    <LI name="arrow-foward" size={18} color={LX.dark} style={{ flexShrink: 0 }} />
+  </button>;
+
+
 // mode: 'replaceVirtual' | 'firstVirtual' | 'fisica' | 'renewFisica' | 'twoCards'
 // phase (renewFisica only): 'expiring' (default) | 'transit' | 'active'
 function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true, showNfcBanner = false, onNfc }) {
   // sensible default ownership per mode
   const renewCards = phase === 'active' ?
-  [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }] :
-  [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Vence pronto' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }];
+  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }] :
+  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Vence pronto' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }];
   const owned = cards || {
-    replaceVirtual: [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }],
-    firstVirtual: [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' }],
-    fisica: [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }],
+    replaceVirtual: [{ variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }],
+    firstVirtual: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }],
+    fisica: [{ variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }],
     renewFisica: renewCards,
-    twoCards: [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }]
+    twoCards: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }]
   }[mode] || [];
+
+  // Subflujo "pedir tarjeta" (botón +): física (3 pagos QR) / crédito.
+  const [sub, setSub] = useStateSh(null);
+  if (sub === 'add')
+  return <AddCardScreen onBack={() => setSub(null)} onClose={() => setSub(null)} onFisica={() => setSub('qr')} onCredito={() => setSub('addrC')} />;
+  if (sub === 'qr')
+  return <QrRequisito onBack={() => setSub('add')} onClose={() => setSub(null)} onContinue={() => setSub('addr')} />;
+  if (sub === 'addr')
+  return <AddressScreen onBack={() => setSub('qr')} onClose={() => setSub(null)} onConfirm={() => setSub('done')} />;
+  if (sub === 'addrC')
+  return <AddressScreen onBack={() => setSub('add')} onClose={() => setSub(null)} onConfirm={() => setSub('done')} />;
+  if (sub === 'done')
+  return <OrderConfirmation onDone={() => setSub(null)} onMenu={() => setSub(null)} />;
+
+  const AddBtn =
+  <button onClick={() => setSub('add')} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+      <LI name="add-more" size={22} color={LX.text1} />
+    </button>;
 
   return (
     <Screen>
-      <BigHeader title="Tarjetas" onBack={onBack} />
+      <BigHeader title="Tarjetas" onBack={onBack} right={AddBtn} />
       <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <CardTabs />
-
-        {mode === 'fisica' && <BoutiqueHero onPrimary={onPrimary} onActivate={onActivate} />}
-
-        {mode === 'replaceVirtual' && <NfcHero onPrimary={onPrimary} />}
-
-        {mode === 'firstVirtual' &&
-        <NfcHero onPrimary={onPrimary} body="Pagá directo desde tu celu con Apple Pay o Google Pay, sin sacar la tarjeta." cta="Creá tu tarjeta virtual" />
-        }
-
-        {mode === 'renewFisica' && phase === 'expiring' && showNfcBanner &&
-        <NfcHero onPrimary={onNfc} cta="Pedí tu virtual con NFC" />
-        }
 
         {mode === 'renewFisica' && phase === 'transit' &&
         <TransitBanner onActivate={onActivate} onTrack={onTrack} />
@@ -257,6 +367,10 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
           </div>}
 
         <CardsModule cards={owned} onCardTap={onCardTap} />
+
+        {/* Banner NFC: entre las tarjetas y los movimientos (incentiva la nueva virtual) */}
+        {(mode === 'replaceVirtual' || mode === 'firstVirtual' || mode === 'renewFisica' && phase === 'expiring' && showNfcBanner) &&
+        <CambiaBanner onPrimary={mode === 'renewFisica' ? onNfc : onPrimary} first={mode === 'firstVirtual'} />}
 
         <ExteriorBanner />
 
@@ -328,7 +442,6 @@ function AddressScreen({ onBack, onClose, onConfirm }) {
           )}
         </Surface>
 
-        <PmNote>Sumá un tracking en vivo y un aviso push cuando salga del depósito — pedir la física es un momento "boutique", vale la pena cuidarlo.</PmNote>
       </div>
     </Screen>);
 
@@ -391,4 +504,4 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation });
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, QrRequisito, CambiaBanner });

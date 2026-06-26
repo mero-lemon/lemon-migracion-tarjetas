@@ -74,6 +74,93 @@ function Phone({ scale, children }) {
 
 }
 
+// ── App home (home real de la app) ──────────────────────────────
+// Entrada de los usuarios "Todavía en GP": ven su home con el banner de la
+// nueva virtual + Apple Pay; al tocarlo entran al flujo de tarjetas.
+function AppHome({ onCards }) {
+  const navIcons = ['home-on', 'new-swap-coins', 'alert-time', 'widgets'];
+  return (
+    <Screen footer={
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: LX.layer, borderRadius: 999, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
+          {navIcons.map((t, i) => <LI key={i} name={t} size={22} color={i === 0 ? LX.text1 : LX.text3} />)}
+        </div>
+        <div style={{ width: 52, height: 52, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
+        </div>
+      </div>
+    }>
+      {/* top bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: LX.layer, borderRadius: 999, padding: '6px 14px 6px 6px', boxShadow: 'var(--shadow-card)' }}>
+          <span style={{ width: 30, height: 30, borderRadius: 999, background: 'var(--c-lemon-40)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '700 16px Inter', color: LX.dark }}>R</span>
+          <span style={{ font: '600 16px Inter', color: LX.text1 }}>$rawww</span>
+        </div>
+        <div style={{ flex: 1 }} />
+        <LI name="search" size={22} color={LX.text1} />
+        <LI name="QR-Scanner" size={22} color={LX.text1} />
+        <LI name="view-notification" size={22} color={LX.text1} />
+      </div>
+
+      <div style={{ padding: '4px 16px 8px' }}>
+        {/* tabs + balance */}
+        <div style={{ display: 'flex' }}>
+          <div style={{ background: LX.layer, color: LX.text1, font: '600 16px Inter', padding: '12px 28px', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-card)' }}>Inicio</div>
+          <div style={{ flex: 1, background: 'var(--c-lime-40)', color: LX.dark, font: '600 16px Inter', padding: '12px 0', textAlign: 'center', borderRadius: '16px 16px 0 0', marginLeft: -14 }}>Portfolio</div>
+        </div>
+        <div style={{ background: LX.layer, borderRadius: '0 0 16px 16px', padding: 20, boxShadow: 'var(--shadow-card)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ font: '500 16px Inter', color: LX.text2 }}>Pesos digitales</span>
+            <LI name="view-balance-on" size={17} color={LX.text2} />
+          </div>
+          <div style={{ font: '500 40px Geist', letterSpacing: '-0.03em', color: LX.text1, marginTop: 4 }}>$ 1.487.283</div>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--c-lime-40)', color: LX.dark, font: '600 13px Inter', padding: '5px 11px', borderRadius: 999, marginTop: 10 }}>
+            Crece 36,2% <LI name="arrow-foward" size={13} color={LX.dark} />
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
+            {[['deposit', 'Depositar'], ['currency-dollar', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+            <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+                <div style={{ width: 58, height: 58, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <LI name={ic} size={24} color="var(--c-lime-40)" />
+                </div>
+                <span style={{ font: '500 13px Inter', color: LX.text1 }}>{lb}</span>
+              </div>)}
+          </div>
+        </div>
+
+        {/* lime card attached */}
+        <div style={{ background: 'var(--c-lime-40)', borderRadius: '0 0 20px 20px', margin: '0 8px', padding: '16px 18px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+          <div>
+            <div style={{ font: '600 16px Inter', color: LX.dark }}>Tarjeta virtual</div>
+            <div style={{ font: '500 14px Geist', color: 'rgba(18,18,18,0.7)', marginTop: 2 }}>•• 1234</div>
+          </div>
+          <div style={{ font: '800 22px Georgia, serif', fontStyle: 'italic', color: LX.dark }}>VISA</div>
+        </div>
+
+        {/* banner nueva virtual + Apple Pay (actionable) */}
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 20, padding: '16px', marginTop: 26, display: 'flex', alignItems: 'center', gap: 14, boxShadow: 'var(--shadow-card)' }}>
+          <div style={{ display: 'flex', flexShrink: 0 }}>
+            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={58} /></div>
+            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={58} /></div>
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ font: '600 15px Inter', color: LX.text1 }}>La nueva virtual, ahora con Apple Pay</div>
+            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.35 }}>Cambiá tu virtual, elegí un diseño nuevo y sumala a Apple Pay para pagar con el celu.</div>
+          </div>
+          <LI name="arrow-foward" size={18} color={LX.text3} style={{ flexShrink: 0 }} />
+        </button>
+      </div>
+    </Screen>);
+
+}
+
+// Wrapper: muestra la home de la app y, al tocar el banner, entra al flujo.
+function GpHomeEntry({ flow }) {
+  const [entered, setEntered] = useStateA(false);
+  if (!entered) return <AppHome onCards={() => setEntered(true)} />;
+  return flow(() => setEntered(false));
+}
+
 // ── Stage root ──────────────────────────────────────────────────
 function Stage() {
   const [view, setView] = useStateA('menu'); // menu | f1 | f2 | f3 | compare
@@ -132,11 +219,11 @@ function Stage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px', gap: 28, flexWrap: 'wrap' }}>
         <Phone scale={scale}>
           {view === 'menu' && <MenuScreen onPick={setView} />}
-          {view === 'f1' && <Flow1 onMenu={toMenu} />}
-          {view === 'f1b' && <Flow1 onMenu={toMenu} replace={false} />}
+          {view === 'f1' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} />} />}
+          {view === 'f1b' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} replace={false} />} />}
           {view === 'pedirFisica' && <Flow5 pomelo onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
           {view === 'f4' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
-          {view === 'f4b' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />}
+          {view === 'f4b' && <GpHomeEntry flow={(toHome) => <Flow4 onMenu={toHome} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />} />}
           {view === 'f5' && <Flow5 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
         </Phone>
       </div>
