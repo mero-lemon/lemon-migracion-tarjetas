@@ -236,7 +236,7 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
   const opts = [
   { id: 'virtual', design: 'violeta', title: 'Tarjeta virtual', badge: 'NFC', onPick: onVirtual, cta: 'Crear',
     benefits: ['Pagás con el celu · Apple Pay', 'La tenés al instante', 'Cashback en cripto'] },
-  { id: 'fisica', variant: 'fisica', title: 'Lemon Card física', onPick: onFisica, cta: 'Pedir',
+  { id: 'fisica', variant: 'fisica', title: 'Lemon Card', onPick: onFisica, cta: 'Pedir',
     benefits: ['Edición boutique con envío', 'Cashback en cripto', 'Internacional sin impuesto'] },
   { id: 'credito', variant: 'credito', title: 'Tarjeta de crédito', soon: true, cta: 'Pronto',
     benefits: ['Respaldada con Bitcoin', 'Sin historial crediticio'] }];
@@ -253,8 +253,8 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
 
       <div style={{ padding: '4px 20px 28px' }}>
         <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(14px)', transition: 'opacity .5s, transform .6s' }}>
-          <div style={{ font: '500 32px Geist', letterSpacing: '-0.02em', color: '#fff', lineHeight: 1.1 }}>Elegí tu<br />primera tarjeta</div>
-          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 10 }}>Tocá una para ver sus beneficios.</div>
+          <div style={{ font: '500 32px Geist', letterSpacing: '-0.02em', color: '#fff', lineHeight: 1.1 }}>Elegí tu tarjeta</div>
+          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 10 }}>Tocá para conocer los beneficios</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginTop: 26 }}>
@@ -273,8 +273,7 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
                     <CardArt design={o.design} variant={o.variant} width={W} glow />
                     <div style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 42%)' }} />
                     <div style={{ position: 'absolute', left: 16, bottom: 14, right: 14 }}>
-                      <div style={{ font: '600 17px Inter', color: '#fff' }}>{o.title}</div>
-                      <div style={{ font: '500 11px Inter', color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Tocá para ver beneficios</div>
+                      <div style={{ font: '600 18px Inter', color: '#fff' }}>{o.title}</div>
                     </div>
                     {(o.badge || o.soon) &&
                     <span style={{ position: 'absolute', top: 12, left: 14, display: 'inline-flex', alignItems: 'center', gap: 5, background: o.soon ? 'rgba(255,255,255,0.18)' : 'rgba(207,255,46,0.2)', color: o.soon ? '#fff' : 'var(--c-lime-30)', font: '600 10px Inter', padding: '4px 9px', borderRadius: 999, letterSpacing: '0.04em', backdropFilter: 'blur(4px)' }}>

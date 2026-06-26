@@ -80,6 +80,16 @@ if (typeof document !== 'undefined' && !document.getElementById('lc-shimmer-styl
   const st = document.createElement('style');st.id = 'lc-shimmer-style';st.textContent = _shimmerCSS;document.head.appendChild(st);
 }
 
+// ── VISA wordmark (aproximación fiel: sans bold itálica, condensada) ──
+const VisaMark = ({ size = 16, color = '#fff', shadow = true }) =>
+<span style={{
+  fontFamily: '"Helvetica Neue", Arial, sans-serif', fontStyle: 'italic', fontWeight: 700,
+  fontSize: size, letterSpacing: '-0.04em', color, lineHeight: 1, display: 'inline-block',
+  transform: 'scaleY(1.08)', transformOrigin: 'bottom right',
+  textShadow: shadow ? '0 1px 2px rgba(0,0,0,0.25)' : 'none'
+}}>VISA</span>;
+
+
 // ── Card art (virtual designs + física/crédito skins) ───────────
 // `design` (Tetrish, Pink, …) wins for virtual cards; otherwise `variant`
 // (fisica = boutique teal/lime · credito = black VISA).
@@ -164,12 +174,9 @@ function CardArt({ variant = 'virtual', design, width = 320, portrait = false, f
             </>}
         </div>
         {/* VISA bottom-right */}
-        <div style={{
-          position: 'absolute', right: pad, bottom: Math.round(pad * 0.7),
-          fontFamily: 'Georgia, "Times New Roman", serif', fontStyle: 'italic', fontWeight: 800,
-          fontSize: Math.round(width * 0.082), letterSpacing: '0.5px', color: chrome,
-          textShadow: chromeDark ? 'none' : '0 1px 2px rgba(0,0,0,0.3)'
-        }}>VISA</div>
+        <div style={{ position: 'absolute', right: pad, bottom: Math.round(pad * 0.7) }}>
+          <VisaMark size={Math.round(width * 0.092)} color={chrome} shadow={!chromeDark} />
+        </div>
       </>}
 
       {/* shimmer sweep (selection screen) */}
@@ -378,5 +385,5 @@ const Sheet = ({ open, children, onClose }) => {
 Object.assign(window, {
   LX, LI, Leaf, Nfc, CardArt, Coin, CardThumb, Btn, WalletBtn, Surface, Divider,
   Tag, PromoBadge, BigHeader, StepHeader, Meter, PmNote, Sheet,
-  StatusPill, CardListItem, MonedaDePago, CARD_DESIGNS, getDesign
+  StatusPill, CardListItem, MonedaDePago, CARD_DESIGNS, getDesign, VisaMark
 });

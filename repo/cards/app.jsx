@@ -78,7 +78,7 @@ function Phone({ scale, children }) {
 // Entrada de los usuarios "Todavía en GP": ven su home con el banner de la
 // nueva virtual + Apple Pay; al tocarlo entran al flujo de tarjetas.
 function AppHome({ onCards }) {
-  const navIcons = ['home-on', 'new-swap-coins', 'alert-time', 'widgets'];
+  const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
   return (
     <Screen footer={
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -97,16 +97,16 @@ function AppHome({ onCards }) {
           <span style={{ font: '600 16px Inter', color: LX.text1 }}>$rawww</span>
         </div>
         <div style={{ flex: 1 }} />
-        <LI name="search" size={22} color={LX.text1} />
-        <LI name="QR-Scanner" size={22} color={LX.text1} />
-        <LI name="view-notification" size={22} color={LX.text1} />
+        <LI name="search" size={23} color={LX.text1} />
+        <LI name="rewards" size={23} color={LX.text1} />
+        <LI name="view-notification" size={23} color={LX.text1} />
       </div>
 
       <div style={{ padding: '4px 16px 8px' }}>
-        {/* tabs + balance */}
-        <div style={{ display: 'flex' }}>
-          <div style={{ background: LX.layer, color: LX.text1, font: '600 16px Inter', padding: '12px 28px', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-card)' }}>Inicio</div>
-          <div style={{ flex: 1, background: 'var(--c-lime-40)', color: LX.dark, font: '600 16px Inter', padding: '12px 0', textAlign: 'center', borderRadius: '16px 16px 0 0', marginLeft: -14 }}>Portfolio</div>
+        {/* tabs + balance — Inicio activo (blanco) · Portfolio lime sobresale */}
+        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+          <div style={{ position: 'relative', zIndex: 2, background: LX.layer, color: LX.text1, font: '600 16px Inter', padding: '14px 30px', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-card)' }}>Inicio</div>
+          <div style={{ flex: 1, background: 'var(--c-lime-40)', color: LX.dark, font: '600 16px Inter', padding: '17px 0 13px', textAlign: 'center', borderRadius: '16px 16px 0 0', marginLeft: -18 }}>Portfolio</div>
         </div>
         <div style={{ background: LX.layer, borderRadius: '0 0 16px 16px', padding: 20, boxShadow: 'var(--shadow-card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -118,7 +118,7 @@ function AppHome({ onCards }) {
             Crece 36,2% <LI name="arrow-foward" size={13} color={LX.dark} />
           </div>
           <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
-            {[['deposit', 'Depositar'], ['currency-dollar', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+            {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
             <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
                 <div style={{ width: 58, height: 58, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <LI name={ic} size={24} color="var(--c-lime-40)" />
@@ -134,20 +134,22 @@ function AppHome({ onCards }) {
             <div style={{ font: '600 16px Inter', color: LX.dark }}>Tarjeta virtual</div>
             <div style={{ font: '500 14px Geist', color: 'rgba(18,18,18,0.7)', marginTop: 2 }}>•• 1234</div>
           </div>
-          <div style={{ font: '800 22px Georgia, serif', fontStyle: 'italic', color: LX.dark }}>VISA</div>
+          <VisaMark size={24} color={LX.dark} shadow={false} />
         </div>
 
-        {/* banner nueva virtual + Apple Pay (actionable) */}
-        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 20, padding: '16px', marginTop: 26, display: 'flex', alignItems: 'center', gap: 14, boxShadow: 'var(--shadow-card)' }}>
+        {/* banner nueva virtual + Apple Pay (actionable, con X de cierre) */}
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 20, padding: '16px 14px', marginTop: 26, display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-card)' }}>
           <div style={{ display: 'flex', flexShrink: 0 }}>
-            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={58} /></div>
-            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={58} /></div>
+            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={56} /></div>
+            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={56} /></div>
           </div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: '600 15px Inter', color: LX.text1 }}>La nueva virtual, ahora con Apple Pay</div>
-            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.35 }}>Cambiá tu virtual, elegí un diseño nuevo y sumala a Apple Pay para pagar con el celu.</div>
+          <div style={{ flex: 1, minWidth: 0, paddingRight: 18 }}>
+            <div style={{ font: '600 15px Inter', color: LX.text1, lineHeight: 1.2 }}>La nueva tarjeta virtual, ahora con Apple Pay</div>
+            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.35 }}>Cambiá tu virtual, elegí un diseño nuevo y sumala a Apple Pay.</div>
           </div>
-          <LI name="arrow-foward" size={18} color={LX.text3} style={{ flexShrink: 0 }} />
+          <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LI name="close" size={18} color={LX.text3} />
+          </span>
         </button>
       </div>
     </Screen>);
