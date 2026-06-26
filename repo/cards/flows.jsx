@@ -28,16 +28,21 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
       }>
           <StepHeader title="Cambiar tu tarjeta" onBack={() => setStep('hub')} onClose={onMenu} />
           <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-            {/* old → new */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '8px 0 4px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <CardArt design="violeta" width={130} faded />
-                <div style={{ font: '500 11px Inter', color: LX.text3, marginTop: 6 }}>•••• 8763 · se da de baja</div>
-              </div>
-              <LI name="arrow-foward" size={22} color={LX.text3} />
-              <div style={{ textAlign: 'center' }}>
-                <CardArt design="violeta" width={130} glow />
-                <div style={{ font: '600 11px Inter', color: 'var(--c-lemon-50)', marginTop: 6 }}>Nueva · al instante</div>
+            {/* old → new: escenario con la vieja apagada y la nueva flotando + glow */}
+            <div style={{ position: 'relative', borderRadius: 22, overflow: 'hidden', padding: '24px 12px 18px', background: 'radial-gradient(120% 100% at 78% 0%, rgba(123,78,200,0.16), rgba(123,78,200,0.04) 55%, transparent)' }}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 150, height: 150, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.14), transparent 70%)' }} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <div style={{ textAlign: 'center', transform: 'rotate(-5deg)' }}>
+                  <CardArt design="violeta" width={120} faded />
+                  <div style={{ font: '500 11px Inter', color: LX.text3, marginTop: 8 }}>•••• 8763 · se da de baja</div>
+                </div>
+                <span style={{ width: 30, height: 30, borderRadius: 999, background: LX.layer, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-card)', flexShrink: 0 }}>
+                  <LI name="arrow-foward" size={16} color={LX.text1} />
+                </span>
+                <div style={{ textAlign: 'center', transform: 'rotate(4deg)' }}>
+                  <div style={{ animation: 'lc-float 3.6s ease-in-out infinite' }}><CardArt design="violeta" width={132} glow /></div>
+                  <div style={{ font: '600 11px Inter', color: 'var(--c-lemon-50)', marginTop: 8 }}>Nueva · al instante</div>
+                </div>
               </div>
             </div>
 
@@ -564,9 +569,9 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
           {aboveCards}
           <CardsModule cards={cards} onActivate={() => setRoute('virtual')} onCardTap={openCardDetail} />
           {belowCards}
+          {(activated || fisicaActive) && <ExteriorBanner />}
           {pomelo &&
           <>
-            <ExteriorBanner />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
               <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
               <LI name="arrow-foward" size={16} color={LX.text3} />

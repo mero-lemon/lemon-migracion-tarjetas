@@ -135,39 +135,36 @@ if (typeof document !== 'undefined' && !document.getElementById('lc-morph-style'
 }
 
 // ── Create / morph ──────────────────────────────────────────────
-// Creación futurista: la virtual se materializa sobre un escenario holográfico
-// (halo girando, anillos de energía, scanline), morfeando del diseño actual al
-// elegido. La virtual se crea SIN NFC → Apple Pay se suma después.
+// Creación 100% visual, sin texto: la virtual se materializa sobre un escenario
+// holográfico (halo girando, anillos de energía, scanline, sparks) y morfea del
+// diseño actual al elegido, con un destello final mágico.
 function MorphCreate({ fromDesign = 'violeta', toDesign, replace = false, onDone }) {
-  const steps = replace ?
-  ['Damos de baja tu tarjeta anterior…', 'Generamos tu nueva tarjeta…', 'Tu tarjeta está casi lista…'] :
-  ['Generamos tu tarjeta…', 'Aplicamos tu diseño…', 'Tu tarjeta está casi lista…'];
-  const [phase, setPhase] = useStateCX(0); // 0 from · 1 morph
-  const [msg, setMsg] = useStateCX(0);
-
+  const [phase, setPhase] = useStateCX(0); // 0 from · 1 morph · 2 bloom final
   useEffectCX(() => {
     const t1 = setTimeout(() => setPhase(1), 550);
-    const mi = [setTimeout(() => setMsg(1), 950), setTimeout(() => setMsg(2), 1750)];
-    const done = setTimeout(onDone, 2750);
-    return () => { clearTimeout(t1);mi.forEach(clearTimeout);clearTimeout(done); };
+    const t2 = setTimeout(() => setPhase(2), 2150); // destello de revelado
+    const done = setTimeout(onDone, 2950);
+    return () => { clearTimeout(t1);clearTimeout(t2);clearTimeout(done); };
   }, []);
 
   const CARD_W = 300, CARD_H = Math.round(300 / 1.585);
+  const sparks = [[18, 30], [292, 70], [40, 250], [280, 270], [150, 10], [56, 120], [262, 160], [120, 304], [300, 200], [10, 170]];
 
   return (
-    <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 36%, #1c1838 0%, #0a0a10 72%)">
-      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 26, padding: 32 }}>
-        <div style={{ position: 'relative', width: 320, height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1200 }}>
-          {/* halo holográfico girando */}
-          <div style={{ position: 'absolute', width: 280, height: 280, borderRadius: 999, filter: 'blur(22px)', opacity: 0.55,
+    <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 38%, #1c1838 0%, #0a0a10 72%)">
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <div style={{ position: 'relative', width: 340, height: 340, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1200 }}>
+          {/* halo holográfico girando (se intensifica en el destello) */}
+          <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: 999, filter: 'blur(24px)',
+            opacity: phase >= 2 ? 0.85 : 0.55, transition: 'opacity .6s ease',
             background: 'conic-gradient(from 0deg, rgba(207,255,46,0.0), rgba(207,255,46,0.6), rgba(123,78,200,0.6), rgba(8,199,224,0.5), rgba(207,255,46,0.0))',
             animation: 'lc-halo 6s linear infinite' }} />
           {/* anillos de energía */}
           {[0, 1, 2].map((i) =>
-          <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: 230, height: 230, borderRadius: 999, border: '1px solid rgba(207,255,46,0.5)', animation: `lc-ring 2.4s ease-out infinite`, animationDelay: `${i * 0.8}s` }} />)}
+          <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: 250, height: 250, borderRadius: 999, border: '1px solid rgba(207,255,46,0.5)', animation: `lc-ring 2.4s ease-out infinite`, animationDelay: `${i * 0.8}s` }} />)}
           {/* sparks */}
-          {[[18, 30], [292, 70], [40, 250], [280, 270]].map(([x, y], i) =>
-          <span key={i} style={{ position: 'absolute', left: x, top: y, width: 5, height: 5, borderRadius: 999, background: 'var(--c-lime-40)', boxShadow: '0 0 8px var(--c-lime-40)', animation: `lc-spark 1.8s ease-in-out infinite`, animationDelay: `${i * 0.35}s` }} />)}
+          {sparks.map(([x, y], i) =>
+          <span key={i} style={{ position: 'absolute', left: x, top: y, width: 5, height: 5, borderRadius: 999, background: 'var(--c-lime-40)', boxShadow: '0 0 8px var(--c-lime-40)', animation: `lc-spark 1.8s ease-in-out infinite`, animationDelay: `${i * 0.28}s` }} />)}
 
           {/* tarjeta flotando: morph vieja → nueva */}
           <div style={{ position: 'relative', width: CARD_W, height: CARD_H, animation: 'lc-float 3.6s ease-in-out infinite', transformStyle: 'preserve-3d' }}>
@@ -181,17 +178,15 @@ function MorphCreate({ fromDesign = 'violeta', toDesign, replace = false, onDone
             </div>
             {/* scanline barriendo la tarjeta */}
             <div style={{ position: 'absolute', inset: 0, borderRadius: 19, overflow: 'hidden', pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', left: 0, right: 0, height: '38%', background: 'linear-gradient(180deg, transparent, rgba(207,255,46,0.35), transparent)', animation: 'lc-scan 1.9s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, height: '38%', background: 'linear-gradient(180deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-scan 1.9s ease-in-out infinite' }} />
             </div>
           </div>
-        </div>
 
-        <div style={{ textAlign: 'center', minHeight: 48 }}>
-          <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: '#fff', transition: 'opacity .3s' }} key={msg}>{steps[msg]}</div>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginTop: 14 }}>
-            {steps.map((_, i) =>
-            <span key={i} style={{ width: 7, height: 7, borderRadius: 999, background: i <= msg ? 'var(--c-lime-40)' : 'rgba(255,255,255,0.25)', transition: 'background .3s' }} />)}
-          </div>
+          {/* destello final mágico (bloom) */}
+          {phase >= 2 &&
+          <div key="bloom" style={{ position: 'absolute', width: 200, height: 200, borderRadius: 999, pointerEvents: 'none',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.95), rgba(207,255,46,0.45) 42%, transparent 72%)',
+            animation: 'lc-ring 0.9s ease-out forwards' }} />}
         </div>
       </div>
     </Screen>);
@@ -229,22 +224,26 @@ function VirtualReady({ design = 'violeta', mask = '•••• 2291', onWallet
 
 }
 
-// ── Card chooser (onboarding sin tarjetas, estilo Cash App) ─────
-// Inmersivo, oscuro: 3 tarjetas grandes para elegir. NFC-first.
+// ── Card chooser (onboarding sin tarjetas) ──────────────────────
+// Minimal y futurista: 3 tarjetas con SOLO el título; tap → se dan vuelta
+// (flip 3D) y muestran los beneficios + CTA de cada una.
 function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
   const [mounted, setMounted] = useStateCX(false);
-  const [active, setActive] = useStateCX(0);
+  const [flipped, setFlipped] = useStateCX(null);
   useEffectCX(() => { const t = setTimeout(() => setMounted(true), 60);return () => clearTimeout(t); }, []);
 
+  const W = 286, H = Math.round(286 / 1.585);
   const opts = [
-  { id: 'virtual', design: 'violeta', badge: 'CON NFC · NUEVO', title: 'Tarjeta virtual', desc: 'Sumala al celu y pagá apoyándolo en el posnet. La tenés al instante.', glow: '124,78,200', onPick: onVirtual, cta: 'Crear' },
-  { id: 'fisica', variant: 'fisica', title: 'Lemon Card física', desc: 'Edición boutique con envío a tu casa. Cashback en cripto.', glow: '20,160,110', onPick: onFisica, cta: 'Pedir' },
-  { id: 'credito', variant: 'credito', title: 'Tarjeta de crédito', desc: 'Respaldada con Bitcoin, sin historial crediticio.', glow: '120,120,124', soon: true, cta: 'Pronto' }];
+  { id: 'virtual', design: 'violeta', title: 'Tarjeta virtual', badge: 'NFC', onPick: onVirtual, cta: 'Crear',
+    benefits: ['Pagás con el celu · Apple Pay', 'La tenés al instante', 'Cashback en cripto'] },
+  { id: 'fisica', variant: 'fisica', title: 'Lemon Card física', onPick: onFisica, cta: 'Pedir',
+    benefits: ['Edición boutique con envío', 'Cashback en cripto', 'Internacional sin impuesto'] },
+  { id: 'credito', variant: 'credito', title: 'Tarjeta de crédito', soon: true, cta: 'Pronto',
+    benefits: ['Respaldada con Bitcoin', 'Sin historial crediticio'] }];
 
 
   return (
     <Screen bg="radial-gradient(130% 80% at 50% -5%, #221a3e 0%, #0c0c10 58%)">
-      {/* header oscuro */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
         <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
           <LI name="arrow-back" size={22} color="#fff" />
@@ -255,44 +254,56 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
       <div style={{ padding: '4px 20px 28px' }}>
         <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(14px)', transition: 'opacity .5s, transform .6s' }}>
           <div style={{ font: '500 32px Geist', letterSpacing: '-0.02em', color: '#fff', lineHeight: 1.1 }}>Elegí tu<br />primera tarjeta</div>
-          <div style={{ font: '400 15px Inter', color: 'rgba(255,255,255,0.6)', marginTop: 10 }}>Empezá por una. Después sumás las que quieras.</div>
+          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 10 }}>Tocá una para ver sus beneficios.</div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 24 }}>
-          {opts.map((o, i) =>
-          <button
-            key={o.id}
-            onClick={o.soon ? undefined : o.onPick}
-            onMouseEnter={() => setActive(i)}
-            style={{
-              position: 'relative', overflow: 'hidden', textAlign: 'left', cursor: o.soon ? 'default' : 'pointer',
-              border: `1px solid ${active === i && !o.soon ? `rgba(${o.glow},0.9)` : 'rgba(255,255,255,0.08)'}`,
-              borderRadius: 22, padding: '18px 16px', display: 'flex', alignItems: 'center', gap: 14,
-              background: `linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,
-              boxShadow: active === i && !o.soon ? `0 12px 34px rgba(${o.glow},0.35)` : 'none',
-              opacity: mounted ? (o.soon ? 0.72 : 1) : 0,
-              transform: mounted ? 'translateY(0) scale(1)' : 'translateY(30px) scale(0.97)',
-              transition: `opacity .5s ${0.12 + i * 0.09}s, transform .7s ${SPRING} ${0.12 + i * 0.09}s, box-shadow .3s, border-color .3s`
-            }}>
-              {/* glow detrás de la tarjeta */}
-              <div style={{ position: 'absolute', left: -30, top: '50%', transform: 'translateY(-50%)', width: 150, height: 150, borderRadius: 999, background: `radial-gradient(circle, rgba(${o.glow},0.45), transparent 70%)`, filter: 'blur(6px)' }} />
-              <div style={{ position: 'relative', flexShrink: 0, transform: 'rotate(-9deg)' }}>
-                <CardArt design={o.design} variant={o.variant} width={118} glow shimmer={active === i && !o.soon} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginTop: 26 }}>
+          {opts.map((o, i) => {
+            const isFlip = flipped === o.id;
+            return (
+              <div key={o.id} style={{
+                width: W,
+                opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(28px)',
+                transition: `opacity .5s ${0.1 + i * 0.09}s, transform .7s ${SPRING} ${0.1 + i * 0.09}s`
+              }}>
+              <div onClick={() => setFlipped(isFlip ? null : o.id)} style={{ width: W, height: H, perspective: 1100, cursor: 'pointer' }}>
+                <div style={{ position: 'relative', width: '100%', height: '100%', transformStyle: 'preserve-3d', transition: `transform .7s ${SPRING}`, transform: isFlip ? 'rotateY(180deg)' : 'rotateY(0)' }}>
+                  {/* FRONT: solo la tarjeta + título */}
+                  <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                    <CardArt design={o.design} variant={o.variant} width={W} glow />
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 42%)' }} />
+                    <div style={{ position: 'absolute', left: 16, bottom: 14, right: 14 }}>
+                      <div style={{ font: '600 17px Inter', color: '#fff' }}>{o.title}</div>
+                      <div style={{ font: '500 11px Inter', color: 'rgba(255,255,255,0.7)', marginTop: 2 }}>Tocá para ver beneficios</div>
+                    </div>
+                    {(o.badge || o.soon) &&
+                    <span style={{ position: 'absolute', top: 12, left: 14, display: 'inline-flex', alignItems: 'center', gap: 5, background: o.soon ? 'rgba(255,255,255,0.18)' : 'rgba(207,255,46,0.2)', color: o.soon ? '#fff' : 'var(--c-lime-30)', font: '600 10px Inter', padding: '4px 9px', borderRadius: 999, letterSpacing: '0.04em', backdropFilter: 'blur(4px)' }}>
+                      {o.soon ? 'PRONTO' : <><Nfc size={11} color="var(--c-lime-30)" /> CON NFC</>}
+                    </span>}
+                  </div>
+                  {/* BACK: beneficios + CTA */}
+                  <div style={{ position: 'absolute', inset: 0, transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
+                    borderRadius: 18, background: 'linear-gradient(160deg, #2a2740, #14121f)', border: '1px solid rgba(255,255,255,0.1)',
+                    padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    <div>
+                      <div style={{ font: '600 14px Inter', color: '#fff', marginBottom: 8 }}>{o.title}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                        {o.benefits.map((b, j) =>
+                        <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <LI name="feedback-positive" size={14} color="var(--c-lime-40)" />
+                            <span style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.85)' }}>{b}</span>
+                          </div>)}
+                      </div>
+                    </div>
+                    {o.soon ?
+                    <span style={{ alignSelf: 'flex-start', font: '600 12px Inter', color: 'rgba(255,255,255,0.5)' }}>Próximamente</span> :
+                    <button onClick={(e) => { e.stopPropagation();o.onPick(); }} style={{ alignSelf: 'flex-end', border: 0, cursor: 'pointer', borderRadius: 999, padding: '9px 20px', background: 'var(--c-lime-40)', color: LX.dark, font: '600 14px Inter' }}>{o.cta}</button>}
+                  </div>
+                </div>
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                {o.badge &&
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(207,255,46,0.16)', color: 'var(--c-lime-30)', font: '600 10px Inter', padding: '3px 8px', borderRadius: 999, letterSpacing: '0.04em', marginBottom: 7 }}>
-                    <Nfc size={11} color="var(--c-lime-30)" /> {o.badge}
-                  </span>}
-                {o.soon && <span style={{ display: 'inline-block', background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.7)', font: '600 10px Inter', padding: '3px 8px', borderRadius: 999, marginBottom: 7 }}>PRONTO</span>}
-                <div style={{ font: '600 17px Inter', color: '#fff' }}>{o.title}</div>
-                <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.6)', marginTop: 3, lineHeight: 1.4 }}>{o.desc}</div>
-                {!o.soon &&
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 10, font: '600 13px Inter', color: '#fff' }}>
-                    {o.cta} <LI name="arrow-foward" size={14} color="#fff" />
-                  </span>}
-              </div>
-            </button>)}
+              </div>);
+
+          })}
         </div>
       </div>
     </Screen>);
@@ -387,9 +398,6 @@ function CardHome({ design = 'violeta', variant = 'virtual', title, mask = '•�
             <LI name="feedback-positive" size={18} color="var(--c-lemon-50)" />
             <span style={{ font: '600 13px Inter', color: '#0F602C' }}>Ya está en Apple Pay. Pagá apoyando el celu.</span>
           </div>}
-
-          {/* pago en dólares sin impuestos */}
-          <ExteriorBanner />
 
           {/* estado vacío segun fondos */}
           {balance <= 0 && isVirtual ?

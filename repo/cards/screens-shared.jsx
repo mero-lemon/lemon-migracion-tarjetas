@@ -226,15 +226,14 @@ function AddCardScreen({ onBack, onClose, onFisica, onCredito }) {
 
 }
 
-// Requisito física = 3 pagos con QR. Pantalla con la evolución de los pagos.
+// Requisito física = 3 pagos con QR. Experiencia gamificada: la física se
+// DESBLOQUEA a medida que hacés los pagos (sin detallar dónde se hizo cada uno).
 function QrRequisito({ onBack, onClose, onContinue }) {
   const [paid, setPaid] = useStateSh(1);
   const need = 3;
   const met = paid >= need;
-  const pagos = [
-  ['Cuervo Café', 'Hoy · 10:24', '$ 4.200'],
-  ['Coto', 'Ayer · 19:03', '$ 18.750'],
-  ['SUBE', 'Mar 2 jun · 08:11', '$ 2.000']];
+  const spring = 'cubic-bezier(.34,1.56,.64,1)';
+  const progress = paid / need;
 
   return (
     <Screen footer={
@@ -243,61 +242,77 @@ function QrRequisito({ onBack, onClose, onContinue }) {
     <Btn variant="brand" leftIcon="QR-Scanner" onClick={() => setPaid((p) => Math.min(need, p + 1))}>Simular un pago con QR</Btn>
     }>
       <StepHeader title="Tarjeta física" onBack={onBack} onClose={onClose} />
-      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>
-            {met ? '¡Ya podés pedir tu física!' : `Te ${need - paid === 1 ? 'falta' : 'faltan'} ${need - paid} ${need - paid === 1 ? 'pago' : 'pagos'} con QR`}
+      <div style={{ padding: '2px 16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20 }}>
+
+        {/* la física se desbloquea: gris/apagada → a todo color con glow */}
+        <div style={{ position: 'relative', marginTop: 10, display: 'flex', justifyContent: 'center' }}>
+          <div style={{
+            filter: met ? 'none' : `grayscale(${(1 - progress) * 0.85}) brightness(${0.82 + progress * 0.18})`,
+            opacity: 0.5 + progress * 0.5, transform: met ? 'scale(1)' : 'scale(0.95)',
+            transition: `all .6s ${spring}`
+          }}>
+            <CardArt variant="fisica" width={235} glow={met} />
           </div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-            Hacé <b style={{ color: LX.text1 }}>3 pagos con QR</b> en comercios y desbloqueás tu Lemon Card física, gratis.
+          {/* candado / desbloqueada */}
+          <div style={{ position: 'absolute', bottom: -12, left: '50%', transform: 'translateX(-50%)', display: 'inline-flex', alignItems: 'center', gap: 6, background: met ? 'var(--c-lemon-50)' : LX.dark, color: '#fff', font: '600 12px Inter', padding: '6px 14px', borderRadius: 999, boxShadow: 'var(--shadow-pop)', whiteSpace: 'nowrap' }}>
+            <LI name={met ? 'feedback-positive' : 'lock'} size={14} color="#fff" /> {met ? 'Desbloqueada' : `${need - paid} para desbloquear`}
           </div>
         </div>
 
-        <Surface pad={18}>
-          <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 12 }}>
-            <span style={{ font: '400 12px Inter', color: LX.text2 }}>Pagos con QR</span>
-            <span style={{ font: '500 30px Geist', letterSpacing: '-0.03em', color: met ? 'var(--c-lemon-50)' : LX.text1 }}>{paid}<span style={{ color: LX.text3, fontSize: 18 }}>/{need}</span></span>
+        <div style={{ textAlign: 'center', marginTop: 6 }}>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>
+            {met ? '¡Desbloqueaste tu física!' : 'Sumá pagos con QR'}
           </div>
-          <Meter value={paid / need} color={met ? 'var(--c-lemon-50)' : LX.dark} />
-          <Divider style={{ margin: '14px 0 4px' }} />
-          {pagos.map(([name, date, amt], i) =>
-          <React.Fragment key={i}>
-              {i > 0 && <Divider />}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0', opacity: i < paid ? 1 : 0.5 }}>
-                <div style={{ width: 36, height: 36, borderRadius: 999, background: i < paid ? 'var(--bg-positive-01)' : LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <LI name={i < paid ? 'feedback-positive' : 'QR-Scanner'} size={18} color={i < paid ? 'var(--c-lemon-50)' : LX.text3} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ font: '600 14px Inter', color: LX.text1 }}>{i < paid ? name : `Pago ${i + 1}`}</div>
-                  <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{i < paid ? date : 'Pendiente'}</div>
-                </div>
-                {i < paid && <span style={{ font: '500 14px Geist', color: LX.text1 }}>{amt}</span>}
-              </div>
-            </React.Fragment>)}
-        </Surface>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45, maxWidth: 300 }}>
+            {met ? 'Pedíla gratis y te la enviamos a tu casa.' : 'Cada pago con QR te acerca a tu Lemon Card física, gratis.'}
+          </div>
+        </div>
 
-        {met &&
-        <div style={{ display: 'flex', gap: 9, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 12, padding: '12px 14px' }}>
-          <LI name="feedback-positive" size={18} color="var(--c-lemon-50)" />
-          <span style={{ font: '500 13px Inter', color: '#0F602C' }}>Cumpliste el requisito. Seguí para pedir tu tarjeta.</span>
-        </div>}
+        {/* 3 nodos gamificados con línea de progreso */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', maxWidth: 280, padding: '4px 8px' }}>
+          {[0, 1, 2].map((i) => {
+            const done = i < paid;
+            return (
+              <React.Fragment key={i}>
+                {i > 0 &&
+                <div style={{ flex: 1, height: 4, borderRadius: 999, margin: '0 2px', background: i <= paid - 1 ? 'var(--c-lemon-50)' : LX.layer3, transition: 'background .4s' }} />}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+                  <div style={{
+                    width: 52, height: 52, borderRadius: 999, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                    background: done ? 'var(--c-lemon-40)' : LX.layer3, color: done ? LX.dark : LX.text3,
+                    transform: done ? 'scale(1)' : 'scale(0.9)', transition: `transform .4s ${spring}, background .3s`,
+                    boxShadow: done ? '0 6px 16px rgba(207,255,46,0.5)' : 'none'
+                  }}>
+                    {done ? <LI name="feedback-positive" size={24} color={LX.dark} /> : <LI name="QR-Scanner" size={22} color={LX.text3} />}
+                  </div>
+                  <span style={{ font: '600 11px Inter', color: done ? LX.text1 : LX.text3 }}>Pago {i + 1}</span>
+                </div>
+              </React.Fragment>);
+
+          })}
+        </div>
       </div>
     </Screen>);
 
 }
 
 // Banner lime "Cambia gratis tu tarjeta virtual · Apple Pay" (home de tarjetas)
+// Estilo de la pieza oficial: gradiente lime con blob, tarjetas sangrando por izquierda.
 const CambiaBanner = ({ onPrimary, first }) =>
-<button onClick={onPrimary} style={{ position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: 'var(--c-lime-40)', borderRadius: 18, padding: '15px 18px', display: 'flex', alignItems: 'center', gap: 14 }}>
-    <div style={{ display: 'flex', flexShrink: 0 }}>
-      <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
-      <div style={{ transform: 'rotate(8deg)', marginLeft: -18 }}><CardArt design="green" width={52} /></div>
+<button onClick={onPrimary} style={{
+  position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
+  borderRadius: 26, minHeight: 98, padding: '18px 20px 18px 126px',
+  background: 'radial-gradient(110% 130% at 86% 14%, #EAFF6B 0%, rgba(234,255,107,0) 48%), linear-gradient(100deg, #6FD60A 0%, #97EC1C 52%, #B7F53A 100%)'
+}}>
+    {/* tarjetas sangrando por la izquierda */}
+    <div style={{ position: 'absolute', left: -26, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+      <div style={{ transform: 'rotate(7deg)', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}><CardArt design="sticker" width={80} /></div>
+      <div style={{ transform: 'rotate(-9deg)', marginLeft: -48, filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}><CardArt design="tetrish" width={80} /></div>
     </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ font: '600 15px Inter', color: LX.dark }}>{first ? 'Creá tu tarjeta virtual' : 'Cambiá gratis tu tarjeta virtual'}</div>
-      <div style={{ font: '500 13px Inter', color: 'rgba(18,18,18,0.72)', marginTop: 2, lineHeight: 1.3 }}>{first ? 'Sumala a Apple Pay y empezá a pagar con el celu.' : 'Y empezá a pagar con Apple Pay.'}</div>
+    <div style={{ position: 'relative' }}>
+      <div style={{ font: '700 17px Inter', color: '#0b1a00', lineHeight: 1.18 }}>{first ? 'Creá tu tarjeta virtual' : 'Cambia gratis tu tarjeta virtual'}</div>
+      <div style={{ font: '500 14px Inter', color: 'rgba(11,26,0,0.74)', marginTop: 3, lineHeight: 1.3 }}>{first ? 'Sumala a Apple Pay y empezá a pagar.' : 'Y empezá a pagar con Apple Pay'}</div>
     </div>
-    <LI name="arrow-foward" size={18} color={LX.dark} style={{ flexShrink: 0 }} />
   </button>;
 
 
