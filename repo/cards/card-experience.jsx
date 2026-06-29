@@ -232,18 +232,21 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
   const [flipped, setFlipped] = useStateCX(null);
   useEffectCX(() => { const t = setTimeout(() => setMounted(true), 60);return () => clearTimeout(t); }, []);
 
-  const W = 286, H = Math.round(286 / 1.585);
+  const W = 290, H = Math.round(290 / 1.585);
   const opts = [
-  { id: 'virtual', design: 'violeta', title: 'Tarjeta virtual', badge: 'NFC', onPick: onVirtual, cta: 'Crear',
+  { id: 'virtual', design: 'violeta', title: 'Tarjeta virtual', tagline: 'Al instante, en tu celu', badge: 'NFC', onPick: onVirtual, cta: 'Crear',
+    glow: 'rgba(150,96,224,0.60)', back: 'linear-gradient(155deg, #2c2552 0%, #16122a 100%)',
     benefits: ['Pagás con el celu · Apple Pay', 'La tenés al instante', 'Cashback en cripto'] },
-  { id: 'fisica', variant: 'fisica', title: 'Lemon Card', onPick: onFisica, cta: 'Pedir',
-    benefits: ['Edición boutique con envío', 'Cashback en cripto', 'Internacional sin impuesto'] },
-  { id: 'credito', variant: 'credito', title: 'Tarjeta de crédito', soon: true, cta: 'Pronto',
+  { id: 'fisica', variant: 'fisica', title: 'Lemon Card', tagline: 'Edición boutique, a tu casa', onPick: onFisica, cta: 'Pedir',
+    glow: 'rgba(43,231,107,0.50)', back: 'linear-gradient(155deg, #1d3c23 0%, #0f1e15 100%)',
+    benefits: ['Cashback en cripto', 'Internacional sin impuesto'] },
+  { id: 'credito', variant: 'credito', title: 'Tarjeta de crédito', tagline: 'Respaldada con Bitcoin', soon: true, cta: 'Pronto',
+    glow: 'rgba(255,150,80,0.42)', back: 'linear-gradient(155deg, #28282e 0%, #141417 100%)',
     benefits: ['Respaldada con Bitcoin', 'Sin historial crediticio'] }];
 
 
   return (
-    <Screen bg="radial-gradient(130% 80% at 50% -5%, #221a3e 0%, #0c0c10 58%)">
+    <Screen bg="radial-gradient(120% 70% at 50% -8%, #1e1838 0%, #0a0a0f 56%)">
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
         <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
           <LI name="arrow-back" size={22} color="#fff" />
@@ -251,13 +254,13 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
         <div style={{ flex: 1 }} />
       </div>
 
-      <div style={{ padding: '4px 20px 28px' }}>
+      <div style={{ padding: '4px 20px 32px' }}>
         <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(14px)', transition: 'opacity .5s, transform .6s' }}>
-          <div style={{ font: '500 32px Geist', letterSpacing: '-0.02em', color: '#fff', lineHeight: 1.1 }}>Elegí tu tarjeta</div>
-          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 10 }}>Tocá para conocer los beneficios</div>
+          <div style={{ font: '500 32px Geist', letterSpacing: '-0.025em', color: '#fff', lineHeight: 1.08 }}>Elegí tu tarjeta</div>
+          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Tocá una tarjeta para ver sus beneficios</div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, marginTop: 26 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, marginTop: 28 }}>
           {opts.map((o, i) => {
             const isFlip = flipped === o.id;
             return (
@@ -266,39 +269,50 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
                 opacity: mounted ? 1 : 0, transform: mounted ? 'translateY(0)' : 'translateY(28px)',
                 transition: `opacity .5s ${0.1 + i * 0.09}s, transform .7s ${SPRING} ${0.1 + i * 0.09}s`
               }}>
-              <div onClick={() => setFlipped(isFlip ? null : o.id)} style={{ width: W, height: H, perspective: 1100, cursor: 'pointer' }}>
+              <div onClick={() => setFlipped(isFlip ? null : o.id)} style={{ width: W, height: H, perspective: 1200, cursor: 'pointer' }}>
                 <div style={{ position: 'relative', width: '100%', height: '100%', transformStyle: 'preserve-3d', transition: `transform .7s ${SPRING}`, transform: isFlip ? 'rotateY(180deg)' : 'rotateY(0)' }}>
-                  {/* FRONT: solo la tarjeta + título */}
-                  <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+                  {/* FRONT: tarjeta limpia, sin texto encima */}
+                  <div style={{ position: 'absolute', inset: 0, backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', borderRadius: 18, filter: `drop-shadow(0 16px 30px ${o.glow}) drop-shadow(0 0 12px ${o.glow})` }}>
                     <CardArt design={o.design} variant={o.variant} width={W} glow />
-                    <div style={{ position: 'absolute', inset: 0, borderRadius: 18, background: 'linear-gradient(0deg, rgba(0,0,0,0.55) 0%, transparent 42%)' }} />
-                    <div style={{ position: 'absolute', left: 16, bottom: 14, right: 14 }}>
-                      <div style={{ font: '600 18px Inter', color: '#fff' }}>{o.title}</div>
-                    </div>
+                    {/* borde fino que recorta la tarjeta del fondo */}
+                    <div style={{ position: 'absolute', inset: 0, borderRadius: 18, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.16), inset 0 1px 0 rgba(255,255,255,0.22)', pointerEvents: 'none' }} />
                     {(o.badge || o.soon) &&
-                    <span style={{ position: 'absolute', top: 12, left: 14, display: 'inline-flex', alignItems: 'center', gap: 5, background: o.soon ? 'rgba(255,255,255,0.18)' : 'rgba(207,255,46,0.2)', color: o.soon ? '#fff' : 'var(--c-lime-30)', font: '600 10px Inter', padding: '4px 9px', borderRadius: 999, letterSpacing: '0.04em', backdropFilter: 'blur(4px)' }}>
-                      {o.soon ? 'PRONTO' : <><Nfc size={11} color="var(--c-lime-30)" /> CON NFC</>}
+                    <span style={{ position: 'absolute', top: 13, left: 14, display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(10,10,15,0.42)', color: o.soon ? 'rgba(255,255,255,0.92)' : 'var(--c-lime-30)', font: '700 9.5px Inter', padding: '5px 10px', borderRadius: 999, letterSpacing: '0.08em', border: '1px solid rgba(255,255,255,0.16)', backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}>
+                      {o.soon ? 'PRÓXIMAMENTE' : <><Nfc size={11} color="var(--c-lime-30)" /> CON NFC</>}
                     </span>}
                   </div>
-                  {/* BACK: beneficios + CTA */}
+                  {/* BACK: beneficios + CTA, temático por tarjeta */}
                   <div style={{ position: 'absolute', inset: 0, transform: 'rotateY(180deg)', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden',
-                    borderRadius: 18, background: 'linear-gradient(160deg, #2a2740, #14121f)', border: '1px solid rgba(255,255,255,0.1)',
-                    padding: '14px 16px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                    borderRadius: 18, background: o.back, border: '1px solid rgba(255,255,255,0.12)', boxShadow: `0 18px 38px ${o.glow}`,
+                    padding: '16px 18px', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', overflow: 'hidden' }}>
                     <div>
-                      <div style={{ font: '600 14px Inter', color: '#fff', marginBottom: 8 }}>{o.title}</div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                      <div style={{ font: '700 10px Inter', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 11 }}>{o.title}</div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 9 }}>
                         {o.benefits.map((b, j) =>
-                        <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <LI name="feedback-positive" size={14} color="var(--c-lime-40)" />
-                            <span style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.85)' }}>{b}</span>
+                        <div key={j} style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                            <span style={{ width: 18, height: 18, borderRadius: 999, background: 'rgba(207,255,46,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                              <LI name="feedback-positive" size={13} color="var(--c-lime-40)" />
+                            </span>
+                            <span style={{ font: '400 12.5px Inter', color: 'rgba(255,255,255,0.9)' }}>{b}</span>
                           </div>)}
                       </div>
                     </div>
                     {o.soon ?
-                    <span style={{ alignSelf: 'flex-start', font: '600 12px Inter', color: 'rgba(255,255,255,0.5)' }}>Próximamente</span> :
-                    <button onClick={(e) => { e.stopPropagation();o.onPick(); }} style={{ alignSelf: 'flex-end', border: 0, cursor: 'pointer', borderRadius: 999, padding: '9px 20px', background: 'var(--c-lime-40)', color: LX.dark, font: '600 14px Inter' }}>{o.cta}</button>}
+                    <span style={{ alignSelf: 'flex-start', font: '600 12px Inter', color: 'rgba(255,255,255,0.45)' }}>Disponible pronto</span> :
+                    <button onClick={(e) => { e.stopPropagation();o.onPick(); }} style={{ alignSelf: 'stretch', border: 0, cursor: 'pointer', borderRadius: 14, padding: '12px 20px', background: 'var(--c-lime-40)', color: LX.dark, font: '600 14px Inter' }}>{o.cta}</button>}
                   </div>
                 </div>
+              </div>
+
+              {/* info debajo de la tarjeta (no se pisa con el arte) */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 13, padding: '0 2px' }}>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#fff' }}>{o.title}</div>
+                  <div style={{ font: '400 13px Inter', color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{o.tagline}</div>
+                </div>
+                <span style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: `transform .4s ${SPRING}`, transform: isFlip ? 'rotate(180deg)' : 'none' }}>
+                  <LI name={isFlip ? 'arrow-back' : 'arrow-foward'} size={15} color="rgba(255,255,255,0.7)" />
+                </span>
               </div>
               </div>);
 
