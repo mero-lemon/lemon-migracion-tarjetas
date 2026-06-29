@@ -414,7 +414,9 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
   if (step === 'delivery')
-  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => {setPhase('active');setStep('hub');}} onMenu={onMenu} /></Anim>;
+  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => setStep('activate')} onMenu={onMenu} /></Anim>;
+  if (step === 'activate')
+  return <CardActivation onBack={() => setStep('delivery')} onClose={onMenu} onDone={() => {setPhase('active');setStep('hub');}} />;
   return null;
 }
 
