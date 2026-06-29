@@ -475,13 +475,16 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
         }
 
         {mode === 'renewFisica' && phase === 'active' &&
-        <div style={{ display: 'flex', gap: 11, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 16, padding: '14px 16px' }}>
+        <>
+          <div style={{ display: 'flex', gap: 11, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 16, padding: '14px 16px' }}>
             <LI name="feedback-positive" size={22} color="var(--c-lemon-50)" style={{ flexShrink: 0 }} />
             <div style={{ flex: 1 }}>
               <div style={{ font: '600 15px Inter', color: '#0F602C' }}>Tarjeta activada</div>
               <div style={{ font: '500 13px Inter', color: '#0F602C', opacity: 0.85, marginTop: 2 }}>Tu nueva Lemon Card ya está lista para usar.</div>
             </div>
           </div>
+          <DebitosInfo />
+        </>
         }
 
         {mode === 'renewFisica' && phase === 'expiring' && showExpiringBanner &&

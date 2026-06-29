@@ -351,7 +351,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           onNfc={() => setStep('virtual')}
           onCardTap={!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
-          onActivate={() => setStep('delivery')}
+          onActivate={() => setStep('activate')}
           onTrack={() => setTrack(true)} />
         
           <Sheet open={track} onClose={() => setTrack(false)}>
@@ -413,10 +413,8 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   return <Anim k="f4pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
-  if (step === 'delivery')
-  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => setStep('activate')} onMenu={onMenu} /></Anim>;
   if (step === 'activate')
-  return <CardActivation onBack={() => setStep('delivery')} onClose={onMenu} onDone={() => {setPhase('active');setStep('hub');}} />;
+  return <CardActivation onBack={() => setStep('hub')} onClose={onMenu} onDone={() => {setPhase('active');setStep('hub');}} />;
   return null;
 }
 
@@ -779,4 +777,4 @@ function DeliveryOnboarding({ onDone, onMenu }) {
 const Anim = ({ children, k, noWrap }) =>
 noWrap ? children : <div key={k} style={{ height: '100%' }}>{children}</div>;
 
-Object.assign(window, { Flow1, Flow2, Flow3, Flow4, Flow5, PedirFisicaFlow, RequisitoChooser, ChooserScreen, NfcSuccess, RequisitoScreen, PortfolioScreen, DeliveryOnboarding, CardActivation, VirtualUpsell, LoadingScreen, Anim, Bullet, Breakdown });
+Object.assign(window, { Flow1, Flow2, Flow3, Flow4, Flow5, PedirFisicaFlow, RequisitoChooser, ChooserScreen, NfcSuccess, RequisitoScreen, PortfolioScreen, DeliveryOnboarding, CardActivation, VirtualUpsell, LoadingScreen, Anim, Bullet, Breakdown, DebitosInfo });
