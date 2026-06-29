@@ -135,86 +135,79 @@ const _morphCSS = `
 @keyframes lc-converge{0%{transform:translate(var(--tx),var(--ty)) scale(.3);opacity:0}28%{opacity:1}100%{transform:translate(0,0) scale(.1);opacity:0}}
 @keyframes lc-sweep{0%{transform:translateX(-180%) skewX(-14deg);opacity:0}16%{opacity:.95}52%{opacity:.95}100%{transform:translateX(220%) skewX(-14deg);opacity:0}}
 @keyframes lc-flash{0%{transform:translate(-50%,-50%) scale(.25);opacity:0}38%{opacity:1}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}
-@keyframes lc-pulse{0%,100%{opacity:.4}50%{opacity:.8}}`;
+@keyframes lc-pulse{0%,100%{opacity:.4}50%{opacity:.8}}
+@keyframes lc-pop{0%{transform:translateX(-50%) scale(0);opacity:0}60%{transform:translateX(-50%) scale(1.15);opacity:1}100%{transform:translateX(-50%) scale(1);opacity:1}}`;
 if (typeof document !== 'undefined' && !document.getElementById('lc-morph-style')) {
   const st = document.createElement('style');st.id = 'lc-morph-style';st.textContent = _morphCSS;document.head.appendChild(st);
 }
 
 // ── Create / morph ──────────────────────────────────────────────
-// Creación 100% visual, sin texto: partículas convergen y se "absorben" para
-// formar la tarjeta, un anillo cónico iridiscente gira detrás, un barrido
-// especular de luz cruza la tarjeta y morfea del diseño actual al elegido,
-// con tilt 3D y un flash final de revelado.
+// Creación 100% visual, estilo Apple Pay sobre fondo claro: la tarjeta flota,
+// baja y se "guarda" detrás del frente de una wallet, con un barrido de luz y
+// un check + destello lime al completarse.
 function MorphCreate({ fromDesign = 'violeta', toDesign, replace = false, onDone }) {
   const [phase, setPhase] = useStateCX(0); // 0 from · 1 morph · 2 bloom final
   useEffectCX(() => {
-    const t1 = setTimeout(() => setPhase(1), 750);
-    const t2 = setTimeout(() => setPhase(2), 2250); // destello de revelado
-    const done = setTimeout(onDone, 3100);
+    const t1 = setTimeout(() => setPhase(1), 700);   // empieza a guardarse
+    const t2 = setTimeout(() => setPhase(2), 1950);  // ya guardada: check + destello
+    const done = setTimeout(onDone, 2900);
     return () => { clearTimeout(t1);clearTimeout(t2);clearTimeout(done); };
   }, []);
 
-  const CARD_W = 300, CARD_H = Math.round(300 / 1.585);
-  // partículas que convergen al centro y se "absorben" al formar la tarjeta
-  const particles = Array.from({ length: 18 }, (_, i) => {
-    const a = i / 18 * Math.PI * 2;const d = 145 + i % 4 * 28;
-    return { tx: Math.round(Math.cos(a) * d), ty: Math.round(Math.sin(a) * d), i };
-  });
+  const CARD_W = 268;
 
+  // Estilo Apple Pay: la tarjeta flota y se "guarda" en la wallet con un destello.
   return (
-    <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 40%, #1d1740 0%, #0a0a10 70%)">
-      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
-        <div style={{ position: 'relative', width: 340, height: 340, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1200 }}>
-          {/* glow suave que respira detrás de la tarjeta */}
-          <div style={{ position: 'absolute', width: 280, height: 190, borderRadius: 999, filter: 'blur(46px)',
-            background: 'radial-gradient(circle, rgba(207,255,46,0.45), transparent 70%)',
-            opacity: phase >= 2 ? 0.95 : 0.4, transition: 'opacity .6s ease', animation: 'lc-pulse 2.6s ease-in-out infinite' }} />
+    <Screen scroll={false} bg="#FFFFFF">
+      <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+        <div style={{ position: 'relative', width: 320, height: 440, perspective: 1100 }}>
 
-          {/* anillo cónico nítido girando (recortado en anillo con mask) */}
-          <div style={{ position: 'absolute', width: 322, height: 322, borderRadius: 999, filter: 'blur(1px)',
-            opacity: phase >= 1 ? 0.95 : 0.5, transition: 'opacity .6s ease',
-            background: 'conic-gradient(from 0deg, transparent 4%, rgba(207,255,46,0.9) 26%, rgba(123,78,200,0.85) 52%, rgba(8,199,224,0.75) 74%, transparent 96%)',
-            WebkitMaskImage: 'radial-gradient(closest-side, transparent 71%, #000 73%)',
-            maskImage: 'radial-gradient(closest-side, transparent 71%, #000 73%)',
-            animation: `lc-spin ${phase >= 2 ? 1.8 : 3.4}s linear infinite` }} />
+          {/* glow lime detrás del bolsillo */}
+          <div style={{ position: 'absolute', left: '50%', bottom: 70, transform: 'translateX(-50%)', width: 250, height: 150, borderRadius: 999, filter: 'blur(48px)',
+            background: 'radial-gradient(circle, rgba(207,255,46,0.55), transparent 70%)',
+            opacity: phase >= 2 ? 1 : 0.35, transition: 'opacity .6s ease' }} />
 
-          {/* anillos de energía que se expanden */}
-          {[0, 1].map((i) =>
-          <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: 250, height: 250, borderRadius: 999, border: '1px solid rgba(207,255,46,0.45)', animation: `lc-ring 2.6s ease-out infinite`, animationDelay: `${i * 1.1}s` }} />)}
-
-          {/* partículas convergiendo (mientras se forma) */}
-          {phase < 2 && particles.map((p) =>
-          <span key={p.i} style={{ position: 'absolute', top: '50%', left: '50%', width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: 999, background: 'var(--c-lime-40)', boxShadow: '0 0 10px var(--c-lime-40)', '--tx': p.tx + 'px', '--ty': p.ty + 'px', animation: `lc-converge 1.9s ease-in ${p.i % 6 * 0.16}s infinite` }} />)}
-
-          {/* tarjeta: morph vieja → nueva, con tilt 3D al revelarse */}
-          <div style={{ position: 'relative', width: CARD_W, height: CARD_H, transformStyle: 'preserve-3d',
-            animation: phase >= 1 ? 'lc-tilt 4.8s ease-in-out infinite' : 'none' }}>
-            <div style={{ position: 'absolute', inset: 0, filter: phase === 0 ? 'blur(5px)' : 'none',
-              transform: phase === 0 ? 'scale(0.92)' : 'scale(0.86)', opacity: phase >= 1 ? 0 : 1,
-              transition: `transform 1s ${SPRING}, opacity .55s ease, filter .5s ease` }}>
-              <CardArt design={fromDesign} width={CARD_W} glow />
-            </div>
-            <div style={{ position: 'absolute', inset: 0, opacity: phase >= 1 ? 1 : 0,
-              transform: phase >= 1 ? 'scale(1) rotateY(0)' : 'scale(0.8) rotateY(34deg)',
-              transition: `opacity .55s ease, transform 1s ${SPRING}`, transformStyle: 'preserve-3d' }}>
-              <CardArt design={toDesign} width={CARD_W} glow shimmer={phase >= 1} />
-            </div>
-            {/* barrido especular de luz + scanline (recortados a la tarjeta) */}
-            <div style={{ position: 'absolute', inset: 0, borderRadius: 19, overflow: 'hidden', pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', top: '-25%', bottom: '-25%', width: '42%', left: 0,
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)',
-                animation: phase >= 1 ? 'lc-sweep 2.4s ease-in-out .15s infinite' : 'none' }} />
-              <div style={{ position: 'absolute', left: 0, right: 0, height: '40%',
-                background: 'linear-gradient(180deg, transparent, rgba(207,255,46,0.35), transparent)',
-                animation: phase >= 1 ? 'lc-scan 2.1s ease-in-out infinite' : 'none' }} />
+          {/* tarjeta: flota arriba y baja a la wallet (z1, detrás del frente del bolsillo) */}
+          <div style={{ position: 'absolute', left: '50%', top: 64, zIndex: 1, marginLeft: -CARD_W / 2,
+            transform:
+            phase === 0 ? 'translateY(0) scale(1) rotateX(0deg)' :
+            phase === 1 ? 'translateY(126px) scale(0.86) rotateX(15deg)' :
+            'translateY(118px) scale(0.86) rotateX(13deg)',
+            transition: `transform 1.1s ${SPRING}`,
+            filter: phase >= 1 ? 'drop-shadow(0 16px 22px rgba(0,0,0,0.30))' : 'drop-shadow(0 12px 26px rgba(0,0,0,0.16))',
+            animation: phase === 0 ? 'lc-float 3.4s ease-in-out infinite' : 'none' }}>
+            <div style={{ position: 'relative' }}>
+              <CardArt design={toDesign} variant={replace ? undefined : undefined} width={CARD_W} glow shimmer={phase >= 1} />
+              {/* barrido especular al guardarse */}
+              <div style={{ position: 'absolute', inset: 0, borderRadius: 17, overflow: 'hidden', pointerEvents: 'none' }}>
+                <div style={{ position: 'absolute', top: '-25%', bottom: '-25%', width: '42%', left: 0,
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent)',
+                  animation: phase >= 1 ? 'lc-sweep 2.2s ease-in-out .1s 2' : 'none' }} />
+              </div>
             </div>
           </div>
 
-          {/* flash de revelado */}
+          {/* frente de la wallet (z2): la tarjeta se mete por detrás */}
+          <div style={{ position: 'absolute', left: '50%', bottom: 60, marginLeft: -150, width: 300, height: 132, zIndex: 2,
+            borderRadius: 24, background: 'linear-gradient(180deg, #26262d 0%, #141418 100%)',
+            boxShadow: '0 18px 30px rgba(0,0,0,0.22), inset 0 2px 0 rgba(255,255,255,0.14)',
+            transform: phase >= 2 ? 'translateY(-4px)' : 'none', transition: `transform .5s ${SPRING}` }}>
+            {/* ranura superior */}
+            <div style={{ position: 'absolute', top: 12, left: 24, right: 24, height: 4, borderRadius: 999, background: 'rgba(255,255,255,0.10)' }} />
+            {/* check al completarse */}
+            {phase >= 2 &&
+            <div style={{ position: 'absolute', left: '50%', top: -22, width: 44, height: 44, borderRadius: 999,
+              background: 'var(--c-lime-40)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              boxShadow: '0 6px 16px rgba(207,255,46,0.5)', animation: `lc-pop .5s ${SPRING} forwards` }}>
+              <LI name="feedback-positive" size={24} color={LX.dark} />
+            </div>}
+          </div>
+
+          {/* destello al guardarse */}
           {phase >= 2 &&
-          <div key="flash" style={{ position: 'absolute', top: '50%', left: '50%', width: 220, height: 220, borderRadius: 999, pointerEvents: 'none',
-            background: 'radial-gradient(circle, rgba(255,255,255,0.95), rgba(207,255,46,0.5) 40%, transparent 72%)',
-            animation: 'lc-flash 0.85s ease-out forwards' }} />}
+          <div key="flash" style={{ position: 'absolute', left: '50%', top: 210, marginLeft: -110, width: 220, height: 220, borderRadius: 999, pointerEvents: 'none', zIndex: 3,
+            background: 'radial-gradient(circle, rgba(255,255,255,0.9), rgba(207,255,46,0.5) 40%, transparent 72%)',
+            animation: 'lc-flash 0.8s ease-out forwards' }} />}
         </div>
       </div>
     </Screen>);
@@ -274,18 +267,18 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
 
 
   return (
-    <Screen bg="radial-gradient(120% 70% at 50% -8%, #1e1838 0%, #0a0a0f 56%)">
+    <Screen bg="#FFFFFF">
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
         <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
-          <LI name="arrow-back" size={22} color="#fff" />
+          <LI name="arrow-back" size={22} color="#141414" />
         </button>
         <div style={{ flex: 1 }} />
       </div>
 
       <div style={{ padding: '4px 20px 32px' }}>
         <div style={{ opacity: mounted ? 1 : 0, transform: mounted ? 'none' : 'translateY(14px)', transition: 'opacity .5s, transform .6s' }}>
-          <div style={{ font: '500 32px Geist', letterSpacing: '-0.025em', color: '#fff', lineHeight: 1.08 }}>Elegí tu tarjeta</div>
-          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.5)', marginTop: 10 }}>Tocá una tarjeta para ver sus beneficios</div>
+          <div style={{ font: '500 32px Geist', letterSpacing: '-0.025em', color: '#141414', lineHeight: 1.08 }}>Elegí tu tarjeta</div>
+          <div style={{ font: '400 14px Inter', color: '#818181', marginTop: 10 }}>Tocá una tarjeta para ver sus beneficios</div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 24, marginTop: 28 }}>
@@ -335,11 +328,11 @@ function CardChooser({ onVirtual, onFisica, onCredito, onBack }) {
               {/* info debajo de la tarjeta (no se pisa con el arte) */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 13, padding: '0 2px' }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#fff' }}>{o.title}</div>
-                  <div style={{ font: '400 13px Inter', color: 'rgba(255,255,255,0.45)', marginTop: 2 }}>{o.tagline}</div>
+                  <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{o.title}</div>
+                  <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 2 }}>{o.tagline}</div>
                 </div>
-                <span style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: `transform .4s ${SPRING}`, transform: isFlip ? 'rotate(180deg)' : 'none' }}>
-                  <LI name={isFlip ? 'arrow-back' : 'arrow-foward'} size={15} color="rgba(255,255,255,0.7)" />
+                <span style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(8,8,8,0.06)', border: '1px solid rgba(8,8,8,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: `transform .4s ${SPRING}`, transform: isFlip ? 'rotate(180deg)' : 'none' }}>
+                  <LI name={isFlip ? 'arrow-back' : 'arrow-foward'} size={15} color="#818181" />
                 </span>
               </div>
               </div>);
