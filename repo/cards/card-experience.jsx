@@ -403,19 +403,17 @@ function CardHome({ design = 'violeta', variant = 'virtual', title, mask = '•�
           <EmptyState icon="deposit" title="Depositá para empezar a usar tu tarjeta"
             sub="Cargá pesos o dólares digitales y pagá en un toque." cta="Depositar" /> :
 
-          <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 2 }}>
-                <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
-                <LI name="arrow-foward" size={16} color={LX.text3} />
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 4px' }}>
+                <span style={{ font: '500 16px Geist', color: '#141414', letterSpacing: '-0.01em' }}>Movimientos</span>
+                <LI name="arrow-foward" size={16} color="#141414" />
               </div>
-              <Surface pad={4}>
-                <div style={{ padding: '0 12px' }}>
-                  <MoveRow icon="card-on" title="Pago con tarjeta" date="15 de diciembre" amount="$ 150" />
-                  <Divider />
-                  <MoveRow icon="streaming" title="Spotify" date="15 de diciembre" amount="$ 2.499" />
-                </div>
-              </Surface>
-            </>}
+              <div style={{ padding: '0 16px 8px' }}>
+                <MoveRow icon="card-on" coin="btc" title="Pago con tarjeta" date="15 de diciembre" amount="$ 150" />
+                <MoveRow icon="deposit" title="Transferencia bancaria" date="15 de diciembre" amount="$ 300,45" sign="+" />
+                <MoveRow icon="send-money" title="Envío por Lemontag" date="15 de diciembre" amount="$ 300,45" />
+              </div>
+            </Surface>}
         </div>
       </Screen>
 

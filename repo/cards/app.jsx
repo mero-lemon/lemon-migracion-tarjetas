@@ -103,52 +103,64 @@ function AppHome({ onCards }) {
       </div>
 
       <div style={{ padding: '4px 16px 8px' }}>
-        {/* tabs + balance — Inicio activo (blanco) · Portfolio lime sobresale */}
-        <div style={{ display: 'flex', alignItems: 'flex-end' }}>
-          <div style={{ position: 'relative', zIndex: 2, background: LX.layer, color: LX.text1, font: '600 16px Inter', padding: '14px 30px', borderRadius: '16px 16px 0 0', boxShadow: 'var(--shadow-card)' }}>Inicio</div>
-          <div style={{ flex: 1, background: 'var(--c-lime-40)', color: LX.dark, font: '600 16px Inter', padding: '17px 0 13px', textAlign: 'center', borderRadius: '16px 16px 0 0', marginLeft: -18 }}>Portfolio</div>
-        </div>
-        <div style={{ background: LX.layer, borderRadius: '0 0 16px 16px', padding: 20, boxShadow: 'var(--shadow-card)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ font: '500 16px Inter', color: LX.text2 }}>Pesos digitales</span>
-            <LI name="view-balance-on" size={17} color={LX.text2} />
+        {/* balance card: una sola card radius 32 (tabs + saldo + botones); la lime asoma detrás */}
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', zIndex: 2, background: LX.layer, borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+            {/* tabs Inicio / Portfolio (labels 12px; Portfolio lime arriba-derecha) */}
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0' }}>Inicio</div>
+              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0', background: 'var(--c-lime-40)', borderRadius: '0 32px 0 24px' }}>Portfolio</div>
+            </div>
+            {/* saldo */}
+            <div style={{ padding: '20px 24px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 16px Inter', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
+                <LI name="view-balance-on" size={18} color="#818181" />
+              </div>
+              <div style={{ font: '500 44px Geist', lineHeight: '52px', letterSpacing: '-0.03em', color: '#141414', marginTop: 6 }}>$ 1.487.283</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--c-lime-40)', color: '#080808', font: '400 12px Inter', padding: '3px 12px', borderRadius: 999, marginTop: 10 }}>
+                Crece 36,2% <LI name="arrow-foward" size={14} color="#080808" />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 22 }}>
+                {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+                <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <LI name={ic} size={22} color="var(--c-lime-40)" />
+                    </div>
+                    <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
+                  </div>)}
+              </div>
+            </div>
           </div>
-          <div style={{ font: '500 40px Geist', letterSpacing: '-0.03em', color: LX.text1, marginTop: 4 }}>$ 1.487.283</div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--c-lime-40)', color: LX.dark, font: '600 13px Inter', padding: '5px 11px', borderRadius: 999, marginTop: 10 }}>
-            Crece 36,2% <LI name="arrow-foward" size={13} color={LX.dark} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-around', marginTop: 20 }}>
-            {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
-            <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
-                <div style={{ width: 58, height: 58, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <LI name={ic} size={24} color="var(--c-lime-40)" />
+
+          {/* card lime asomando por detrás (Tarjeta virtual) */}
+          <div style={{ position: 'relative', zIndex: 1, marginTop: -86, padding: '94px 20px 18px', borderRadius: 32, overflow: 'hidden', background: 'var(--c-lime-40)' }}>
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                  <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
+                  <span style={{ font: '400 12px Inter', color: '#080808' }}>1234</span>
                 </div>
-                <span style={{ font: '500 13px Inter', color: LX.text1 }}>{lb}</span>
-              </div>)}
+              </div>
+              <VisaMark size={22} color="#141414" shadow={false} />
+            </div>
           </div>
         </div>
 
-        {/* lime card attached */}
-        <div style={{ background: 'var(--c-lime-40)', borderRadius: '0 0 20px 20px', margin: '0 8px', padding: '16px 18px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ font: '600 16px Inter', color: LX.dark }}>Tarjeta virtual</div>
-            <div style={{ font: '500 14px Geist', color: 'rgba(18,18,18,0.7)', marginTop: 2 }}>•• 1234</div>
-          </div>
-          <VisaMark size={24} color={LX.dark} shadow={false} />
-        </div>
-
-        {/* banner nueva virtual + Apple Pay (actionable, con X de cierre) */}
-        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 20, padding: '16px 14px', marginTop: 26, display: 'flex', alignItems: 'center', gap: 12, boxShadow: 'var(--shadow-card)' }}>
+        {/* banner nueva virtual + Apple Pay (actionable, con X) */}
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '12px 16px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
           <div style={{ display: 'flex', flexShrink: 0 }}>
-            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={56} /></div>
-            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={56} /></div>
+            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
+            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={52} /></div>
           </div>
-          <div style={{ flex: 1, minWidth: 0, paddingRight: 18 }}>
-            <div style={{ font: '600 15px Inter', color: LX.text1, lineHeight: 1.2 }}>La nueva tarjeta virtual, ahora con Apple Pay</div>
-            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.35 }}>Cambiá tu virtual, elegí un diseño nuevo y sumala a Apple Pay.</div>
+          <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
+            <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>¡Ya podés pagar con Apple Pay!</div>
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>Cambiá tu tarjeta virtual y empezá a pagar con tu wallet de Apple.</div>
           </div>
-          <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LI name="close" size={18} color={LX.text3} />
+          <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LI name="close" size={16} color="#141414" />
           </span>
         </button>
       </div>

@@ -206,43 +206,49 @@ const CardThumb = ({ variant, design, w = 56, portrait = false }) =>
   </div>;
 
 
-// status pill (solid, like the live app)
+// status pill — colores del Figma (Activa verde suave, Vence naranja suave)
 const StatusPill = ({ status }) => {
   const m = {
-    Activa: ['var(--c-green-40)', '#fff'],
-    Pausada: ['var(--c-gray-30)', 'var(--c-gray-80)'],
-    'Vence pronto': ['var(--bg-warning-01)', '#854600']
-  }[status] || ['var(--c-green-40)', '#fff'];
-  return <span style={{ display: 'inline-block', background: m[0], color: m[1], font: '600 12px Inter', padding: '4px 12px', borderRadius: 999, whiteSpace: 'nowrap' }}>{status}</span>;
+    Activa: ['#E6FEF0', '#1CB854'],
+    Pausada: ['var(--c-gray-20)', 'var(--c-gray-70)'],
+    'Vence pronto': ['#FDF4ED', '#F0A20B'],
+    'Próximo a vencer': ['#FDF4ED', '#F0A20B']
+  }[status] || ['#E6FEF0', '#1CB854'];
+  return <span style={{ display: 'inline-flex', alignItems: 'center', background: m[0], color: m[1], font: '500 12px Inter', padding: '3px 9px', borderRadius: 999, whiteSpace: 'nowrap', letterSpacing: '0.01em' }}>{status}</span>;
 };
 
-// a card row inside the "Tus tarjetas" module — horizontal thumbnail (match wallet)
+// a card row inside la lista — estilo Figma: nombre/mask/tag + ojo + chevron
 const CardListItem = ({ variant, design, title, mask, status = 'Activa', activate, onTap, onActivate }) =>
-<div onClick={() => onTap && onTap(variant)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 18px', cursor: onTap ? 'pointer' : 'default' }}>
-    <CardThumb variant={variant} design={design} w={64} />
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ font: '600 17px Inter', color: LX.text1 }}>{title}</div>
-      <div style={{ font: '500 14px Geist', color: LX.text2, margin: '2px 0 8px' }}>{mask}</div>
+<div onClick={() => onTap && onTap(variant)} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', cursor: onTap ? 'pointer' : 'default' }}>
+    <CardThumb variant={variant} design={design} w={62} />
+    <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+      <div>
+        <div style={{ font: '500 16px Geist', color: '#323230', letterSpacing: '-0.1px' }}>{title}</div>
+        <div style={{ font: '400 14px Inter', color: 'rgba(28,28,26,0.5)', marginTop: 1 }}>{mask}</div>
+      </div>
       {activate ?
-        <button onClick={(e) => { e.stopPropagation(); onActivate && onActivate(); }} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, border: 0, cursor: 'pointer', background: 'var(--c-lemon-5)', color: 'var(--text-brand)', font: '600 13px Inter', padding: '7px 14px', borderRadius: 999 }}>
+        <button onClick={(e) => { e.stopPropagation(); onActivate && onActivate(); }} style={{ alignSelf: 'flex-start', display: 'inline-flex', alignItems: 'center', gap: 6, border: 0, cursor: 'pointer', background: 'var(--c-lemon-5)', color: 'var(--text-brand)', font: '600 13px Inter', padding: '6px 12px', borderRadius: 999 }}>
           Activá tu tarjeta <LI name="arrow-foward" size={14} color="var(--text-brand)" />
         </button> :
-        <StatusPill status={status} />}
+        <span style={{ alignSelf: 'flex-start' }}><StatusPill status={status} /></span>}
     </div>
     {!activate &&
-    <button onClick={(e) => { e.stopPropagation(); onTap && onTap(variant); }} style={{ width: 46, height: 46, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
-      <LI name="view-balance-on" size={18} color={LX.text1} />
+    <button onClick={(e) => { e.stopPropagation(); onTap && onTap(variant); }} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: 'rgba(8,8,8,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+      <LI name="view-balance-on" size={20} color="#141414" />
     </button>}
-    <LI name="arrow-foward" size={18} color={LX.text3} style={{ flexShrink: 0 }} />
+    <LI name="arrow-foward" size={16} color="#818181" style={{ flexShrink: 0 }} />
   </div>;
 
 
-// moneda de pago row (Argentine flag) — matches the live screen
+// moneda de pago row (estilo Figma: label gris + flags USD/ARS + chevron)
 const MonedaDePago = () =>
-<div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px' }}>
-    <span style={{ font: '400 16px Inter', color: LX.text2, flex: 1 }}>Moneda de pago</span>
-    <img src="cards/assets/flag-ar.png" alt="ARS" style={{ width: 26, height: 26, borderRadius: 999, objectFit: 'cover', boxShadow: '0 0 0 1px rgba(0,0,0,0.06)' }} />
-    <LI name="arrow-foward" size={18} color={LX.text3} />
+<div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+    <span style={{ font: '500 14px Inter', color: '#818181', flex: 1, letterSpacing: '-0.1px' }}>Moneda de pago</span>
+    <span style={{ display: 'flex', alignItems: 'center' }}>
+      <span style={{ width: 18, height: 18, borderRadius: 999, background: '#0052B4', border: '1.5px solid var(--bg-layer-01)', display: 'inline-block' }} />
+      <img src="cards/assets/flag-ar.png" alt="ARS" style={{ width: 18, height: 18, borderRadius: 999, objectFit: 'cover', marginLeft: -5, border: '1.5px solid var(--bg-layer-01)' }} />
+    </span>
+    <LI name="arrow-foward" size={16} color="#818181" />
   </div>;
 
 
@@ -278,8 +284,8 @@ const Btn = ({ children, variant = 'primary', leftIcon, disabled, onClick, style
 const WalletBtn = ({ label = 'Quiero Apple Pay', onClick }) =>
 <button onClick={onClick} style={{
   width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 9,
-  border: 0, cursor: 'pointer', borderRadius: 12, padding: '14px 18px',
-  background: '#000', color: '#fff', font: '600 16px Inter, system-ui'
+  border: 0, cursor: 'pointer', borderRadius: 16, padding: '14px 18px',
+  background: '#080808', color: '#fff', font: '600 16px Inter, system-ui'
 }}>
     <svg width="18" height="22" viewBox="0 0 18 22" fill="#fff"><path d="M14.6 11.5c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.1-2.8.8-3.5.8s-1.8-.8-3-.8C3.3 6.3 1.9 7.2 1.1 8.7c-1.5 2.6-.4 6.4 1.1 8.5.7 1 1.6 2.2 2.7 2.2 1.1 0 1.5-.7 2.8-.7s1.7.7 2.8.7c1.2 0 1.9-1 2.6-2 .8-1.2 1.2-2.3 1.2-2.4-.1 0-2.3-.9-2.3-3.5ZM12.3 4.5c.6-.7 1-1.7.9-2.7-.9 0-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6 1 .1 2-.5 2.5-1.2Z" /></svg>
     {label}

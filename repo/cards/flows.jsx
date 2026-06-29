@@ -522,7 +522,7 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   if (route === 'cardDetail' && openCard) return <Anim k="f5detail"><CardHome variant={openCard.variant} design={openCard.design || 'violeta'} mask={openCard.mask} balance={1} startInWallet={!!openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} /></Anim>;
   // Pedir tarjeta (botón +): elegir → física (3 pagos QR) o crédito → dirección.
   if (route === 'add') return <Anim k="f5add"><AddCardScreen onBack={() => setRoute(null)} onClose={onMenu} onFisica={() => setRoute('qr')} onCredito={() => setRoute('creditoAddr')} /></Anim>;
-  if (route === 'qr') return <Anim k="f5qr"><QrRequisito onBack={() => setRoute(activated ? 'add' : null)} onClose={onMenu} onContinue={() => setRoute('fisicaAddr')} /></Anim>;
+  if (route === 'qr') return <Anim k="f5qr"><PagarFisica onBack={() => setRoute(activated ? 'add' : null)} onClose={onMenu} onContinue={() => setRoute('fisicaAddr')} /></Anim>;
   if (route === 'fisicaAddr') return <Anim k="f5faddr"><AddressScreen onBack={() => setRoute('qr')} onClose={onMenu} onConfirm={() => { setFisicaTransit(true); setRoute(null); }} /></Anim>;
   if (route === 'creditoAddr') return <Anim k="f5caddr"><AddressScreen onBack={() => setRoute('add')} onClose={onMenu} onConfirm={() => setRoute('creditoDone')} /></Anim>;
   if (route === 'creditoDone') return <Anim k="f5cdone"><OrderConfirmation onDone={() => setRoute(null)} onMenu={onMenu} /></Anim>;
