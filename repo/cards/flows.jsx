@@ -104,7 +104,7 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
 
 
   if (step === 'home')
-  return <Anim k="f1home"><CardHome design={design} variant="virtual" title="Tarjeta prepaga virtual" mask={newMask} balance={0} startInWallet={walletAdded} onBack={onMenu} onClose={onMenu} /></Anim>;
+  return <Anim k="f1home"><CardHome design={design} variant="virtual" title="Tarjeta prepaga virtual" mask={newMask} balance={1} startInWallet={walletAdded} onBack={onMenu} onClose={onMenu} /></Anim>;
 
   return null;
 }
@@ -554,7 +554,9 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
 
   // virtual → activá tu tarjeta virtual (creando → lista → tab de tarjetas, ya activa)
   if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="design" onActivated={() => { setActivated(true); setRoute(null); }} />;
-  if (route === 'cardDetail' && openCard) return <Anim k="f5detail"><CardHome variant={openCard.variant} design={openCard.design || 'violeta'} mask={openCard.mask} balance={1} startInWallet={!!openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} /></Anim>;
+  // Onboarding sin tarjetas (f5, !pomelo): recién creada, sin fondos → estado vacío.
+  // Usuario que ya tenía tarjeta (pomelo): mostramos sus movimientos.
+  if (route === 'cardDetail' && openCard) return <Anim k="f5detail"><CardHome variant={openCard.variant} design={openCard.design || 'violeta'} mask={openCard.mask} balance={pomelo ? 1 : 0} startInWallet={!!openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} /></Anim>;
   // Pedir tarjeta (botón +): elegir → física (3 pagos QR) o crédito → dirección.
   if (route === 'add') return <Anim k="f5add"><AddCardScreen onBack={() => setRoute(null)} onClose={onMenu} onFisica={() => setRoute('fvp')} onCredito={() => setRoute('creditoAddr')} /></Anim>;
   if (route === 'fvp') return <Anim k="f5fvp"><FisicaValueProp onBack={() => setRoute(activated ? 'add' : null)} onClose={onMenu} onContinue={() => setRoute('fisicaAddr')} /></Anim>;

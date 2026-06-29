@@ -432,8 +432,8 @@ function CardHome({ design = 'violeta', variant = 'virtual', title, mask = '•�
 
           {/* estado vacío segun fondos */}
           {balance <= 0 && isVirtual ?
-          <EmptyState icon="deposit" title="Depositá para empezar a usar tu tarjeta"
-            sub="Cargá pesos o dólares digitales y pagá en un toque." cta="Depositar" /> :
+          <EmptyState title="¿Qué estás esperando?"
+            sub="Depositá plata para empezar a usar tu tarjeta." cta="Depositar" /> :
 
           <Surface pad={0} style={{ overflow: 'hidden' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 16px 4px' }}>
@@ -505,15 +505,36 @@ const Action = ({ icon, label, onClick }) =>
     <span style={{ font: '500 12px Inter', color: LX.text2 }}>{label}</span>
   </button>;
 
-const EmptyState = ({ icon, title, sub, cta }) =>
-<Surface pad={20} style={{ textAlign: 'center' }}>
-    <div style={{ width: 56, height: 56, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-      <LI name={icon} size={26} color={LX.text1} />
+// Sticker lime con flecha para abajo (recreación del PNG, estilo "deposit").
+const DepositSticker = () =>
+<svg width="116" height="96" viewBox="0 0 116 96" fill="none" xmlns="http://www.w3.org/2000/svg" style={{ display: 'block' }}>
+    <defs>
+      <radialGradient id="lc-dep-lime" cx="40%" cy="32%" r="78%">
+        <stop offset="0%" stopColor="#E9FF85" />
+        <stop offset="58%" stopColor="#B6F33A" />
+        <stop offset="100%" stopColor="#8AD81E" />
+      </radialGradient>
+    </defs>
+    <g transform="rotate(-8 58 48)">
+      <rect x="20" y="8" width="76" height="80" rx="34" fill="#fff" />
+      <rect x="24" y="12" width="68" height="72" rx="30" fill="url(#lc-dep-lime)" />
+      <rect x="25.5" y="13.5" width="65" height="69" rx="28.5" fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="2.5" />
+      <path d="M58 29 V61" stroke="#fff" strokeWidth="9" strokeLinecap="round" />
+      <path d="M43 50 L58 66 L73 50" stroke="#fff" strokeWidth="9" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+    <path d="M101 16 l2.6 6.4 6.4 2.6 -6.4 2.6 -2.6 6.4 -2.6 -6.4 -6.4 -2.6 6.4 -2.6 z" fill="#fff" />
+    <path d="M16 60 l1.8 4.6 4.6 1.8 -4.6 1.8 -1.8 4.6 -1.8 -4.6 -4.6 -1.8 4.6 -1.8 z" fill="#B6F33A" />
+  </svg>;
+
+const EmptyState = ({ title, sub, cta, onCta }) =>
+<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '24px 16px', gap: 24 }}>
+    <DepositSticker />
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+      <div style={{ font: '500 16px Geist', letterSpacing: '-0.1px', color: '#141414' }}>{title}</div>
+      <div style={{ font: '400 14px Inter', letterSpacing: '-0.1px', color: '#818181', lineHeight: 1.57, maxWidth: 296 }}>{sub}</div>
     </div>
-    <div style={{ font: '600 16px Inter', color: LX.text1 }}>{title}</div>
-    <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 4, lineHeight: 1.4 }}>{sub}</div>
-    <div style={{ marginTop: 14 }}><Btn variant="primary" leftIcon="deposit">{cta}</Btn></div>
-  </Surface>;
+    <button onClick={onCta} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 32, padding: '0 16px', background: '#141414', border: 0, borderRadius: 100, cursor: 'pointer', font: '600 12px Inter', letterSpacing: '-0.1px', color: '#fff' }}>{cta}</button>
+  </div>;
 
 // FlipCard — tap/Ver datos → (biometría afuera) → revela datos.
 // CONSTRAINT POMELO: los datos sensibles llegan por webview/iFrame (token).
