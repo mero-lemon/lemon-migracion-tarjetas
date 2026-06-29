@@ -282,6 +282,20 @@ function PagarFisica({ onBack, onClose, onContinue, price = 5, balance = 240 }) 
 
 }
 
+// Banner neutro de renovación (física por vencer) — estilo Figma: gris, 2 pills.
+const RenovarBanner = ({ onRenew, onLater, title = 'Tu Lemon Card física vence pronto', body = 'Renovala antes de que venza para seguir usándola sin cortes.', cta = 'Renovar mi tarjeta', later = 'Ahora no' }) =>
+<div style={{ background: 'rgba(8,8,8,0.07)', borderRadius: 24, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div>
+      <div style={{ font: '500 14px Geist', color: '#080808', letterSpacing: '-0.01em' }}>{title}</div>
+      <div style={{ font: '400 12px Inter', color: 'rgba(8,8,8,0.7)', marginTop: 3, lineHeight: 1.5 }}>{body}</div>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <button onClick={onRenew} style={{ border: 0, cursor: 'pointer', borderRadius: 100, padding: '8px 14px', font: '600 12px Inter', background: LX.dark, color: '#fff' }}>{cta}</button>
+      {onLater && <button onClick={onLater} style={{ border: 0, cursor: 'pointer', borderRadius: 100, padding: '8px 14px', font: '600 12px Inter', background: 'transparent', color: '#080808' }}>{later}</button>}
+    </div>
+  </div>;
+
+
 // Banner lime "Cambia gratis tu tarjeta virtual · Apple Pay" (home de tarjetas)
 // Estilo de la pieza oficial: gradiente lime con blob, tarjetas sangrando por izquierda.
 const CambiaBanner = ({ onPrimary, first }) =>
@@ -308,7 +322,7 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
   // sensible default ownership per mode
   const renewCards = phase === 'active' ?
   [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }] :
-  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Vence pronto' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }];
+  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Próximo a vencer' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }];
   const owned = cards || {
     replaceVirtual: [{ variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }],
     firstVirtual: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }],
@@ -355,17 +369,7 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
         }
 
         {mode === 'renewFisica' && phase === 'expiring' && showExpiringBanner &&
-        <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
-            <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
-              <LI name="alert-time" size={22} color="#854600" style={{ flexShrink: 0, marginTop: 1 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ font: '600 15px Inter', color: '#854600' }}>Tu Lemon Card física vence pronto</div>
-                <div style={{ font: '500 13px Inter', color: '#9a6a1a', marginTop: 3, lineHeight: 1.4 }}>Confirmá tu dirección para recibir la nueva y seguir pagando sin cortes.
-              </div>
-              </div>
-            </div>
-            <button onClick={onPrimary} style={{ width: '100%', marginTop: 13, border: 0, cursor: 'pointer', borderRadius: 999, padding: '12px 18px', background: '#854600', color: '#fff', font: '600 15px Inter' }}>Pedir mi nueva Lemon Card</button>
-          </div>}
+        <RenovarBanner onRenew={onPrimary} />}
 
         <CardsModule cards={owned} onCardTap={onCardTap} />
 
@@ -505,4 +509,4 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner });
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner });

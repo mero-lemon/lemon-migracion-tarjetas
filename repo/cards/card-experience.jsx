@@ -377,17 +377,7 @@ function CardHome({ design = 'violeta', variant = 'virtual', title, mask = '•�
           </div>
 
           {/* Banner de vencimiento (física que vence) — único acceso a renovar */}
-          {expiring &&
-          <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
-            <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
-              <LI name="alert-time" size={22} color="#854600" style={{ flexShrink: 0, marginTop: 1 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ font: '600 15px Inter', color: '#854600' }}>Tu Lemon Card física vence pronto</div>
-                <div style={{ font: '500 13px Inter', color: '#9a6a1a', marginTop: 3, lineHeight: 1.4 }}>Renovala para seguir usándola sin cortes.</div>
-              </div>
-            </div>
-            <button onClick={onRenew} style={{ width: '100%', marginTop: 13, border: 0, cursor: 'pointer', borderRadius: 999, padding: '12px 18px', background: '#854600', color: '#fff', font: '600 15px Inter' }}>Renovar mi Lemon Card</button>
-          </div>}
+          {expiring && <RenovarBanner onRenew={onRenew} />}
 
           {/* Agregar a Wallet — destacado, solo virtual, desaparece al sumarla */}
           {isVirtual && !inWallet &&
