@@ -18,7 +18,7 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
   const goWallet = () => { setWalletAdded(true); setStep('wallet'); };
   useEffectF(() => {
     if (step !== 'wallet') return;
-    const t = setTimeout(() => { standalone ? setStep('home') : onActivated && onActivated(); }, 1800);
+    const t = setTimeout(() => { standalone ? setStep('home') : onActivated && onActivated(true, design); }, 1800);
     return () => clearTimeout(t);
   }, [step]);
 
@@ -88,7 +88,7 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
         <VirtualReady
         design={design} mask={newMask}
         onWallet={goWallet}
-        onSeeCard={standalone ? () => setStep('home') : onActivated || onMenu}
+        onSeeCard={standalone ? () => setStep('home') : () => (onActivated ? onActivated(false, design) : onMenu())}
         onMenu={onMenu} />
       </Anim>);
 
@@ -551,9 +551,16 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   const [track, setTrack] = useStateF(false);
   const [openCard, setOpenCard] = useStateF(null);            // tarjeta abierta en su detalle
   const [addr, setAddr] = useStateF(undefined);               // dirección de envío elegida
+  const [virtualInWallet, setVirtualInWallet] = useStateF(!!pomelo); // la virtual está en Apple Pay
+  const [virtualDesign, setVirtualDesign] = useStateF('violeta');    // diseño elegido en el picker
 
-  // virtual → activá tu tarjeta virtual (creando → lista → tab de tarjetas, ya activa)
-  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="design" onActivated={() => { setActivated(true); setRoute(null); }} />;
+  // virtual → activá tu tarjeta virtual (creando → lista → home de la tarjeta nueva).
+  // inWallet refleja si pasó por "Quiero Apple Pay" (true) o "Ir a tu tarjeta creada" (false).
+  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="design" onActivated={(inWallet, dsg) => {
+    setActivated(true); setVirtualInWallet(!!inWallet); if (dsg) setVirtualDesign(dsg);
+    setOpenCard({ variant: 'virtual', design: dsg || 'violeta', mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: !!inWallet });
+    setRoute('cardDetail');
+  }} />;
   // Onboarding sin tarjetas (f5, !pomelo): recién creada, sin fondos → estado vacío.
   // Usuario que ya tenía tarjeta (pomelo): mostramos sus movimientos.
   if (route === 'cardDetail' && openCard) return <Anim k="f5detail"><CardHome variant={openCard.variant} design={openCard.design || 'violeta'} mask={openCard.mask} balance={pomelo ? 1 : 0} startInWallet={!!openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} /></Anim>;
@@ -573,7 +580,7 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
 
   const cards = [
   activated ?
-  { variant: 'virtual', title: 'Tarjeta virtual', mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: true } :
+  { variant: 'virtual', title: 'Tarjeta virtual', design: virtualDesign, mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: virtualInWallet } :
   { variant: 'virtual', title: 'Tarjeta virtual', mask: '••••', activate: true }];
 
   if (fisicaActive) cards.push({ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' });
