@@ -236,14 +236,10 @@ function PagarFisica({ onBack, onClose, onContinue, price = 5, balance = 240 }) 
       <StepHeader title="Tarjeta física" onBack={onBack} onClose={onClose} />
       <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Pedí tu Lemon Card física</div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Pagá tu Lemon Card física</div>
           <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-            Tiene un costo único de <b style={{ color: LX.text1 }}>US$ {price}</b>. Lo descontamos de tu saldo y te la enviamos a tu casa, sin cargo de envío.
+            Tiene un costo único de <b style={{ color: LX.text1 }}>US$ {price}</b>. Lo descontamos de tu saldo y te la enviamos a tu casa.
           </div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0' }}>
-          <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={210} glow /></div>
         </div>
 
         {/* detalle del cobro */}
@@ -277,6 +273,98 @@ function PagarFisica({ onBack, onClose, onContinue, price = 5, balance = 240 }) 
             <LI name="arrow-foward" size={18} color={LX.text3} />
           </div>
         </Surface>
+      </div>
+    </Screen>);
+
+}
+
+// Paso 1 de pedir física: value prop con animación (estilo Cash App).
+function FisicaValueProp({ onBack, onClose, onContinue }) {
+  const [up, setUp] = useStateSh(false);
+  React.useEffect(() => { const t = setTimeout(() => setUp(true), 80);return () => clearTimeout(t); }, []);
+  const props = [
+  ['currency-bitcoin', 'Cashback en cripto', 'En cada compra, en pesos o dólar digital.'],
+  ['currency-dollar', 'Internacional, sin impuesto extra', 'Pagá en todo el mundo con dólar digital.'],
+  ['celphone', 'Contactless', 'Apoyala en el posnet y listo.'],
+  ['deposit', 'Envío gratis a tu casa', 'Te la mandamos sin cargo, lista para activar.']];
+
+  return (
+    <Screen bg="radial-gradient(120% 70% at 50% 0%, #14342f 0%, #0a0a10 62%)" footer={
+    <div style={{ opacity: up ? 1 : 0, transition: 'opacity .5s .5s' }}>
+        <Btn variant="brand" onClick={onContinue}>Pedir mi Lemon Card</Btn>
+      </div>
+    }>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
+        <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
+          <LI name="arrow-back" size={22} color="#fff" />
+        </button>
+      </div>
+      <div style={{ padding: '8px 24px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* card animada: sube + flota + glow */}
+        <div style={{ transform: up ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.9)', opacity: up ? 1 : 0, transition: 'transform .8s cubic-bezier(.34,1.56,.64,1), opacity .5s' }}>
+          <div style={{ animation: 'lc-float 3.8s ease-in-out infinite' }}><CardArt variant="fisica" width={250} glow /></div>
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 24, opacity: up ? 1 : 0, transform: up ? 'none' : 'translateY(14px)', transition: 'opacity .5s .2s, transform .6s .2s' }}>
+          <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: '#fff' }}>Tu Lemon, en la mano</div>
+          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.7)', marginTop: 8, lineHeight: 1.45, maxWidth: 300 }}>Edición boutique, con envío a tu casa. Esto es lo que sumás:</div>
+        </div>
+        {/* value props con stagger */}
+        <div style={{ width: '100%', marginTop: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {props.map(([ic, t, s], i) =>
+          <div key={i} style={{ display: 'flex', gap: 13, alignItems: 'flex-start', opacity: up ? 1 : 0, transform: up ? 'none' : 'translateY(16px)', transition: `opacity .5s ${0.3 + i * 0.1}s, transform .6s ${0.3 + i * 0.1}s` }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name={ic} size={20} color="var(--c-lime-40)" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ font: '600 15px Inter', color: '#fff' }}>{t}</div>
+                <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.6)', marginTop: 2, lineHeight: 1.4 }}>{s}</div>
+              </div>
+            </div>)}
+        </div>
+      </div>
+    </Screen>);
+
+}
+
+// Paso 2 de pedir física: completar dirección (search + resultados, estilo Figma).
+function AddressSearch({ onBack, onClose, onPick }) {
+  const [q, setQ] = useStateSh('Malabia');
+  const all = [
+  ['Malabia 1720', 'Palermo, CABA · C1414AAP'],
+  ['Malabia 1730', 'Palermo, CABA · C1414AAP'],
+  ['Av. Malabia 855', 'Villa Crespo, CABA · C1414DMS'],
+  ['Malabia 2480', 'Palermo, CABA · C1425DTT'],
+  ['Malabia 145', 'Caballito, CABA · C1424BUA'],
+  ['Malabia 1010', 'Villa Crespo, CABA · C1414DLR']];
+
+  const results = all.filter((a) => a[0].toLowerCase().includes(q.toLowerCase().trim()) || !q.trim());
+
+  return (
+    <Screen footer={
+    <Btn variant="ghost" onClick={() => onPick(all[0])} style={{ color: 'var(--c-greent-50)' }}>No encuentro mi dirección</Btn>
+    }>
+      <BigHeader title="¿Dónde te la enviamos?" onBack={onBack} right={<span style={{ width: 40 }} />} />
+      <div style={{ padding: '8px 16px 4px' }}>
+        {/* search */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 56, padding: '0 16px', background: 'rgba(8,8,9,0.05)', border: '1px solid #E6E6E6', borderRadius: 100 }}>
+          <LI name="search" size={22} color="#818181" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscá tu dirección" style={{ flex: 1, border: 0, outline: 'none', background: 'transparent', font: '400 16px Inter', color: LX.text1, letterSpacing: '-0.1px' }} />
+        </div>
+        <div style={{ font: '500 14px Inter', color: '#808080', margin: '20px 2px 4px' }}>Resultados</div>
+      </div>
+      <div>
+        {results.map(([a, b], i) =>
+        <button key={i} onClick={() => onPick([a, b])} style={{ display: 'block', width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="positive-location" size={20} color={LX.text2} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 16px Inter', color: '#050505' }}>{a}</div>
+                <div style={{ font: '400 14px Inter', color: '#808080', marginTop: 1 }}>{b}</div>
+              </div>
+            </div>
+          </button>)}
       </div>
     </Screen>);
 
@@ -331,16 +419,18 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
     twoCards: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }]
   }[mode] || [];
 
-  // Subflujo "pedir tarjeta" (botón +): física (3 pagos QR) / crédito.
+  // Subflujo "pedir tarjeta" (botón +): física = value prop → dirección → pago.
   const [sub, setSub] = useStateSh(null);
   if (sub === 'add')
-  return <AddCardScreen onBack={() => setSub(null)} onClose={() => setSub(null)} onFisica={() => setSub('qr')} onCredito={() => setSub('addrC')} />;
-  if (sub === 'qr')
-  return <PagarFisica onBack={() => setSub('add')} onClose={() => setSub(null)} onContinue={() => setSub('addr')} />;
+  return <AddCardScreen onBack={() => setSub(null)} onClose={() => setSub(null)} onFisica={() => setSub('fvp')} onCredito={() => setSub('addrC')} />;
+  if (sub === 'fvp')
+  return <FisicaValueProp onBack={() => setSub('add')} onClose={() => setSub(null)} onContinue={() => setSub('addr')} />;
   if (sub === 'addr')
-  return <AddressScreen onBack={() => setSub('qr')} onClose={() => setSub(null)} onConfirm={() => setSub('done')} />;
+  return <AddressSearch onBack={() => setSub('fvp')} onClose={() => setSub(null)} onPick={() => setSub('pay')} />;
+  if (sub === 'pay')
+  return <PagarFisica onBack={() => setSub('addr')} onClose={() => setSub(null)} onContinue={() => setSub('done')} />;
   if (sub === 'addrC')
-  return <AddressScreen onBack={() => setSub('add')} onClose={() => setSub(null)} onConfirm={() => setSub('done')} />;
+  return <AddressSearch onBack={() => setSub('add')} onClose={() => setSub(null)} onPick={() => setSub('done')} />;
   if (sub === 'done')
   return <OrderConfirmation onDone={() => setSub(null)} onMenu={() => setSub(null)} />;
 
@@ -509,4 +599,4 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner });
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner, FisicaValueProp, AddressSearch });
