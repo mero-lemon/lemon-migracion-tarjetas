@@ -398,9 +398,10 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
                 <Divider />
                 <Bullet icon="celphone" t="Seguís pagando con NFC mientras llega" s="Usá la virtual en el celu sin interrupciones." />
                 <Divider />
-                <Bullet icon="programed-tx" t="La vieja se da de baja al activar la nueva" s="Re-vinculá tus débitos automáticos cuando la actives." tone="warn" />
+                <Bullet icon="programed-tx" t="La vieja se da de baja al activar la nueva" s="Hasta entonces seguí usándola normal." tone="warn" />
               </div>
             </Surface>
+            <DebitosInfo />
           </div>
         </Screen>
       </Anim>);
@@ -777,4 +778,4 @@ function DeliveryOnboarding({ onDone, onMenu }) {
 const Anim = ({ children, k, noWrap }) =>
 noWrap ? children : <div key={k} style={{ height: '100%' }}>{children}</div>;
 
-Object.assign(window, { Flow1, Flow2, Flow3, Flow4, Flow5, PedirFisicaFlow, RequisitoChooser, ChooserScreen, NfcSuccess, RequisitoScreen, PortfolioScreen, DeliveryOnboarding, CardActivation, VirtualUpsell, LoadingScreen, Anim, Bullet, Breakdown, DebitosInfo });
+Object.assign(window, { Flow1, Flow2, Flow3, Flow4, Flow5, PedirFisicaFlow, RequisitoChooser, ChooserScreen, NfcSuccess, RequisitoScreen, PortfolioScreen, DeliveryOnboarding, CardActivation, VirtualUpsell, LoadingScreen, Anim, Bullet, Breakdown });
