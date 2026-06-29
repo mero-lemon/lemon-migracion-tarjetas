@@ -160,6 +160,7 @@ function NfcSuccess({ onDone, onMenu }) {
 // ════════════════════════════════════════════════════════════════
 function Flow2({ onMenu, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
+  const [addr, setAddr] = useStateF(undefined);
   const back = () => startStep === 'hub' ? setStep('hub') : onMenu();
   if (step === 'hub')
   return <Anim k="f2hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('fvp')} onActivate={() => setStep('activate')} /></Anim>;
@@ -168,9 +169,9 @@ function Flow2({ onMenu, startStep = 'hub', onComplete }) {
   if (step === 'activate')
   return <CardActivation onBack={back} onClose={onMenu} onDone={onComplete || (() => setStep('hub'))} />;
   if (step === 'address')
-  return <Anim k="f2addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={() => setStep('pay')} /></Anim>;
+  return <Anim k="f2addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
   if (step === 'pay')
-  return <Anim k="f2pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onContinue={() => setStep('done')} /></Anim>;
+  return <Anim k="f2pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f2done"><OrderConfirmation onDone={onComplete || (() => setStep('hub'))} onMenu={onMenu} /></Anim>;
   return null;
@@ -181,14 +182,15 @@ function Flow2({ onMenu, startStep = 'hub', onComplete }) {
 // ════════════════════════════════════════════════════════════════
 function Flow3({ onMenu, meets, onMeet, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
+  const [addr, setAddr] = useStateF(undefined);
   if (step === 'hub')
   return <Anim k="f3hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('fvp')} /></Anim>;
   if (step === 'fvp')
   return <Anim k="f3fvp"><FisicaValueProp onBack={() => startStep === 'hub' ? setStep('hub') : onMenu()} onClose={onMenu} onContinue={() => setStep('address')} /></Anim>;
   if (step === 'address')
-  return <Anim k="f3addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={() => setStep('pay')} /></Anim>;
+  return <Anim k="f3addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
   if (step === 'pay')
-  return <Anim k="f3pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onContinue={() => setStep('done')} /></Anim>;
+  return <Anim k="f3pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f3done"><OrderConfirmation onDone={onComplete || (() => setStep('hub'))} onMenu={onMenu} /></Anim>;
   return null;
@@ -337,6 +339,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   const [track, setTrack] = useStateF(false);
   const [virtualDone, setVirtualDone] = useStateF(false); // ya pasó por el upsell de la virtual
   const [reqFrom, setReqFrom] = useStateF('renew'); // adónde vuelve el back del requisito
+  const [addr, setAddr] = useStateF(undefined);
   if (step === 'hub')
   return (
     <Anim k={'f4hub' + phase}>
@@ -405,9 +408,9 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   if (step === 'detail')
   return <Anim k="f4detail"><CardHome variant="fisica" mask="•••• 4971" balance={1} expiring onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('address'); }} /></Anim>;
   if (step === 'address')
-  return <Anim k="f4addr"><AddressSearch onBack={() => setStep(reqFrom)} onClose={onMenu} onPick={() => setStep('pay')} /></Anim>;
+  return <Anim k="f4addr"><AddressSearch onBack={() => setStep(reqFrom)} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
   if (step === 'pay')
-  return <Anim k="f4pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onContinue={() => setStep('done')} /></Anim>;
+  return <Anim k="f4pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
   if (step === 'delivery')
@@ -518,6 +521,7 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   const [fisicaActive, setFisicaActive] = useStateF(false);   // física activada
   const [track, setTrack] = useStateF(false);
   const [openCard, setOpenCard] = useStateF(null);            // tarjeta abierta en su detalle
+  const [addr, setAddr] = useStateF(undefined);               // dirección de envío elegida
 
   // virtual → activá tu tarjeta virtual (creando → lista → tab de tarjetas, ya activa)
   if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="design" onActivated={() => { setActivated(true); setRoute(null); }} />;
@@ -525,8 +529,8 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   // Pedir tarjeta (botón +): elegir → física (3 pagos QR) o crédito → dirección.
   if (route === 'add') return <Anim k="f5add"><AddCardScreen onBack={() => setRoute(null)} onClose={onMenu} onFisica={() => setRoute('fvp')} onCredito={() => setRoute('creditoAddr')} /></Anim>;
   if (route === 'fvp') return <Anim k="f5fvp"><FisicaValueProp onBack={() => setRoute(activated ? 'add' : null)} onClose={onMenu} onContinue={() => setRoute('fisicaAddr')} /></Anim>;
-  if (route === 'fisicaAddr') return <Anim k="f5faddr"><AddressSearch onBack={() => setRoute('fvp')} onClose={onMenu} onPick={() => setRoute('fisicaPay')} /></Anim>;
-  if (route === 'fisicaPay') return <Anim k="f5fpay"><PagarFisica onBack={() => setRoute('fisicaAddr')} onClose={onMenu} onContinue={() => { setFisicaTransit(true); setRoute(null); }} /></Anim>;
+  if (route === 'fisicaAddr') return <Anim k="f5faddr"><AddressSearch onBack={() => setRoute('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setRoute('fisicaPay'); }} /></Anim>;
+  if (route === 'fisicaPay') return <Anim k="f5fpay"><PagarFisica onBack={() => setRoute('fisicaAddr')} onClose={onMenu} onChangeAddress={() => setRoute('fisicaAddr')} address={addr} onContinue={() => { setFisicaTransit(true); setRoute(null); }} /></Anim>;
   if (route === 'creditoAddr') return <Anim k="f5caddr"><AddressSearch onBack={() => setRoute('add')} onClose={onMenu} onPick={() => setRoute('creditoDone')} /></Anim>;
   if (route === 'creditoDone') return <Anim k="f5cdone"><OrderConfirmation onDone={() => setRoute(null)} onMenu={onMenu} /></Anim>;
   if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} />;

@@ -230,49 +230,74 @@ function AddCardScreen({ onBack, onClose, onFisica, onCredito }) {
 }
 
 // Requisito física = pagar la tarjeta (costo único que se descuenta del saldo).
-function PagarFisica({ onBack, onClose, onContinue, price = 5, balance = 240 }) {
+function PagarFisica({ onBack, onClose, onContinue, onChangeAddress, price = 5, balance = 240, address = ['Malabia 1720', 'Palermo, CABA · C1414AAP'] }) {
+  const labelStyle = { font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '0 2px 8px' };
   return (
-    <Screen footer={<Btn variant="primary" leftIcon="currency-dollar" onClick={onContinue}>Pagar y pedir mi tarjeta</Btn>}>
-      <StepHeader title="Tarjeta física" onBack={onBack} onClose={onClose} />
-      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <Screen footer={<Btn variant="primary" onClick={onContinue}>Pagar y pedir</Btn>}>
+      <StepHeader title="Confirmá tu pedido" onBack={onBack} onClose={onClose} />
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 20 }}>
         <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Pagá tu Lemon Card física</div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Revisá tu pedido</div>
           <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-            Tiene un costo único de <b style={{ color: LX.text1 }}>US$ {price}</b>. Lo descontamos de tu saldo y te la enviamos a tu casa.
+            Confirmá los datos y pagá para que salga a tu casa.
           </div>
         </div>
 
-        {/* detalle del cobro */}
-        <Surface pad={18}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
-            <span style={{ font: '400 14px Inter', color: LX.text2 }}>Lemon Card física</span>
-            <span style={{ font: '500 14px Geist', color: LX.text1 }}>US$ {price}</span>
-          </div>
-          <Divider style={{ margin: '10px 0' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
-            <span style={{ font: '400 14px Inter', color: LX.text2 }}>Envío a domicilio</span>
-            <span style={{ font: '600 13px Inter', color: 'var(--c-lemon-60)' }}>Gratis</span>
-          </div>
-          <Divider style={{ margin: '10px 0' }} />
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '4px 0' }}>
-            <span style={{ font: '600 15px Inter', color: LX.text1 }}>Total</span>
-            <span style={{ font: '500 18px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>US$ {price}</span>
+        {/* 1. resumen de la tarjeta */}
+        <Surface pad={14}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ flexShrink: 0, filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.18))' }}>
+              <CardArt variant="fisica" width={78} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '600 16px Inter', color: LX.text1 }}>Lemon Card física</div>
+              <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 2, lineHeight: 1.4 }}>Activala cuándo la recibas.</div>
+            </div>
           </div>
         </Surface>
 
-        {/* método de pago */}
-        <Surface pad={0} style={{ overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <LI name="wallet" size={20} color={LX.text1} />
+        {/* 2. confirmar dirección */}
+        <div>
+          <div style={labelStyle}>Enviar a</div>
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="positive-location" size={20} color={LX.text1} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 14px Inter', color: LX.text1 }}>{address[0]}</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{address[1]}</div>
+              </div>
+              {onChangeAddress &&
+              <button onClick={onChangeAddress} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 13px Inter', color: 'var(--c-greent-50)', flexShrink: 0 }}>Cambiar</button>}
             </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ font: '600 14px Inter', color: LX.text1 }}>Pagás con tu saldo</div>
-              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Disponible: US$ {balance}</div>
+          </Surface>
+        </div>
+
+        {/* 3. pago — todo de una, sin desglose */}
+        <div>
+          <div style={labelStyle}>Pago</div>
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="wallet" size={20} color={LX.text1} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 14px Inter', color: LX.text1 }}>Pagás con tu saldo</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Disponible: US$ {balance}</div>
+              </div>
+              <LI name="arrow-foward" size={18} color={LX.text3} />
             </div>
-            <LI name="arrow-foward" size={18} color={LX.text3} />
-          </div>
-        </Surface>
+            <Divider />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
+              <div>
+                <div style={{ font: '600 15px Inter', color: LX.text1 }}>Total a pagar</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Pago único, con envío incluido.</div>
+              </div>
+              <span style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>US$ {price}</span>
+            </div>
+          </Surface>
+        </div>
       </div>
     </Screen>);
 
@@ -328,14 +353,14 @@ function FisicaValueProp({ onBack, onClose, onContinue }) {
 
 // Paso 2 de pedir física: completar dirección (search + resultados, estilo Figma).
 function AddressSearch({ onBack, onClose, onPick }) {
-  const [q, setQ] = useStateSh('Malabia');
+  const [q, setQ] = useStateSh('');
   const all = [
   ['Malabia 1720', 'Palermo, CABA · C1414AAP'],
-  ['Malabia 1730', 'Palermo, CABA · C1414AAP'],
-  ['Av. Malabia 855', 'Villa Crespo, CABA · C1414DMS'],
-  ['Malabia 2480', 'Palermo, CABA · C1425DTT'],
-  ['Malabia 145', 'Caballito, CABA · C1424BUA'],
-  ['Malabia 1010', 'Villa Crespo, CABA · C1414DLR']];
+  ['Thames 2280', 'Palermo, CABA · C1425FIF'],
+  ['Av. Corrientes 4850', 'Almagro, CABA · C1414AJR'],
+  ['Gurruchaga 1085', 'Villa Crespo, CABA · C1414DLR'],
+  ['Av. Cabildo 2230', 'Belgrano, CABA · C1428AAV'],
+  ['Defensa 670', 'San Telmo, CABA · C1065AAN']];
 
   const results = all.filter((a) => a[0].toLowerCase().includes(q.toLowerCase().trim()) || !q.trim());
 
@@ -421,14 +446,15 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
 
   // Subflujo "pedir tarjeta" (botón +): física = value prop → dirección → pago.
   const [sub, setSub] = useStateSh(null);
+  const [shipAddr, setShipAddr] = useStateSh(undefined);
   if (sub === 'add')
   return <AddCardScreen onBack={() => setSub(null)} onClose={() => setSub(null)} onFisica={() => setSub('fvp')} onCredito={() => setSub('addrC')} />;
   if (sub === 'fvp')
   return <FisicaValueProp onBack={() => setSub('add')} onClose={() => setSub(null)} onContinue={() => setSub('addr')} />;
   if (sub === 'addr')
-  return <AddressSearch onBack={() => setSub('fvp')} onClose={() => setSub(null)} onPick={() => setSub('pay')} />;
+  return <AddressSearch onBack={() => setSub('fvp')} onClose={() => setSub(null)} onPick={(a) => { setShipAddr(a); setSub('pay'); }} />;
   if (sub === 'pay')
-  return <PagarFisica onBack={() => setSub('addr')} onClose={() => setSub(null)} onContinue={() => setSub('done')} />;
+  return <PagarFisica onBack={() => setSub('addr')} onClose={() => setSub(null)} onChangeAddress={() => setSub('addr')} address={shipAddr} onContinue={() => setSub('done')} />;
   if (sub === 'addrC')
   return <AddressSearch onBack={() => setSub('add')} onClose={() => setSub(null)} onPick={() => setSub('done')} />;
   if (sub === 'done')
