@@ -415,7 +415,7 @@ function CardHome({ design = 'violeta', variant = 'virtual', title, mask = '•�
 
           {/* acciones: 2-3 importantes + Configurar */}
           <div style={{ display: 'flex', justifyContent: actions.length > 3 ? 'space-between' : 'center', gap: actions.length > 3 ? 4 : 26, padding: actions.length > 3 ? '0 6px' : 0 }}>
-            {actions.map((a) => <Action key={a.label} icon={a.icon} label={a.label} onClick={a.onClick} />)}
+            {actions.map((a) => <Action key={a.label} icon={a.icon} label={a.label} onClick={a.onClick} dark={!isVirtual} />)}
           </div>
 
           {/* Banner de vencimiento (física que vence) — único acceso a renovar */}
@@ -497,12 +497,12 @@ function WalletAddOverlay({ open, design, variant }) {
 
 }
 
-const Action = ({ icon, label, onClick }) =>
+const Action = ({ icon, label, onClick, dark }) =>
 <button onClick={onClick} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, background: 'transparent', border: 0, cursor: onClick ? 'pointer' : 'default', opacity: onClick ? 1 : 0.5 }}>
-    <div style={{ width: 54, height: 54, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <LI name={icon} size={22} color={LX.text1} />
+    <div style={{ width: 48, height: 48, borderRadius: 999, background: dark ? '#141414' : LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <LI name={icon} size={22} color={dark ? '#fff' : LX.text1} />
     </div>
-    <span style={{ font: '500 12px Inter', color: LX.text2 }}>{label}</span>
+    <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#141414' }}>{label}</span>
   </button>;
 
 // Sticker lime con flecha para abajo (recreación del PNG, estilo "deposit").

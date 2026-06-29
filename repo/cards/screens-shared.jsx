@@ -489,12 +489,12 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
 
         <CardsModule cards={owned} onCardTap={onCardTap} />
 
-        {/* Banner NFC: entre las tarjetas y los movimientos (incentiva la nueva virtual).
-            En renovación NO va: ahí el banner relevante es el de vencimiento. */}
-        {(mode === 'replaceVirtual' || mode === 'firstVirtual') &&
-        <CambiaBanner onPrimary={onPrimary} first={mode === 'firstVirtual'} />}
+        {/* Banner NFC lime: incentiva sumar la virtual a Apple Pay.
+            En renovación va como promo secundaria (el de vencimiento es el principal). */}
+        {(mode === 'replaceVirtual' || mode === 'firstVirtual' || mode === 'renewFisica') &&
+        <CambiaBanner onPrimary={mode === 'renewFisica' ? onNfc || onPrimary : onPrimary} first={mode === 'firstVirtual'} />}
 
-        <ExteriorBanner />
+        {mode !== 'renewFisica' && <ExteriorBanner />}
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
           <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
