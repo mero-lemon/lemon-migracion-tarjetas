@@ -1,5 +1,5 @@
 // The three card flows. Each manages its own step state.
-const { useState: useStateF } = React;
+const { useState: useStateF, useEffect: useEffectF } = React;
 
 // ════════════════════════════════════════════════════════════════
 // FLOW 1 — Nueva tarjeta virtual (reemplazo) + NFC / Wallet
@@ -8,10 +8,19 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
   const [step, setStep] = useStateF(startStep);
   const [ack, setAck] = useStateF(false);
   const [design, setDesign] = useStateF('violeta'); // diseño elegido en el picker
+  const [walletAdded, setWalletAdded] = useStateF(false); // ya pasó por "Agregando a Apple Pay…"
   // standalone (f1/f1b): al terminar caemos en el home de la tarjeta nueva.
   // embebido (Flow4/Flow5): devolvemos el control al flujo padre vía onActivated/onMenu.
   const standalone = startStep === 'hub';
   const newMask = '•••• 2291';
+
+  // "Quiero Apple Pay": corre el proceso de alta en la wallet y recién ahí avanza.
+  const goWallet = () => { setWalletAdded(true); setStep('wallet'); };
+  useEffectF(() => {
+    if (step !== 'wallet') return;
+    const t = setTimeout(() => { standalone ? setStep('home') : onActivated && onActivated(); }, 1800);
+    return () => clearTimeout(t);
+  }, [step]);
 
   if (step === 'hub')
   return <Anim k="f1hub"><TarjetasHub mode={replace ? 'replaceVirtual' : 'firstVirtual'} onBack={onMenu} onPrimary={() => {setAck(false);setStep(replace ? 'replace' : 'design');}} /></Anim>;
@@ -78,14 +87,24 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
     <Anim k="f1ready">
         <VirtualReady
         design={design} mask={newMask}
-        onWallet={onActivated || (standalone ? () => setStep('home') : onMenu)}
-        onSeeCard={onActivated || (standalone ? () => setStep('home') : onMenu)}
+        onWallet={goWallet}
+        onSeeCard={standalone ? () => setStep('home') : onActivated || onMenu}
         onMenu={onMenu} />
+      </Anim>);
+
+  // "Agregando a Apple Pay…" — proceso real antes de avanzar.
+  if (step === 'wallet')
+  return (
+    <Anim k="f1wallet">
+        <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 38%, #1c1838 0%, #0a0a10 72%)">
+          <div style={{ height: '100%' }} />
+          <WalletAddOverlay open design={design} />
+        </Screen>
       </Anim>);
 
 
   if (step === 'home')
-  return <Anim k="f1home"><CardHome design={design} variant="virtual" title="Tarjeta prepaga virtual" mask={newMask} balance={0} onBack={onMenu} onClose={onMenu} /></Anim>;
+  return <Anim k="f1home"><CardHome design={design} variant="virtual" title="Tarjeta prepaga virtual" mask={newMask} balance={0} startInWallet={walletAdded} onBack={onMenu} onClose={onMenu} /></Anim>;
 
   return null;
 }
@@ -476,37 +495,46 @@ function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = fals
 
 // shipment tracking (opens from the "Tarjeta en proceso" banner)
 function TrackingContent({ onClose }) {
+  const GREEN = '#00CA57';
   const steps = [
-  ['Pedido confirmado', 'Mar 3 jun · 10:24', true],
-  ['Tu tarjeta salió del depósito', 'Mié 4 jun · 08:10', true],
-  ['En camino a tu domicilio', 'Llega hoy, entre las 14 y 18 h', 'now'],
-  ['Entregada', 'Malabia 1720, Palermo', false]];
+  { t: 'Pediste tu tarjeta', s: 'Solicitaste tu tarjeta el día 21 de enero.', done: true },
+  { t: 'El correo tiene tu tarjeta', s: 'Nº de envío: GP0870730420NA', link: 'Seguir envío en Andreani', done: true },
+  { t: '¡Llega hoy!', s: 'Puede ser recibida por cualquier persona mayor de 13 años presentando su DNI.', done: true },
+  { t: 'Pendiente de entrega', s: 'Recibirás la tarjeta entre el 28 de enero y el 7 de febrero.', done: false }];
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: 4 }}>
-        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Seguimiento del envío</div>
-        <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 6 }}>Tu Lemon Card •••• 5520 está en camino</div>
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Seguí tu envío</div>
       </div>
-      <Surface pad={16} style={{ margin: '16px 0' }}>
-        {steps.map(([t, d, state], i) =>
-        <div key={i} style={{ display: 'flex', gap: 12 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{
-              width: 24, height: 24, borderRadius: 999, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 12px Inter',
-              background: state === true ? 'var(--c-lemon-50)' : state === 'now' ? 'var(--c-lime-40)' : LX.layer3,
-              color: state === true ? '#fff' : LX.dark
-            }}>{state === true ? '✓' : ''}</span>
-              {i < steps.length - 1 && <span style={{ width: 2, flex: 1, minHeight: 22, background: LX.hair, margin: '2px 0' }} />}
-            </div>
-            <div style={{ paddingBottom: i < steps.length - 1 ? 16 : 0 }}>
-              <div style={{ font: '600 14px Inter', color: state === false ? LX.text3 : LX.text1 }}>{t}</div>
-              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{d}</div>
-            </div>
-          </div>
-        )}
-      </Surface>
+      <div style={{ padding: '2px 0 4px' }}>
+        {steps.map((st, i) => {
+          const last = i === steps.length - 1;
+          // el tramo verde llega hasta el último paso cumplido; lo pendiente, gris
+          const lineColor = st.done && steps[i + 1] && steps[i + 1].done ? GREEN : 'rgba(5,5,5,0.2)';
+          return (
+            <div key={i} style={{ display: 'flex', gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{
+                  width: 22, height: 22, borderRadius: 999, flexShrink: 0, boxSizing: 'border-box',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: st.done ? GREEN : 'transparent',
+                  border: st.done ? 'none' : '2px solid rgba(5,5,5,0.2)'
+                }}>{st.done && <LI name="feedback-positive" size={13} color="#fff" />}</span>
+                {!last && <span style={{ width: 2, flex: 1, minHeight: 30, background: lineColor, margin: '3px 0' }} />}
+              </div>
+              <div style={{ paddingBottom: last ? 0 : 18, flex: 1, minWidth: 0 }}>
+                <div style={{ font: '700 16px Inter', letterSpacing: '0.01em', color: st.done ? '#050505' : 'rgba(5,5,5,0.45)' }}>{st.t}</div>
+                <div style={{ font: '400 14px Inter', color: '#808080', marginTop: 3, lineHeight: 1.43 }}>{st.s}</div>
+                {st.link &&
+                <button onClick={(e) => e.preventDefault()} style={{ border: 0, background: 'transparent', padding: 0, marginTop: 4, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 14px Inter', color: GREEN }}>
+                  {st.link}<LI name="arrow-foward" size={14} color={GREEN} />
+                </button>}
+              </div>
+            </div>);
+
+        })}
+      </div>
       <Btn variant="primary" onClick={onClose}>Entendido</Btn>
     </div>);
 

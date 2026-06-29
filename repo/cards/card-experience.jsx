@@ -126,67 +126,95 @@ function DesignPicker({ onBack, onClose, onChoose, headline = 'Elegí el diseño
 // keyframes futuristas (se inyectan una vez)
 const _morphCSS = `
 @keyframes lc-halo{to{transform:rotate(360deg)}}
-@keyframes lc-ring{0%{transform:translate(-50%,-50%) scale(.45);opacity:.55}100%{transform:translate(-50%,-50%) scale(1.8);opacity:0}}
+@keyframes lc-spin{to{transform:rotate(360deg)}}
+@keyframes lc-ring{0%{transform:translate(-50%,-50%) scale(.45);opacity:.55}100%{transform:translate(-50%,-50%) scale(1.85);opacity:0}}
 @keyframes lc-float{0%,100%{transform:translateY(0) rotateZ(-1.5deg)}50%{transform:translateY(-12px) rotateZ(1.5deg)}}
+@keyframes lc-tilt{0%,100%{transform:translateY(0) rotateX(7deg) rotateY(-11deg)}50%{transform:translateY(-12px) rotateX(-5deg) rotateY(11deg)}}
 @keyframes lc-scan{0%{transform:translateY(-140%)}100%{transform:translateY(240%)}}
-@keyframes lc-spark{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}`;
+@keyframes lc-spark{0%,100%{opacity:.2;transform:scale(.7)}50%{opacity:1;transform:scale(1)}}
+@keyframes lc-converge{0%{transform:translate(var(--tx),var(--ty)) scale(.3);opacity:0}28%{opacity:1}100%{transform:translate(0,0) scale(.1);opacity:0}}
+@keyframes lc-sweep{0%{transform:translateX(-180%) skewX(-14deg);opacity:0}16%{opacity:.95}52%{opacity:.95}100%{transform:translateX(220%) skewX(-14deg);opacity:0}}
+@keyframes lc-flash{0%{transform:translate(-50%,-50%) scale(.25);opacity:0}38%{opacity:1}100%{transform:translate(-50%,-50%) scale(2.5);opacity:0}}
+@keyframes lc-pulse{0%,100%{opacity:.4}50%{opacity:.8}}`;
 if (typeof document !== 'undefined' && !document.getElementById('lc-morph-style')) {
   const st = document.createElement('style');st.id = 'lc-morph-style';st.textContent = _morphCSS;document.head.appendChild(st);
 }
 
 // ── Create / morph ──────────────────────────────────────────────
-// Creación 100% visual, sin texto: la virtual se materializa sobre un escenario
-// holográfico (halo girando, anillos de energía, scanline, sparks) y morfea del
-// diseño actual al elegido, con un destello final mágico.
+// Creación 100% visual, sin texto: partículas convergen y se "absorben" para
+// formar la tarjeta, un anillo cónico iridiscente gira detrás, un barrido
+// especular de luz cruza la tarjeta y morfea del diseño actual al elegido,
+// con tilt 3D y un flash final de revelado.
 function MorphCreate({ fromDesign = 'violeta', toDesign, replace = false, onDone }) {
   const [phase, setPhase] = useStateCX(0); // 0 from · 1 morph · 2 bloom final
   useEffectCX(() => {
-    const t1 = setTimeout(() => setPhase(1), 550);
-    const t2 = setTimeout(() => setPhase(2), 2150); // destello de revelado
-    const done = setTimeout(onDone, 2950);
+    const t1 = setTimeout(() => setPhase(1), 750);
+    const t2 = setTimeout(() => setPhase(2), 2250); // destello de revelado
+    const done = setTimeout(onDone, 3100);
     return () => { clearTimeout(t1);clearTimeout(t2);clearTimeout(done); };
   }, []);
 
   const CARD_W = 300, CARD_H = Math.round(300 / 1.585);
-  const sparks = [[18, 30], [292, 70], [40, 250], [280, 270], [150, 10], [56, 120], [262, 160], [120, 304], [300, 200], [10, 170]];
+  // partículas que convergen al centro y se "absorben" al formar la tarjeta
+  const particles = Array.from({ length: 18 }, (_, i) => {
+    const a = i / 18 * Math.PI * 2;const d = 145 + i % 4 * 28;
+    return { tx: Math.round(Math.cos(a) * d), ty: Math.round(Math.sin(a) * d), i };
+  });
 
   return (
-    <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 38%, #1c1838 0%, #0a0a10 72%)">
+    <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 40%, #1d1740 0%, #0a0a10 70%)">
       <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
         <div style={{ position: 'relative', width: 340, height: 340, display: 'flex', alignItems: 'center', justifyContent: 'center', perspective: 1200 }}>
-          {/* halo holográfico girando (se intensifica en el destello) */}
-          <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: 999, filter: 'blur(24px)',
-            opacity: phase >= 2 ? 0.85 : 0.55, transition: 'opacity .6s ease',
-            background: 'conic-gradient(from 0deg, rgba(207,255,46,0.0), rgba(207,255,46,0.6), rgba(123,78,200,0.6), rgba(8,199,224,0.5), rgba(207,255,46,0.0))',
-            animation: 'lc-halo 6s linear infinite' }} />
-          {/* anillos de energía */}
-          {[0, 1, 2].map((i) =>
-          <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: 250, height: 250, borderRadius: 999, border: '1px solid rgba(207,255,46,0.5)', animation: `lc-ring 2.4s ease-out infinite`, animationDelay: `${i * 0.8}s` }} />)}
-          {/* sparks */}
-          {sparks.map(([x, y], i) =>
-          <span key={i} style={{ position: 'absolute', left: x, top: y, width: 5, height: 5, borderRadius: 999, background: 'var(--c-lime-40)', boxShadow: '0 0 8px var(--c-lime-40)', animation: `lc-spark 1.8s ease-in-out infinite`, animationDelay: `${i * 0.28}s` }} />)}
+          {/* glow suave que respira detrás de la tarjeta */}
+          <div style={{ position: 'absolute', width: 280, height: 190, borderRadius: 999, filter: 'blur(46px)',
+            background: 'radial-gradient(circle, rgba(207,255,46,0.45), transparent 70%)',
+            opacity: phase >= 2 ? 0.95 : 0.4, transition: 'opacity .6s ease', animation: 'lc-pulse 2.6s ease-in-out infinite' }} />
 
-          {/* tarjeta flotando: morph vieja → nueva */}
-          <div style={{ position: 'relative', width: CARD_W, height: CARD_H, animation: 'lc-float 3.6s ease-in-out infinite', transformStyle: 'preserve-3d' }}>
-            <div style={{ position: 'absolute', inset: 0, transform: phase === 0 ? 'scale(1)' : 'scale(0.94)', transition: `transform 1s ${SPRING}` }}>
+          {/* anillo cónico nítido girando (recortado en anillo con mask) */}
+          <div style={{ position: 'absolute', width: 322, height: 322, borderRadius: 999, filter: 'blur(1px)',
+            opacity: phase >= 1 ? 0.95 : 0.5, transition: 'opacity .6s ease',
+            background: 'conic-gradient(from 0deg, transparent 4%, rgba(207,255,46,0.9) 26%, rgba(123,78,200,0.85) 52%, rgba(8,199,224,0.75) 74%, transparent 96%)',
+            WebkitMaskImage: 'radial-gradient(closest-side, transparent 71%, #000 73%)',
+            maskImage: 'radial-gradient(closest-side, transparent 71%, #000 73%)',
+            animation: `lc-spin ${phase >= 2 ? 1.8 : 3.4}s linear infinite` }} />
+
+          {/* anillos de energía que se expanden */}
+          {[0, 1].map((i) =>
+          <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: 250, height: 250, borderRadius: 999, border: '1px solid rgba(207,255,46,0.45)', animation: `lc-ring 2.6s ease-out infinite`, animationDelay: `${i * 1.1}s` }} />)}
+
+          {/* partículas convergiendo (mientras se forma) */}
+          {phase < 2 && particles.map((p) =>
+          <span key={p.i} style={{ position: 'absolute', top: '50%', left: '50%', width: 6, height: 6, marginLeft: -3, marginTop: -3, borderRadius: 999, background: 'var(--c-lime-40)', boxShadow: '0 0 10px var(--c-lime-40)', '--tx': p.tx + 'px', '--ty': p.ty + 'px', animation: `lc-converge 1.9s ease-in ${p.i % 6 * 0.16}s infinite` }} />)}
+
+          {/* tarjeta: morph vieja → nueva, con tilt 3D al revelarse */}
+          <div style={{ position: 'relative', width: CARD_W, height: CARD_H, transformStyle: 'preserve-3d',
+            animation: phase >= 1 ? 'lc-tilt 4.8s ease-in-out infinite' : 'none' }}>
+            <div style={{ position: 'absolute', inset: 0, filter: phase === 0 ? 'blur(5px)' : 'none',
+              transform: phase === 0 ? 'scale(0.92)' : 'scale(0.86)', opacity: phase >= 1 ? 0 : 1,
+              transition: `transform 1s ${SPRING}, opacity .55s ease, filter .5s ease` }}>
               <CardArt design={fromDesign} width={CARD_W} glow />
             </div>
             <div style={{ position: 'absolute', inset: 0, opacity: phase >= 1 ? 1 : 0,
-              transform: phase >= 1 ? 'scale(1) rotateY(0)' : 'scale(0.82) rotateY(32deg)',
-              transition: `opacity .6s ease, transform 1s ${SPRING}`, transformStyle: 'preserve-3d' }}>
+              transform: phase >= 1 ? 'scale(1) rotateY(0)' : 'scale(0.8) rotateY(34deg)',
+              transition: `opacity .55s ease, transform 1s ${SPRING}`, transformStyle: 'preserve-3d' }}>
               <CardArt design={toDesign} width={CARD_W} glow shimmer={phase >= 1} />
             </div>
-            {/* scanline barriendo la tarjeta */}
+            {/* barrido especular de luz + scanline (recortados a la tarjeta) */}
             <div style={{ position: 'absolute', inset: 0, borderRadius: 19, overflow: 'hidden', pointerEvents: 'none' }}>
-              <div style={{ position: 'absolute', left: 0, right: 0, height: '38%', background: 'linear-gradient(180deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-scan 1.9s ease-in-out infinite' }} />
+              <div style={{ position: 'absolute', top: '-25%', bottom: '-25%', width: '42%', left: 0,
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)',
+                animation: phase >= 1 ? 'lc-sweep 2.4s ease-in-out .15s infinite' : 'none' }} />
+              <div style={{ position: 'absolute', left: 0, right: 0, height: '40%',
+                background: 'linear-gradient(180deg, transparent, rgba(207,255,46,0.35), transparent)',
+                animation: phase >= 1 ? 'lc-scan 2.1s ease-in-out infinite' : 'none' }} />
             </div>
           </div>
 
-          {/* destello final mágico (bloom) */}
+          {/* flash de revelado */}
           {phase >= 2 &&
-          <div key="bloom" style={{ position: 'absolute', width: 200, height: 200, borderRadius: 999, pointerEvents: 'none',
-            background: 'radial-gradient(circle, rgba(255,255,255,0.95), rgba(207,255,46,0.45) 42%, transparent 72%)',
-            animation: 'lc-ring 0.9s ease-out forwards' }} />}
+          <div key="flash" style={{ position: 'absolute', top: '50%', left: '50%', width: 220, height: 220, borderRadius: 999, pointerEvents: 'none',
+            background: 'radial-gradient(circle, rgba(255,255,255,0.95), rgba(207,255,46,0.5) 40%, transparent 72%)',
+            animation: 'lc-flash 0.85s ease-out forwards' }} />}
         </div>
       </div>
     </Screen>);
