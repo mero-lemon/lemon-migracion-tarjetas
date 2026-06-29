@@ -691,50 +691,50 @@ function ChooserScreen({ onBack, onPick }) {
 
 // Activación de tarjeta física — ingresá 16 dígitos + clave de 4 (onboarding)
 function CardActivation({ onBack, onClose, onDone }) {
-  const [num, setNum] = useStateF('');
-  const [pin, setPin] = useStateF('');
-  const numClean = num.replace(/\D/g, '').slice(0, 16);
-  const pinClean = pin.replace(/\D/g, '').slice(0, 4);
-  const ready = numClean.length === 16 && pinClean.length === 4;
-  const fmt = numClean.replace(/(.{4})/g, '$1 ').trim();
+  const [code, setCode] = useStateF('');
+  const clean = code.replace(/\D/g, '').slice(0, 4);
+  const ready = clean.length === 4;
   return (
     <Anim k="cardact" noWrap>
       <Screen footer={<Btn variant="primary" disabled={!ready} onClick={onDone}>Activar</Btn>}>
         <StepHeader title="Activá tu tarjeta" onBack={onBack} onClose={onClose} />
-        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div>
-            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Activá tu tarjeta</div>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Activá tu Lemon Card</div>
             <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-              Ingresá los 16 números de tu Lemon Card y creá una clave de 4 dígitos.
+              Ingresá los <b style={{ color: LX.text1 }}>últimos 4 números</b> que figuran al frente de tu tarjeta física.
             </div>
           </div>
 
-          <div>
-            <div style={{ background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 12, padding: '15px 16px' }}>
-              <input
-                inputMode="numeric" value={fmt}
-                onChange={(e) => setNum(e.target.value)}
-                placeholder="Ingresá los 16 números de tu tarjeta"
-                style={{ width: '100%', border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '0.04em', color: LX.text1 }} />
+          {/* tarjeta de referencia */}
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2px 0' }}>
+            <div style={{ position: 'relative' }}>
+              <CardArt variant="fisica" width={216} />
+              <div style={{ position: 'absolute', right: 16, bottom: 14, font: '600 12px Geist', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.55)' }}>•••• ••••</div>
             </div>
-            <div style={{ textAlign: 'right', font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>{numClean.length}/16</div>
           </div>
 
-          <div style={{ background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 12, padding: '15px 16px' }}>
+          {/* 4 casilleros con input invisible encima (toca para enfocar) */}
+          <label style={{ position: 'relative', display: 'block' }}>
             <input
-              inputMode="numeric" type="password" value={pinClean}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="Creá tu clave de 4 dígitos"
-              style={{ width: '100%', border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '0.3em', color: LX.text1 }} />
-          </div>
+              inputMode="numeric" autoFocus value={clean}
+              onChange={(e) => setCode(e.target.value)}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, border: 0, cursor: 'text' }} />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              {[0, 1, 2, 3].map((i) =>
+              <div key={i} style={{
+                width: 60, height: 68, borderRadius: 16, background: LX.layer,
+                border: `2px solid ${clean.length === i ? LX.text1 : LX.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                font: '500 28px Geist', color: LX.text1, transition: 'border-color .15s'
+              }}>{clean[i] || ''}</div>
+              )}
+            </div>
+          </label>
 
-          <div>
-            <div style={{ font: '400 13px Inter', color: LX.text2, marginBottom: 6 }}>La clave no puede tener:</div>
-            <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Números repetidos: 1111</li>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Secuencias ascendentes: 1234</li>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Secuencias descendentes: 4321</li>
-            </ul>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, font: '400 13px Inter', color: LX.text3, lineHeight: 1.45 }}>
+            <LI name="shield-alt" size={16} color={LX.text3} style={{ flexShrink: 0, marginTop: 1 }} />
+            Solo para confirmar que la tarjeta es tuya. Nunca te pedimos los 16 números completos.
           </div>
         </div>
       </Screen>

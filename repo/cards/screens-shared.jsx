@@ -489,9 +489,10 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
 
         <CardsModule cards={owned} onCardTap={onCardTap} />
 
-        {/* Banner NFC: entre las tarjetas y los movimientos (incentiva la nueva virtual) */}
-        {(mode === 'replaceVirtual' || mode === 'firstVirtual' || mode === 'renewFisica' && phase === 'expiring' && showNfcBanner) &&
-        <CambiaBanner onPrimary={mode === 'renewFisica' ? onNfc : onPrimary} first={mode === 'firstVirtual'} />}
+        {/* Banner NFC: entre las tarjetas y los movimientos (incentiva la nueva virtual).
+            En renovación NO va: ahí el banner relevante es el de vencimiento. */}
+        {(mode === 'replaceVirtual' || mode === 'firstVirtual') &&
+        <CambiaBanner onPrimary={onPrimary} first={mode === 'firstVirtual'} />}
 
         <ExteriorBanner />
 

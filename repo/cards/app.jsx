@@ -77,8 +77,9 @@ function Phone({ scale, children }) {
 // ── App home (home real de la app) ──────────────────────────────
 // Entrada de los usuarios "Todavía en GP": ven su home con el banner de la
 // nueva virtual + Apple Pay; al tocarlo entran al flujo de tarjetas.
-function AppHome({ onCards }) {
+function AppHome({ onCards, bannerVariant = 'applepay' }) {
   const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
+  const expiring = bannerVariant === 'expiring';
   return (
     <Screen footer={
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -149,15 +150,19 @@ function AppHome({ onCards }) {
           </div>
         </div>
 
-        {/* banner nueva virtual + Apple Pay (actionable, con X) */}
+        {/* banner actionable (con X): vencimiento de la física o Apple Pay */}
         <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '12px 16px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
           <div style={{ display: 'flex', flexShrink: 0 }}>
-            <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
-            <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={52} /></div>
+            {expiring ?
+            <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={56} faded /></div> :
+            <>
+              <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
+              <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={52} /></div>
+            </>}
           </div>
           <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
-            <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>¡Ya podés pagar con Apple Pay!</div>
-            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>Cambiá tu tarjeta virtual y empezá a pagar con tu wallet de Apple.</div>
+            <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>{expiring ? 'Tu Lemon Card física vence pronto' : '¡Ya podés pagar con Apple Pay!'}</div>
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>{expiring ? 'Renovala antes de que venza para seguir usándola sin cortes.' : 'Cambiá tu tarjeta virtual y empezá a pagar con tu wallet de Apple.'}</div>
           </div>
           <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <LI name="close" size={16} color="#141414" />
@@ -169,9 +174,9 @@ function AppHome({ onCards }) {
 }
 
 // Wrapper: muestra la home de la app y, al tocar el banner, entra al flujo.
-function GpHomeEntry({ flow }) {
+function GpHomeEntry({ flow, bannerVariant }) {
   const [entered, setEntered] = useStateA(false);
-  if (!entered) return <AppHome onCards={() => setEntered(true)} />;
+  if (!entered) return <AppHome onCards={() => setEntered(true)} bannerVariant={bannerVariant} />;
   return flow(() => setEntered(false));
 }
 
@@ -237,7 +242,7 @@ function Stage() {
           {view === 'f1b' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} replace={false} />} />}
           {view === 'pedirFisica' && <Flow5 pomelo onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
           {view === 'f4' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
-          {view === 'f4b' && <GpHomeEntry flow={(toHome) => <Flow4 onMenu={toHome} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />} />}
+          {view === 'f4b' && <GpHomeEntry bannerVariant="expiring" flow={(toHome) => <Flow4 onMenu={toHome} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />} />}
           {view === 'f5' && <Flow5 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
         </Phone>
       </div>
