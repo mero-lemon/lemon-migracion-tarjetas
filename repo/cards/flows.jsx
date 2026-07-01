@@ -1,5 +1,5 @@
 // The three card flows. Each manages its own step state.
-const { useState: useStateF } = React;
+const { useState: useStateF, useEffect: useEffectF } = React;
 
 // ════════════════════════════════════════════════════════════════
 // FLOW 1 — Nueva tarjeta virtual (reemplazo) + NFC / Wallet
@@ -7,83 +7,62 @@ const { useState: useStateF } = React;
 function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
   const [step, setStep] = useStateF(startStep);
   const [ack, setAck] = useStateF(false);
-  const [openCard, setOpenCard] = useStateF(null);
-  const [pushOpen, setPushOpen] = useStateF(false);   // push visible en el home
-  const [walletAdded, setWalletAdded] = useStateF(false); // ¿ya sumó la nueva a la wallet?
-  // standalone (f1/f1b): al terminar caemos en el home de tarjetas con la nueva.
-  // embebido (Flow4/Flow5): devolvemos el control al flujo padre.
+  const [design, setDesign] = useStateF('violeta'); // diseño elegido en el picker
+  const [walletAdded, setWalletAdded] = useStateF(false); // ya pasó por "Agregando a Apple Pay…"
+  // standalone (f1/f1b): al terminar caemos en el home de la tarjeta nueva.
+  // embebido (Flow4/Flow5): devolvemos el control al flujo padre vía onActivated/onMenu.
   const standalone = startStep === 'hub';
-  const finish = standalone ? () => setStep('home') : onMenu;
+  const newMask = '•••• 2291';
+
+  // "Quiero Apple Pay": corre el proceso de alta en la wallet y recién ahí avanza.
+  const goWallet = () => { setWalletAdded(true); setStep('wallet'); };
+  useEffectF(() => {
+    if (step !== 'wallet') return;
+    const t = setTimeout(() => { standalone ? setStep('home') : onActivated && onActivated(true, design); }, 1800);
+    return () => clearTimeout(t);
+  }, [step]);
 
   if (step === 'hub')
-  return <Anim k="f1hub"><TarjetasHub mode={replace ? 'replaceVirtual' : 'firstVirtual'} onBack={onMenu} onPrimary={() => {setAck(false);setStep(replace ? 'replace' : 'creating');}} /></Anim>;
+  return <Anim k="f1hub"><TarjetasHub mode={replace ? 'replaceVirtual' : 'firstVirtual'} onBack={onMenu} onPrimary={() => {setAck(false);setStep(replace ? 'replace' : 'design');}} /></Anim>;
 
+  // Pantalla de baja+alta — SOLO para quien ya tiene virtual activa (cambiá tu tarjeta).
   if (step === 'replace')
   return (
     <Anim k="f1rep">
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Btn variant="primary" disabled={!ack} onClick={() => setStep('creating')}>Crear tarjeta nueva</Btn>
+            <Btn variant="primary" disabled={!ack} onClick={() => setStep('design')}>Elegir diseño y crear</Btn>
             <Btn variant="ghost" onClick={() => setStep('hub')}>Mejor no</Btn>
           </div>
       }>
-          <StepHeader title="Nueva tarjeta virtual" onBack={() => setStep('hub')} onClose={onMenu} />
+          <StepHeader title="Cambiar tu tarjeta" onBack={() => setStep('hub')} onClose={onMenu} />
           <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-            {/* old → new */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '8px 0 4px' }}>
-              <div style={{ textAlign: 'center' }}>
-                <CardArt variant="virtual" width={116} faded />
-                <div style={{ font: '500 11px Inter', color: LX.text3, marginTop: 6 }}>•••• 8763 · se da de baja</div>
-              </div>
-              <LI name="arrow-foward" size={22} color={LX.text3} />
-              <div style={{ textAlign: 'center' }}>
-                <CardArt variant="virtual" width={116} glow />
-                <div style={{ font: '600 11px Inter', color: 'var(--c-lemon-50)', marginTop: 6 }}>Nueva · al instante</div>
+            {/* old → new: escenario con la vieja apagada y la nueva flotando + glow */}
+            <div style={{ position: 'relative', borderRadius: 22, overflow: 'hidden', padding: '24px 12px 18px', background: 'radial-gradient(120% 100% at 78% 0%, rgba(123,78,200,0.16), rgba(123,78,200,0.04) 55%, transparent)' }}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 150, height: 150, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.14), transparent 70%)' }} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                <div style={{ textAlign: 'center', transform: 'rotate(-5deg)' }}>
+                  <CardArt design="violeta" width={120} faded />
+                  <div style={{ font: '500 11px Inter', color: LX.text3, marginTop: 8 }}>•••• 8763 · se da de baja</div>
+                </div>
+                <span style={{ width: 30, height: 30, borderRadius: 999, background: LX.layer, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: 'var(--shadow-card)', flexShrink: 0 }}>
+                  <LI name="arrow-foward" size={16} color={LX.text1} />
+                </span>
+                <div style={{ textAlign: 'center', transform: 'rotate(4deg)' }}>
+                  <div style={{ animation: 'lc-float 3.6s ease-in-out infinite' }}><CardArt design="violeta" width={132} glow /></div>
+                  <div style={{ font: '600 11px Inter', color: 'var(--c-lemon-50)', marginTop: 8 }}>Nueva · al instante</div>
+                </div>
               </div>
             </div>
 
             <div>
-              <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Esto reemplaza tu tarjeta actual</div>
+              <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Cambiá tu tarjeta para pagar con el celu</div>
               <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-                No es una segunda tarjeta: al crear la nueva, damos de baja la <b style={{ color: LX.text1 }}>•••• 8763</b> en el acto.
+                Creá tu nueva virtual y sumala a Apple Pay para pagar apoyando el celu. Al crearla, damos de baja la <b style={{ color: LX.text1 }}>•••• 8763</b> en el acto.
               </div>
             </div>
 
-            <Surface pad={0} style={{ overflow: 'hidden' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '14px 16px 12px' }}>
-                <LI name="programed-tx" size={18} color="#854600" />
-                <div style={{ font: '600 14px Inter', color: LX.text1, flex: 1 }}>Débitos automáticos a revincular</div>
-                <span style={{ font: '600 12px Inter', color: '#854600', background: 'var(--bg-warning-01)', padding: '3px 9px', borderRadius: 999 }}>3</span>
-              </div>
-              <div style={{ padding: '0 16px' }}>
-                {[
-              ['streaming', 'Netflix', 'US$ 12,99 / mes'],
-              ['streaming', 'Spotify', '$ 2.499 / mes'],
-              ['tech', 'iCloud+', '$ 1.100 / mes']].
-              map(([icon, name, amt], i) =>
-              <React.Fragment key={i}>
-                    {i > 0 && <Divider />}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
-                      <div style={{ width: 38, height: 38, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                        <LI name={icon} size={18} color={LX.text1} />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ font: '600 14px Inter', color: LX.text1 }}>{name}</div>
-                        <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{amt}</div>
-                      </div>
-                      <span style={{ font: '600 12px Inter', color: '#854600', background: 'var(--bg-warning-01)', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap' }}>Revincular</span>
-                    </div>
-                  </React.Fragment>
-              )}
-              </div>
-              <div style={{ padding: '0 16px 14px', marginTop: 4 }}>
-                <div style={{ font: '400 12px Inter', color: LX.text2, lineHeight: 1.4 }}>
-                  Como la nueva tarjeta tiene otro número, vas a tener que volver a cargarla en cada servicio para que no se te corten.
-                </div>
-              </div>
-            </Surface>
-
-            <PmNote>Después de crear la nueva, ofrezcamos revincular estos débitos en 1 toque — es el principal motivo de fricción al cambiar de número.</PmNote>
+            <DebitosInfo />
 
             <button onClick={() => setAck((a) => !a)} style={{ display: 'flex', alignItems: 'flex-start', gap: 11, background: 'transparent', border: 0, cursor: 'pointer', textAlign: 'left', padding: '2px 2px 4px' }}>
               <span style={{ width: 24, height: 24, borderRadius: 7, flexShrink: 0, marginTop: 1, border: `2px solid ${ack ? 'var(--c-lemon-50)' : LX.text3}`, background: ack ? 'var(--c-lemon-50)' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', font: '700 14px Inter' }}>{ack ? '✓' : ''}</span>
@@ -94,55 +73,53 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
       </Anim>);
 
 
-  if (step === 'creating')
-  return <Anim k="f1load"><LoadingScreen title="Creando tu nueva tarjeta…" sub={replace ? 'Damos de baja la anterior y generamos los datos nuevos.' : 'Generamos los datos de tu nueva tarjeta virtual.'} onDone={() => setStep('activating')} /></Anim>;
+  // El plato fuerte: elegir el diseño.
+  if (step === 'design')
+  return <Anim k="f1design"><DesignPicker onBack={() => setStep(replace ? 'replace' : 'hub')} onClose={onMenu} onChoose={(d) => { setDesign(d.id); setStep('morph'); }} /></Anim>;
 
-  if (step === 'activating')
-  return <ActivatingCardScreen variant="virtual" onHome={() => {
-    if (standalone) { setPushOpen(true); setStep('home'); } else { onActivated && onActivated(); }
-  }} />;
+  // Morph: la virtual actual se transforma en el diseño elegido mientras corre el backend.
+  if (step === 'morph')
+  return <Anim k="f1morph"><MorphCreate fromDesign="violeta" toDesign={design} replace={replace} onDone={() => setStep('ready')} /></Anim>;
 
-  if (step === 'home') {
-    // Home de tarjetas post-creación: se ve la nueva virtual y se entra al detalle de cada una.
-    const cards = replace ?
-    [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 2291', status: 'Activa', nfc: true }] :
-    [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' },
-     { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 2291', status: 'Activa', nfc: true }];
-    const newCard = cards.find((c) => c.variant === 'virtual') || cards[0];
-    const openPush = () => { setPushOpen(false); setOpenCard(newCard); setStep('cardDetail'); };
-    return (
-      <Anim k="f1home">
-        <div style={{ height: '100%', position: 'relative' }}>
-          <Screen>
-            <BigHeader title="Tarjetas" onBack={onMenu} />
-            <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-              <CardTabs />
-              {!pushOpen &&
-              <div style={{ display: 'flex', gap: 11, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 16, padding: '14px 16px' }}>
-                <LI name="feedback-positive" size={22} color="var(--c-lemon-50)" style={{ flexShrink: 0 }} />
-                <div style={{ flex: 1 }}>
-                  <div style={{ font: '600 15px Inter', color: '#0F602C' }}>¡Tu tarjeta virtual está lista!</div>
-                  <div style={{ font: '500 13px Inter', color: '#0F602C', opacity: 0.85, marginTop: 2 }}>Tocá una tarjeta para ver sus datos y opciones.</div>
-                </div>
-              </div>}
-              <CardsModule cards={cards} onCardTap={(v) => { setOpenCard(cards.find((c) => c.variant === v) || cards[0]); setStep('cardDetail'); }} />
-              <ExteriorBanner />
-            </div>
-          </Screen>
-          {pushOpen && <WalletPush onTap={openPush} onDismiss={() => setPushOpen(false)} />}
-        </div>
+  // Success Cash App: la tarjeta sube, aparece la info, primero NFC.
+  if (step === 'ready')
+  return (
+    <Anim k="f1ready">
+        <VirtualReady
+        design={design} mask={newMask}
+        onWallet={goWallet}
+        onSeeCard={standalone ? () => setStep('home') : () => (onActivated ? onActivated(false, design) : onMenu())}
+        onMenu={onMenu} />
       </Anim>);
-  }
 
-  if (step === 'cardDetail' && openCard)
-  return <CardDetail
-    variant={openCard.variant} title={openCard.title} mask={openCard.mask}
-    nfc={openCard.nfc} walletAdded={openCard.variant === 'virtual' ? walletAdded : true}
-    onBack={() => setStep('home')} onClose={onMenu}
-    onAddWallet={() => setWalletAdded(true)} />;
+  // "Agregando a Apple Pay…" — proceso real antes de avanzar.
+  if (step === 'wallet')
+  return (
+    <Anim k="f1wallet">
+        <Screen scroll={false} bg="radial-gradient(120% 80% at 50% 38%, #1c1838 0%, #0a0a10 72%)">
+          <div style={{ height: '100%' }} />
+          <WalletAddOverlay open design={design} />
+        </Screen>
+      </Anim>);
+
+
+  if (step === 'home')
+  return <Anim k="f1home"><CardHome design={design} variant="virtual" title="Tarjeta prepaga virtual" mask={newMask} balance={1} startInWallet={walletAdded} onBack={onMenu} onClose={onMenu} /></Anim>;
 
   return null;
 }
+
+// Info compacta de servicios asociados (antes era un banner grande de "revincular").
+// Tono informativo: te los mandamos por mail para tenerlos a mano.
+const DebitosInfo = () =>
+<div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', background: LX.layer3, borderRadius: 14, padding: '13px 14px' }}>
+    <LI name="programed-tx" size={18} color={LX.text2} style={{ flexShrink: 0, marginTop: 1 }} />
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ font: '600 13px Inter', color: LX.text1 }}>Tenés 3 servicios asociados a esta tarjeta</div>
+      <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 2, lineHeight: 1.4 }}>Netflix, Spotify e iCloud+. Te los mandamos por mail para que los tengas a mano y los revincules cuando quieras.</div>
+    </div>
+  </div>;
+
 
 const Bullet = ({ icon, t, s, tone }) =>
 <div style={{ display: 'flex', gap: 12, padding: '11px 0', alignItems: 'flex-start' }}>
@@ -202,17 +179,18 @@ function NfcSuccess({ onDone, onMenu }) {
 // ════════════════════════════════════════════════════════════════
 function Flow2({ onMenu, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
+  const [addr, setAddr] = useStateF(undefined);
   const back = () => startStep === 'hub' ? setStep('hub') : onMenu();
   if (step === 'hub')
-  return <Anim k="f2hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('pay')} onActivate={() => setStep('activate')} /></Anim>;
-  if (step === 'pay')
-  return <Anim k="f2pay"><PaymentScreen onBack={back} onClose={onMenu} onPay={() => setStep('address')} /></Anim>;
+  return <Anim k="f2hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('fvp')} onActivate={() => setStep('activate')} /></Anim>;
+  if (step === 'fvp')
+  return <Anim k="f2fvp"><FisicaValueProp onBack={back} onClose={onMenu} onContinue={() => setStep('address')} /></Anim>;
   if (step === 'activate')
-  return <CardActivation onBack={back} onClose={onMenu} onDone={() => setStep('activating')} />;
-  if (step === 'activating')
-  return <ActivatingCardScreen variant="fisica" onHome={onComplete || (() => setStep('hub'))} />;
+  return <CardActivation onBack={back} onClose={onMenu} onDone={onComplete || (() => setStep('hub'))} />;
   if (step === 'address')
-  return <Anim k="f2addr"><AddressScreen onBack={() => setStep('pay')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f2addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
+  if (step === 'pay')
+  return <Anim k="f2pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f2done"><OrderConfirmation onDone={onComplete || (() => setStep('hub'))} onMenu={onMenu} /></Anim>;
   return null;
@@ -223,14 +201,15 @@ function Flow2({ onMenu, startStep = 'hub', onComplete }) {
 // ════════════════════════════════════════════════════════════════
 function Flow3({ onMenu, meets, onMeet, startStep = 'hub', onComplete }) {
   const [step, setStep] = useStateF(startStep);
+  const [addr, setAddr] = useStateF(undefined);
   if (step === 'hub')
-  return <Anim k="f3hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('req')} /></Anim>;
-  if (step === 'req')
-  return <Anim k={'f3req' + meets}><RequisitoScreen meets={meets} onBack={() => startStep === 'hub' ? setStep('hub') : onMenu()} onClose={onMenu} onContinue={() => setStep('address')} onInvest={() => setStep('portfolio')} /></Anim>;
-  if (step === 'portfolio')
-  return <PortfolioScreen onBack={() => setStep('req')} onClose={onMenu} onComply={() => {onMeet && onMeet();setStep('address');}} />;
+  return <Anim k="f3hub"><TarjetasHub mode="fisica" onBack={onMenu} onPrimary={() => setStep('fvp')} /></Anim>;
+  if (step === 'fvp')
+  return <Anim k="f3fvp"><FisicaValueProp onBack={() => startStep === 'hub' ? setStep('hub') : onMenu()} onClose={onMenu} onContinue={() => setStep('address')} /></Anim>;
   if (step === 'address')
-  return <Anim k="f3addr"><AddressScreen onBack={() => setStep('req')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f3addr"><AddressSearch onBack={() => setStep('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
+  if (step === 'pay')
+  return <Anim k="f3pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f3done"><OrderConfirmation onDone={onComplete || (() => setStep('hub'))} onMenu={onMenu} /></Anim>;
   return null;
@@ -280,92 +259,11 @@ function RequisitoScreen({ meets, onBack, onClose, onContinue, onInvest }) {
             <Breakdown label="Acciones invertidas" icon="stocks" v={meets ? 90 : 15} />
           </Surface>
 
-          {meets ?
+          {meets &&
           <div style={{ display: 'flex', gap: 9, alignItems: 'center', background: 'var(--bg-positive-01)', borderRadius: 12, padding: '12px 14px' }}>
                 <LI name="feedback-positive" size={18} color="var(--c-lemon-50)" />
                 <span style={{ font: '500 13px Inter', color: '#0F602C' }}>Listo, ya cumplís el requisito. Seguí para confirmar tu dirección.</span>
-              </div> :
-          <PmNote>Acá medimos el costo del piso: metés fricción en el pico de intención. Si lo dejamos, que el monto se sienta alcanzable y muestre el beneficio de invertir, no solo el bloqueo.</PmNote>}
-        </div>
-      </Screen>
-    </Anim>);
-
-}
-
-// Portfolio / Inicio home — adonde te lleva el accionable del requisito.
-// Botón "Ya cumplí el objetivo" → continúa a "¿Dónde te la mandamos?".
-function PortfolioScreen({ onBack, onClose, onComply }) {
-  const assets = [
-  { icon: 'currency-peso', name: 'Pesos digitales', amt: '$ ***' },
-  { icon: 'currency-dollar', name: 'Dólares digitales', amt: 'U$ ***' },
-  { icon: 'currency-bitcoin', name: 'Bitcoin & crypto', amt: 'U$ ***' },
-  { icon: 'stocks', name: 'Acciones', amt: 'U$ ***', soon: true }];
-
-  const tabs = ['home-on', 'new-swap-coins', 'alert-time', 'widgets'];
-  return (
-    <Anim k="portfolio" noWrap>
-      <Screen footer={
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          <Btn variant="brand" leftIcon="feedback-positive" onClick={onComply}>Ya cumplí el objetivo</Btn>
-          {/* decorative bottom tab bar */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: LX.layer, borderRadius: 999, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
-              {tabs.map((t, i) => <LI key={i} name={t} size={22} color={i === 0 ? LX.text1 : LX.text3} />)}
-            </div>
-            <div style={{ width: 52, height: 52, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
-            </div>
-          </div>
-        </div>
-      }>
-        {/* top bar */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 6px' }}>
-          <span style={{ width: 34, height: 34, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Leaf size={19} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
-          </span>
-          <span style={{ font: '600 18px Inter', color: LX.text1 }}>$mica</span>
-          <div style={{ flex: 1 }} />
-          <LI name="search" size={22} color={LX.text1} />
-          <LI name="view-notification" size={22} color={LX.text1} />
-          <LI name="card-on" size={22} color={LX.text1} />
-        </div>
-
-        <div style={{ padding: '4px 16px 8px' }}>
-          {/* tabs + balance card */}
-          <div style={{ position: 'relative' }}>
-            <div style={{ display: 'flex' }}>
-              <div style={{ background: 'var(--c-lime-40)', color: LX.dark, font: '600 16px Inter', padding: '12px 30px', borderRadius: '16px 16px 0 0' }}>Inicio</div>
-              <div style={{ flex: 1, color: LX.text2, font: '500 16px Inter', padding: '12px 0', textAlign: 'center' }}>Portfolio</div>
-            </div>
-            <div style={{ background: LX.layer, borderRadius: '0 16px 16px 16px', padding: '20px', boxShadow: 'var(--shadow-card)' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ font: '600 17px Inter', color: LX.text1, whiteSpace: 'nowrap' }}>Balance total</span>
-                <LI name="view-balance-off" size={18} color={LX.text2} />
-              </div>
-              <div style={{ font: '500 38px Geist', letterSpacing: '-0.03em', color: LX.text1, marginTop: 6 }}>U$ <span style={{ letterSpacing: '2px' }}>•••••</span></div>
-            </div>
-          </div>
-
-          {/* asset grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 14 }}>
-            {assets.map((a, i) =>
-            <Surface key={i} pad={16} style={{ minHeight: 120, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-                  <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <LI name={a.icon} size={20} color={LX.text2} />
-                  </div>
-                  {a.soon && <span style={{ background: 'var(--c-green-40)', color: '#fff', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999 }}>Próximo</span>}
-                </div>
-                <div style={{ flex: 1 }} />
-                <div style={{ font: '400 14px Inter', color: LX.text2 }}>{a.name}</div>
-                <div style={{ font: '500 18px Geist', color: LX.text1, marginTop: 2 }}>{a.amt}</div>
-              </Surface>
-            )}
-          </div>
-
-          <div style={{ marginTop: 14 }}>
-            <PmNote>El accionable del requisito te trae a tu portfolio para invertir. Atajo de prototipo: tocá “Ya cumplí el objetivo” para simular que llegaste a los US$100 y seguir.</PmNote>
-          </div>
+              </div>}
         </div>
       </Screen>
     </Anim>);
@@ -428,7 +326,6 @@ function PaymentScreen({ onBack, onClose, onPay, price = 5 }) {
             </div>
           </Surface>
 
-          <PmNote>Reemplazamos el piso de inversión por un cobro único: bajamos la fricción de "tenés que invertir" a "pagás un monto chico". Probar el precio y dejar el envío gratis como gancho.</PmNote>
         </div>
       </Screen>
     </Anim>);
@@ -461,8 +358,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
   const [track, setTrack] = useStateF(false);
   const [virtualDone, setVirtualDone] = useStateF(false); // ya pasó por el upsell de la virtual
   const [reqFrom, setReqFrom] = useStateF('renew'); // adónde vuelve el back del requisito
-  const [pushOpen, setPushOpen] = useStateF(false);
-  const [walletAddedNew, setWalletAddedNew] = useStateF(false); // wallet en la nueva física
+  const [addr, setAddr] = useStateF(undefined);
   if (step === 'hub')
   return (
     <Anim k={'f4hub' + phase}>
@@ -472,20 +368,14 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           showExpiringBanner={meets}
           showNfcBanner={Boolean(upsellVirtual)}
           onNfc={() => setStep('virtual')}
-          onCardTap={phase === 'active' ? ((v) => { if (v === 'fisica') setStep('detailNew'); }) : (!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined)}
+          onCardTap={!meets ? ((v) => { if (v === 'fisica') setStep('detail'); }) : undefined}
           onPrimary={() => setStep(upsellVirtual && !virtualDone ? 'upsell' : 'renew')}
-          onActivate={() => setStep('delivery')}
+          onActivate={() => setStep('activate')}
           onTrack={() => setTrack(true)} />
-
+        
           <Sheet open={track} onClose={() => setTrack(false)}>
             <TrackingContent onClose={() => setTrack(false)} />
           </Sheet>
-          {pushOpen &&
-          <WalletPush
-            onTap={() => { setPushOpen(false); setStep('detailNew'); }}
-            onDismiss={() => setPushOpen(false)}
-            title="Tu nueva Lemon Card ya está activa"
-            body="Ya podés sumar tu tarjeta a tu Apple Wallet." />}
         </div>
       </Anim>);
 
@@ -498,7 +388,7 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
     <Anim k="f4renew">
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <Btn variant="primary" onClick={() => { setReqFrom('renew'); setStep('pay'); }}>Pedir mi nueva física</Btn>
+            <Btn variant="primary" onClick={() => { setReqFrom('renew'); setStep('address'); }}>Pedir mi nueva física</Btn>
             <Btn variant="ghost" onClick={() => setStep('hub')}>Ahora no</Btn>
           </div>
       }>
@@ -506,12 +396,12 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
           <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '8px 0 4px' }}>
               <div style={{ textAlign: 'center' }}>
-                <CardThumb variant="fisica" w={86} portrait />
+                <CardArt variant="fisica" width={120} faded />
                 <div style={{ font: '500 11px Inter', color: LX.text3, marginTop: 6 }}>•••• 4971 · vence 06/26</div>
               </div>
               <LI name="arrow-foward" size={22} color={LX.text3} />
               <div style={{ textAlign: 'center' }}>
-                <CardThumb variant="fisica" w={86} portrait />
+                <CardArt variant="fisica" width={120} glow />
                 <div style={{ font: '600 11px Inter', color: 'var(--c-greent-60)', marginTop: 6 }}>Nueva · en camino</div>
               </div>
             </div>
@@ -527,39 +417,31 @@ function Flow4({ onMenu, meets, onMeet, upsellVirtual }) {
                 <Divider />
                 <Bullet icon="celphone" t="Seguís pagando con NFC mientras llega" s="Usá la virtual en el celu sin interrupciones." />
                 <Divider />
-                <Bullet icon="programed-tx" t="La vieja se da de baja al activar la nueva" s="Re-vinculá tus débitos automáticos cuando la actives." tone="warn" />
+                <Bullet icon="programed-tx" t="La vieja se da de baja al activar la nueva" s="Hasta entonces seguí usándola normal." tone="warn" />
               </div>
             </Surface>
-            <PmNote>Disparamos esto solo a 30 días del vencimiento, con push + banner. Así la renovación se siente proactiva y no un trámite de último momento.</PmNote>
+            <DebitosInfo />
           </div>
         </Screen>
       </Anim>);
 
   if (step === 'detail')
-  return <CardDetail variant="fisica" title="Lemon Card" mask="•••• 4971" expiring onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('pay'); }} />;
-  if (step === 'pay')
-  return <Anim k="f4pay"><PaymentScreen onBack={() => setStep(reqFrom)} onClose={onMenu} onPay={() => setStep('address')} /></Anim>;
+  return <Anim k="f4detail"><CardHome variant="fisica" mask="•••• 4971" balance={1} expiring onBack={() => setStep('hub')} onClose={onMenu} onRenew={() => { setReqFrom('detail'); setStep('address'); }} /></Anim>;
   if (step === 'address')
-  return <Anim k="f4addr"><AddressScreen onBack={() => setStep('pay')} onClose={onMenu} onConfirm={() => setStep('done')} /></Anim>;
+  return <Anim k="f4addr"><AddressSearch onBack={() => setStep(reqFrom)} onClose={onMenu} onPick={(a) => { setAddr(a); setStep('pay'); }} /></Anim>;
+  if (step === 'pay')
+  return <Anim k="f4pay"><PagarFisica onBack={() => setStep('address')} onClose={onMenu} onChangeAddress={() => setStep('address')} address={addr} onContinue={() => setStep('done')} /></Anim>;
   if (step === 'done')
   return <Anim k="f4done"><OrderConfirmation renewal onDone={() => {setPhase('transit');setStep('hub');}} onMenu={onMenu} /></Anim>;
-  if (step === 'delivery')
-  return <Anim k="f4deliv"><DeliveryOnboarding onDone={() => setStep('activating')} onMenu={onMenu} /></Anim>;
-  if (step === 'activating')
-  return <ActivatingCardScreen variant="fisica" onHome={() => { setPhase('active'); setPushOpen(true); setStep('hub'); }} />;
-  if (step === 'detailNew')
-  return <CardDetail variant="fisica" title="Lemon Card" mask="•••• 5520" nfc walletAdded={walletAddedNew} onBack={() => setStep('hub')} onClose={onMenu} onAddWallet={() => setWalletAddedNew(true)} />;
+  if (step === 'activate')
+  return <CardActivation onBack={() => setStep('hub')} onClose={onMenu} onDone={() => {setPhase('active');setStep('hub');}} />;
   return null;
 }
 
 // Card-home / detail screen (como el home real de cada tarjeta). Sirve para
 // virtual y física. Si la tarjeta vence (expiring) muestra debajo de la imagen
 // el banner de renovación — el único acceso a renovar para quien no cumple.
-// Si la tarjeta soporta NFC pero el usuario todavía no la sumó a la billetera,
-// mostramos el botón "Agregar a Apple Wallet" en vez del badge "En NFC".
-function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = false, walletAdded = false, expiring = false, onBack, onClose, onRenew, onAddWallet }) {
-  const showWalletBtn = nfc && !walletAdded;
-  const showNfcBadge = nfc && walletAdded;
+function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = false, expiring = false, onBack, onClose, onRenew }) {
   const actions = variant === 'virtual' ?
   [{ icon: 'pause', label: 'Pausar' }, { icon: 'view-balance-on', label: 'Ver datos' }, { icon: 'limits', label: 'Límites' }, { icon: 'celphone', label: 'Apple Pay' }] :
   [{ icon: 'pause', label: 'Pausar' }, { icon: 'view-balance-on', label: 'Ver datos' }, { icon: 'limits', label: 'Límites' }, { icon: 'click-to-pay', label: 'Eliminar de\nClick to Pay' }];
@@ -574,17 +456,9 @@ function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = fals
             {mask &&
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ font: '500 13px Geist', color: LX.text2 }}>{mask}</span>
-              {showNfcBadge && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 11px Inter', color: 'var(--c-lemon-60)' }}><LI name="celphone" size={13} color="var(--c-lemon-60)" /> En NFC</span>}
+              {nfc && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 11px Inter', color: 'var(--c-lemon-60)' }}><LI name="celphone" size={13} color="var(--c-lemon-60)" /> En NFC</span>}
             </div>}
           </div>
-
-          {showWalletBtn &&
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <WalletBtn brand="apple" onClick={onAddWallet} />
-            <div style={{ font: '400 12px Inter', color: LX.text2, textAlign: 'center', lineHeight: 1.4 }}>
-              Sumá tu tarjeta al celu y pagá apoyándolo en el posnet.
-            </div>
-          </div>}
 
           {expiring &&
           <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
@@ -613,60 +487,6 @@ function CardDetail({ variant = 'fisica', title = 'Lemon Card', mask, nfc = fals
           <button style={{ alignSelf: 'center', display: 'inline-flex', alignItems: 'center', gap: 6, border: 0, background: 'transparent', cursor: 'pointer', font: '600 15px Inter', color: 'var(--text-brand)' }}>
             Ver más <LI name="arrow-expand-more" size={18} color="var(--text-brand)" />
           </button>
-
-          {expiring &&
-          <PmNote>El usuario que no cumple el piso ya paga con NFC, así que no lo empujamos con un banner en el home: la renovación queda acá adentro, debajo de la tarjeta.</PmNote>}
-        </div>
-      </Screen>
-    </Anim>);
-
-}
-
-// virtual-card upsell shown after "Pedir mi nueva Lemon Card" (Pomelo-migration user, no virtual yet)
-function VirtualUpsell({ onBack, onClose, onVirtual, onFisica }) {
-  return (
-    <Anim k="vupsell" noWrap>
-      <Screen footer={
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          <Btn variant="primary" leftIcon="celphone" onClick={onVirtual}>Quiero mi tarjeta virtual</Btn>
-          <Btn variant="ghost" onClick={onFisica}>Prefiero mi tarjeta física</Btn>
-        </div>
-      }>
-        <StepHeader title="Antes de renovar" onBack={onBack} onClose={onClose} />
-        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-          {/* NFC hero visual */}
-          <div style={{
-            position: 'relative', borderRadius: 22, overflow: 'hidden',
-            background: 'radial-gradient(120% 95% at 78% 0%, #6a3fb0 0%, #3a1c64 52%, #1c0c36 100%)',
-            padding: '26px 20px 22px', color: '#fff', textAlign: 'center'
-          }}>
-            <div style={{ position: 'absolute', top: -34, right: -44, width: 190, height: 190, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.18), transparent 70%)' }} />
-            <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', marginBottom: 16 }}>
-              <div style={{ transform: 'rotate(-7deg)' }}><CardArt variant="virtual" width={150} glow /></div>
-            </div>
-            <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(207,255,46,0.16)', color: 'var(--c-lime-30)', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
-              <Nfc size={13} color="var(--c-lime-30)" /> NUEVO
-            </div>
-          </div>
-
-          <div>
-            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Ahora podés pagar sin tarjeta</div>
-            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-              Con nuestra nueva <b style={{ color: LX.text1 }}>tarjeta virtual</b> pagás desde tu celu en cualquier lugar, sin necesidad de una tarjeta física.
-            </div>
-          </div>
-
-          <Surface pad={4}>
-            <div style={{ padding: '4px 12px' }}>
-              <Bullet icon="celphone" t="Pagá con el celu en el posnet" s="Apple Pay o Google Pay, en un toque." />
-              <Divider />
-              <Bullet icon="rocket" t="La tenés al instante" s="Sin esperar el envío de la física." />
-              <Divider />
-              <Bullet icon="shield-alt" t="Mismo cashback y misma cuenta" s="Cripto en cada compra, como siempre." />
-            </div>
-          </Surface>
-
-          <PmNote>Aprovechamos la renovación para empujar NFC: el usuario que viene de Pomelo todavía no tiene virtual. Es el mejor momento para mostrarle que puede pagar sin plástico.</PmNote>
         </div>
       </Screen>
     </Anim>);
@@ -675,37 +495,46 @@ function VirtualUpsell({ onBack, onClose, onVirtual, onFisica }) {
 
 // shipment tracking (opens from the "Tarjeta en proceso" banner)
 function TrackingContent({ onClose }) {
+  const GREEN = '#00CA57';
   const steps = [
-  ['Pedido confirmado', 'Mar 3 jun · 10:24', true],
-  ['Tu tarjeta salió del depósito', 'Mié 4 jun · 08:10', true],
-  ['En camino a tu domicilio', 'Llega hoy, entre las 14 y 18 h', 'now'],
-  ['Entregada', 'Malabia 1720, Palermo', false]];
+  { t: 'Pediste tu tarjeta', s: 'Solicitaste tu tarjeta el día 21 de enero.', done: true },
+  { t: 'El correo tiene tu tarjeta', s: 'Nº de envío: GP0870730420NA', link: 'Seguir envío en Andreani', done: true },
+  { t: '¡Llega hoy!', s: 'Puede ser recibida por cualquier persona mayor de 13 años presentando su DNI.', done: true },
+  { t: 'Pendiente de entrega', s: 'Recibirás la tarjeta entre el 28 de enero y el 7 de febrero.', done: false }];
 
   return (
     <div>
-      <div style={{ textAlign: 'center', marginBottom: 4 }}>
-        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Seguimiento del envío</div>
-        <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 6 }}>Tu Lemon Card •••• 5520 está en camino</div>
+      <div style={{ marginBottom: 18 }}>
+        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Seguí tu envío</div>
       </div>
-      <Surface pad={16} style={{ margin: '16px 0' }}>
-        {steps.map(([t, d, state], i) =>
-        <div key={i} style={{ display: 'flex', gap: 12 }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <span style={{
-              width: 24, height: 24, borderRadius: 999, flexShrink: 0,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 12px Inter',
-              background: state === true ? 'var(--c-lemon-50)' : state === 'now' ? 'var(--c-lime-40)' : LX.layer3,
-              color: state === true ? '#fff' : LX.dark
-            }}>{state === true ? '✓' : ''}</span>
-              {i < steps.length - 1 && <span style={{ width: 2, flex: 1, minHeight: 22, background: LX.hair, margin: '2px 0' }} />}
-            </div>
-            <div style={{ paddingBottom: i < steps.length - 1 ? 16 : 0 }}>
-              <div style={{ font: '600 14px Inter', color: state === false ? LX.text3 : LX.text1 }}>{t}</div>
-              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{d}</div>
-            </div>
-          </div>
-        )}
-      </Surface>
+      <div style={{ padding: '2px 0 4px' }}>
+        {steps.map((st, i) => {
+          const last = i === steps.length - 1;
+          // el tramo verde llega hasta el último paso cumplido; lo pendiente, gris
+          const lineColor = st.done && steps[i + 1] && steps[i + 1].done ? GREEN : 'rgba(5,5,5,0.2)';
+          return (
+            <div key={i} style={{ display: 'flex', gap: 14 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <span style={{
+                  width: 22, height: 22, borderRadius: 999, flexShrink: 0, boxSizing: 'border-box',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  background: st.done ? GREEN : 'transparent',
+                  border: st.done ? 'none' : '2px solid rgba(5,5,5,0.2)'
+                }}>{st.done && <LI name="feedback-positive" size={13} color="#fff" />}</span>
+                {!last && <span style={{ width: 2, flex: 1, minHeight: 30, background: lineColor, margin: '3px 0' }} />}
+              </div>
+              <div style={{ paddingBottom: last ? 0 : 18, flex: 1, minWidth: 0 }}>
+                <div style={{ font: '700 16px Inter', letterSpacing: '0.01em', color: st.done ? '#050505' : 'rgba(5,5,5,0.45)' }}>{st.t}</div>
+                <div style={{ font: '400 14px Inter', color: '#808080', marginTop: 3, lineHeight: 1.43 }}>{st.s}</div>
+                {st.link &&
+                <button onClick={(e) => e.preventDefault()} style={{ border: 0, background: 'transparent', padding: 0, marginTop: 4, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, font: '600 14px Inter', color: GREEN }}>
+                  {st.link}<LI name="arrow-foward" size={14} color={GREEN} />
+                </button>}
+              </div>
+            </div>);
+
+        })}
+      </div>
       <Btn variant="primary" onClick={onClose}>Entendido</Btn>
     </div>);
 
@@ -721,60 +550,73 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
   const [fisicaActive, setFisicaActive] = useStateF(false);   // física activada
   const [track, setTrack] = useStateF(false);
   const [openCard, setOpenCard] = useStateF(null);            // tarjeta abierta en su detalle
-  const [pushOpen, setPushOpen] = useStateF(false);           // push "tu tarjeta ya está activa"
-  const [pushVariant, setPushVariant] = useStateF(null);      // 'virtual' | 'fisica'
-  const [walletAdded, setWalletAdded] = useStateF({ virtual: !!pomelo, fisica: false });
-  const triggerPush = (v) => { setPushVariant(v); setPushOpen(true); };
+  const [addr, setAddr] = useStateF(undefined);               // dirección de envío elegida
+  const [virtualInWallet, setVirtualInWallet] = useStateF(!!pomelo); // la virtual está en Apple Pay
+  const [virtualDesign, setVirtualDesign] = useStateF('violeta');    // diseño elegido en el picker
 
-  // virtual → activá tu tarjeta virtual (creando → lista → tab de tarjetas, ya activa)
-  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="creating" onActivated={() => { setActivated(true); setRoute(null); triggerPush('virtual'); }} />;
-  if (route === 'cardDetail' && openCard) return <CardDetail variant={openCard.variant} title={openCard.title} mask={openCard.mask} nfc={openCard.nfc} walletAdded={walletAdded[openCard.variant]} onBack={() => setRoute(null)} onClose={onMenu} onAddWallet={() => setWalletAdded((w) => ({ ...w, [openCard.variant]: true }))} />;
-  // física → mismo flujo que "Pedir física de Pomelo"; al terminar, vuelve acá con seguimiento
-  if (route === 'fisica') return <PedirFisicaFlow onMenu={() => setRoute(null)} onboarding onComplete={() => { setFisicaTransit(true); setRoute(null); }} />;
-  if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute('fisicaActivating'); }} />;
-  if (route === 'fisicaActivating') return <ActivatingCardScreen variant="fisica" onHome={() => { setRoute(null); triggerPush('fisica'); }} />;
-  if (route === 'fisicaDelivery') return <Anim k="f5deliv"><DeliveryOnboarding onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute('fisicaActivating'); }} onMenu={onMenu} /></Anim>;
+  // virtual → activá tu tarjeta virtual (creando → lista → home de la tarjeta nueva).
+  // inWallet refleja si pasó por "Quiero Apple Pay" (true) o "Ir a tu tarjeta creada" (false).
+  if (route === 'virtual') return <Flow1 onMenu={() => setRoute(null)} replace={false} startStep="design" onActivated={(inWallet, dsg) => {
+    setActivated(true); setVirtualInWallet(!!inWallet); if (dsg) setVirtualDesign(dsg);
+    setOpenCard({ variant: 'virtual', design: dsg || 'violeta', mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: !!inWallet });
+    setRoute('cardDetail');
+  }} />;
+  // Onboarding sin tarjetas (f5, !pomelo): recién creada, sin fondos → estado vacío.
+  // Usuario que ya tenía tarjeta (pomelo): mostramos sus movimientos.
+  if (route === 'cardDetail' && openCard) return <Anim k="f5detail"><CardHome variant={openCard.variant} design={openCard.design || 'violeta'} mask={openCard.mask} balance={pomelo ? 1 : 0} startInWallet={!!openCard.nfc} onBack={() => setRoute(null)} onClose={onMenu} /></Anim>;
+  // Pedir tarjeta (botón +): elegir → física (3 pagos QR) o crédito → dirección.
+  if (route === 'add') return <Anim k="f5add"><AddCardScreen onBack={() => setRoute(null)} onClose={onMenu} onFisica={() => setRoute('fvp')} onCredito={() => setRoute('creditoAddr')} /></Anim>;
+  if (route === 'fvp') return <Anim k="f5fvp"><FisicaValueProp onBack={() => setRoute(activated ? 'add' : null)} onClose={onMenu} onContinue={() => setRoute('fisicaAddr')} /></Anim>;
+  if (route === 'fisicaAddr') return <Anim k="f5faddr"><AddressSearch onBack={() => setRoute('fvp')} onClose={onMenu} onPick={(a) => { setAddr(a); setRoute('fisicaPay'); }} /></Anim>;
+  if (route === 'fisicaPay') return <Anim k="f5fpay"><PagarFisica onBack={() => setRoute('fisicaAddr')} onClose={onMenu} onChangeAddress={() => setRoute('fisicaAddr')} address={addr} onContinue={() => { setFisicaTransit(true); setRoute(null); }} /></Anim>;
+  if (route === 'creditoAddr') return <Anim k="f5caddr"><AddressSearch onBack={() => setRoute('add')} onClose={onMenu} onPick={() => setRoute('creditoDone')} /></Anim>;
+  if (route === 'creditoDone') return <Anim k="f5cdone"><OrderConfirmation onDone={() => setRoute(null)} onMenu={onMenu} /></Anim>;
+  if (route === 'fisicaActivate') return <CardActivation onBack={() => setRoute(null)} onClose={onMenu} onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} />;
+  if (route === 'fisicaDelivery') return <Anim k="f5deliv"><DeliveryOnboarding onDone={() => { setFisicaActive(true); setFisicaTransit(false); setRoute(null); }} onMenu={onMenu} /></Anim>;
+
+  // Sin NINGUNA tarjeta todavía → onboarding inmersivo (elegí tu primera tarjeta).
+  if (!activated && !fisicaTransit && !fisicaActive)
+  return <Anim k="f5chooser"><CardChooser onBack={onMenu} onVirtual={() => setRoute('virtual')} onFisica={() => setRoute('fvp')} /></Anim>;
 
   const cards = [
   activated ?
-  { variant: 'virtual', title: 'Tarjeta virtual', mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: true } :
+  { variant: 'virtual', title: 'Tarjeta virtual', design: virtualDesign, mask: pomelo ? '•••• 8763' : '•••• 2291', status: 'Activa', nfc: virtualInWallet } :
   { variant: 'virtual', title: 'Tarjeta virtual', mask: '••••', activate: true }];
 
-  if (fisicaActive) cards.push({ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa', nfc: true });
+  if (fisicaActive) cards.push({ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' });
 
   const openCardDetail = (v) => { const c = cards.find((x) => x.variant === v); if (c && !c.activate) { setOpenCard(c); setRoute('cardDetail'); } };
-  const openPushTarget = () => {
-    const c = cards.find((x) => x.variant === pushVariant);
-    if (c) { setOpenCard(c); setRoute('cardDetail'); }
-    setPushOpen(false);
-  };
 
+  // Solo seguimiento de envío si la física está en camino. NO incentivamos
+  // pedir física: eso vive en el botón + (el usuario entra a propósito).
   let aboveCards = null, belowCards = null;
   if (fisicaTransit) {
     const tb = <TransitBanner onActivate={() => setRoute('fisicaActivate')} onTrack={() => setTrack(true)} />;
     if (pomelo) aboveCards = tb; else belowCards = tb;
-  } else if (!fisicaActive) {
-    belowCards = <BoutiqueHero compact onPrimary={() => setRoute('fisica')} onActivate={() => setRoute('fisicaActivate')} />;
   }
+
+  const AddBtn =
+  <button onClick={() => setRoute('add')} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+      <LI name="add-more" size={22} color={LX.text1} />
+    </button>;
 
   return (
     <Anim k={'f5hub' + activated + fisicaTransit + fisicaActive}>
       <div style={{ height: '100%', position: 'relative' }}>
       <Screen>
-        <BigHeader title="Tarjetas" onBack={onMenu} />
+        <BigHeader title="Tarjetas" onBack={onMenu} right={AddBtn} />
         <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <CardTabs />
           {!activated &&
           <NfcHero
             onPrimary={() => setRoute('virtual')}
-            body="Con tu tarjeta virtual pagás directo desde tu celu con Apple Pay o Google Pay."
+            body="Con tu tarjeta virtual pagás directo desde tu celu con Apple Pay."
             cta="Activá tu tarjeta virtual" />}
           {aboveCards}
           <CardsModule cards={cards} onActivate={() => setRoute('virtual')} onCardTap={openCardDetail} />
           {belowCards}
+          {(activated || fisicaActive) && <ExteriorBanner />}
           {pomelo &&
           <>
-            <ExteriorBanner />
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
               <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
               <LI name="arrow-foward" size={16} color={LX.text3} />
@@ -792,12 +634,6 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
       <Sheet open={track} onClose={() => setTrack(false)}>
         <TrackingContent onClose={() => setTrack(false)} />
       </Sheet>
-      {pushOpen &&
-      <WalletPush
-        onTap={openPushTarget}
-        onDismiss={() => setPushOpen(false)}
-        title={pushVariant === 'fisica' ? 'Tu Lemon Card ya está activa' : 'Tu tarjeta virtual ya está activa'}
-        body="Ya podés sumar tu tarjeta a tu Apple Wallet." />}
       </div>
     </Anim>);
 
@@ -807,8 +643,8 @@ function Flow5({ onMenu, meets, onMeet, pomelo }) {
 // PEDIR FÍSICA — pedir la tarjeta tiene un costo (pago, no requisitos)
 // ════════════════════════════════════════════════════════════════
 function PedirFisicaFlow({ onMenu, onComplete, onboarding }) {
-  // En onboarding entramos directo al pago; si no, mostramos el hub con el pitch.
-  return <Flow2 onMenu={onMenu} onComplete={onComplete} startStep={onboarding ? 'pay' : 'hub'} />;
+  // En onboarding entramos directo al value prop; si no, mostramos el hub con el pitch.
+  return <Flow2 onMenu={onMenu} onComplete={onComplete} startStep={onboarding ? 'fvp' : 'hub'} />;
 }
 
 function RequisitoChooser({ onBack, onPick, headerTitle = 'Pedir tarjeta física', title = '¿Qué experiencia querés ver?', subtitle = 'Estamos evaluando si pedimos un piso de inversión. Entrá a cualquiera de las dos para recorrerla.' }) {
@@ -844,7 +680,6 @@ function RequisitoChooser({ onBack, onPick, headerTitle = 'Pedir tarjeta física
             <LI name="arrow-foward" size={18} color={LX.text3} />
           </button>
         )}
-        <PmNote>Esta pantalla es solo del prototipo, para comparar las dos experiencias. En producción el usuario entra directo a una sola.</PmNote>
       </div>
     </Screen>);
 
@@ -866,7 +701,7 @@ function ChooserScreen({ onBack, onPick }) {
         {opts.map((o) =>
         <Surface key={o.id} pad={16}>
             <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
-              <CardThumb variant={o.variant} w={56} portrait />
+              <CardThumb variant={o.variant} w={72} />
               <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <div style={{ font: '600 16px Inter', color: LX.text1 }}>{o.t}</div>
@@ -894,50 +729,50 @@ function ChooserScreen({ onBack, onPick }) {
 
 // Activación de tarjeta física — ingresá 16 dígitos + clave de 4 (onboarding)
 function CardActivation({ onBack, onClose, onDone }) {
-  const [num, setNum] = useStateF('');
-  const [pin, setPin] = useStateF('');
-  const numClean = num.replace(/\D/g, '').slice(0, 16);
-  const pinClean = pin.replace(/\D/g, '').slice(0, 4);
-  const ready = numClean.length === 16 && pinClean.length === 4;
-  const fmt = numClean.replace(/(.{4})/g, '$1 ').trim();
+  const [code, setCode] = useStateF('');
+  const clean = code.replace(/\D/g, '').slice(0, 4);
+  const ready = clean.length === 4;
   return (
     <Anim k="cardact" noWrap>
       <Screen footer={<Btn variant="primary" disabled={!ready} onClick={onDone}>Activar</Btn>}>
         <StepHeader title="Activá tu tarjeta" onBack={onBack} onClose={onClose} />
-        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 26 }}>
           <div>
-            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Activá tu tarjeta</div>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Activá tu Lemon Card</div>
             <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-              Ingresá los 16 números de tu Lemon Card y creá una clave de 4 dígitos.
+              Ingresá los <b style={{ color: LX.text1 }}>últimos 4 números</b> que figuran al frente de tu tarjeta física.
             </div>
           </div>
 
-          <div>
-            <div style={{ background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 12, padding: '15px 16px' }}>
-              <input
-                inputMode="numeric" value={fmt}
-                onChange={(e) => setNum(e.target.value)}
-                placeholder="Ingresá los 16 números de tu tarjeta"
-                style={{ width: '100%', border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '0.04em', color: LX.text1 }} />
+          {/* tarjeta de referencia */}
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '2px 0' }}>
+            <div style={{ position: 'relative' }}>
+              <CardArt variant="fisica" width={216} />
+              <div style={{ position: 'absolute', right: 16, bottom: 14, font: '600 12px Geist', letterSpacing: '0.14em', color: 'rgba(255,255,255,0.55)' }}>•••• ••••</div>
             </div>
-            <div style={{ textAlign: 'right', font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>{numClean.length}/16</div>
           </div>
 
-          <div style={{ background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 12, padding: '15px 16px' }}>
+          {/* 4 casilleros con input invisible encima (toca para enfocar) */}
+          <label style={{ position: 'relative', display: 'block' }}>
             <input
-              inputMode="numeric" type="password" value={pinClean}
-              onChange={(e) => setPin(e.target.value)}
-              placeholder="Creá tu clave de 4 dígitos"
-              style={{ width: '100%', border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '0.3em', color: LX.text1 }} />
-          </div>
+              inputMode="numeric" autoFocus value={clean}
+              onChange={(e) => setCode(e.target.value)}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0, border: 0, cursor: 'text' }} />
+            <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+              {[0, 1, 2, 3].map((i) =>
+              <div key={i} style={{
+                width: 60, height: 68, borderRadius: 16, background: LX.layer,
+                border: `2px solid ${clean.length === i ? LX.text1 : LX.border}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                font: '500 28px Geist', color: LX.text1, transition: 'border-color .15s'
+              }}>{clean[i] || ''}</div>
+              )}
+            </div>
+          </label>
 
-          <div>
-            <div style={{ font: '400 13px Inter', color: LX.text2, marginBottom: 6 }}>La clave no puede tener:</div>
-            <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 3 }}>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Números repetidos: 1111</li>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Secuencias ascendentes: 1234</li>
-              <li style={{ font: '400 13px Inter', color: LX.text2 }}>Secuencias descendentes: 4321</li>
-            </ul>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, font: '400 13px Inter', color: LX.text3, lineHeight: 1.45 }}>
+            <LI name="shield-alt" size={16} color={LX.text3} style={{ flexShrink: 0, marginTop: 1 }} />
+            Solo para confirmar que la tarjeta es tuya. Nunca te pedimos los 16 números completos.
           </div>
         </div>
       </Screen>
@@ -967,41 +802,8 @@ function DeliveryOnboarding({ onDone, onMenu }) {
             </div>
           </div>
 
-          <Surface pad={0} style={{ overflow: 'hidden' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 9, padding: '14px 16px 12px' }}>
-              <LI name="programed-tx" size={18} color="#854600" />
-              <div style={{ font: '600 14px Inter', color: LX.text1, flex: 1 }}>Débitos automáticos a revincular</div>
-              <span style={{ font: '600 12px Inter', color: '#854600', background: 'var(--bg-warning-01)', padding: '3px 9px', borderRadius: 999 }}>3</span>
-            </div>
-            <div style={{ padding: '0 16px' }}>
-              {[
-              ['streaming', 'Netflix', 'US$ 12,99 / mes'],
-              ['streaming', 'Spotify', '$ 2.499 / mes'],
-              ['tech', 'iCloud+', '$ 1.100 / mes']].
-              map(([icon, name, amt], i) =>
-              <React.Fragment key={i}>
-                  {i > 0 && <Divider />}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
-                    <div style={{ width: 38, height: 38, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <LI name={icon} size={18} color={LX.text1} />
-                    </div>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ font: '600 14px Inter', color: LX.text1 }}>{name}</div>
-                      <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{amt}</div>
-                    </div>
-                    <span style={{ font: '600 12px Inter', color: '#854600', background: 'var(--bg-warning-01)', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap' }}>Revincular</span>
-                  </div>
-                </React.Fragment>
-              )}
-            </div>
-            <div style={{ padding: '0 16px 14px', marginTop: 4 }}>
-              <div style={{ font: '400 12px Inter', color: LX.text2, lineHeight: 1.4 }}>
-                Como la nueva tarjeta tiene otro número, vas a tener que volver a cargarla en cada servicio para que no se te corten.
-              </div>
-            </div>
-          </Surface>
+          <DebitosInfo />
 
-          <PmNote>Quick win del benchmark: un onboarding de entrega que despeja la duda #1 — “¿mis débitos siguen funcionando?”. Como la nueva tarjeta tiene otro número, le mostramos qué débitos revincular y lo resolvemos en 1 toque.</PmNote>
         </div>
       </Screen>
     </Anim>);

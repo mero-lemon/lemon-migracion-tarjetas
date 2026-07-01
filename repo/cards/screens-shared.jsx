@@ -29,16 +29,19 @@ const StatCards = () =>
   </div>;
 
 
-const MoveRow = ({ icon, title, date, amount }) =>
-<div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0' }}>
-    <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-      <LI name={icon} size={20} color={LX.text1} />
+// fila de movimiento (estilo Figma: avatar 32, Comercio Geist 14, monto +/−)
+const MoveRow = ({ icon, coin, title, date, amount, sign = '−' }) =>
+<div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
+    <div style={{ position: 'relative', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,8,9,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <LI name={icon} size={18} color="#141414" />
+      {coin &&
+      <span style={{ position: 'absolute', right: -3, bottom: -3, width: 15, height: 15, borderRadius: 999, background: coin === 'btc' ? '#F7931A' : '#5b6b8c', border: '2px solid var(--bg-layer-01)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '700 8px Inter', color: '#fff' }}>{coin === 'btc' ? '₿' : 'Ξ'}</span>}
     </div>
     <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ font: '500 14px Inter', color: LX.text1 }}>{title}</div>
-      <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{date}</div>
+      <div style={{ font: '500 14px Geist', color: '#141414', letterSpacing: '-0.01em' }}>{title}</div>
+      <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>{date}</div>
     </div>
-    <div style={{ font: '500 14px Geist', color: LX.text1 }}>−{amount}</div>
+    <div style={{ font: '500 14px Geist', color: sign === '+' ? '#00AA18' : '#141414', letterSpacing: '-0.01em' }}>{sign} {amount}</div>
   </div>;
 
 
@@ -48,7 +51,7 @@ const CardsModule = ({ cards, onCardTap, onActivate }) =>
     {cards.map((c, i) =>
   <React.Fragment key={i}>
         {i > 0 && <Divider style={{ margin: '0 18px' }} />}
-        <CardListItem variant={c.variant} title={c.title} mask={c.mask} status={c.status} activate={c.activate} onTap={onCardTap} onActivate={onActivate} />
+        <CardListItem variant={c.variant} design={c.design} title={c.title} mask={c.mask} status={c.status} activate={c.activate} onTap={onCardTap} onActivate={onActivate} />
       </React.Fragment>
   )}
     <Divider style={{ margin: '0 18px' }} />
@@ -64,8 +67,9 @@ const CardTabs = () =>
   </div>;
 
 
-// big NFC hero (used to push renewing the virtual card → pay from phone)
-const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu tarjeta y pagá directo desde tu celu con Apple Pay o Google Pay.', cta = 'Pedí tu nueva tarjeta virtual' }) =>
+// big NFC hero (push: pedí la nueva virtual → sumala a Apple Pay → pagá)
+// Mensaje central: pedí tu nueva virtual, sumala a Apple Pay y empezá a pagar.
+const NfcHero = ({ onPrimary, title = 'Dejá la billetera en casa', body = 'Pedí tu nueva virtual, sumala a Apple Pay y pagá apoyando el celu — el bondi, el súper, las birras.', cta = 'Quiero Apple Pay' }) =>
 <div style={{
   position: 'relative', borderRadius: 22, overflow: 'hidden', minHeight: 300,
   background: 'radial-gradient(120% 90% at 78% 0%, #6a3fb0 0%, #3a1c64 52%, #1c0c36 100%)',
@@ -87,8 +91,8 @@ const NfcHero = ({ onPrimary, title = 'Pagá con el celu', body = 'Renová tu ta
     <div style={{ position: 'absolute', top: -34, right: -44, width: 190, height: 190, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.18), transparent 70%)' }} />
     {/* text + CTA over the image */}
     <div style={{ position: 'relative', padding: '22px 20px 20px' }}>
-      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(207,255,46,0.16)', color: 'var(--c-lime-30)', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
-        <LI name="celphone" size={13} color="var(--c-lime-30)" /> NUEVA FORMA DE PAGAR
+      <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(255,255,255,0.16)', color: '#fff', font: '600 11px Inter', padding: '4px 10px', borderRadius: 999, letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
+        <LI name="celphone" size={13} color="#fff" /> NUEVA FORMA DE PAGAR
       </div>
       <div style={{ font: '500 23px Geist', letterSpacing: '-0.02em', marginTop: 10, lineHeight: 1.15, textShadow: '0 1px 12px rgba(20,8,40,0.6)' }}>{title}</div>
       <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.82)', marginTop: 6, lineHeight: 1.45, textShadow: '0 1px 10px rgba(20,8,40,0.5)' }}>{body}</div>
@@ -108,7 +112,7 @@ compact ?
   padding: '14px 16px', color: '#fff'
 }}>
     <button onClick={onPrimary} style={{ border: 0, background: 'transparent', cursor: 'pointer', textAlign: 'left', padding: 0, width: '100%', display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={66} portrait /></div>
+      <div style={{ transform: 'rotate(-8deg)', flexShrink: 0 }}><CardArt variant="fisica" width={92} /></div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ font: '600 15px Inter', color: '#fff' }}>Pedí tu Lemon Card física</div>
         <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.66)', marginTop: 2, lineHeight: 1.35 }}>Edición boutique, con envío a tu casa.</div>
@@ -163,8 +167,8 @@ const TransitBanner = ({ onActivate, onTrack }) =>
   background: 'var(--c-lime-40)', padding: '20px 18px'
 }}>
     {/* card peeking on the right */}
-    <div style={{ position: 'absolute', right: -34, top: '50%', transform: 'translateY(-50%) rotate(8deg)', opacity: 0.96 }}>
-      <CardArt variant="fisica" width={132} portrait />
+    <div style={{ position: 'absolute', right: -28, top: '50%', transform: 'translateY(-50%) rotate(8deg)', opacity: 0.96 }}>
+      <CardArt variant="fisica" width={150} />
     </div>
     <div style={{ position: 'relative', maxWidth: 215 }}>
       <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.dark }}>Tarjeta en proceso</div>
@@ -196,38 +200,275 @@ const ExteriorBanner = () =>
     <LI name="arrow-foward" size={18} color="var(--c-lime-40)" style={{ flexShrink: 0 }} />
   </button>;
 
+// "+" del header → elegí qué tarjeta sumar (física / crédito). La virtual
+// se crea desde el banner, no acá. No empuja: el usuario entra a propósito.
+function AddCardScreen({ onBack, onClose, onFisica, onCredito }) {
+  const opts = [
+  { id: 'fisica', variant: 'fisica', t: 'Prepaga física', s: 'Edición boutique, con envío a tu casa. Cashback en cripto.', cta: 'Pedir', onPick: onFisica },
+  { id: 'credito', variant: 'credito', t: 'Tarjeta de crédito', s: 'Respaldada con Bitcoin, sin historial crediticio.', cta: 'Próximamente', onPick: onCredito, soon: true }];
+
+  return (
+    <Screen>
+      <StepHeader title="Pedí una tarjeta" onBack={onBack} onClose={onClose} />
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué tarjeta querés sumar?</div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí la que más te sirva. La sumás a tu cuenta sin costo.</div>
+        </div>
+        {opts.map((o) =>
+        <button key={o.id} onClick={o.soon ? undefined : o.onPick} disabled={o.soon} style={{ display: 'flex', alignItems: 'center', gap: 16, textAlign: 'left', cursor: o.soon ? 'default' : 'pointer', background: LX.layer, border: `1px solid ${LX.border}`, borderRadius: 16, padding: 16, opacity: o.soon ? 0.6 : 1 }}>
+            <CardThumb variant={o.variant} w={72} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '600 16px Inter', color: LX.text1 }}>{o.t}</div>
+              <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 3, lineHeight: 1.4 }}>{o.s}</div>
+            </div>
+            <span style={{ flexShrink: 0, border: 0, borderRadius: 999, padding: '8px 16px', font: '600 14px Inter', whiteSpace: 'nowrap', background: o.soon ? 'var(--button-disabled)' : LX.dark, color: o.soon ? 'var(--text-disabled)' : '#fff' }}>{o.cta}</span>
+          </button>)}
+      </div>
+    </Screen>);
+
+}
+
+// Requisito física = pagar la tarjeta (costo único que se descuenta del saldo).
+function PagarFisica({ onBack, onClose, onContinue, onChangeAddress, price = 5, balance = 240, address = ['Malabia 1720', 'Palermo, CABA · C1414AAP'] }) {
+  const labelStyle = { font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '0 2px 8px' };
+  return (
+    <Screen footer={<Btn variant="primary" onClick={onContinue}>Pagar y pedir</Btn>}>
+      <StepHeader title="Confirmá tu pedido" onBack={onBack} onClose={onClose} />
+      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>Revisá tu pedido</div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
+            Confirmá los datos y pagá para que salga a tu casa.
+          </div>
+        </div>
+
+        {/* 1. resumen de la tarjeta */}
+        <Surface pad={14}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ flexShrink: 0, filter: 'drop-shadow(0 4px 10px rgba(0,0,0,0.18))' }}>
+              <CardArt variant="fisica" width={78} />
+            </div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '600 16px Inter', color: LX.text1 }}>Lemon Card física</div>
+              <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 2, lineHeight: 1.4 }}>Activala cuándo la recibas.</div>
+            </div>
+          </div>
+        </Surface>
+
+        {/* 2. confirmar dirección */}
+        <div>
+          <div style={labelStyle}>Enviar a</div>
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="positive-location" size={20} color={LX.text1} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 14px Inter', color: LX.text1 }}>{address[0]}</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{address[1]}</div>
+              </div>
+              {onChangeAddress &&
+              <button onClick={onChangeAddress} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 13px Inter', color: 'var(--c-greent-50)', flexShrink: 0 }}>Cambiar</button>}
+            </div>
+          </Surface>
+        </div>
+
+        {/* 3. pago — todo de una, sin desglose */}
+        <div>
+          <div style={labelStyle}>Pago</div>
+          <Surface pad={0} style={{ overflow: 'hidden' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="wallet" size={20} color={LX.text1} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 14px Inter', color: LX.text1 }}>Pagás con tu saldo</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Disponible: US$ {balance}</div>
+              </div>
+              <LI name="arrow-foward" size={18} color={LX.text3} />
+            </div>
+            <Divider />
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px' }}>
+              <div>
+                <div style={{ font: '600 15px Inter', color: LX.text1 }}>Total a pagar</div>
+                <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Pago único, con envío incluido.</div>
+              </div>
+              <span style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>US$ {price}</span>
+            </div>
+          </Surface>
+        </div>
+      </div>
+    </Screen>);
+
+}
+
+// Paso 1 de pedir física: value prop con animación (estilo Cash App).
+function FisicaValueProp({ onBack, onClose, onContinue }) {
+  const [up, setUp] = useStateSh(false);
+  React.useEffect(() => { const t = setTimeout(() => setUp(true), 80);return () => clearTimeout(t); }, []);
+  const props = [
+  ['currency-bitcoin', 'Cashback en cripto', 'En cada compra, en pesos o dólar digital.'],
+  ['currency-dollar', 'Internacional, sin impuesto extra', 'Pagá en todo el mundo con dólar digital.'],
+  ['celphone', 'Contactless', 'Apoyala en el posnet y listo.'],
+  ['deposit', 'Envío gratis a tu casa', 'Te la mandamos sin cargo, lista para activar.']];
+
+  return (
+    <Screen bg="radial-gradient(120% 70% at 50% 0%, #14342f 0%, #0a0a10 62%)" footer={
+    <div style={{ opacity: up ? 1 : 0, transition: 'opacity .5s .5s' }}>
+        <Btn variant="brand" onClick={onContinue}>Pedir mi Lemon Card</Btn>
+      </div>
+    }>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
+        <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
+          <LI name="arrow-back" size={22} color="#fff" />
+        </button>
+      </div>
+      <div style={{ padding: '8px 24px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        {/* card animada: sube + flota + glow */}
+        <div style={{ transform: up ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.9)', opacity: up ? 1 : 0, transition: 'transform .8s cubic-bezier(.34,1.56,.64,1), opacity .5s' }}>
+          <div style={{ animation: 'lc-float 3.8s ease-in-out infinite' }}><CardArt variant="fisica" width={250} glow /></div>
+        </div>
+        <div style={{ textAlign: 'center', marginTop: 24, opacity: up ? 1 : 0, transform: up ? 'none' : 'translateY(14px)', transition: 'opacity .5s .2s, transform .6s .2s' }}>
+          <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: '#fff' }}>Tu Lemon, en la mano</div>
+          <div style={{ font: '400 14px Inter', color: 'rgba(255,255,255,0.7)', marginTop: 8, lineHeight: 1.45, maxWidth: 300 }}>Edición boutique, con envío a tu casa. Esto es lo que sumás:</div>
+        </div>
+        {/* value props con stagger */}
+        <div style={{ width: '100%', marginTop: 22, display: 'flex', flexDirection: 'column', gap: 14 }}>
+          {props.map(([ic, t, s], i) =>
+          <div key={i} style={{ display: 'flex', gap: 13, alignItems: 'flex-start', opacity: up ? 1 : 0, transform: up ? 'none' : 'translateY(16px)', transition: `opacity .5s ${0.3 + i * 0.1}s, transform .6s ${0.3 + i * 0.1}s` }}>
+              <div style={{ width: 40, height: 40, borderRadius: 12, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name={ic} size={20} color="var(--c-lime-40)" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ font: '600 15px Inter', color: '#fff' }}>{t}</div>
+                <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.6)', marginTop: 2, lineHeight: 1.4 }}>{s}</div>
+              </div>
+            </div>)}
+        </div>
+      </div>
+    </Screen>);
+
+}
+
+// Paso 2 de pedir física: completar dirección (search + resultados, estilo Figma).
+function AddressSearch({ onBack, onClose, onPick }) {
+  const [q, setQ] = useStateSh('');
+  const all = [
+  ['Malabia 1720', 'Palermo, CABA · C1414AAP'],
+  ['Thames 2280', 'Palermo, CABA · C1425FIF'],
+  ['Av. Corrientes 4850', 'Almagro, CABA · C1414AJR'],
+  ['Gurruchaga 1085', 'Villa Crespo, CABA · C1414DLR'],
+  ['Av. Cabildo 2230', 'Belgrano, CABA · C1428AAV'],
+  ['Defensa 670', 'San Telmo, CABA · C1065AAN']];
+
+  const results = all.filter((a) => a[0].toLowerCase().includes(q.toLowerCase().trim()) || !q.trim());
+
+  return (
+    <Screen footer={
+    <Btn variant="ghost" onClick={() => onPick(all[0])} style={{ color: 'var(--c-greent-50)' }}>No encuentro mi dirección</Btn>
+    }>
+      <BigHeader title="¿Dónde te la enviamos?" onBack={onBack} right={<span style={{ width: 40 }} />} />
+      <div style={{ padding: '8px 16px 4px' }}>
+        {/* search */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 56, padding: '0 16px', background: 'rgba(8,8,9,0.05)', border: '1px solid #E6E6E6', borderRadius: 100 }}>
+          <LI name="search" size={22} color="#818181" />
+          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscá tu dirección" style={{ flex: 1, border: 0, outline: 'none', background: 'transparent', font: '400 16px Inter', color: LX.text1, letterSpacing: '-0.1px' }} />
+        </div>
+        <div style={{ font: '500 14px Inter', color: '#808080', margin: '20px 2px 4px' }}>Resultados</div>
+      </div>
+      <div>
+        {results.map(([a, b], i) =>
+        <button key={i} onClick={() => onPick([a, b])} style={{ display: 'block', width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="positive-location" size={20} color={LX.text2} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '600 16px Inter', color: '#050505' }}>{a}</div>
+                <div style={{ font: '400 14px Inter', color: '#808080', marginTop: 1 }}>{b}</div>
+              </div>
+            </div>
+          </button>)}
+      </div>
+    </Screen>);
+
+}
+
+// Banner neutro de renovación (física por vencer) — estilo Figma: gris, 2 pills.
+const RenovarBanner = ({ onRenew, onLater, title = 'Tu Lemon Card física vence pronto', body = 'Renovala antes de que venza para seguir usándola sin cortes.', cta = 'Renovar mi tarjeta', later = 'Ahora no' }) =>
+<div style={{ background: 'rgba(8,8,8,0.07)', borderRadius: 24, padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div>
+      <div style={{ font: '500 14px Geist', color: '#080808', letterSpacing: '-0.01em' }}>{title}</div>
+      <div style={{ font: '400 12px Inter', color: 'rgba(8,8,8,0.7)', marginTop: 3, lineHeight: 1.5 }}>{body}</div>
+    </div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <button onClick={onRenew} style={{ border: 0, cursor: 'pointer', borderRadius: 100, padding: '8px 14px', font: '600 12px Inter', background: LX.dark, color: '#fff' }}>{cta}</button>
+      {onLater && <button onClick={onLater} style={{ border: 0, cursor: 'pointer', borderRadius: 100, padding: '8px 14px', font: '600 12px Inter', background: 'transparent', color: '#080808' }}>{later}</button>}
+    </div>
+  </div>;
+
+
+// Banner lime "Cambia gratis tu tarjeta virtual · Apple Pay" (home de tarjetas)
+// Estilo de la pieza oficial: gradiente lime con blob, tarjetas sangrando por izquierda.
+const CambiaBanner = ({ onPrimary, first }) =>
+<button onClick={onPrimary} style={{
+  position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
+  borderRadius: 26, minHeight: 98, padding: '18px 20px 18px 126px',
+  background: 'radial-gradient(110% 130% at 86% 14%, #EAFF6B 0%, rgba(234,255,107,0) 48%), linear-gradient(100deg, #6FD60A 0%, #97EC1C 52%, #B7F53A 100%)'
+}}>
+    {/* tarjetas sangrando por la izquierda */}
+    <div style={{ position: 'absolute', left: -26, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+      <div style={{ transform: 'rotate(7deg)', filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}><CardArt design="sticker" width={80} /></div>
+      <div style={{ transform: 'rotate(-9deg)', marginLeft: -48, filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}><CardArt design="tetrish" width={80} /></div>
+    </div>
+    <div style={{ position: 'relative' }}>
+      <div style={{ font: '700 17px Inter', color: '#0b1a00', lineHeight: 1.18 }}>{first ? 'Creá tu tarjeta virtual' : 'Cambia gratis tu tarjeta virtual'}</div>
+      <div style={{ font: '500 14px Inter', color: 'rgba(11,26,0,0.74)', marginTop: 3, lineHeight: 1.3 }}>{first ? 'Sumala a Apple Pay y empezá a pagar.' : 'Y empezá a pagar con Apple Pay'}</div>
+    </div>
+  </button>;
+
+
 // mode: 'replaceVirtual' | 'firstVirtual' | 'fisica' | 'renewFisica' | 'twoCards'
 // phase (renewFisica only): 'expiring' (default) | 'transit' | 'active'
 function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true, showNfcBanner = false, onNfc }) {
   // sensible default ownership per mode
   const renewCards = phase === 'active' ?
-  [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }] :
-  [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Vence pronto' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }];
+  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 5520', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }] :
+  [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Próximo a vencer' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }];
   const owned = cards || {
-    replaceVirtual: [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }],
-    firstVirtual: [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' }],
-    fisica: [{ variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }],
+    replaceVirtual: [{ variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }],
+    firstVirtual: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }],
+    fisica: [{ variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }],
     renewFisica: renewCards,
-    twoCards: [{ variant: 'fisica', title: 'Lemon Card', mask: '•••• 4971', status: 'Activa' }, { variant: 'virtual', title: 'Tarjeta virtual', mask: '•••• 8763', status: 'Activa' }]
+    twoCards: [{ variant: 'fisica', title: 'Prepaga física', mask: '•••• 4971', status: 'Activa' }, { variant: 'virtual', title: 'Prepaga virtual', mask: '•••• 8763', status: 'Activa' }]
   }[mode] || [];
+
+  // Subflujo "pedir tarjeta" (botón +): física = value prop → dirección → pago.
+  const [sub, setSub] = useStateSh(null);
+  const [shipAddr, setShipAddr] = useStateSh(undefined);
+  if (sub === 'add')
+  return <AddCardScreen onBack={() => setSub(null)} onClose={() => setSub(null)} onFisica={() => setSub('fvp')} onCredito={() => setSub('addrC')} />;
+  if (sub === 'fvp')
+  return <FisicaValueProp onBack={() => setSub('add')} onClose={() => setSub(null)} onContinue={() => setSub('addr')} />;
+  if (sub === 'addr')
+  return <AddressSearch onBack={() => setSub('fvp')} onClose={() => setSub(null)} onPick={(a) => { setShipAddr(a); setSub('pay'); }} />;
+  if (sub === 'pay')
+  return <PagarFisica onBack={() => setSub('addr')} onClose={() => setSub(null)} onChangeAddress={() => setSub('addr')} address={shipAddr} onContinue={() => setSub('done')} />;
+  if (sub === 'addrC')
+  return <AddressSearch onBack={() => setSub('add')} onClose={() => setSub(null)} onPick={() => setSub('done')} />;
+  if (sub === 'done')
+  return <OrderConfirmation onDone={() => setSub(null)} onMenu={() => setSub(null)} />;
+
+  const AddBtn =
+  <button onClick={() => setSub('add')} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+      <LI name="add-more" size={22} color={LX.text1} />
+    </button>;
 
   return (
     <Screen>
-      <BigHeader title="Tarjetas" onBack={onBack} />
+      <BigHeader title="Tarjetas" onBack={onBack} right={AddBtn} />
       <div style={{ padding: '4px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-        <CardTabs />
-
-        {mode === 'fisica' && <BoutiqueHero onPrimary={onPrimary} onActivate={onActivate} />}
-
-        {mode === 'replaceVirtual' && <NfcHero onPrimary={onPrimary} />}
-
-        {mode === 'firstVirtual' &&
-        <NfcHero onPrimary={onPrimary} body="Pagá directo desde tu celu con Apple Pay o Google Pay, sin sacar la tarjeta." cta="Creá tu tarjeta virtual" />
-        }
-
-        {mode === 'renewFisica' && phase === 'expiring' && showNfcBanner &&
-        <NfcHero onPrimary={onNfc} cta="Pedí tu virtual con NFC" />
-        }
 
         {mode === 'renewFisica' && phase === 'transit' &&
         <TransitBanner onActivate={onActivate} onTrack={onTrack} />
@@ -244,33 +485,16 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
         }
 
         {mode === 'renewFisica' && phase === 'expiring' && showExpiringBanner &&
-        <div style={{ background: 'var(--bg-warning-01)', border: '1px solid var(--c-orange-10)', borderRadius: 16, padding: '15px 16px' }}>
-            <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
-              <LI name="alert-time" size={22} color="#854600" style={{ flexShrink: 0, marginTop: 1 }} />
-              <div style={{ flex: 1 }}>
-                <div style={{ font: '600 15px Inter', color: '#854600' }}>Tu Lemon Card física vence pronto</div>
-                <div style={{ font: '500 13px Inter', color: '#9a6a1a', marginTop: 3, lineHeight: 1.4 }}>Confirmá tu dirección para recibir la nueva y seguir pagando sin cortes.
-              </div>
-              </div>
-            </div>
-            <button onClick={onPrimary} style={{ width: '100%', marginTop: 13, border: 0, cursor: 'pointer', borderRadius: 999, padding: '12px 18px', background: '#854600', color: '#fff', font: '600 15px Inter' }}>Pedir mi nueva Lemon Card</button>
-          </div>}
+        <RenovarBanner onRenew={onPrimary} />}
+
+        {/* Banner NFC lime: incentiva sumar la virtual a Apple Pay.
+            Va arriba de las tarjetas. En renovación es promo secundaria (el de vencimiento es el principal). */}
+        {(mode === 'replaceVirtual' || mode === 'firstVirtual' || mode === 'renewFisica') &&
+        <CambiaBanner onPrimary={mode === 'renewFisica' ? onNfc || onPrimary : onPrimary} first={mode === 'firstVirtual'} />}
 
         <CardsModule cards={owned} onCardTap={onCardTap} />
 
-        <ExteriorBanner />
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-          <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
-          <LI name="arrow-foward" size={16} color={LX.text3} />
-        </div>
-        <Surface pad={4}>
-          <div style={{ padding: '0 12px' }}>
-            <MoveRow icon="streaming" title="DLO*PrimeVideo" date="29 de mayo" amount="$ 7.863,79" />
-            <Divider />
-            <MoveRow icon="food" title="Cuervo Café" date="28 de mayo" amount="$ 4.200" />
-          </div>
-        </Surface>
+        {mode !== 'renewFisica' && <ExteriorBanner />}
       </div>
     </Screen>);
 
@@ -328,7 +552,6 @@ function AddressScreen({ onBack, onClose, onConfirm }) {
           )}
         </Surface>
 
-        <PmNote>Sumá un tracking en vivo y un aviso push cuando salga del depósito — pedir la física es un momento "boutique", vale la pena cuidarlo.</PmNote>
       </div>
     </Screen>);
 
@@ -391,42 +614,4 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-// ── Activating screen (reemplaza la sheet "Agregar a Apple Wallet") ─
-// Aparece justo después de crear/activar una tarjeta. El usuario vuelve
-// al inicio y más tarde recibe una push para sumarla a la billetera.
-function ActivatingCardScreen({ variant = 'virtual', onHome }) {
-  const backVariant = variant === 'virtual' ? 'fisica' : 'virtual';
-  return (
-    <Anim k={'activating' + variant} noWrap>
-      <Screen footer={<Btn variant="primary" onClick={onHome}>Volver al inicio</Btn>}>
-        <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28, padding: '32px 24px 12px', textAlign: 'center' }}>
-          <div style={{ position: 'relative', width: 240, height: 180, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <span style={{ position: 'absolute', top: 4, right: 22, font: '700 22px Geist', color: 'var(--c-nebula-50)' }}>✦</span>
-            <span style={{ position: 'absolute', bottom: 12, left: 14, font: '700 18px Geist', color: 'var(--c-lemon-50)' }}>✦</span>
-            <div style={{ position: 'absolute', transform: 'translate(-58px, 14px) rotate(-14deg)', opacity: 0.9, filter: 'saturate(0.92)' }}>
-              <CardArt variant={backVariant} width={130} portrait />
-            </div>
-            <div style={{ position: 'absolute', transform: 'translate(58px, 18px) rotate(12deg)', opacity: 0.85 }}>
-              <CardArt variant={backVariant === 'fisica' ? 'credito' : 'fisica'} width={130} portrait />
-            </div>
-            <div style={{ position: 'relative', zIndex: 2 }}>
-              <CardArt variant={variant} width={150} portrait glow />
-            </div>
-          </div>
-          <div>
-            <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.15 }}>Estamos activando tu tarjeta</div>
-            <div style={{ font: '400 15px Inter', color: LX.text2, marginTop: 12, lineHeight: 1.5, maxWidth: 320, margin: '12px auto 0' }}>
-              Te avisaremos cuando esté lista para que la adiciones a tu billetera virtual y comiences a pagar.
-            </div>
-          </div>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '7px 14px', borderRadius: 999, background: 'var(--c-lemon-5)', color: 'var(--c-lemon-70)', font: '600 12px Inter' }}>
-            <span className="lc-spin" style={{ width: 12, height: 12, borderRadius: 999, border: '2px solid var(--c-lemon-20)', borderTopColor: 'var(--c-lemon-50)', display: 'inline-block' }} />
-            Esto puede tardar unos minutos
-          </div>
-        </div>
-      </Screen>
-    </Anim>);
-
-}
-
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, ActivatingCardScreen });
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner, FisicaValueProp, AddressSearch });

@@ -74,6 +74,112 @@ function Phone({ scale, children }) {
 
 }
 
+// ── App home (home real de la app) ──────────────────────────────
+// Entrada de los usuarios "Todavía en GP": ven su home con el banner de la
+// nueva virtual + Apple Pay; al tocarlo entran al flujo de tarjetas.
+function AppHome({ onCards, bannerVariant = 'applepay' }) {
+  const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
+  const expiring = bannerVariant === 'expiring';
+  return (
+    <Screen footer={
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: LX.layer, borderRadius: 999, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
+          {navIcons.map((t, i) => <LI key={i} name={t} size={22} color={i === 0 ? LX.text1 : LX.text3} />)}
+        </div>
+        <div style={{ width: 52, height: 52, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
+        </div>
+      </div>
+    }>
+      {/* top bar */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: LX.layer, borderRadius: 999, padding: '6px 14px 6px 6px', boxShadow: 'var(--shadow-card)' }}>
+          <span style={{ width: 30, height: 30, borderRadius: 999, background: 'var(--c-lemon-40)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '700 16px Inter', color: LX.dark }}>R</span>
+          <span style={{ font: '600 16px Inter', color: LX.text1 }}>$rawww</span>
+        </div>
+        <div style={{ flex: 1 }} />
+        <LI name="search" size={23} color={LX.text1} />
+        <LI name="rewards" size={23} color={LX.text1} />
+        <LI name="view-notification" size={23} color={LX.text1} />
+      </div>
+
+      <div style={{ padding: '4px 16px 8px' }}>
+        {/* balance card: una sola card radius 32 (tabs + saldo + botones); la lime asoma detrás */}
+        <div style={{ position: 'relative' }}>
+          <div style={{ position: 'relative', zIndex: 2, background: LX.layer, borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+            {/* tabs Inicio / Portfolio (labels 12px; Portfolio lime arriba-derecha) */}
+            <div style={{ display: 'flex' }}>
+              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0' }}>Inicio</div>
+              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0', background: 'var(--c-lime-40)', borderRadius: '0 32px 0 24px' }}>Portfolio</div>
+            </div>
+            {/* saldo */}
+            <div style={{ padding: '20px 24px 22px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 16px Inter', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
+                <LI name="view-balance-on" size={18} color="#818181" />
+              </div>
+              <div style={{ font: '500 44px Geist', lineHeight: '52px', letterSpacing: '-0.03em', color: '#141414', marginTop: 6 }}>$ 1.487.283</div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--c-lime-40)', color: '#080808', font: '400 12px Inter', padding: '3px 12px', borderRadius: 999, marginTop: 10 }}>
+                Crece 36,2% <LI name="arrow-foward" size={14} color="#080808" />
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 22 }}>
+                {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+                <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <LI name={ic} size={22} color="var(--c-lime-40)" />
+                    </div>
+                    <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
+                  </div>)}
+              </div>
+            </div>
+          </div>
+
+          {/* card lime asomando por detrás (Tarjeta virtual) */}
+          <div style={{ position: 'relative', zIndex: 1, marginTop: -86, padding: '94px 20px 18px', borderRadius: 32, overflow: 'hidden', background: 'var(--c-lime-40)' }}>
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                  <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
+                  <span style={{ font: '400 12px Inter', color: '#080808' }}>1234</span>
+                </div>
+              </div>
+              <VisaMark size={22} color="#141414" shadow={false} />
+            </div>
+          </div>
+        </div>
+
+        {/* banner actionable (con X): vencimiento de la física o Apple Pay */}
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '12px 16px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
+          <div style={{ display: 'flex', flexShrink: 0 }}>
+            {expiring ?
+            <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={56} faded /></div> :
+            <>
+              <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
+              <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={52} /></div>
+            </>}
+          </div>
+          <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
+            <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>{expiring ? 'Tu Lemon Card física vence pronto' : '¡Ya podés pagar con Apple Pay!'}</div>
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>{expiring ? 'Renovala antes de que venza para seguir usándola sin cortes.' : 'Cambiá tu tarjeta virtual y empezá a pagar con tu wallet de Apple.'}</div>
+          </div>
+          <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LI name="close" size={16} color="#141414" />
+          </span>
+        </button>
+      </div>
+    </Screen>);
+
+}
+
+// Wrapper: muestra la home de la app y, al tocar el banner, entra al flujo.
+function GpHomeEntry({ flow, bannerVariant }) {
+  const [entered, setEntered] = useStateA(false);
+  if (!entered) return <AppHome onCards={() => setEntered(true)} bannerVariant={bannerVariant} />;
+  return flow(() => setEntered(false));
+}
+
 // ── Stage root ──────────────────────────────────────────────────
 function Stage() {
   const [view, setView] = useStateA('menu'); // menu | f1 | f2 | f3 | compare
@@ -132,11 +238,11 @@ function Stage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px', gap: 28, flexWrap: 'wrap' }}>
         <Phone scale={scale}>
           {view === 'menu' && <MenuScreen onPick={setView} />}
-          {view === 'f1' && <Flow1 onMenu={toMenu} />}
-          {view === 'f1b' && <Flow1 onMenu={toMenu} replace={false} />}
+          {view === 'f1' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} />} />}
+          {view === 'f1b' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} replace={false} />} />}
           {view === 'pedirFisica' && <Flow5 pomelo onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
           {view === 'f4' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
-          {view === 'f4b' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />}
+          {view === 'f4b' && <GpHomeEntry bannerVariant="expiring" flow={(toHome) => <Flow4 onMenu={toHome} meets={meets} onMeet={() => setMeets(true)} upsellVirtual />} />}
           {view === 'f5' && <Flow5 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
         </Phone>
       </div>
