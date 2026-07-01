@@ -487,26 +487,14 @@ function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, o
         {mode === 'renewFisica' && phase === 'expiring' && showExpiringBanner &&
         <RenovarBanner onRenew={onPrimary} />}
 
-        <CardsModule cards={owned} onCardTap={onCardTap} />
-
         {/* Banner NFC lime: incentiva sumar la virtual a Apple Pay.
-            En renovación va como promo secundaria (el de vencimiento es el principal). */}
+            Va arriba de las tarjetas. En renovación es promo secundaria (el de vencimiento es el principal). */}
         {(mode === 'replaceVirtual' || mode === 'firstVirtual' || mode === 'renewFisica') &&
         <CambiaBanner onPrimary={mode === 'renewFisica' ? onNfc || onPrimary : onPrimary} first={mode === 'firstVirtual'} />}
 
-        {mode !== 'renewFisica' && <ExteriorBanner />}
+        <CardsModule cards={owned} onCardTap={onCardTap} />
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 4 }}>
-          <span style={{ font: '600 15px Inter', color: LX.text1 }}>Movimientos</span>
-          <LI name="arrow-foward" size={16} color={LX.text3} />
-        </div>
-        <Surface pad={4}>
-          <div style={{ padding: '0 12px' }}>
-            <MoveRow icon="streaming" title="DLO*PrimeVideo" date="29 de mayo" amount="$ 7.863,79" />
-            <Divider />
-            <MoveRow icon="food" title="Cuervo Café" date="28 de mayo" amount="$ 4.200" />
-          </div>
-        </Surface>
+        {mode !== 'renewFisica' && <ExteriorBanner />}
       </div>
     </Screen>);
 
