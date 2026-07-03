@@ -150,34 +150,68 @@ function AppHome({ onCards, bannerVariant = 'applepay' }) {
           </div>
         </div>
 
-        {/* banner actionable (con X): vencimiento de la física o Apple Pay */}
+        {/* Vencimiento de la física: banner neutro (aviso). */}
+        {expiring &&
         <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '12px 16px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
-          <div style={{ display: 'flex', flexShrink: 0 }}>
-            {expiring ?
-            <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={56} faded /></div> :
-            <>
-              <div style={{ transform: 'rotate(-10deg)' }}><CardArt design="tetrish" width={52} /></div>
-              <div style={{ transform: 'rotate(8deg)', marginLeft: -20 }}><CardArt design="green" width={52} /></div>
-            </>}
-          </div>
-          <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
-            <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>{expiring ? 'Tu Lemon Card física vence pronto' : '¡Ya podés pagar con Apple Pay!'}</div>
-            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>{expiring ? 'Renovala antes de que venza para seguir usándola sin cortes.' : 'Cambiá tu tarjeta virtual y empezá a pagar con tu wallet de Apple.'}</div>
-          </div>
-          <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LI name="close" size={16} color="#141414" />
-          </span>
-        </button>
+            <div style={{ display: 'flex', flexShrink: 0 }}>
+              <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={56} faded /></div>
+            </div>
+            <div style={{ flex: 1, minWidth: 0, paddingRight: 16 }}>
+              <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.3 }}>Tu Lemon Card física vence pronto</div>
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.35 }}>Renovala antes de que venza para seguir usándola sin cortes.</div>
+            </div>
+            <span onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LI name="close" size={16} color="#141414" />
+            </span>
+          </button>}
+
+        {/* ¡Llegó tu virtual! Banner Apple Pay — pieza destacada, lime con sweep animado. */}
+        {!expiring &&
+        <button onClick={onCards} style={{
+          position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
+          borderRadius: 26, marginTop: 16, minHeight: 104, padding: '16px 52px 16px 122px',
+          background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)',
+          boxShadow: '0 12px 26px rgba(120,200,20,0.36)'
+        }}>
+            {/* barrido de brillo */}
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
+
+            {/* tarjetas sangrando por la izquierda */}
+            <div style={{ position: 'absolute', left: -24, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+              <div style={{ transform: 'rotate(-11deg)', filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.26))' }}><CardArt design="tetrish" width={74} /></div>
+              <div style={{ transform: 'rotate(9deg)', marginLeft: -42, filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.26))' }}><CardArt design="green" width={74} /></div>
+            </div>
+
+            <div style={{ position: 'relative' }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '700 10px Inter', letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 999 }}>
+                <LI name="celphone" size={11} color="#0b1a00" /> NUEVO · APPLE PAY
+              </span>
+              <div style={{ font: '800 18px Inter', color: '#0b1a00', lineHeight: 1.12, marginTop: 8 }}>¡Ya podés pagar con Apple Pay!</div>
+              <div style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.78)', marginTop: 3, lineHeight: 1.3 }}>Sumá tu virtual y pagá apoyando el celu.</div>
+            </div>
+
+            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LI name="arrow-foward" size={16} color="#0b1a00" />
+            </span>
+          </button>}
       </div>
     </Screen>);
 
 }
 
-// Wrapper: muestra la home de la app y, al tocar el banner, entra al flujo.
+// Wrapper: muestra la home de la app; al tocar el banner Apple Pay sube el
+// splash NFC full-screen, y desde ahí ("Cambiar mi tarjeta") entra al flujo.
+// El banner de vencimiento (expiring) entra directo, sin splash.
 function GpHomeEntry({ flow, bannerVariant }) {
-  const [entered, setEntered] = useStateA(false);
-  if (!entered) return <AppHome onCards={() => setEntered(true)} bannerVariant={bannerVariant} />;
-  return flow(() => setEntered(false));
+  const [stage, setStage] = useStateA('home'); // home | splash | flow
+  const useSplash = bannerVariant !== 'expiring';
+  if (stage === 'flow') return flow(() => setStage('home'));
+  return (
+    <>
+      <AppHome onCards={() => setStage(useSplash ? 'splash' : 'flow')} bannerVariant={bannerVariant} />
+      <NfcSplash open={stage === 'splash'} onClose={() => setStage('home')} onPrimary={() => setStage('flow')} />
+    </>);
+
 }
 
 // ── Stage root ──────────────────────────────────────────────────

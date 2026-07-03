@@ -429,6 +429,88 @@ const CambiaBanner = ({ onPrimary, first }) =>
   </button>;
 
 
+// Ilustración "tap to pay": handheld lime + posnet negro con ondas NFC (estilo pieza oficial).
+const NfcPayArt = ({ size = 196 }) =>
+<svg width={size} height={size} viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="nfcLimeSh" x1="52" y1="60" x2="112" y2="158" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#fff" stopOpacity="0.35" />
+        <stop offset="0.5" stopColor="#fff" stopOpacity="0" />
+      </linearGradient>
+    </defs>
+    <circle cx="110" cy="106" r="88" fill="#EAF6C9" />
+    {/* handheld lime device */}
+    <g style={{ filter: 'drop-shadow(0 8px 14px rgba(90,120,10,0.28))' }}>
+      <rect x="50" y="62" width="62" height="94" rx="17" fill="#C7F03A" />
+      <rect x="50" y="62" width="62" height="94" rx="17" fill="url(#nfcLimeSh)" />
+      <rect x="63" y="77" width="31" height="12" rx="6" fill="#101010" />
+      <circle cx="81" cy="126" r="13.5" fill="#101010" />
+    </g>
+    {/* ondas NFC */}
+    <g stroke="#8E948B" strokeWidth="4.5" strokeLinecap="round" fill="none">
+      <path d="M120 93c7.5 6.5 7.5 22.5 0 29" />
+      <path d="M130 84c13 11 13 36 0 47" />
+    </g>
+    {/* posnet negro */}
+    <g style={{ filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.22))' }}>
+      <rect x="139" y="70" width="49" height="86" rx="13" fill="#141414" />
+      <rect x="147" y="79" width="33" height="17" rx="4" fill="#33352f" />
+      {[0, 1, 2].map((r) =>
+    [0, 1, 2].map((c) =>
+    <rect key={`${r}-${c}`} x={148 + c * 11.5} y={106 + r * 11.5} width="8.5" height="8.5" rx="2.5" fill="#6f736c" />
+    )
+    )}
+    </g>
+  </svg>;
+
+
+// Splash NFC full-screen: sube de abajo hacia arriba al tocar el banner del home.
+// Slide-in con doble rAF (pinta el estado cerrado antes de animar) y unmount por
+// timer — evita depender de transitionend, que no siempre dispara al cerrar.
+const NfcSplash = ({ open, onClose, onPrimary }) => {
+  const [mounted, setMounted] = React.useState(false);
+  const [shown, setShown] = React.useState(false);
+  React.useEffect(() => {
+    if (open) {
+      setMounted(true);
+      const t = setTimeout(() => setShown(true), 30);
+      return () => clearTimeout(t);
+    }
+    setShown(false);
+    const t = setTimeout(() => setMounted(false), 460);
+    return () => clearTimeout(t);
+  }, [open]);
+  if (!mounted) return null;
+  return (
+    <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
+      <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
+      <div
+        style={{
+          position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '95%',
+          display: 'flex', flexDirection: 'column', overflow: 'hidden',
+          transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .42s cubic-bezier(.2,.85,.25,1)',
+          boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
+        }}>
+        <button onClick={onClose} style={{ position: 'absolute', top: 18, right: 18, width: 38, height: 38, borderRadius: 999, border: 0, cursor: 'pointer', background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
+          <LI name="close" size={18} color={LX.text1} />
+        </button>
+
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '24px 30px 0' }}>
+          <div style={{ animation: 'lc-float 3.8s ease-in-out infinite' }}><NfcPayArt size={200} /></div>
+          <div style={{ font: '600 30px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.12, marginTop: 18 }}>Cambiá tu tarjeta virtual y empezá a pagar con NFC</div>
+          <div style={{ font: '400 15px Inter', color: LX.text2, marginTop: 14, lineHeight: 1.5, maxWidth: 300 }}>Pagá con NFC en tu celular agregando tu tarjeta a Apple. Y olvidate de salir con tu billetera.</div>
+        </div>
+
+        <div style={{ padding: '8px 20px calc(20px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <Btn variant="brand" onClick={onPrimary}>Cambiar mi tarjeta</Btn>
+          <Btn variant="ghost" onClick={onClose}>Ahora no</Btn>
+        </div>
+      </div>
+    </div>);
+
+};
+
+
 // mode: 'replaceVirtual' | 'firstVirtual' | 'fisica' | 'renewFisica' | 'twoCards'
 // phase (renewFisica only): 'expiring' (default) | 'transit' | 'active'
 function TarjetasHub({ mode, cards, phase = 'expiring', onPrimary, onActivate, onTrack, onBack, onCardTap, showExpiringBanner = true, showNfcBanner = false, onNfc }) {
@@ -614,4 +696,4 @@ const Step = ({ n, t, sub, done, last }) =>
   </div>;
 
 
-Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner, FisicaValueProp, AddressSearch });
+Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner, FisicaValueProp, AddressSearch, NfcPayArt, NfcSplash });
