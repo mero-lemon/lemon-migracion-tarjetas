@@ -272,7 +272,7 @@ function Stage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px', gap: 28, flexWrap: 'wrap' }}>
         <Phone scale={scale}>
           {view === 'menu' && <MenuScreen onPick={setView} />}
-          {view === 'f1' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} />} />}
+          {view === 'f1' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} startStep="replace" standalone />} />}
           {view === 'f1b' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} replace={false} />} />}
           {view === 'pedirFisica' && <Flow5 pomelo onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
           {view === 'f4' && <Flow4 onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}

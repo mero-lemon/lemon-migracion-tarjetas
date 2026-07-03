@@ -4,14 +4,17 @@ const { useState: useStateF, useEffect: useEffectF } = React;
 // ════════════════════════════════════════════════════════════════
 // FLOW 1 — Nueva tarjeta virtual (reemplazo) + NFC / Wallet
 // ════════════════════════════════════════════════════════════════
-function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
+function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated, standalone: standaloneProp }) {
   const [step, setStep] = useStateF(startStep);
   const [ack, setAck] = useStateF(false);
   const [design, setDesign] = useStateF('violeta'); // diseño elegido en el picker
   const [walletAdded, setWalletAdded] = useStateF(false); // ya pasó por "Agregando a Apple Pay…"
   // standalone (f1/f1b): al terminar caemos en el home de la tarjeta nueva.
   // embebido (Flow4/Flow5): devolvemos el control al flujo padre vía onActivated/onMenu.
-  const standalone = startStep === 'hub';
+  // Se puede forzar con la prop `standalone` (ej: entrar directo a 'replace' desde el splash del home).
+  const standalone = standaloneProp !== undefined ? standaloneProp : startStep === 'hub';
+  // Si entramos directo a 'replace' (sin pasar por el hub), volver/"Mejor no" van al home de la app.
+  const replaceBack = standalone && startStep !== 'hub' ? onMenu : () => setStep('hub');
   const newMask = '•••• 2291';
 
   // "Quiero Apple Pay": corre el proceso de alta en la wallet y recién ahí avanza.
@@ -32,10 +35,10 @@ function Flow1({ onMenu, replace = true, startStep = 'hub', onActivated }) {
         <Screen footer={
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <Btn variant="primary" disabled={!ack} onClick={() => setStep('design')}>Elegir diseño y crear</Btn>
-            <Btn variant="ghost" onClick={() => setStep('hub')}>Mejor no</Btn>
+            <Btn variant="ghost" onClick={replaceBack}>Mejor no</Btn>
           </div>
       }>
-          <StepHeader title="Cambiar tu tarjeta" onBack={() => setStep('hub')} onClose={onMenu} />
+          <StepHeader title="Cambiar tu tarjeta" onBack={replaceBack} onClose={onMenu} />
           <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
             {/* old → new: escenario con la vieja apagada y la nueva flotando + glow */}
             <div style={{ position: 'relative', borderRadius: 22, overflow: 'hidden', padding: '24px 12px 18px', background: 'radial-gradient(120% 100% at 78% 0%, rgba(123,78,200,0.16), rgba(123,78,200,0.04) 55%, transparent)' }}>
