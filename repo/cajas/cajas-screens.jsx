@@ -156,7 +156,9 @@ function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCaj
 
         {/* 5º contenedor apaisado: Cajas de pesos — mismo estilo que los 4 activos */}
         <button onClick={onCajas} style={{ position: 'relative', width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 24, padding: 16, boxShadow: 'var(--shadow-card)', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20, lineHeight: 1 }}>💰</div>
+          <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20, lineHeight: 1 }}>
+            <span style={{ filter: 'grayscale(1) contrast(0.85) brightness(1.15)' }}>💰</span>
+          </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#818181' }}>Cajas de pesos</span>
