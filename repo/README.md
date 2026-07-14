@@ -21,11 +21,12 @@ cards/
   colors_and_type.css
   assets/         → imágenes (logos, lemmies, flags)
   fonts/          → fuentes + íconos custom de Lemon
-cajas/
-  index.html      → punto de entrada de cajas (reusa css/fonts/DS de cards/)
-  app.jsx         → menú de escenarios (FTE / con cajas) + estado + router
-  cajas-screens.jsx → Inicio, Portfolio, Pesos digitales, crear caja, success, detalle
+cajas/            → 100% autocontenida (deployable sola, Root Directory: repo/cajas)
+  index.html      → punto de entrada de cajas
+  app.jsx         → estado + router (arranca siempre en la FTE)
+  cajas-screens.jsx → Inicio, Portfolio, wallet Pesos, sección Cajas, crear, detalle
   cajas-ui.jsx    → splash FTE, keypad de monto, fila de caja, arte SVG, plantillas
+  lemon-ui.jsx / ios-frame.jsx / screens-shared.jsx / fonts/ → copia del DS de cards/
 ```
 
 ## Cómo correrlo localmente
