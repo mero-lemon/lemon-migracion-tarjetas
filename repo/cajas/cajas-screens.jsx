@@ -512,17 +512,6 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
                 <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 2 }}>{v}</div>
               </div>)}
           </div>
-
-          <Divider style={{ margin: '16px 0 14px' }} />
-
-          <div style={{ font: '400 13px Inter', color: LX.text2, lineHeight: 1.45 }}>
-            {caja.earned > 0 ?
-            <>De tus <b style={{ color: '#141414' }}>{fmtP(total)}</b>, <b style={{ color: 'var(--c-lemon-50)' }}>{fmtP(caja.earned)}</b> los generó el rendimiento.</> :
-            <>Todo tu saldo es aporte, por ahora: el rendimiento empieza a sumar hoy.</>}
-          </div>
-          <div style={{ marginTop: 10 }}><AporteVsRendBar caja={caja} /></div>
-
-          <div style={{ marginTop: 16 }}><CajaSparkline caja={caja} /></div>
         </div> :
 
         /* ── MODO OBJETIVO: progreso + el rendimiento te empuja ── */
