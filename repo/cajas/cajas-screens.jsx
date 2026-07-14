@@ -73,8 +73,8 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
           </div>
         </div>
 
-        {/* hook a cajas: la historia de "ordenarte" arranca acá */}
-        {cajas.length === 0 ?
+        {/* hook a cajas: solo hasta que crea la primera (después, la sección vive en Portfolio) */}
+        {cajas.length === 0 &&
         <button onClick={onCajas} style={{
           position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
           borderRadius: 26, minHeight: 96, padding: '16px 48px 16px 118px',
@@ -95,16 +95,6 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
             <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <LI name="arrow-foward" size={16} color="#0b1a00" />
             </span>
-          </button> :
-
-        <button onClick={onCajas} style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '14px 16px', boxShadow: 'var(--shadow-card)' }}>
-            <IconBadge icon="vault" bg="var(--c-lime-10)" fg="var(--c-lime-60)" size={42} />
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ font: '500 14px Geist', color: '#141414', letterSpacing: '-0.01em' }}>Tus cajas de pesos están rindiendo</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{fmtP(totalCajas)} apartados en {cajas.length} {cajas.length === 1 ? 'caja' : 'cajas'}</div>
-            </div>
-            <TnaChip compact label={TNA_LABEL} />
-            <LI name="arrow-foward" size={16} color="#818181" />
           </button>}
       </div>
     </Screen>);
@@ -114,8 +104,8 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
 //    contenedor apaisado de Cajas de pesos ────────────────────────
 function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCajas }) {
   const assets = [
-  { id: 'pesos', icon: 'currency-peso', label: 'Pesos digitales', value: fmtP2(disponible), chip: true, onTap: onPesos },
-  { id: 'dolares', icon: 'currency-dollar', label: 'Dólares digitales', value: 'U$2.234,15', chip: true },
+  { id: 'pesos', icon: 'currency-peso', label: 'Pesos digitales', value: fmtP2(disponible), chip: TNA_LABEL.replace(' TNA', ''), onTap: onPesos },
+  { id: 'dolares', icon: 'currency-dollar', label: 'Dólares digitales', value: 'U$2.234,15', chip: '4,6%' },
   { id: 'crypto', icon: 'currency-bitcoin', label: 'Bitcoin & crypto', value: 'U$1.245,23' },
   { id: 'acciones', icon: 'stocks', label: 'Acciones', value: 'U$3.023,05' }];
 
@@ -144,7 +134,7 @@ function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCaj
                 <IconBadge icon={a.icon} bg="#FAFAFA" fg="#818181" size={40} />
                 <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   {a.chip &&
-                <span style={{ background: 'var(--c-lime-40)', color: 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101 }}>{TNA_LABEL.replace(' TNA', '')}</span>}
+                <span style={{ background: 'var(--c-lime-40)', color: 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101 }}>{a.chip}</span>}
                   <LI name="arrow-foward" size={17} color="#B4B4B4" />
                 </span>
               </div>
@@ -505,12 +495,13 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
             <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>tu primer rendimiento se acredita hoy mismo</div>
           </>}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-            {[['Hoy', `≈ +${fmtP(daily)}`], ['Ritmo mensual', `≈ +${fmtP(monthly)}`]].map(([k, v]) =>
-            <div key={k} style={{ flex: 1, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '10px 12px' }}>
-                <div style={{ font: '400 11px Inter', color: '#818181' }}>{k}</div>
-                <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 2 }}>{v}</div>
-              </div>)}
+          {/* ritmo mensual, protagonista */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--c-lime-10)', borderRadius: 16, padding: '13px 16px', marginTop: 16 }}>
+            <IconBadge icon="earn" bg="var(--c-lime-40)" fg="#141414" size={38} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '400 12px Inter', color: 'var(--c-lime-70)' }}>Ritmo mensual</div>
+              <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 1 }}>≈ +{fmtP(monthly)}</div>
+            </div>
           </div>
         </div> :
 
