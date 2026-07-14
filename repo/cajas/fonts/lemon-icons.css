@@ -1,0 +1,187 @@
+@font-face {
+  font-family: "Lemon-Icons";
+  src: url("./Lemon-Icons.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+.li {
+  font-family: "Lemon-Icons" !important;
+  speak: never;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  vertical-align: middle;
+}
+.li-Id::before { content: "\e987"; }
+.li-QR-Scanner::before { content: "\e943"; }
+.li-activity-off::before { content: "\e9a5"; }
+.li-activity-on::before { content: "\e9a6"; }
+.li-add-friend-outlined::before { content: "\e97d"; }
+.li-add-friend::before { content: "\e97f"; }
+.li-add-more::before { content: "\e90e"; }
+.li-alert-time::before { content: "\e94a"; }
+.li-arrow-back::before { content: "\e935"; }
+.li-arrow-expand-less::before { content: "\e927"; }
+.li-arrow-expand-more::before { content: "\e928"; }
+.li-arrow-foward::before { content: "\e936"; }
+.li-arrow-left::before { content: "\e925"; }
+.li-arrow-right::before { content: "\e926"; }
+.li-auto-complete-magic::before { content: "\e975"; }
+.li-backspace::before { content: "\e93a"; }
+.li-bank-way::before { content: "\e913"; }
+.li-block::before { content: "\e969"; }
+.li-blockchain-way::before { content: "\e916"; }
+.li-bulb::before { content: "\e94e"; }
+.li-bus::before { content: "\e94f"; }
+.li-business::before { content: "\e995"; }
+.li-buy-and-sell::before { content: "\e92f"; }
+.li-camera::before { content: "\e986"; }
+.li-cancel::before { content: "\e938"; }
+.li-car::before { content: "\e950"; }
+.li-card-off::before { content: "\e91e"; }
+.li-card-on::before { content: "\e91d"; }
+.li-celphone::before { content: "\e905"; }
+.li-chair::before { content: "\e951"; }
+.li-chat-message::before { content: "\e947"; }
+.li-chat-message1::before { content: "\e908"; }
+.li-click-to-pay::before { content: "\e994"; }
+.li-close::before { content: "\e937"; }
+.li-clothes::before { content: "\e952"; }
+.li-comment-outlined::before { content: "\e980"; }
+.li-comment::before { content: "\e97e"; }
+.li-contacts::before { content: "\e906"; }
+.li-copy::before { content: "\e929"; }
+.li-currency-bitcoin::before { content: "\e965"; }
+.li-currency-crypto::before { content: "\e99b"; }
+.li-currency-dollar::before { content: "\e99c"; }
+.li-currency-peso::before { content: "\e99d"; }
+.li-currency-real::before { content: "\e99e"; }
+.li-currency-sol::before { content: "\e99f"; }
+.li-decimal-enter::before { content: "\e923"; }
+.li-delete-less::before { content: "\e90d"; }
+.li-delete::before { content: "\e93b"; }
+.li-deposit-money::before { content: "\e931"; }
+.li-deposit::before { content: "\e9a0"; }
+.li-discord::before { content: "\e962"; }
+.li-dot::before { content: "\e981"; }
+.li-download::before { content: "\e93c"; }
+.li-earn::before { content: "\e948"; }
+.li-edit::before { content: "\e924"; }
+.li-education::before { content: "\e953"; }
+.li-entertainment::before { content: "\e954"; }
+.li-face-ID::before { content: "\e92c"; }
+.li-faq::before { content: "\e974"; }
+.li-fav-off::before { content: "\e917"; }
+.li-fav-on::before { content: "\e918"; }
+.li-feedback-negative::before { content: "\e911"; }
+.li-feedback-positive::before { content: "\e910"; }
+.li-feedback-warning::before { content: "\e90f"; }
+.li-filter::before { content: "\e967"; }
+.li-finger-ID::before { content: "\e92d"; }
+.li-flashlight::before { content: "\e985"; }
+.li-flip-swap-camara::before { content: "\e92b"; }
+.li-food::before { content: "\e955"; }
+.li-friends::before { content: "\e982"; }
+.li-gaming::before { content: "\e956"; }
+.li-github::before { content: "\e98c"; }
+.li-handle::before { content: "\e945"; }
+.li-hash::before { content: "\e983"; }
+.li-health::before { content: "\e957"; }
+.li-help-variant::before { content: "\e942"; }
+.li-home-off::before { content: "\e921"; }
+.li-home-on::before { content: "\e922"; }
+.li-instagram::before { content: "\e900"; }
+.li-key::before { content: "\e96b"; }
+.li-kleros::before { content: "\e973"; }
+.li-lemon-add::before { content: "\e989"; }
+.li-lemoners-way::before { content: "\e914"; }
+.li-light-sun::before { content: "\e96a"; }
+.li-light::before { content: "\e949"; }
+.li-limits::before { content: "\e970"; }
+.li-live::before { content: "\e944"; }
+.li-lock::before { content: "\e902"; }
+.li-log-out::before { content: "\e940"; }
+.li-mail::before { content: "\e968"; }
+.li-market-off::before { content: "\e91f"; }
+.li-market-on::before { content: "\e920"; }
+.li-mini-apps-off::before { content: "\e98a"; }
+.li-mini-apps-on::before { content: "\e98b"; }
+.li-money-market::before { content: "\e978"; }
+.li-money-off::before { content: "\e966"; }
+.li-money::before { content: "\e915"; }
+.li-motorcycle::before { content: "\e958"; }
+.li-name-edit::before { content: "\e96f"; }
+.li-new-swap-coins::before { content: "\e94d"; }
+.li-open-finance::before { content: "\e991"; }
+.li-open-in-web::before { content: "\e93f"; }
+.li-pallete-color::before { content: "\e96e"; }
+.li-party::before { content: "\e97b"; }
+.li-paste::before { content: "\e9a7"; }
+.li-pause::before { content: "\e92a"; }
+.li-percent::before { content: "\e94b"; }
+.li-personal-care::before { content: "\e959"; }
+.li-phone::before { content: "\e904"; }
+.li-photo-camera::before { content: "\e907"; }
+.li-pix-off::before { content: "\e91c"; }
+.li-pix-on::before { content: "\e91b"; }
+.li-play-arrow::before { content: "\e972"; }
+.li-portfolio-off::before { content: "\e9a3"; }
+.li-portfolio-on::before { content: "\e9a4"; }
+.li-positive-location::before { content: "\e90b"; }
+.li-programed-tx::before { content: "\e996"; }
+.li-promotion::before { content: "\e984"; }
+.li-receipt::before { content: "\e95a"; }
+.li-return-money::before { content: "\e971"; }
+.li-returns::before { content: "\e988"; }
+.li-rewards::before { content: "\e992"; }
+.li-rocket::before { content: "\e97c"; }
+.li-search-off::before { content: "\e964"; }
+.li-search::before { content: "\e93e"; }
+.li-selected::before { content: "\e90c"; }
+.li-send-money::before { content: "\e930"; }
+.li-send::before { content: "\e9a1"; }
+.li-settings::before { content: "\e963"; }
+.li-share::before { content: "\e93d"; }
+.li-shield-alt::before { content: "\e979"; }
+.li-shopping-cart::before { content: "\e95b"; }
+.li-spend::before { content: "\e9a2"; }
+.li-stocks::before { content: "\e99a"; }
+.li-streaming::before { content: "\e95c"; }
+.li-summary::before { content: "\e97a"; }
+.li-support::before { content: "\e94c"; }
+.li-swap-coins::before { content: "\e932"; }
+.li-swap::before { content: "\e92e"; }
+.li-tax::before { content: "\e95d"; }
+.li-tech::before { content: "\e95e"; }
+.li-telegram::before { content: "\e961"; }
+.li-terms::before { content: "\e976"; }
+.li-tiktok::before { content: "\e98d"; }
+.li-travel::before { content: "\e95f"; }
+.li-tree::before { content: "\e96c"; }
+.li-trusted-icon-off::before { content: "\e999"; }
+.li-trusted-icon::before { content: "\e998"; }
+.li-twitter::before { content: "\e901"; }
+.li-upload-image::before { content: "\e993"; }
+.li-user::before { content: "\e912"; }
+.li-vault::before { content: "\e977"; }
+.li-video-camera::before { content: "\e909"; }
+.li-view-balance-off::before { content: "\e919"; }
+.li-view-balance-on::before { content: "\e91a"; }
+.li-view-gift::before { content: "\e939"; }
+.li-view-help::before { content: "\e941"; }
+.li-view-more::before { content: "\e934"; }
+.li-view-notification::before { content: "\e933"; }
+.li-wallet::before { content: "\e960"; }
+.li-warning-location::before { content: "\e90a"; }
+.li-web::before { content: "\e98e"; }
+.li-widgets::before { content: "\e96d"; }
+.li-wifi-off::before { content: "\e903"; }
+.li-world::before { content: "\e946"; }
+.li-x::before { content: "\e98f"; }
+.li-youtube::before { content: "\e990"; }

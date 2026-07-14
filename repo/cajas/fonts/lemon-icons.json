@@ -1,0 +1,670 @@
+[
+  {
+    "name": "Id",
+    "code": 59783
+  },
+  {
+    "name": "QR-Scanner",
+    "code": 59715
+  },
+  {
+    "name": "activity-off",
+    "code": 59813
+  },
+  {
+    "name": "activity-on",
+    "code": 59814
+  },
+  {
+    "name": "add-friend-outlined",
+    "code": 59773
+  },
+  {
+    "name": "add-friend",
+    "code": 59775
+  },
+  {
+    "name": "add-more",
+    "code": 59662
+  },
+  {
+    "name": "alert-time",
+    "code": 59722
+  },
+  {
+    "name": "arrow-back",
+    "code": 59701
+  },
+  {
+    "name": "arrow-expand-less",
+    "code": 59687
+  },
+  {
+    "name": "arrow-expand-more",
+    "code": 59688
+  },
+  {
+    "name": "arrow-foward",
+    "code": 59702
+  },
+  {
+    "name": "arrow-left",
+    "code": 59685
+  },
+  {
+    "name": "arrow-right",
+    "code": 59686
+  },
+  {
+    "name": "auto-complete-magic",
+    "code": 59765
+  },
+  {
+    "name": "backspace",
+    "code": 59706
+  },
+  {
+    "name": "bank-way",
+    "code": 59667
+  },
+  {
+    "name": "block",
+    "code": 59753
+  },
+  {
+    "name": "blockchain-way",
+    "code": 59670
+  },
+  {
+    "name": "bulb",
+    "code": 59726
+  },
+  {
+    "name": "bus",
+    "code": 59727
+  },
+  {
+    "name": "business",
+    "code": 59797
+  },
+  {
+    "name": "buy-and-sell",
+    "code": 59695
+  },
+  {
+    "name": "camera",
+    "code": 59782
+  },
+  {
+    "name": "cancel",
+    "code": 59704
+  },
+  {
+    "name": "car",
+    "code": 59728
+  },
+  {
+    "name": "card-off",
+    "code": 59678
+  },
+  {
+    "name": "card-on",
+    "code": 59677
+  },
+  {
+    "name": "celphone",
+    "code": 59653
+  },
+  {
+    "name": "chair",
+    "code": 59729
+  },
+  {
+    "name": "chat-message",
+    "code": 59719
+  },
+  {
+    "name": "chat-message1",
+    "code": 59656
+  },
+  {
+    "name": "click-to-pay",
+    "code": 59796
+  },
+  {
+    "name": "close",
+    "code": 59703
+  },
+  {
+    "name": "clothes",
+    "code": 59730
+  },
+  {
+    "name": "comment-outlined",
+    "code": 59776
+  },
+  {
+    "name": "comment",
+    "code": 59774
+  },
+  {
+    "name": "contacts",
+    "code": 59654
+  },
+  {
+    "name": "copy",
+    "code": 59689
+  },
+  {
+    "name": "currency-bitcoin",
+    "code": 59749
+  },
+  {
+    "name": "currency-crypto",
+    "code": 59803
+  },
+  {
+    "name": "currency-dollar",
+    "code": 59804
+  },
+  {
+    "name": "currency-peso",
+    "code": 59805
+  },
+  {
+    "name": "currency-real",
+    "code": 59806
+  },
+  {
+    "name": "currency-sol",
+    "code": 59807
+  },
+  {
+    "name": "decimal-enter",
+    "code": 59683
+  },
+  {
+    "name": "delete-less",
+    "code": 59661
+  },
+  {
+    "name": "delete",
+    "code": 59707
+  },
+  {
+    "name": "deposit-money",
+    "code": 59697
+  },
+  {
+    "name": "deposit",
+    "code": 59808
+  },
+  {
+    "name": "discord",
+    "code": 59746
+  },
+  {
+    "name": "dot",
+    "code": 59777
+  },
+  {
+    "name": "download",
+    "code": 59708
+  },
+  {
+    "name": "earn",
+    "code": 59720
+  },
+  {
+    "name": "edit",
+    "code": 59684
+  },
+  {
+    "name": "education",
+    "code": 59731
+  },
+  {
+    "name": "entertainment",
+    "code": 59732
+  },
+  {
+    "name": "face-ID",
+    "code": 59692
+  },
+  {
+    "name": "faq",
+    "code": 59764
+  },
+  {
+    "name": "fav-off",
+    "code": 59671
+  },
+  {
+    "name": "fav-on",
+    "code": 59672
+  },
+  {
+    "name": "feedback-negative",
+    "code": 59665
+  },
+  {
+    "name": "feedback-positive",
+    "code": 59664
+  },
+  {
+    "name": "feedback-warning",
+    "code": 59663
+  },
+  {
+    "name": "filter",
+    "code": 59751
+  },
+  {
+    "name": "finger-ID",
+    "code": 59693
+  },
+  {
+    "name": "flashlight",
+    "code": 59781
+  },
+  {
+    "name": "flip-swap-camara",
+    "code": 59691
+  },
+  {
+    "name": "food",
+    "code": 59733
+  },
+  {
+    "name": "friends",
+    "code": 59778
+  },
+  {
+    "name": "gaming",
+    "code": 59734
+  },
+  {
+    "name": "github",
+    "code": 59788
+  },
+  {
+    "name": "handle",
+    "code": 59717
+  },
+  {
+    "name": "hash",
+    "code": 59779
+  },
+  {
+    "name": "health",
+    "code": 59735
+  },
+  {
+    "name": "help-variant",
+    "code": 59714
+  },
+  {
+    "name": "home-off",
+    "code": 59681
+  },
+  {
+    "name": "home-on",
+    "code": 59682
+  },
+  {
+    "name": "instagram",
+    "code": 59648
+  },
+  {
+    "name": "key",
+    "code": 59755
+  },
+  {
+    "name": "kleros",
+    "code": 59763
+  },
+  {
+    "name": "lemon-add",
+    "code": 59785
+  },
+  {
+    "name": "lemoners-way",
+    "code": 59668
+  },
+  {
+    "name": "light-sun",
+    "code": 59754
+  },
+  {
+    "name": "light",
+    "code": 59721
+  },
+  {
+    "name": "limits",
+    "code": 59760
+  },
+  {
+    "name": "live",
+    "code": 59716
+  },
+  {
+    "name": "lock",
+    "code": 59650
+  },
+  {
+    "name": "log-out",
+    "code": 59712
+  },
+  {
+    "name": "mail",
+    "code": 59752
+  },
+  {
+    "name": "market-off",
+    "code": 59679
+  },
+  {
+    "name": "market-on",
+    "code": 59680
+  },
+  {
+    "name": "mini-apps-off",
+    "code": 59786
+  },
+  {
+    "name": "mini-apps-on",
+    "code": 59787
+  },
+  {
+    "name": "money-market",
+    "code": 59768
+  },
+  {
+    "name": "money-off",
+    "code": 59750
+  },
+  {
+    "name": "money",
+    "code": 59669
+  },
+  {
+    "name": "motorcycle",
+    "code": 59736
+  },
+  {
+    "name": "name-edit",
+    "code": 59759
+  },
+  {
+    "name": "new-swap-coins",
+    "code": 59725
+  },
+  {
+    "name": "open-finance",
+    "code": 59793
+  },
+  {
+    "name": "open-in-web",
+    "code": 59711
+  },
+  {
+    "name": "pallete-color",
+    "code": 59758
+  },
+  {
+    "name": "party",
+    "code": 59771
+  },
+  {
+    "name": "paste",
+    "code": 59815
+  },
+  {
+    "name": "pause",
+    "code": 59690
+  },
+  {
+    "name": "percent",
+    "code": 59723
+  },
+  {
+    "name": "personal-care",
+    "code": 59737
+  },
+  {
+    "name": "phone",
+    "code": 59652
+  },
+  {
+    "name": "photo-camera",
+    "code": 59655
+  },
+  {
+    "name": "pix-off",
+    "code": 59676
+  },
+  {
+    "name": "pix-on",
+    "code": 59675
+  },
+  {
+    "name": "play-arrow",
+    "code": 59762
+  },
+  {
+    "name": "portfolio-off",
+    "code": 59811
+  },
+  {
+    "name": "portfolio-on",
+    "code": 59812
+  },
+  {
+    "name": "positive-location",
+    "code": 59659
+  },
+  {
+    "name": "programed-tx",
+    "code": 59798
+  },
+  {
+    "name": "promotion",
+    "code": 59780
+  },
+  {
+    "name": "receipt",
+    "code": 59738
+  },
+  {
+    "name": "return-money",
+    "code": 59761
+  },
+  {
+    "name": "returns",
+    "code": 59784
+  },
+  {
+    "name": "rewards",
+    "code": 59794
+  },
+  {
+    "name": "rocket",
+    "code": 59772
+  },
+  {
+    "name": "search-off",
+    "code": 59748
+  },
+  {
+    "name": "search",
+    "code": 59710
+  },
+  {
+    "name": "selected",
+    "code": 59660
+  },
+  {
+    "name": "send-money",
+    "code": 59696
+  },
+  {
+    "name": "send",
+    "code": 59809
+  },
+  {
+    "name": "settings",
+    "code": 59747
+  },
+  {
+    "name": "share",
+    "code": 59709
+  },
+  {
+    "name": "shield-alt",
+    "code": 59769
+  },
+  {
+    "name": "shopping-cart",
+    "code": 59739
+  },
+  {
+    "name": "spend",
+    "code": 59810
+  },
+  {
+    "name": "stocks",
+    "code": 59802
+  },
+  {
+    "name": "streaming",
+    "code": 59740
+  },
+  {
+    "name": "summary",
+    "code": 59770
+  },
+  {
+    "name": "support",
+    "code": 59724
+  },
+  {
+    "name": "swap-coins",
+    "code": 59698
+  },
+  {
+    "name": "swap",
+    "code": 59694
+  },
+  {
+    "name": "tax",
+    "code": 59741
+  },
+  {
+    "name": "tech",
+    "code": 59742
+  },
+  {
+    "name": "telegram",
+    "code": 59745
+  },
+  {
+    "name": "terms",
+    "code": 59766
+  },
+  {
+    "name": "tiktok",
+    "code": 59789
+  },
+  {
+    "name": "travel",
+    "code": 59743
+  },
+  {
+    "name": "tree",
+    "code": 59756
+  },
+  {
+    "name": "trusted-icon-off",
+    "code": 59801
+  },
+  {
+    "name": "trusted-icon",
+    "code": 59800
+  },
+  {
+    "name": "twitter",
+    "code": 59649
+  },
+  {
+    "name": "upload-image",
+    "code": 59795
+  },
+  {
+    "name": "user",
+    "code": 59666
+  },
+  {
+    "name": "vault",
+    "code": 59767
+  },
+  {
+    "name": "video-camera",
+    "code": 59657
+  },
+  {
+    "name": "view-balance-off",
+    "code": 59673
+  },
+  {
+    "name": "view-balance-on",
+    "code": 59674
+  },
+  {
+    "name": "view-gift",
+    "code": 59705
+  },
+  {
+    "name": "view-help",
+    "code": 59713
+  },
+  {
+    "name": "view-more",
+    "code": 59700
+  },
+  {
+    "name": "view-notification",
+    "code": 59699
+  },
+  {
+    "name": "wallet",
+    "code": 59744
+  },
+  {
+    "name": "warning-location",
+    "code": 59658
+  },
+  {
+    "name": "web",
+    "code": 59790
+  },
+  {
+    "name": "widgets",
+    "code": 59757
+  },
+  {
+    "name": "wifi-off",
+    "code": 59651
+  },
+  {
+    "name": "world",
+    "code": 59718
+  },
+  {
+    "name": "x",
+    "code": 59791
+  },
+  {
+    "name": "youtube",
+    "code": 59792
+  }
+]
