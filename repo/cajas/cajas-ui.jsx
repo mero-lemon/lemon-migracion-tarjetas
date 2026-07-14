@@ -49,13 +49,16 @@ const IconBadge = ({ icon, bg, fg, size = 44 }) =>
     <LI name={icon} size={Math.round(size * 0.5)} color={fg} />
   </div>;
 
-// badge de caja: emoji elegido por el usuario sobre el color de la plantilla
-const CajaBadge = ({ caja, size = 44 }) =>
-caja.emoji ?
-<div style={{ width: size, height: size, borderRadius: 999, background: caja.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: Math.round(size * 0.5), lineHeight: 1 }}>
-      {caja.emoji}
-    </div> :
-<IconBadge icon={caja.icon} bg={caja.bg} fg={caja.fg} size={size} />;
+// badge de caja: emoji elegido por el usuario sobre el color de la plantilla.
+// fill (0..1) pinta el nivel de llenado hacia el objetivo desde abajo.
+const CajaBadge = ({ caja, size = 44, fill = null }) =>
+<div style={{ position: 'relative', width: size, height: size, borderRadius: 999, background: caja.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, overflow: 'hidden' }}>
+    {fill != null &&
+  <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: `${Math.min(1, Math.max(0, fill)) * 100}%`, background: caja.fg, opacity: 0.24, transition: 'height .6s ease' }} />}
+    {caja.emoji ?
+  <span style={{ position: 'relative', fontSize: Math.round(size * 0.5), lineHeight: 1 }}>{caja.emoji}</span> :
+  <LI name={caja.icon} size={Math.round(size * 0.5)} color={caja.fg} style={{ position: 'relative' }} />}
+  </div>;
 
 const TnaChip = ({ label = TNA_LABEL, compact }) =>
 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--c-lime-40)', color: '#080808', font: '400 12px Inter', padding: compact ? '2px 8px' : '3px 10px', borderRadius: 999, whiteSpace: 'nowrap' }}>
@@ -158,7 +161,7 @@ const CajaRow = ({ caja, onTap }) => {
   const pct = caja.goal ? Math.min(1, total / caja.goal) : null;
   return (
     <button onClick={onTap} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left', cursor: 'pointer', background: LX.layer, border: 0, borderRadius: 20, padding: 16, boxShadow: 'var(--shadow-card)' }}>
-      <CajaBadge caja={caja} />
+      <CajaBadge caja={caja} fill={pct} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{caja.name}</span>
@@ -175,6 +178,75 @@ const CajaRow = ({ caja, onTap }) => {
       </div>
     </button>);
 };
+
+// ── Contador animado (para el success: cuenta de $0 al monto) ───
+const CountUp = ({ to, duration = 950, delay = 400, render }) => {
+  const [v, setV] = useStateU(0);
+  useEffectU(() => {
+    let raf;
+    const t0 = performance.now() + delay;
+    const tick = (now) => {
+      const p = Math.min(1, Math.max(0, (now - t0) / duration));
+      setV(to * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [to]);
+  return render(v);
+};
+
+// ── Micro-confetti lime (una sola ráfaga al montar) ─────────────
+const ConfettiBurst = ({ count = 18 }) => {
+  const [parts] = useStateU(() =>
+  Array.from({ length: count }, (_, i) => {
+    const a = (i / count) * Math.PI * 2 + (Math.random() - 0.5) * 0.6;
+    const d = 55 + Math.random() * 80;
+    return {
+      dx: Math.cos(a) * d, dy: Math.sin(a) * d * 0.75 + 34,
+      rot: 140 + Math.random() * 420, delay: 0.62 + Math.random() * 0.18,
+      dur: 0.9 + Math.random() * 0.5, w: 5 + Math.random() * 4, h: 7 + Math.random() * 5,
+      round: Math.random() < 0.35, color: ['#CFFF2E', '#00DF1A', '#B7F53A', '#141414'][i % 4]
+    };
+  }));
+  return (
+    <div style={{ position: 'absolute', inset: -34, pointerEvents: 'none' }}>
+      {parts.map((p, i) =>
+      <span key={i} style={{
+        position: 'absolute', left: '50%', top: '44%', width: p.w, height: p.round ? p.w : p.h,
+        borderRadius: p.round ? 999 : 2, background: p.color,
+        '--dx': `${p.dx}px`, '--dy': `${p.dy}px`, '--rot': `${p.rot}deg`,
+        animation: `lc-confetti ${p.dur}s cubic-bezier(.15,.55,.45,1) ${p.delay}s both`
+      }} />)}
+    </div>);
+};
+
+// ── Arte del success: la moneda cae adentro de TU caja ──────────
+// Secuencia: moneda cae (0.15s) → la caja rebota al recibirla → check pop.
+const CajaSuccessArt = ({ caja, size = 210 }) =>
+<svg width={size} height={size * 0.72} viewBox="0 0 210 151" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="105" cy="86" r="62" fill="#EAF6C9" />
+    {/* moneda que cae a la ranura */}
+    <g style={{ animation: 'lc-coin-fall 1.05s cubic-bezier(.35,1.3,.5,1) both', animationDelay: '.15s' }}>
+      <circle cx="105" cy="42" r="15" fill="#141414" stroke="#CFFF2E" strokeWidth="2.5" />
+      <text x="105" y="48" textAnchor="middle" fill="#CFFF2E" style={{ font: '700 17px Inter' }}>$</text>
+    </g>
+    {/* la caja, con el emoji del usuario en el frente */}
+    <g style={{ animation: 'lc-box-squash 1.35s ease both', animationDelay: '.15s', transformOrigin: '105px 132px', filter: 'drop-shadow(0 10px 16px rgba(120,180,20,0.32))' }}>
+      <rect x="58" y="62" width="94" height="70" rx="16" fill="#CFFF2E" />
+      <rect x="58" y="62" width="94" height="20" rx="10" fill="#B7F53A" />
+      <rect x="86" y="68" width="38" height="6" rx="3" fill="#141414" />
+      <text x="105" y="119" textAnchor="middle" style={{ fontSize: 27 }}>{caja.emoji || '📦'}</text>
+    </g>
+    {/* check al final de la secuencia */}
+    <g style={{ animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both', animationDelay: '1.05s', transformOrigin: '154px 122px' }}>
+      <circle cx="154" cy="122" r="15" fill="#141414" />
+      <path d="M147.5 122.5l4.5 4.5 8.5-9" stroke="#CFFF2E" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+    </g>
+    {/* destellos */}
+    <path d="M46 52l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#96C400" />
+    <path d="M172 58l2 4.5 4.5 2-4.5 2-2 4.5-2-4.5-4.5-2 4.5-2Z" fill="#00AA18" />
+  </svg>;
 
 // ── Aviso "apartada de verdad" (tarjeta/QR no la ven) ───────────
 const NoGastoHint = () =>
@@ -389,5 +461,5 @@ function AmountScreen({ headerTitle, title, sourceLabel = 'Pesos digitales', max
 Object.assign(window, {
   TNA, TNA_LABEL, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, BigAmount, CAJA_TEMPLATES, getTemplate,
   CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajasSplash, CajaRow, NoGastoHint, Keypad, AmountScreen,
-  buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing
+  buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp, ConfettiBurst, CajaSuccessArt
 });

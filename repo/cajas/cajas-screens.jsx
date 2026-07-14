@@ -391,7 +391,7 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
       onConfirm={(amount) => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, amount })} />);
 }
 
-// ── SUCCESS — la caja quedó rindiendo ───────────────────────────
+// ── SUCCESS — la moneda entra a TU caja + el monto cuenta + confetti ──
 function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
   return (
     <Screen bg="#F3F3F3" footer={
@@ -400,23 +400,23 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
         <Btn variant="ghost" onClick={onGoPesos}>Ver todas mis cajas</Btn>
       </div>
     }>
-      <div style={{ padding: '46px 20px 8px', display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', textAlign: 'center' }}>
-        <div style={{ animation: 'lc-pop .5s cubic-bezier(.3,1.4,.5,1) both' }}>
-          <div style={{ width: 76, height: 76, borderRadius: 999, background: 'var(--c-lime-40)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 26px rgba(150,196,0,0.4)' }}>
-            <LI name="feedback-positive" size={40} color="#141414" />
-          </div>
+      <div style={{ padding: '26px 20px 8px', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', textAlign: 'center' }}>
+        <div style={{ position: 'relative' }}>
+          <CajaSuccessArt caja={caja} />
+          <ConfettiBurst />
         </div>
         <div>
-          <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¡Tu plata ya está rindiendo!</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
-            Apartaste <b style={{ color: LX.text1 }}>{fmtP(caja.amount)}</b> en <b style={{ color: LX.text1 }}>{caja.name}</b>.<br />
-            Desde hoy genera rendimientos todos los días.
+          <CountUp to={caja.amount} render={(v) =>
+          <div style={{ font: '500 42px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums' }}>{fmtP(v)}</div>} />
+          <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, marginTop: 6 }}>ya están rindiendo en {caja.name}</div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.5 }}>
+            Desde hoy, todos los días, con {TNA_LABEL}.
           </div>
         </div>
 
         <div style={{ width: '100%', background: LX.layer, borderRadius: 22, padding: 18, boxShadow: 'var(--shadow-card)', textAlign: 'left' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-            <CajaBadge caja={caja} size={46} />
+            <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
               <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Caja libre'}</div>
@@ -473,7 +473,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
 
         {/* hero: saldo + acciones */}
         <div style={{ background: LX.layer, borderRadius: 24, padding: '22px 20px 18px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-          <CajaBadge caja={caja} size={56} />
+          <CajaBadge caja={caja} size={56} fill={pct} />
           <div style={{ marginTop: 12 }}><BigAmount value={total} size={38} /></div>
           {!caja.goal &&
           <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 8 }}>Caja libre</div>}
