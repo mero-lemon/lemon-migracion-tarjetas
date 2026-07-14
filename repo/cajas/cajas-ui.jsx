@@ -109,11 +109,11 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
   useEffectU(() => {
     if (open) {
       setMounted(true);
-      const t = setTimeout(() => setShown(true), 30);
+      const t = setTimeout(() => setShown(true), 20);
       return () => clearTimeout(t);
     }
     setShown(false);
-    const t = setTimeout(() => setMounted(false), 460);
+    const t = setTimeout(() => setMounted(false), 340);
     return () => clearTimeout(t);
   }, [open]);
   if (!mounted) return null;
@@ -123,7 +123,7 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
       <div style={{
         position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '95%',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .42s cubic-bezier(.2,.85,.25,1)',
+        transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .3s cubic-bezier(.2,.85,.25,1)',
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
         {/* hero ilustrado */}

@@ -24,9 +24,10 @@ function CajasExperience() {
   const open = openCaja ? hydrate(openCaja) : null;
 
   // FTE: al entrar por primera vez a la sección Cajas, sube el splash solo
+  // (delay mínimo: lo justo para que la sección se pinte detrás)
   useEffectZ(() => {
     if (route === 'cajas' && !splashSeen && cajas.length === 0) {
-      const t = setTimeout(() => { setSplashOpen(true); setSplashSeen(true); }, 450);
+      const t = setTimeout(() => { setSplashOpen(true); setSplashSeen(true); }, 100);
       return () => clearTimeout(t);
     }
   }, [route]);
