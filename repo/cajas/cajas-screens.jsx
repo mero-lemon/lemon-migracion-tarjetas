@@ -156,12 +156,10 @@ function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCaj
 
         {/* 5º contenedor apaisado: Cajas de pesos — mismo estilo que los 4 activos */}
         <button onClick={onCajas} style={{ position: 'relative', width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 24, padding: 16, boxShadow: 'var(--shadow-card)', display: 'flex', alignItems: 'center', gap: 14 }}>
-          <IconBadge icon="vault" bg="#FAFAFA" fg="#818181" size={40} />
+          <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20, lineHeight: 1 }}>💰</div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#818181' }}>
-                Cajas de pesos{cajas.length > 0 && ` · ${cajas.length} ${cajas.length === 1 ? 'caja' : 'cajas'}`}
-              </span>
+              <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#818181' }}>Cajas de pesos</span>
               {cajas.length === 0 &&
               <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 10px Inter', letterSpacing: '0.03em', padding: '2px 7px', borderRadius: 101 }}>NUEVO</span>}
             </div>
