@@ -1,13 +1,16 @@
-# Migración de tarjetas · Lemon
+# Prototipos Lemon · tarjetas + cajas
 
-Prototipo interactivo (alta fidelidad) del flujo de migración de tarjetas, construido con el
-**Lemon Mobile Design System**. Es un sitio **100% estático** — no tiene paso de build:
-HTML + React/Babel cargados desde CDN + componentes JSX locales.
+Prototipos interactivos (alta fidelidad) construidos con el **Lemon Mobile Design System**.
+Es un sitio **100% estático** — no tiene paso de build: HTML + React/Babel cargados desde
+CDN + componentes JSX locales.
+
+- `/` → **Migración de tarjetas** (flujos GP → Pomelo, NFC/Apple Pay)
+- `/cajas/` → **Cajas de pesos** (FTE: pesos apartados que rinden, dentro de Portfolio; la tarjeta/QR no los ven)
 
 ## Estructura
 
 ```
-index.html        → punto de entrada (abrilo directo en el navegador)
+index.html        → punto de entrada de tarjetas (abrilo directo en el navegador)
 cards/
   app.jsx         → app principal (router de pantallas)
   flows.jsx       → definición de los flujos / escenarios
@@ -18,6 +21,11 @@ cards/
   colors_and_type.css
   assets/         → imágenes (logos, lemmies, flags)
   fonts/          → fuentes + íconos custom de Lemon
+cajas/
+  index.html      → punto de entrada de cajas (reusa css/fonts/DS de cards/)
+  app.jsx         → menú de escenarios (FTE / con cajas) + estado + router
+  cajas-screens.jsx → Inicio, Portfolio, Pesos digitales, crear caja, success, detalle
+  cajas-ui.jsx    → splash FTE, keypad de monto, fila de caja, arte SVG, plantillas
 ```
 
 ## Cómo correrlo localmente
