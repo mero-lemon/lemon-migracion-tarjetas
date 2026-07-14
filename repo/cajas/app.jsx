@@ -27,7 +27,7 @@ function CajasExperience() {
   // (delay mínimo: lo justo para que la sección se pinte detrás)
   useEffectZ(() => {
     if (route === 'cajas' && !splashSeen && cajas.length === 0) {
-      const t = setTimeout(() => { setSplashOpen(true); setSplashSeen(true); }, 100);
+      const t = setTimeout(() => { setSplashOpen(true); setSplashSeen(true); }, 30);
       return () => clearTimeout(t);
     }
   }, [route]);
