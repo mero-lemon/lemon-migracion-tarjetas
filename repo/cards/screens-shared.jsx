@@ -464,6 +464,23 @@ const NfcPayArt = ({ size = 196 }) =>
   </svg>;
 
 
+// Fila de beneficio del splash: ícono en círculo + título (con tag opcional) + subtítulo.
+const SplashFeature = ({ icon, title, sub, tag }) =>
+<div style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%' }}>
+    <div style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(8,8,9,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <LI name={icon} size={18} color="#141414" />
+    </div>
+    <div style={{ flex: 1, minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+        <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: '20px' }}>{title}</span>
+        {tag &&
+      <span style={{ display: 'inline-flex', alignItems: 'center', padding: '0 8px', height: 19, background: '#CFFF2E', borderRadius: 100, font: '500 12px Inter', color: '#080808', flexShrink: 0 }}>{tag}</span>}
+      </div>
+      {sub && <div style={{ font: '400 12px Inter', lineHeight: '18px', color: '#818181', marginTop: 2 }}>{sub}</div>}
+    </div>
+  </div>;
+
+
 // Splash NFC full-screen: sube de abajo hacia arriba al tocar el banner del home.
 // Slide-in con doble rAF (pinta el estado cerrado antes de animar) y unmount por
 // timer — evita depender de transitionend, que no siempre dispara al cerrar.
@@ -491,19 +508,38 @@ const NfcSplash = ({ open, onClose, onPrimary }) => {
           transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .42s cubic-bezier(.2,.85,.25,1)',
           boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
         }}>
-        <button onClick={onClose} style={{ position: 'absolute', top: 18, right: 18, width: 38, height: 38, borderRadius: 999, border: 0, cursor: 'pointer', background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>
-          <LI name="close" size={18} color={LX.text1} />
-        </button>
-
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', padding: '24px 30px 0' }}>
-          <div style={{ animation: 'lc-float 3.8s ease-in-out infinite' }}><NfcPayArt size={200} /></div>
-          <div style={{ font: '600 30px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.12, marginTop: 18 }}>Cambiá tu tarjeta virtual y empezá a pagar con NFC</div>
-          <div style={{ font: '400 15px Inter', color: LX.text2, marginTop: 14, lineHeight: 1.5, maxWidth: 300 }}>Pagá con NFC en tu celular agregando tu tarjeta a Apple. Y olvidate de salir con tu billetera.</div>
+        {/* Foto full-bleed que sangra por arriba y se funde a blanco (posnet Lemon + celu NFC). */}
+        <div style={{ position: 'relative', height: 296, flexShrink: 0, overflow: 'hidden' }}>
+          <image-slot
+            id="nfc-splash-hero"
+            shape="rect"
+            fit="cover"
+            position="50% 40%"
+            src="cards/assets/nfc-splash-hero.png"
+            placeholder="Foto NFC (posnet + celu)"
+            style={{ position: 'absolute', left: -42, top: -36, width: 445, height: 406 }}>
+          </image-slot>
+          <div style={{ position: 'absolute', left: 0, right: 0, top: 110, bottom: 0, background: 'linear-gradient(180deg, rgba(255,255,255,0) 0%, #FFFFFF 74%)', pointerEvents: 'none' }} />
         </div>
 
-        <div style={{ padding: '8px 20px calc(20px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 4 }}>
-          <Btn variant="brand" onClick={onPrimary}>Cambiar mi tarjeta</Btn>
-          <Btn variant="ghost" onClick={onClose}>Ahora no</Btn>
+        {/* Contenido: título + body + beneficios */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24, padding: '0 16px 8px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'center', padding: '0 4px' }}>
+            <div style={{ font: '500 32px Geist', lineHeight: '38px', letterSpacing: '-0.01em', color: '#141414' }}>Cambiá tu tarjeta virtual y empezá a pagar con NFC</div>
+            <div style={{ font: '400 14px Inter', lineHeight: '22px', letterSpacing: '-0.1px', color: '#141414' }}>Sumala a Apple Pay y pagá apoyando el celu en cualquier posnet.</div>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, padding: '0 4px' }}>
+            <SplashFeature icon="click-to-pay" title="Podés agregarla a Apple Pay" tag="Nuevo" sub="Sumala a tu wallet y pagá apoyando el celu." />
+            <SplashFeature icon="world" title="Pagás en todo el mundo, sin impuestos extras" sub="Compras en el exterior con la mejor cotización." />
+            <SplashFeature icon="currency-bitcoin" title="Con cashback en Bitcoin" sub="Ganás cripto en cada compra que hacés." />
+          </div>
+        </div>
+
+        {/* Botones (radius 16, primario negro + secundario gris) */}
+        <div style={{ flexShrink: 0, padding: '16px 16px calc(40px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <button onClick={onPrimary} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#FFFFFF', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Cambiar mi tarjeta</button>
+          <button onClick={onClose} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: 'rgba(8,8,8,0.1)', color: '#141414', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Ahora no</button>
         </div>
       </div>
     </div>);
