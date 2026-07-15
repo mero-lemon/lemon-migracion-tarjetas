@@ -36,7 +36,7 @@ function CajasExperience() {
     const nueva = {
       id: 'c' + Date.now(), tplId, name, emoji, goal, amount, earned: 0,
       ageDays: 0, events: [{ day: 0, amount }],
-      movs: [{ icon: 'vault', title: 'Creaste la cajita', date: 'Hoy', amount: fmtP(amount), sign: '+' }]
+      movs: [{ icon: 'vault', title: 'Creaste el cofre', date: 'Hoy', amount: fmtP(amount), sign: '+' }]
     };
     setCajas((cs) => [nueva, ...cs]);
     setDisponible((d) => d - amount);
@@ -93,7 +93,7 @@ function CajasExperience() {
       headerTitle={open.name}
       title={<><span style={{ display: 'inline-flex' }}><CajaBadge caja={open} size={34} /></span>¿Cuánto le agregás?</>}
       max={disponible}
-      cta="Agregar a la caja"
+      cta="Agregar al cofre"
       onBack={() => setRoute('detail')}
       onClose={() => setRoute('detail')}
       onConfirm={(v) => addToCaja(open.id, v)} />);
@@ -167,7 +167,7 @@ function CajasStage() {
         <span style={{ width: 26, height: 26, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Leaf size={15} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
         </span>
-        <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Cajitas <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
+        <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Cofres <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
 
         <button onClick={() => setResetKey((k) => k + 1)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
           <LI name="swap" size={14} color="#2a2a28" /> Reiniciar

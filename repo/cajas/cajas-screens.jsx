@@ -89,7 +89,7 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '700 10px Inter', letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 999 }}>
                 <LI name="vault" size={11} color="#0b1a00" /> NUEVO
               </span>
-              <div style={{ font: '800 17px Inter', color: '#0b1a00', lineHeight: 1.15, marginTop: 7 }}>Cajitas</div>
+              <div style={{ font: '800 17px Inter', color: '#0b1a00', lineHeight: 1.15, marginTop: 7 }}>Cofres</div>
               <div style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.78)', marginTop: 3, lineHeight: 1.3 }}>Apartá por objetivo y rendí {TNA_LABEL.replace(' TNA', '')} TNA.</div>
             </div>
             <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -101,7 +101,7 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
 }
 
 // ── PORTFOLIO — fiel al Figma: balance total + 4 activos + 5º
-//    contenedor apaisado de Cajitas ────────────────────────
+//    contenedor apaisado de Cofres ────────────────────────
 function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCajas }) {
   const assets = [
   { id: 'pesos', icon: 'currency-peso', label: 'Pesos digitales', value: fmtP2(disponible), chip: TNA_LABEL.replace(' TNA', ''), onTap: onPesos },
@@ -144,14 +144,14 @@ function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCaj
             </button>)}
         </div>
 
-        {/* 5º contenedor apaisado: Cajitas — mismo estilo que los 4 activos */}
+        {/* 5º contenedor apaisado: Cofres — mismo estilo que los 4 activos */}
         <button onClick={onCajas} style={{ position: 'relative', width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 24, padding: 16, boxShadow: 'var(--shadow-card)', display: 'flex', alignItems: 'center', gap: 14 }}>
           <div style={{ width: 40, height: 40, borderRadius: 999, background: '#FAFAFA', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 20, lineHeight: 1 }}>
             <span style={{ filter: 'grayscale(1) contrast(0.85) brightness(1.15)' }}>💰</span>
           </div>
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#818181' }}>Cajitas</span>
+              <span style={{ font: '500 12px Inter', letterSpacing: '-0.1px', color: '#818181' }}>Cofres</span>
               {cajas.length === 0 &&
               <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 10px Inter', letterSpacing: '0.03em', padding: '2px 7px', borderRadius: 101 }}>NUEVO</span>}
             </div>
@@ -198,18 +198,18 @@ function PesosScreen({ disponible, hasCajas, onBack, onCajas }) {
             </div>)}
         </div>
 
-        {/* acceso a Cajitas (card celeste, radius 32) */}
+        {/* acceso a Cofres (card celeste, radius 32) */}
         <button onClick={onCajas} style={{ position: 'relative', width: '100%', height: 146, textAlign: 'left', border: 0, cursor: 'pointer', background: '#009DFF', borderRadius: 32, overflow: 'hidden', padding: 0 }}>
           <div style={{ position: 'absolute', top: -50, right: -30, width: 190, height: 190, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.25), transparent 70%)' }} />
           <div style={{ position: 'absolute', left: 16, top: 16, font: '500 16px Geist', letterSpacing: '-0.1px', color: '#FFFFFF' }}>
-            {hasCajas ? 'Tus cajitas' : 'Guardá en cajitas'}
+            {hasCajas ? 'Tus cofres' : 'Guardá en cofres'}
           </div>
           <div style={{ position: 'absolute', left: 16, top: 48, fontFamily: 'LemonCitrus, serif', fontWeight: 400, fontSize: 56, lineHeight: '56px', color: '#CFFF2E' }}>
             {TNA_LABEL.replace(' TNA', '')}
           </div>
           <div style={{ position: 'absolute', left: 16, top: 112, font: '400 12px Inter', letterSpacing: '-0.1px', color: '#FFFFFF' }}>Rendimiento estimado anual</div>
           <span style={{ position: 'absolute', right: 16, bottom: 16, display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 12px', background: 'rgba(8,8,8,0.1)', borderRadius: 100, font: '600 12px Inter', letterSpacing: '-0.1px', color: '#FFFFFF' }}>
-            {hasCajas ? 'Mis cajitas' : 'Crear cajita'}
+            {hasCajas ? 'Mis cofres' : 'Crear cofre'}
           </span>
         </button>
 
@@ -239,7 +239,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
 
   return (
     <Screen bg="#F3F3F3">
-      <BigHeader title="Cajitas" onBack={onBack} right={cajas.length > 0 ? AddBtn : <span style={{ width: 40 }} />} />
+      <BigHeader title="Cofres" onBack={onBack} right={cajas.length > 0 ? AddBtn : <span style={{ width: 40 }} />} />
       <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {cajas.length === 0 ?
@@ -251,7 +251,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
               Apartá pesos para lo que se viene, rindiendo {TNA_LABEL}. La tarjeta y el QR no los tocan.
             </div>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#141414', color: '#fff', font: '600 14px Inter', padding: '11px 22px', borderRadius: 999, marginTop: 14 }}>
-              Crear mi primera cajita <LI name="arrow-foward" size={15} color="var(--c-lime-40)" />
+              Crear mi primer cofre <LI name="arrow-foward" size={15} color="var(--c-lime-40)" />
             </span>
           </button> :
 
@@ -261,7 +261,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
             <div style={{ position: 'absolute', top: -40, right: -40, width: 170, height: 170, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.22), transparent 70%)' }} />
             <div style={{ position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ font: '500 13px Inter', color: 'rgba(255,255,255,0.6)' }}>Apartado en cajitas</span>
+                <span style={{ font: '500 13px Inter', color: 'rgba(255,255,255,0.6)' }}>Apartado en cofres</span>
                 <TnaChip compact label={TNA_LABEL} />
               </div>
               <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#fff', marginTop: 5 }}>{fmtP(totalCajas)}</div>
@@ -276,7 +276,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
           {cajas.map((c) => <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)} />)}
 
           <button onClick={onCreate} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', border: `1.5px dashed ${LX.text3}`, cursor: 'pointer', background: 'transparent', borderRadius: 20, padding: '14px 0', font: '600 14px Inter', color: '#141414' }}>
-            <LI name="add-more" size={18} color="#141414" /> Nueva cajita
+            <LI name="add-more" size={18} color="#141414" /> Nuevo cofre
           </button>
         </>}
       </div>
@@ -293,53 +293,65 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
   const [name, setName] = useStateX('');
   const [emoji, setEmoji] = useStateX(null);
   const [goal, setGoal] = useStateX(null);
+  const [sheetOpen, setSheetOpen] = useStateX(false);
 
-  const headerTitle = isFirst ? 'Tu primera cajita' : 'Nueva cajita';
-  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); };
+  const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
+  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setSheetOpen(true); };
 
-  // ── 1. el sueño: conectar con el objetivo ──
+  // ── 1. el sueño: elegís el objetivo y lo confirmás en el sheet ──
   if (step === 'dream')
   return (
-    <Screen bg="#F3F3F3" footer={<Btn variant="primary" disabled={!tpl || !name.trim()} onClick={() => setStep('goal')}>Continuar</Btn>}>
-      <StepHeader title={headerTitle} onBack={onCancel} onClose={onCancel} />
-      <div style={{ padding: '6px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué querés lograr?</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Tu plata rinde mejor cuando sabe para qué trabaja.</div>
-        </div>
+    <div style={{ height: '100%', position: 'relative' }}>
+      <Screen bg="#F3F3F3">
+        <StepHeader title={headerTitle} onBack={onCancel} onClose={onCancel} />
+        <div style={{ padding: '6px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué querés lograr?</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Tu plata rinde mejor cuando sabe para qué trabaja.</div>
+          </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {CAJA_TEMPLATES.map((t) =>
-          <button key={t.id} onClick={() => pick(t)} style={{ textAlign: 'left', cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: 14, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: 'var(--shadow-card)', border: tpl && tpl.id === t.id ? '2px solid #141414' : '2px solid transparent' }}>
-              <CajaBadge caja={{ emoji: t.emoji, bg: t.bg }} size={40} />
-              <div>
-                <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{t.name}</div>
-                <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 3, lineHeight: 1.35 }}>{t.sub}</div>
-              </div>
-            </button>)}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {CAJA_TEMPLATES.map((t) =>
+            <button key={t.id} onClick={() => pick(t)} style={{ textAlign: 'left', cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: 14, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: 'var(--shadow-card)', border: tpl && tpl.id === t.id ? '2px solid #141414' : '2px solid transparent' }}>
+                <CajaBadge caja={{ emoji: t.emoji, bg: t.bg }} size={40} />
+                <div>
+                  <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{t.name}</div>
+                  <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 3, lineHeight: 1.35 }}>{t.sub}</div>
+                </div>
+              </button>)}
+          </div>
         </div>
+      </Screen>
 
-        {/* al elegir, lo hacés tuyo acá mismo: nombre + emoji */}
+      {/* sube desde abajo: tu cofre armado, para confirmar o retocar */}
+      <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
         {tpl &&
-        <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: LX.layer, borderRadius: 20, padding: 16, boxShadow: 'var(--shadow-card)' }}>
-            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={48} />
-            <input
-              value={name}
-              autoFocus={tpl.id === 'custom'}
-              maxLength={28}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Nombre de tu cajita"
-              style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414' }} />
-            {name && <button onClick={() => setName('')} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 4, display: 'flex' }}><LI name="close" size={16} color="#B4B4B4" /></button>}
+        <div style={{ textAlign: 'center', padding: '2px 2px 0' }}>
+          <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
+          <div key={tpl.id} style={{ display: 'flex', justifyContent: 'center', marginTop: 12, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
+            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={76} />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6 }}>
+          <input
+            value={name}
+            autoFocus={tpl.id === 'custom'}
+            maxLength={28}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nombre de tu cofre"
+            style={{ width: '100%', marginTop: 14, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 24px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
+          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 4 }}>Tocá el nombre o el emoji para cambiarlos.</div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginTop: 16 }}>
             {CAJA_EMOJIS.map((e) =>
-            <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : LX.layer, fontSize: 17, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
+            <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 17, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
           </div>
-        </>}
-      </div>
-    </Screen>);
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 18 }}>
+            <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
+            <Btn variant="ghost" onClick={() => setSheetOpen(false)}>Elegir otro objetivo</Btn>
+          </div>
+        </div>}
+      </Sheet>
+    </div>);
 
   // ── 2. cuantificar el sueño: el monto del objetivo ──
   if (step === 'goal')
@@ -375,8 +387,8 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
   return (
     <Screen bg="#F3F3F3" footer={
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <Btn variant="primary" onClick={onGoCaja}>Ver mi cajita</Btn>
-        <Btn variant="ghost" onClick={onGoPesos}>Ver todas mis cajitas</Btn>
+        <Btn variant="primary" onClick={onGoCaja}>Ver mi cofre</Btn>
+        <Btn variant="ghost" onClick={onGoPesos}>Ver todos mis cofres</Btn>
       </div>
     }>
       <div style={{ padding: '26px 20px 8px', display: 'flex', flexDirection: 'column', gap: 14, alignItems: 'center', textAlign: 'center' }}>
@@ -398,7 +410,7 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cajita libre'}</div>
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cofre libre'}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtP(caja.amount)}</div>
@@ -455,7 +467,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
           <CajaBadge caja={caja} size={56} fill={pct} />
           <div style={{ marginTop: 12 }}><BigAmount value={total} size={38} /></div>
           {!caja.goal &&
-          <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 8 }}>Cajita libre</div>}
+          <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 8 }}>Cofre libre</div>}
           <div style={{ display: 'flex', gap: 10, marginTop: 18, width: '100%' }}>
             <button onClick={onAdd} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: '#141414', color: '#fff', font: '600 14px Inter' }}>
               <LI name="deposit" size={17} color="var(--c-lime-40)" /> Agregar
@@ -565,11 +577,11 @@ function EditCajaSheet({ open, caja, onClose, onSave }) {
 
   return (
     <Sheet open={open} onClose={onClose}>
-      <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 14px' }}>Editar cajita</div>
+      <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 14px' }}>Editar cofre</div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 16, padding: '12px 14px', border: `1px solid ${LX.border}` }}>
         <CajaBadge caja={{ emoji, icon: caja.icon, bg: caja.bg, fg: caja.fg }} size={38} />
-        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Nombre de tu cajita"
+        <input value={name} maxLength={28} onChange={(e) => setName(e.target.value)} placeholder="Nombre de tu cofre"
         style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', font: '500 17px Geist', letterSpacing: '-0.01em', color: '#141414' }} />
       </div>
 
@@ -595,7 +607,7 @@ function EditCajaSheet({ open, caja, onClose, onSave }) {
           style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }} />
         </div>}
       <div style={{ font: '400 12px Inter', color: LX.text3, margin: '10px 2px 0', lineHeight: 1.45 }}>
-        {goal ? 'Con objetivo, el detalle te muestra el progreso y cuánto te empuja el rendimiento.' : 'Sin objetivo, la cajita rinde libre y el detalle se enfoca en tus rendimientos.'}
+        {goal ? 'Con objetivo, el detalle te muestra el progreso y cuánto te empuja el rendimiento.' : 'Sin objetivo, el cofre rinde libre y el detalle se enfoca en tus rendimientos.'}
       </div>
 
       <Btn variant="primary" disabled={!name.trim() || (customGoal && !goal)} onClick={() => onSave({ name: name.trim(), emoji, goal })} style={{ marginTop: 18 }}>Guardar cambios</Btn>

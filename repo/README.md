@@ -5,7 +5,7 @@ Es un sitio **100% estático** — no tiene paso de build: HTML + React/Babel ca
 CDN + componentes JSX locales.
 
 - `/` → **Migración de tarjetas** (flujos GP → Pomelo, NFC/Apple Pay)
-- `/cajas/` → **Cajitas** (FTE: pesos apartados que rinden, dentro de Portfolio; la tarjeta/QR no los ven)
+- `/cajas/` → **Cofres** (FTE: pesos apartados que rinden, dentro de Portfolio; la tarjeta/QR no los ven)
 
 ## Estructura
 

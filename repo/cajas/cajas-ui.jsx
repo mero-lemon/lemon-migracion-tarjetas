@@ -136,7 +136,7 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
 
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24, padding: '8px 16px 8px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'center', padding: '0 8px' }}>
-            <div style={{ font: '500 32px Geist', lineHeight: '38px', letterSpacing: '-0.01em', color: '#141414' }}>Ordená tu plata en cajitas</div>
+            <div style={{ font: '500 32px Geist', lineHeight: '38px', letterSpacing: '-0.01em', color: '#141414' }}>Ordená tu plata en cofres</div>
             <div style={{ font: '400 14px Inter', lineHeight: '22px', letterSpacing: '-0.1px', color: '#141414' }}>Apartá pesos por objetivo y dejalos rindiendo, lejos de tus gastos de todos los días.</div>
           </div>
 
@@ -148,7 +148,7 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
         </div>
 
         <div style={{ flexShrink: 0, padding: '16px 16px calc(40px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <button onClick={onPrimary} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#FFFFFF', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Crear mi primera cajita</button>
+          <button onClick={onPrimary} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#FFFFFF', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Crear mi primer cofre</button>
           <button onClick={onClose} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: 'rgba(8,8,8,0.1)', color: '#141414', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Ahora no</button>
         </div>
       </div>
@@ -169,7 +169,7 @@ const CajaRow = ({ caja, onTap }) => {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 3 }}>
           <span style={{ font: '400 12px Inter', color: '#818181' }}>
-            {caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cajita libre'}
+            {caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cofre libre'}
           </span>
           <span style={{ font: '500 12px Inter', color: 'var(--c-lemon-50)', flexShrink: 0 }}>+{fmtP2(caja.earned)}</span>
         </div>
@@ -425,13 +425,13 @@ function AmountScreen({ headerTitle, title, sourceLabel = 'Pesos digitales', max
               <button onClick={() => setAssetSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 0, cursor: 'pointer', background: 'rgba(8,8,9,0.05)', borderRadius: 999, padding: '7px 14px' }}>
                 <LI name="currency-peso" size={16} color="#141414" />
                 <span style={{ font: '500 13px Inter', color: '#141414' }}>{withdraw ? `Vuelve a ${sourceLabel}` : sourceLabel}</span>
-                <span style={{ font: '400 13px Inter', color: '#818181' }}>· {withdraw ? 'en la cajita' : 'disponible'} {fmtP2(max)}</span>
+                <span style={{ font: '400 13px Inter', color: '#818181' }}>· {withdraw ? 'en el cofre' : 'disponible'} {fmtP2(max)}</span>
                 {!withdraw && <LI name="arrow-expand-more" size={15} color="#818181" />}
               </button>
 
               {over ?
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '500 13px Inter', color: 'var(--c-rose-40)' }}>
-                  <LI name="feedback-warning" size={16} color="var(--c-rose-40)" /> Te pasás de lo {withdraw ? 'que hay en la cajita' : 'disponible'}
+                  <LI name="feedback-warning" size={16} color="var(--c-rose-40)" /> Te pasás de lo {withdraw ? 'que hay en el cofre' : 'disponible'}
                 </div> :
               !withdraw &&
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-lime-10)', borderRadius: 999, padding: '6px 14px', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>
@@ -451,7 +451,7 @@ function AmountScreen({ headerTitle, title, sourceLabel = 'Pesos digitales', max
       {/* sheet: con qué activo fondeás (v1 solo pesos) */}
       <Sheet open={assetSheet} onClose={() => setAssetSheet(false)}>
         <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 4px' }}>¿Con qué la fondeás?</div>
-        <div style={{ font: '400 13px Inter', color: LX.text2, margin: '0 2px 14px' }}>Por ahora las cajitas rinden con pesos digitales. Pronto se suman más activos.</div>
+        <div style={{ font: '400 13px Inter', color: LX.text2, margin: '0 2px 14px' }}>Por ahora los cofres rinden con pesos digitales. Pronto se suman más activos.</div>
         {[
         ['currency-peso', 'Pesos digitales', TNA_LABEL, false],
         ['currency-dollar', 'Dólares digitales', 'Pronto', true],
