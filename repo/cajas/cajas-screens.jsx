@@ -102,10 +102,10 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
 
 // ── PORTFOLIO — fiel al Figma: balance total + 4 activos + 5º
 //    contenedor apaisado de Cofres ────────────────────────
-function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCajas }) {
+function PortfolioHome({ disponible, disponibleUSD, cajas, totalCajas, totalCajasUSD, onInicio, onPesos, onCajas }) {
   const assets = [
   { id: 'pesos', icon: 'currency-peso', label: 'Pesos digitales', value: fmtP2(disponible), chip: TNA_LABEL.replace(' TNA', ''), onTap: onPesos },
-  { id: 'dolares', icon: 'currency-dollar', label: 'Dólares digitales', value: 'U$2.234,15', chip: '4,6%' },
+  { id: 'dolares', icon: 'currency-dollar', label: 'Dólares digitales', value: fmtC2(disponibleUSD, 'USD'), chip: '4,6%' },
   { id: 'crypto', icon: 'currency-bitcoin', label: 'Bitcoin & crypto', value: 'U$1.245,23' },
   { id: 'acciones', icon: 'stocks', label: 'Acciones', value: 'U$3.023,05' }];
 
@@ -155,7 +155,11 @@ function PortfolioHome({ disponible, cajas, totalCajas, onInicio, onPesos, onCaj
               {cajas.length === 0 &&
               <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 10px Inter', letterSpacing: '0.03em', padding: '2px 7px', borderRadius: 101 }}>NUEVO</span>}
             </div>
-            <div style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414', marginTop: 4 }}>{fmtP2(totalCajas)}</div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+              <span style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414' }}>{fmtP2(totalCajas)}</span>
+              {totalCajasUSD > 0 &&
+              <span style={{ font: '500 13px Geist', letterSpacing: '-0.01em', color: '#818181' }}>+ {fmtC2(totalCajasUSD, 'USD')}</span>}
+            </div>
           </div>
           <span style={{ background: 'var(--c-lime-40)', color: 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101, flexShrink: 0 }}>{TNA_LABEL.replace(' TNA', '')}</span>
           <LI name="arrow-foward" size={17} color="#B4B4B4" style={{ flexShrink: 0 }} />
@@ -230,8 +234,8 @@ function PesosScreen({ disponible, hasCajas, onBack, onCajas }) {
     </Screen>);
 }
 
-// ── SECCIÓN CAJAS DE PESOS — solo tus cajas + crear ─────────────
-function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaja, onSplash }) {
+// ── SECCIÓN COFRES — solo tus cofres + crear ────────────────────
+function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedUSD, onBack, onCreate, onOpenCaja, onSplash }) {
   const AddBtn =
   <button onClick={onCreate} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
       <LI name="add-more" size={22} color={LX.text1} />
@@ -270,6 +274,11 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
                 <span style={{ font: '600 13px Inter', color: '#0b1a00' }}>+{fmtP2(totalEarned)} generados</span>
                 <span style={{ font: '400 12px Inter', color: 'rgba(11,26,0,0.55)' }}>· rinde a diario</span>
               </div>
+              {totalCajasUSD > 0 &&
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(11,26,0,0.12)' }}>
+                <span style={{ font: '600 13px Inter', color: '#0b1a00' }}>+ {fmtC2(totalCajasUSD, 'USD')} en dólares</span>
+                <span style={{ font: '400 12px Inter', color: 'rgba(11,26,0,0.55)' }}>· +{fmtC2(totalEarnedUSD, 'USD')} generados · {CURRENCIES.USD.label}</span>
+              </div>}
             </div>
           </div>
 
@@ -287,12 +296,13 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
 // 1. soñar: elegí y hacé tuyo el objetivo (nombre + emoji)
 // 2. cuantificar: ponéle un número a ese sueño (o seguí sin objetivo)
 // 3. arrancar: cuánto ponés hoy para empezar
-function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
+function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) {
   const [step, setStep] = useStateX('dream'); // dream | goal | fund
   const [tpl, setTpl] = useStateX(null);
   const [name, setName] = useStateX('');
   const [emoji, setEmoji] = useStateX(null);
   const [goal, setGoal] = useStateX(null);
+  const [currency, setCurrency] = useStateX('ARS');
   const [sheetOpen, setSheetOpen] = useStateX(false);
 
   const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
@@ -345,6 +355,15 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
             <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
           </div>
 
+          {/* con qué rinde: pesos o dólares digitales */}
+          <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
+            {['ARS', 'USD'].map((k) =>
+            <button key={k} onClick={() => setCurrency(k)} style={{ flex: 1, border: currency === k ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 14, padding: '10px 8px', background: currency === k ? '#141414' : '#fff', textAlign: 'center' }}>
+                <div style={{ font: '600 13px Inter', color: currency === k ? '#fff' : '#141414' }}>{CURRENCIES[k].source}</div>
+                <div style={{ font: '400 12px Inter', color: currency === k ? 'var(--c-lime-40)' : '#818181', marginTop: 2 }}>Rinde {CURRENCIES[k].short} TNA</div>
+              </button>)}
+          </div>
+
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 24, paddingBottom: 6 }}>
             <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
@@ -358,8 +377,9 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
   if (step === 'goal')
   return (
     <AmountScreen
-      key="goal"
+      key={'goal' + currency}
       goalMode
+      currency={currency}
       headerTitle={headerTitle}
       badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
       title={`¿Cuánto necesitás para ${name.trim()}?`}
@@ -371,23 +391,28 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
       onClose={onCancel}
       onConfirm={(v) => { setGoal(v); setStep('fund'); }} />);
 
-  // ── 3. arrancar: cuánto ponés hoy ──
+  // ── 3. arrancar: cuánto ponés hoy (o creá el cofre vacío) ──
   return (
     <AmountScreen
-      key="fund"
+      key={'fund' + currency}
+      currency={currency}
       headerTitle={headerTitle}
       badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
       title="¿Con cuánto arrancás?"
-      subtitle={goal ? `${name.trim()} · Objetivo ${fmtP(goal)}` : name.trim()}
-      max={available}
+      subtitle={goal ? `${name.trim()} · Objetivo ${fmtC(goal, currency)}` : name.trim()}
+      max={currency === 'USD' ? availableUSD : available}
       cta="Poner a rendir"
+      secondary={{ label: 'Crear sin poner plata', onPress: () => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount: 0 }) }}
       onBack={() => setStep('goal')}
       onClose={onCancel}
-      onConfirm={(amount) => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, amount })} />);
+      onConfirm={(amount) => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount })} />);
 }
 
-// ── SUCCESS — la moneda entra a TU caja + el monto cuenta + confetti ──
+// ── SUCCESS — la moneda entra a TU cofre + el monto cuenta + confetti ──
 function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
+  const cur = curOf(caja);
+  const ck = caja.currency || 'ARS';
+  const empty = caja.amount === 0;
   return (
     <Screen bg="#F3F3F3" footer={
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -401,12 +426,21 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
           <ConfettiBurst />
         </div>
         <div>
-          <CountUp to={caja.amount} render={(v) =>
-          <div style={{ font: '500 42px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums' }}>{fmtP(v)}</div>} />
-          <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, marginTop: 6 }}>ya están rindiendo en {caja.name}</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.5 }}>
-            Desde hoy, todos los días, con {TNA_LABEL}.
-          </div>
+          {empty ?
+          <>
+            <div style={{ font: '500 30px Geist', lineHeight: 1.15, letterSpacing: '-0.02em', color: '#141414' }}>¡{caja.name} ya está listo!</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
+              Ponele plata cuando quieras: rinde {cur.label} desde el primer peso.
+            </div>
+          </> :
+          <>
+            <CountUp to={caja.amount} render={(v) =>
+            <div style={{ font: '500 42px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums' }}>{fmtC(v, ck)}</div>} />
+            <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, marginTop: 6 }}>ya están rindiendo en {caja.name}</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.5 }}>
+              Desde hoy, todos los días, con {cur.label}.
+            </div>
+          </>}
         </div>
 
         <div style={{ width: '100%', background: LX.layer, borderRadius: 22, padding: 18, boxShadow: 'var(--shadow-card)', textAlign: 'left' }}>
@@ -414,11 +448,11 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cofre libre'}</div>
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtP(caja.amount)}</div>
-              <TnaChip compact label={TNA_LABEL} />
+              <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtC(caja.amount, ck)}</div>
+              <TnaChip compact label={cur.label} />
             </div>
           </div>
           {caja.goal &&
@@ -427,7 +461,9 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <LI name="earn" size={17} color="var(--c-lime-60)" />
             <span style={{ font: '400 13px Inter', color: LX.text2, lineHeight: 1.4 }}>
-              A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtP(monthlyYield(caja.amount))} por mes</b>, sin que hagas nada.
+              {empty ?
+              <>Está vacío por ahora: agregale plata desde el cofre cuando quieras.</> :
+              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtC(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin que hagas nada.</>}
             </span>
           </div>
         </div>
@@ -441,11 +477,13 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
 
 // ── DETALLE DE CAJA — dos modos: libre (rendimiento protagonista)
 //    y con objetivo (progreso + cómo el rendimiento te empuja) ───
-function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
+function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
   const [editOpen, setEditOpen] = useStateX(false);
+  const cur = curOf(caja);
+  const ck = caja.currency || 'ARS';
   const total = cajaTotal(caja);
-  const daily = dailyYield(total);
-  const monthly = monthlyYield(total);
+  const daily = dailyYield(total, cur.tna);
+  const monthly = monthlyYield(total, cur.tna);
   const pct = caja.goal ? total / caja.goal : null;
   const remaining = caja.goal ? Math.max(0, caja.goal - total) : null;
   const reached = caja.goal && remaining <= 0;
@@ -469,9 +507,15 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
         {/* hero: saldo + acciones */}
         <div style={{ background: LX.layer, borderRadius: 24, padding: '22px 20px 18px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <CajaBadge caja={caja} size={56} fill={pct} />
-          <div style={{ marginTop: 12 }}><BigAmount value={total} size={38} /></div>
-          {!caja.goal &&
-          <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 8 }}>Cofre libre</div>}
+          <div style={{ marginTop: 12 }}><BigAmount value={total} size={38} prefix={cur.prefix} /></div>
+          {(!caja.goal || caja.pin) &&
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8 }}>
+            {!caja.goal && <span style={{ font: '400 12px Inter', color: '#818181' }}>Cofre libre</span>}
+            {caja.pin &&
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '500 12px Inter', color: '#818181', background: 'rgba(8,8,9,0.05)', padding: '3px 10px', borderRadius: 999 }}>
+              <LI name="lock" size={12} color="#818181" /> Protegido
+            </span>}
+          </div>}
           <div style={{ display: 'flex', gap: 10, marginTop: 18, width: '100%' }}>
             <button onClick={onAdd} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: '#141414', color: '#fff', font: '600 14px Inter' }}>
               <LI name="deposit" size={17} color="var(--c-lime-40)" /> Agregar
@@ -487,16 +531,16 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
         <div style={{ background: LX.layer, borderRadius: 24, padding: 18, boxShadow: 'var(--shadow-card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tu rendimiento</span>
-            <TnaChip compact label={TNA_LABEL} />
+            <TnaChip compact label={cur.label} />
           </div>
 
           {caja.earned > 0 ?
           <>
-            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>+{fmtP2(caja.earned)}</div>
-            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>generados desde que la creaste</div>
+            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>+{fmtC2(caja.earned, ck)}</div>
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>generados desde que lo creaste</div>
           </> :
           <>
-            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>≈ +{fmtP(daily)} hoy</div>
+            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>≈ +{fmtC(daily, ck)} hoy</div>
             <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>tu primer rendimiento se acredita hoy mismo</div>
           </>}
 
@@ -505,7 +549,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
             <IconBadge icon="earn" bg="var(--c-lime-40)" fg="#141414" size={38} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '400 12px Inter', color: 'var(--c-lime-70)' }}>Ritmo mensual</div>
-              <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 1 }}>≈ +{fmtP(monthly)}</div>
+              <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 1 }}>≈ +{fmtC(monthly, ck)}</div>
             </div>
           </div>
         </div> :
@@ -517,12 +561,12 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
             <ProgressRing pct={pct} color={caja.fg} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '400 12px Inter', color: '#818181' }}>Tu objetivo</div>
-              <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 2 }}>{fmtP(caja.goal)}</div>
+              <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 2 }}>{fmtC(caja.goal, ck)}</div>
               {reached ?
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--c-lime-40)', borderRadius: 999, padding: '5px 12px', font: '600 13px Inter', color: '#080808', marginTop: 8 }}>
                   <LI name="feedback-positive" size={15} color="#080808" /> ¡Llegaste!
                 </div> :
-              <div style={{ font: '500 14px Inter', color: '#141414', marginTop: 8 }}>Te faltan <b>{fmtP(remaining)}</b></div>}
+              <div style={{ font: '500 14px Inter', color: '#141414', marginTop: 8 }}>Te faltan <b>{fmtC(remaining, ck)}</b></div>}
             </div>
           </div>
         </div>
@@ -531,10 +575,10 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LI name="earn" size={18} color="var(--c-lime-60)" />
             <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
-            <TnaChip compact label={TNA_LABEL} />
+            <TnaChip compact label={cur.label} />
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-            {[['Generado hasta ahora', `+${fmtP2(caja.earned)}`], ['Próximos 30 días', `≈ +${fmtP(daily * 30)}`]].map(([k, v]) =>
+            {[['Generado hasta ahora', `+${fmtC2(caja.earned, ck)}`], ['Próximos 30 días', `≈ +${fmtC(daily * 30, ck)}`]].map(([k, v]) =>
             <div key={k} style={{ flex: 1, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '10px 12px' }}>
                 <div style={{ font: '400 11px Inter', color: '#818181' }}>{k}</div>
                 <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)', marginTop: 2 }}>{v}</div>
@@ -543,7 +587,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
         </div>
         </>}
 
-        <NoGastoHint />
+        <NoGastoHint source={cur.source.toLowerCase()} />
 
         {/* movimientos */}
         <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', margin: '6px 2px 0' }}>Movimientos</div>
@@ -560,23 +604,30 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave }) {
     </Screen>
 
     <EditCajaSheet open={editOpen} caja={caja} onClose={() => setEditOpen(false)}
-      onSave={(patch) => { onSave(patch); setEditOpen(false); }} />
+      onSave={(patch) => { onSave(patch); setEditOpen(false); }} onDelete={onDelete} />
     </div>);
 }
 
-// ── Editar caja: nombre + emoji + objetivo (libre ↔ objetivo) ────
-function EditCajaSheet({ open, caja, onClose, onSave }) {
+// ── Editar cofre: nombre + emoji + objetivo + PIN + eliminar ────
+function EditCajaSheet({ open, caja, onClose, onSave, onDelete }) {
   const [name, setName] = useStateX(caja.name);
   const [emoji, setEmoji] = useStateX(caja.emoji);
   const [goal, setGoal] = useStateX(caja.goal);
   const [customGoal, setCustomGoal] = useStateX(false);
+  const [pinDraft, setPinDraft] = useStateX('');
+  const [pinEditing, setPinEditing] = useStateX(false);
+  const [confirmDelete, setConfirmDelete] = useStateX(false);
   useEffectX(() => {
     if (open) {
       setName(caja.name); setEmoji(caja.emoji); setGoal(caja.goal);
       setCustomGoal(caja.goal != null && ![500000, 1000000].includes(caja.goal));
+      setPinDraft(''); setPinEditing(false); setConfirmDelete(false);
     }
   }, [open]);
 
+  const cur = curOf(caja);
+  const pinFinal = pinEditing ? (pinDraft.length === 4 ? pinDraft : null) : caja.pin || null;
+  const pinIncomplete = pinEditing && pinDraft.length > 0 && pinDraft.length < 4;
   const chips = [[null, 'Sin objetivo'], [500000, '$500.000'], [1000000, '$1.000.000']];
 
   return (
@@ -614,8 +665,84 @@ function EditCajaSheet({ open, caja, onClose, onSave }) {
         {goal ? 'Con objetivo, el detalle te muestra el progreso y cuánto te empuja el rendimiento.' : 'Sin objetivo, el cofre rinde libre y el detalle se enfoca en tus rendimientos.'}
       </div>
 
-      <Btn variant="primary" disabled={!name.trim() || (customGoal && !goal)} onClick={() => onSave({ name: name.trim(), emoji, goal })} style={{ marginTop: 18 }}>Guardar cambios</Btn>
+      {/* seguridad: PIN para abrir el cofre */}
+      <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '18px 2px 10px' }}>Seguridad</div>
+      {caja.pin && !pinEditing ?
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1px solid ${LX.border}` }}>
+          <LI name="lock" size={18} color="#141414" />
+          <span style={{ flex: 1, font: '500 14px Inter', color: '#141414' }}>PIN activado</span>
+          <button onClick={() => { setPinEditing(true); setPinDraft(''); }} style={{ border: 0, cursor: 'pointer', background: 'transparent', font: '600 13px Inter', color: 'var(--c-rose-40)' }}>Quitar</button>
+        </div> :
+      !pinEditing ?
+      <button onClick={() => setPinEditing(true)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1.5px solid ${LX.border}`, cursor: 'pointer' }}>
+          <LI name="lock" size={18} color="#141414" />
+          <span style={{ flex: 1, font: '600 14px Inter', color: '#141414' }}>Proteger con PIN</span>
+          <LI name="arrow-foward" size={15} color="#818181" />
+        </button> :
+      <div style={{ background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1.5px solid ${LX.border}` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <LI name="lock" size={18} color="#141414" />
+            <input
+            autoFocus
+            inputMode="numeric"
+            value={pinDraft}
+            onChange={(e) => setPinDraft(e.target.value.replace(/\D/g, '').slice(0, 4))}
+            placeholder="PIN de 4 dígitos"
+            style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', font: '500 16px Geist', letterSpacing: '0.2em', color: '#141414' }} />
+            <button onClick={() => { setPinEditing(false); setPinDraft(''); }} style={{ border: 0, cursor: 'pointer', background: 'transparent', font: '600 13px Inter', color: '#818181' }}>Cancelar</button>
+          </div>
+          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>{caja.pin ? 'Dejalo vacío y guardá para quitar el PIN.' : 'Te lo vamos a pedir para abrir este cofre.'}</div>
+        </div>}
+
+      <Btn variant="primary" disabled={!name.trim() || (customGoal && !goal) || pinIncomplete} onClick={() => onSave({ name: name.trim(), emoji, goal, pin: pinFinal })} style={{ marginTop: 18 }}>Guardar cambios</Btn>
+
+      {/* eliminar cofre: dos taps, la plata vuelve al saldo */}
+      {onDelete &&
+      <Btn variant="ghost" onClick={() => confirmDelete ? onDelete() : setConfirmDelete(true)} style={{ marginTop: 4, color: 'var(--c-rose-40)' }}>
+          {confirmDelete ? `¿Seguro? ${cajaTotal(caja) > 0 ? `Tus ${fmtC(cajaTotal(caja), caja.currency || 'ARS')} vuelven a ${cur.source}` : 'Se elimina el cofre'}` : 'Eliminar cofre'}
+        </Btn>}
     </Sheet>);
 }
 
-Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, EditCajaSheet });
+// ── Cofre protegido: pedí el PIN para abrirlo ───────────────────
+function PinGate({ caja, onBack, onUnlock }) {
+  const [entered, setEntered] = useStateX('');
+  const [error, setError] = useStateX(false);
+  const entRef = React.useRef('');
+
+  const sync = (v) => { entRef.current = v; setEntered(v); };
+  const digit = (d) => {
+    if (entRef.current.length >= 4) return;
+    const next = entRef.current + String(d);
+    sync(next);
+    setError(false);
+    if (next.length === 4) {
+      if (next === caja.pin) setTimeout(onUnlock, 180);
+      else { setError(true); setTimeout(() => sync(''), 450); }
+    }
+  };
+
+  return (
+    <Screen bg="#F3F3F3" scroll={false}>
+      <StepHeader title={caja.name} onBack={onBack} />
+      <div style={{ height: 'calc(100% - 52px)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '18px 16px 0' }}>
+        <CajaBadge caja={caja} size={64} />
+        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 16 }}>Cofre protegido</div>
+        <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5 }}>Ingresá tu PIN para abrirlo.</div>
+
+        {/* puntos del PIN */}
+        <div style={{ display: 'flex', gap: 14, marginTop: 26 }}>
+          {[0, 1, 2, 3].map((i) =>
+          <span key={i} style={{ width: 14, height: 14, borderRadius: 999, transition: 'background .15s', background: error ? 'var(--c-rose-40)' : i < entered.length ? '#141414' : 'rgba(8,8,9,0.12)' }} />)}
+        </div>
+        <div style={{ font: '500 13px Inter', color: 'var(--c-rose-40)', marginTop: 14, minHeight: 18 }}>{error ? 'PIN incorrecto, probá de nuevo.' : ''}</div>
+
+        <div style={{ flex: 1 }} />
+        <div style={{ width: '100%', paddingBottom: 34 }}>
+          <Keypad onDigit={digit} onBackspace={() => { sync(entRef.current.slice(0, -1)); setError(false); }} />
+        </div>
+      </div>
+    </Screen>);
+}
+
+Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, EditCajaSheet, PinGate });

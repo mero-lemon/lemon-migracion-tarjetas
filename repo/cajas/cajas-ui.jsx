@@ -5,13 +5,23 @@ const { useState: useStateU, useEffect: useEffectU } = React;
 // ── Constantes del producto ─────────────────────────────────────
 const TNA = 0.362;
 const TNA_LABEL = '36,2% TNA';
-const monthlyYield = (n) => n * TNA / 12;
-const dailyYield = (n) => n * TNA / 365;
+
+// cada cofre rinde en su moneda, con su tasa
+const CURRENCIES = {
+  ARS: { prefix: '$', tna: 0.362, label: '36,2% TNA', short: '36,2%', source: 'Pesos digitales', icon: 'currency-peso' },
+  USD: { prefix: 'U$', tna: 0.046, label: '4,6% TNA', short: '4,6%', source: 'Dólares digitales', icon: 'currency-dollar' }
+};
+const curOf = (c) => CURRENCIES[(c && c.currency) || 'ARS'];
+
+const monthlyYield = (n, tna = TNA) => n * tna / 12;
+const dailyYield = (n, tna = TNA) => n * tna / 365;
 const cajaTotal = (c) => c.amount + c.earned; // saldo = aportes + rendimiento
 
-// formateo es-AR: $1.487.283 / $1.487.283,93
+// formateo es-AR: $1.487.283 / $1.487.283,93 / U$2.234,15
 const fmtP = (n) => '$' + Math.round(n).toLocaleString('es-AR');
 const fmtP2 = (n) => '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtC = (n, cur = 'ARS') => CURRENCIES[cur].prefix + Math.round(n).toLocaleString('es-AR');
+const fmtC2 = (n, cur = 'ARS') => CURRENCIES[cur].prefix + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // saldo grande estilo app: entero en Geist 44 + centavos en 24 gris
 const BigAmount = ({ value, prefix = '$', size = 44, color = '#141414' }) => {
@@ -158,20 +168,23 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
 // ── Fila de caja (lista en Pesos digitales) ─────────────────────
 const CajaRow = ({ caja, onTap }) => {
   const total = cajaTotal(caja);
+  const ck = caja.currency || 'ARS';
   const pct = caja.goal ? Math.min(1, total / caja.goal) : null;
   return (
     <button onClick={onTap} style={{ display: 'flex', alignItems: 'center', gap: 14, width: '100%', textAlign: 'left', cursor: 'pointer', background: LX.layer, border: 0, borderRadius: 20, padding: 16, boxShadow: 'var(--shadow-card)' }}>
       <CajaBadge caja={caja} fill={pct} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-          <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{caja.name}</span>
-          <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{fmtP(total)}</span>
+          <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6 }}>
+            {caja.pin && <LI name="lock" size={13} color="#B4B4B4" />}{caja.name}
+          </span>
+          <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{fmtC(total, ck)}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 3 }}>
           <span style={{ font: '400 12px Inter', color: '#818181' }}>
-            {caja.goal ? `Objetivo ${fmtP(caja.goal)}` : 'Cofre libre'}
+            {caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}{ck === 'USD' && ' · Dólares'}
           </span>
-          <span style={{ font: '500 12px Inter', color: 'var(--c-lemon-50)', flexShrink: 0 }}>+{fmtP2(caja.earned)}</span>
+          <span style={{ font: '500 12px Inter', color: 'var(--c-lemon-50)', flexShrink: 0 }}>+{fmtC2(caja.earned, ck)}</span>
         </div>
         {pct !== null &&
         <div style={{ marginTop: 9 }}><Meter value={pct} color={caja.fg} h={5} /></div>}
@@ -249,11 +262,11 @@ const CajaSuccessArt = ({ caja, size = 210 }) =>
   </svg>;
 
 // ── Aviso "apartada de verdad" (tarjeta/QR no la ven) ───────────
-const NoGastoHint = () =>
+const NoGastoHint = ({ source = 'pesos digitales' }) =>
 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 6px' }}>
     <LI name="card-off" size={16} color="#818181" style={{ marginTop: 2, flexShrink: 0 }} />
     <span style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.45 }}>
-      La tarjeta y el QR no ven esta plata. Para gastarla, retirala: vuelve a tus pesos digitales al instante, sin penalidad.
+      La tarjeta y el QR no ven esta plata. Para gastarla, retirala: vuelve a tus {source} al instante, sin penalidad.
     </span>
   </div>;
 
@@ -267,7 +280,7 @@ const buildSeries = (caja) => {
   let earnedRaw = 0;
   for (let d = 0; d <= days; d++) {
     const contributed = evs.filter((e) => e.day <= d).reduce((a, e) => a + e.amount, 0);
-    earnedRaw += dailyYield(Math.max(0, contributed));
+    earnedRaw += dailyYield(Math.max(0, contributed), curOf(caja).tna);
     pts.push({ contributed, earnedRaw });
   }
   const f = caja.earned > 0 && earnedRaw > 0 ? caja.earned / earnedRaw : 0;
@@ -284,10 +297,11 @@ const CajaSparkline = ({ caja }) => {
   let label;
   let content;
   if (isNew) {
-    const end = total + dailyYield(total) * 30;
+    const tna = curOf(caja).tna;
+    const end = total + dailyYield(total, tna) * 30;
     const y = (v, min, max) => H - PAD - (v - min) / (max - min || 1) * (H - PAD * 2);
     const min = total * 0.999, max = end * 1.001;
-    const pts = Array.from({ length: 31 }, (_, i) => `${PAD + i * (W - PAD * 2) / 30},${y(total + dailyYield(total) * i, min, max)}`);
+    const pts = Array.from({ length: 31 }, (_, i) => `${PAD + i * (W - PAD * 2) / 30},${y(total + dailyYield(total, tna) * i, min, max)}`);
     label = 'Próximos 30 días · proyección';
     content =
     <>
@@ -384,15 +398,19 @@ const Keypad = ({ onDigit, onBackspace }) => {
 // ── Pantalla de monto (crear / agregar / retirar / objetivo) ────
 // max = tope disponible. goalMode: sin origen de fondos ni tope real
 // (define una meta, no mueve plata); hint = leyenda bajo el monto;
-// secondary = { label, onPress } botón fantasma bajo el CTA.
-function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digitales', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary }) {
+// secondary = { label, onPress } botón fantasma bajo el CTA;
+// quick = etiqueta de acceso rápido que carga el máximo (p.ej. Retirar todo);
+// currency define prefijo, tasa y origen de fondos del cofre.
+function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick }) {
   const [value, setValue] = useStateU(0);
   const [assetSheet, setAssetSheet] = useStateU(false);
+  const cur = CURRENCIES[currency];
   const over = value > max;
   const ok = value > 0 && !over;
 
-  const digit = (d) => setValue((v) => Math.min(v * 10 + d, 999999999));
-  const back = () => setValue((v) => Math.floor(v / 10));
+  const digit = (d) => setValue((v) => Math.floor(v) * 10 + d > 999999999 ? v : Math.floor(v) * 10 + d);
+  const back = () => setValue((v) => Math.floor(Math.floor(v) / 10));
+  const fmtVal = (n) => cur.prefix + (Number.isInteger(n) ? n.toLocaleString('es-AR') : n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
   return (
     <div style={{ height: '100%', position: 'relative' }}>
@@ -417,7 +435,7 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
           {/* monto grande centrado */}
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 14, minHeight: 0 }}>
             <div style={{ font: `500 ${value >= 10000000 ? 40 : 48}px Geist`, letterSpacing: '-0.03em', color: over ? 'var(--c-rose-40)' : value === 0 ? '#B4B4B4' : '#141414', transition: 'color .15s' }}>
-              {fmtP(value)}
+              {fmtVal(value)}
             </div>
 
             {goalMode ?
@@ -428,11 +446,15 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
             <>
               {/* origen de fondos */}
               <button onClick={() => setAssetSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 0, cursor: 'pointer', background: 'rgba(8,8,9,0.05)', borderRadius: 999, padding: '7px 14px' }}>
-                <LI name="currency-peso" size={16} color="#141414" />
-                <span style={{ font: '500 13px Inter', color: '#141414' }}>{withdraw ? `Vuelve a ${sourceLabel}` : sourceLabel}</span>
-                <span style={{ font: '400 13px Inter', color: '#818181' }}>· {withdraw ? 'en el cofre' : 'disponible'} {fmtP2(max)}</span>
+                <LI name={cur.icon} size={16} color="#141414" />
+                <span style={{ font: '500 13px Inter', color: '#141414' }}>{withdraw ? `Vuelve a ${cur.source}` : cur.source}</span>
+                <span style={{ font: '400 13px Inter', color: '#818181' }}>· {withdraw ? 'en el cofre' : 'disponible'} {fmtC2(max, currency)}</span>
                 {!withdraw && <LI name="arrow-expand-more" size={15} color="#818181" />}
               </button>
+
+              {/* acceso rápido: cargar el máximo (Retirar todo / Total disponible) */}
+              {quick &&
+              <button onClick={() => setValue(max)} style={{ border: `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 999, padding: '8px 18px', background: value === max ? '#141414' : LX.layer, font: '600 13px Inter', color: value === max ? '#fff' : '#141414' }}>{quick}</button>}
 
               {over ?
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '500 13px Inter', color: 'var(--c-rose-40)' }}>
@@ -441,7 +463,7 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
               !withdraw &&
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-lime-10)', borderRadius: 999, padding: '6px 14px', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>
                   <LI name="earn" size={15} color="var(--c-lime-60)" />
-                  {value > 0 ? `Rinde ≈ +${fmtP(monthlyYield(value))} por mes` : `Rinde ${TNA_LABEL}, todos los días`}
+                  {value > 0 ? `Rinde ≈ +${fmtC(monthlyYield(value, cur.tna), currency)} por mes` : `Rinde ${cur.label}, todos los días`}
                 </div>}
             </>}
           </div>
@@ -453,15 +475,15 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
         </div>
       </Screen>
 
-      {/* sheet: con qué activo fondeás (v1 solo pesos) */}
+      {/* sheet: con qué activo rinde este cofre */}
       <Sheet open={assetSheet} onClose={() => setAssetSheet(false)}>
-        <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 4px' }}>¿Con qué la fondeás?</div>
-        <div style={{ font: '400 13px Inter', color: LX.text2, margin: '0 2px 14px' }}>Por ahora los cofres rinden con pesos digitales. Pronto se suman más activos.</div>
+        <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 4px' }}>¿Con qué rinde?</div>
+        <div style={{ font: '400 13px Inter', color: LX.text2, margin: '0 2px 14px' }}>Cada cofre rinde en su moneda. Pronto se suman cripto y acciones.</div>
         {[
-        ['currency-peso', 'Pesos digitales', TNA_LABEL, false],
-        ['currency-dollar', 'Dólares digitales', 'Pronto', true],
-        ['currency-bitcoin', 'Bitcoin y cripto', 'Pronto', true],
-        ['stocks', 'Acciones', 'Pronto', true]].map(([ic, t, tag, soon]) =>
+        ['ARS', 'currency-peso', 'Pesos digitales', CURRENCIES.ARS.label, false],
+        ['USD', 'currency-dollar', 'Dólares digitales', CURRENCIES.USD.label, false],
+        ['BTC', 'currency-bitcoin', 'Bitcoin y cripto', 'Pronto', true],
+        ['STK', 'stocks', 'Acciones', 'Pronto', true]].map(([id, ic, t, tag, soon]) =>
         <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 2px', opacity: soon ? 0.55 : 1 }}>
             <IconBadge icon={ic} bg="rgba(8,8,9,0.05)" fg="#141414" size={40} />
             <span style={{ flex: 1, font: '500 15px Inter', color: '#141414' }}>{t}</span>
@@ -469,7 +491,7 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
           <span style={{ font: '600 11px Inter', color: LX.text2, background: LX.layer3, padding: '4px 10px', borderRadius: 999 }}>{tag}</span> :
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <TnaChip compact label={tag} />
-                <LI name="selected" size={20} color="var(--c-lemon-50)" />
+                {id === currency && <LI name="selected" size={20} color="var(--c-lemon-50)" />}
               </span>}
           </div>)}
         <Btn variant="primary" onClick={() => setAssetSheet(false)} style={{ marginTop: 12 }}>Listo</Btn>
@@ -478,7 +500,8 @@ function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digit
 }
 
 Object.assign(window, {
-  TNA, TNA_LABEL, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, BigAmount, CAJA_TEMPLATES, getTemplate,
-  CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajasSplash, CajaRow, NoGastoHint, Keypad, AmountScreen,
-  buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp, ConfettiBurst, CajaSuccessArt
+  TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, fmtC, fmtC2, BigAmount,
+  CAJA_TEMPLATES, getTemplate, CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajasSplash, CajaRow,
+  NoGastoHint, Keypad, AmountScreen, buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp,
+  ConfettiBurst, CajaSuccessArt
 });

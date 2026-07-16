@@ -2,26 +2,35 @@
 // desde cero (FTE): descubrís las cajas desde Inicio o Portfolio.
 const { useState: useStateZ, useEffect: useEffectZ } = React;
 
-const BASE_PESOS = 1487283.93; // pesos digitales al arrancar (antes de apartar en cajas)
+const BASE_PESOS = 1487283.93; // pesos digitales al arrancar (antes de apartar en cofres)
+const BASE_USD = 2234.15; // dólares digitales al arrancar
 
 // materializa la plantilla sobre cada caja (colores + ícono de respaldo)
 const hydrate = (c) => { const t = getTemplate(c.tplId); return { ...c, icon: t.icon, bg: t.bg, fg: t.fg }; };
 
 // ── Experiencia completa ────────────────────────────────────────
 function CajasExperience() {
-  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | add | withdraw
+  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | add | withdraw | pin
   const [cajas, setCajas] = useStateZ([]);
-  // disponible vive en el estado: el rendimiento solo entra cuando lo retirás de una caja
+  // los disponibles viven en el estado: el rendimiento solo entra cuando lo retirás de un cofre
   const [disponible, setDisponible] = useStateZ(BASE_PESOS);
+  const [disponibleUSD, setDisponibleUSD] = useStateZ(BASE_USD);
   const [openId, setOpenId] = useStateZ(null);
   const [lastCreated, setLastCreated] = useStateZ(null);
   const [splashOpen, setSplashOpen] = useStateZ(false);
   const [splashSeen, setSplashSeen] = useStateZ(false);
 
-  const totalCajas = cajas.reduce((a, c) => a + cajaTotal(c), 0); // saldo apartado (aportes + rendimiento)
-  const totalEarned = cajas.reduce((a, c) => a + c.earned, 0);
+  const isUSD = (c) => (c.currency || 'ARS') === 'USD';
+  const totalCajas = cajas.filter((c) => !isUSD(c)).reduce((a, c) => a + cajaTotal(c), 0);
+  const totalEarned = cajas.filter((c) => !isUSD(c)).reduce((a, c) => a + c.earned, 0);
+  const totalCajasUSD = cajas.filter(isUSD).reduce((a, c) => a + cajaTotal(c), 0);
+  const totalEarnedUSD = cajas.filter(isUSD).reduce((a, c) => a + c.earned, 0);
   const openCaja = cajas.find((c) => c.id === openId);
   const open = openCaja ? hydrate(openCaja) : null;
+
+  // mover plata entre el saldo de la moneda que corresponda y el cofre
+  const shiftBalance = (currency, delta) =>
+  currency === 'USD' ? setDisponibleUSD((d) => d + delta) : setDisponible((d) => d + delta);
 
   // FTE: al entrar por primera vez a la sección Cajas, sube el splash solo
   // (delay mínimo: lo justo para que la sección se pinte detrás)
@@ -32,30 +41,32 @@ function CajasExperience() {
     }
   }, [route]);
 
-  const createCaja = ({ tplId, name, emoji, goal, amount }) => {
+  const createCaja = ({ tplId, name, emoji, goal, currency, amount }) => {
     const nueva = {
-      id: 'c' + Date.now(), tplId, name, emoji, goal, amount, earned: 0,
+      id: 'c' + Date.now(), tplId, name, emoji, goal, currency, amount, earned: 0, pin: null,
       ageDays: 0, events: [{ day: 0, amount }],
-      movs: [{ icon: 'vault', title: 'Creaste el cofre', date: 'Hoy', amount: fmtP(amount), sign: '+' }]
+      movs: [{ icon: 'vault', title: 'Creaste el cofre', date: 'Hoy', amount: fmtC(amount, currency), sign: '+' }]
     };
     setCajas((cs) => [nueva, ...cs]);
-    setDisponible((d) => d - amount);
+    shiftBalance(currency, -amount);
     setLastCreated(nueva.id);
     setRoute('success');
   };
 
   const addToCaja = (id, amount) => {
+    const caja = cajas.find((c) => c.id === id);
     setCajas((cs) => cs.map((c) => c.id === id ? {
       ...c, amount: c.amount + amount,
       events: [...c.events, { day: c.ageDays || 0, amount }],
-      movs: [{ icon: 'deposit', title: 'Le pusiste plata', date: 'Hoy', amount: fmtP(amount), sign: '+' }, ...c.movs]
+      movs: [{ icon: 'deposit', title: 'Le pusiste plata', date: 'Hoy', amount: fmtC(amount, c.currency || 'ARS'), sign: '+' }, ...c.movs]
     } : c));
-    setDisponible((d) => d - amount);
+    shiftBalance(caja.currency || 'ARS', -amount);
     setRoute('detail');
   };
 
   // retira del aporte primero; si no alcanza, el resto sale del rendimiento
   const withdrawFromCaja = (id, v) => {
+    const caja = cajas.find((c) => c.id === id);
     setCajas((cs) => cs.map((c) => {
       if (c.id !== id) return c;
       const fromAmount = Math.min(c.amount, v);
@@ -63,38 +74,58 @@ function CajasExperience() {
       return {
         ...c, amount: c.amount - fromAmount, earned: c.earned - fromEarned,
         events: [...c.events, { day: c.ageDays || 0, amount: -fromAmount }],
-        movs: [{ icon: 'returns', title: 'Retiraste a Pesos digitales', date: 'Hoy', amount: fmtP(v), sign: '−' }, ...c.movs]
+        movs: [{ icon: 'returns', title: `Retiraste a ${curOf(c).source}`, date: 'Hoy', amount: fmtC(v, c.currency || 'ARS'), sign: '−' }, ...c.movs]
       };
     }));
-    setDisponible((d) => d + v);
+    shiftBalance(caja.currency || 'ARS', v);
     setRoute('detail');
   };
 
-  // Editar: renombrar, cambiar emoji y convertir libre ↔ objetivo
+  // Editar: renombrar, cambiar emoji, convertir libre ↔ objetivo, PIN
   const updateCaja = (id, patch) => {
     setCajas((cs) => cs.map((c) => c.id === id ? { ...c, ...patch } : c));
+  };
+
+  // Eliminar: lo que haya en el cofre vuelve al saldo de su moneda
+  const deleteCaja = (id) => {
+    const caja = cajas.find((c) => c.id === id);
+    if (caja) shiftBalance(caja.currency || 'ARS', cajaTotal(caja));
+    setCajas((cs) => cs.filter((c) => c.id !== id));
+    setRoute('cajas');
+  };
+
+  // abrir un cofre: si tiene PIN, siempre lo pide primero
+  const openCofre = (id) => {
+    const caja = cajas.find((c) => c.id === id);
+    setOpenId(id);
+    setRoute(caja && caja.pin ? 'pin' : 'detail');
   };
 
   const goCajas = () => setRoute('cajas');
 
   if (route === 'create')
-  return <CreateCajaFlow available={disponible} isFirst={cajas.length === 0} onCancel={() => setRoute('cajas')} onDone={createCaja} />;
+  return <CreateCajaFlow available={disponible} availableUSD={disponibleUSD} isFirst={cajas.length === 0} onCancel={() => setRoute('cajas')} onDone={createCaja} />;
 
   if (route === 'success' && lastCreated)
   return <CajaSuccess caja={hydrate(cajas.find((c) => c.id === lastCreated))} onGoCaja={() => { setOpenId(lastCreated); setRoute('detail'); }} onGoPesos={() => setRoute('cajas')} />;
 
+  if (route === 'pin' && open)
+  return <PinGate caja={open} onBack={() => setRoute('cajas')} onUnlock={() => setRoute('detail')} />;
+
   if (route === 'detail' && open)
-  return <CajaDetail caja={open} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')} onSave={(patch) => updateCaja(open.id, patch)} />;
+  return <CajaDetail caja={open} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} />;
 
   if (route === 'add' && open)
   return (
     <AmountScreen
       key="add"
+      currency={open.currency || 'ARS'}
       headerTitle={open.name}
       badge={<CajaBadge caja={open} size={46} />}
       title="¿Cuánto le agregás?"
       subtitle={open.name}
-      max={disponible}
+      max={(open.currency || 'ARS') === 'USD' ? disponibleUSD : disponible}
       cta="Agregar al cofre"
       onBack={() => setRoute('detail')}
       onClose={() => setRoute('detail')}
@@ -105,12 +136,14 @@ function CajasExperience() {
     <AmountScreen
       key="withdraw"
       withdraw
+      currency={open.currency || 'ARS'}
       headerTitle={open.name}
       badge={<CajaBadge caja={open} size={46} />}
       title="¿Cuánto retirás?"
       subtitle={open.name}
       max={cajaTotal(open)}
       cta="Retirar al instante"
+      quick="Retirar todo"
       onBack={() => setRoute('detail')}
       onClose={() => setRoute('detail')}
       onConfirm={(v) => withdrawFromCaja(open.id, v)} />);
@@ -126,13 +159,13 @@ function CajasExperience() {
         onPortfolio={() => setRoute('portfolio')} onCajas={goCajas} />}
 
       {route === 'portfolio' &&
-      <PortfolioHome disponible={disponible} cajas={cajas} totalCajas={totalCajas}
+      <PortfolioHome disponible={disponible} disponibleUSD={disponibleUSD} cajas={cajas} totalCajas={totalCajas} totalCajasUSD={totalCajasUSD}
         onInicio={() => setRoute('inicio')} onPesos={() => setRoute('pesos')} onCajas={goCajas} />}
 
       {route === 'cajas' &&
-      <CajasHome cajas={cajas.map(hydrate)} totalCajas={totalCajas} totalEarned={totalEarned}
+      <CajasHome cajas={cajas.map(hydrate)} totalCajas={totalCajas} totalEarned={totalEarned} totalCajasUSD={totalCajasUSD} totalEarnedUSD={totalEarnedUSD}
         onBack={() => setRoute('portfolio')} onCreate={() => setRoute('create')}
-        onOpenCaja={(id) => { setOpenId(id); setRoute('detail'); }}
+        onOpenCaja={openCofre}
         onSplash={() => splashSeen ? setRoute('create') : setSplashOpen(true)} />}
 
       <CajasSplash open={splashOpen} onClose={() => setSplashOpen(false)} onPrimary={() => { setSplashOpen(false); setRoute('create'); }} />
