@@ -117,13 +117,95 @@ const CajaHeroArt = ({ size = 200, animate = true }) =>
     <path d="M196 48l2.5 5.5 5.5 2.5-5.5 2.5-2.5 5.5-2.5-5.5-5.5-2.5 5.5-2.5Z" fill="#00AA18" />
   </svg>;
 
+// ── Arte: cofre bajo llave (candado + escudo) ───────────────────
+const CajaLockArt = ({ size = 200 }) =>
+<svg width={size} height={size * 0.86} viewBox="0 0 240 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="120" cy="106" r="92" fill="#EAF6C9" />
+    {/* cofre */}
+    <g style={{ filter: 'drop-shadow(0 10px 18px rgba(120,180,20,0.35))' }}>
+      <rect x="58" y="66" width="124" height="98" rx="18" fill="#CFFF2E" />
+      <rect x="58" y="66" width="124" height="26" rx="13" fill="#B7F53A" />
+      <rect x="94" y="75" width="52" height="8" rx="4" fill="#141414" />
+    </g>
+    {/* candado al frente */}
+    <g style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}>
+      <path d="M102 122v-11a18 18 0 0 1 36 0v11" stroke="#2B2A28" strokeWidth="9" fill="none" strokeLinecap="round" />
+      <rect x="92" y="120" width="56" height="44" rx="11" fill="#141414" />
+      <circle cx="120" cy="138" r="6" fill="#CFFF2E" />
+      <rect x="117" y="139" width="6" height="12" rx="3" fill="#CFFF2E" />
+    </g>
+    {/* escudo con check */}
+    <g style={{ filter: 'drop-shadow(0 5px 9px rgba(0,0,0,0.18))' }}>
+      <path d="M190 78l17 6.5v13c0 11-7.5 17.5-17 21.5-9.5-4-17-10.5-17-21.5v-13Z" fill="#925DEE" />
+      <path d="M183.5 95.5l5 5 9-10" stroke="#fff" strokeWidth="3.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+    {/* destellos */}
+    <path d="M44 68l3.5 8 8 3.5-8 3.5-3.5 8-3.5-8-8-3.5 8-3.5Z" fill="#96C400" />
+    <path d="M196 152l2.5 5.5 5.5 2.5-5.5 2.5-2.5 5.5-2.5-5.5-5.5-2.5 5.5-2.5Z" fill="#00AA18" />
+  </svg>;
+
+// ── Arte: cofre que rinde (flecha de crecimiento + moneda) ──────
+const CajaYieldArt = ({ size = 200 }) =>
+<svg width={size} height={size * 0.86} viewBox="0 0 240 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="120" cy="106" r="92" fill="#EAF6C9" />
+    {/* curva de crecimiento detrás */}
+    <polyline points="42,148 84,116 112,130 168,74" stroke="#00AA18" strokeWidth="6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    <path d="M158 68l20 2-6 19Z" fill="#00AA18" />
+    {/* moneda entrando */}
+    <g>
+      <circle cx="120" cy="64" r="16" fill="#141414" stroke="#CFFF2E" strokeWidth="2.5" />
+      <text x="120" y="70" textAnchor="middle" fill="#CFFF2E" style={{ font: '700 18px Inter' }}>$</text>
+    </g>
+    {/* cofre */}
+    <g style={{ filter: 'drop-shadow(0 10px 18px rgba(120,180,20,0.35))' }}>
+      <rect x="62" y="90" width="116" height="82" rx="18" fill="#CFFF2E" />
+      <rect x="62" y="90" width="116" height="24" rx="12" fill="#B7F53A" />
+      <rect x="96" y="98" width="48" height="7" rx="3.5" fill="#141414" />
+      <rect x="80" y="130" width="54" height="9" rx="4.5" fill="rgba(8,8,8,0.18)" />
+      <rect x="80" y="147" width="32" height="9" rx="4.5" fill="rgba(8,8,8,0.10)" />
+    </g>
+    {/* chip al instante */}
+    <g style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.16))' }}>
+      <rect x="142" y="150" width="76" height="26" rx="13" fill="#141414" />
+      <text x="180" y="167" textAnchor="middle" fill="#CFFF2E" style={{ font: '600 11px Inter' }}>al instante</text>
+    </g>
+    {/* destellos */}
+    <path d="M48 78l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#96C400" />
+  </svg>;
+
+// ── Slider de value prop del splash ─────────────────────────────
+// Cimientos, en orden: 1) orden (la necesidad), 2) seguridad (el
+// diferencial de largo plazo), 3) rinde y siempre es tuya (sin resignar).
+const SPLASH_SLIDES = [
+  {
+    id: 'orden',
+    title: 'Un cofre para cada objetivo',
+    body: 'Separá tu plata como en frascos: cada meta con su nombre, su emoji y su progreso, lejos de tus gastos de todos los días.',
+    chips: [['🏖️', 'Bariloche'], ['🛟', 'Emergencias'], ['🚗', 'El auto']]
+  },
+  {
+    id: 'seguro',
+    title: 'Bajo llave, de verdad',
+    body: 'La tarjeta y el QR no ven esta plata: no se gasta sin querer. Sumale un PIN para abrirlo y guardá montos grandes, tranquilo.',
+    chips: [['🔒', 'PIN opcional'], ['💳', 'Invisible para la tarjeta']]
+  },
+  {
+    id: 'rinde',
+    title: 'Rinde, y siempre es tuya',
+    body: 'Tu plata genera rendimientos todos los días mientras está guardada. Y la retirás al instante, sin plazos ni penalidades.',
+    chips: [['📈', '36,2% TNA en pesos'], ['💵', '4,6% TNA en dólares']]
+  }];
+
 // ── Splash FTE (full-screen, sube de abajo — mismo patrón que NfcSplash) ──
 const CajasSplash = ({ open, onClose, onPrimary }) => {
   const [mounted, setMounted] = useStateU(false);
   const [shown, setShown] = useStateU(false);
+  const [slide, setSlide] = useStateU(0);
+  const startX = React.useRef(null);
   useEffectU(() => {
     if (open) {
       setMounted(true);
+      setSlide(0);
       const t = setTimeout(() => setShown(true), 20);
       return () => clearTimeout(t);
     }
@@ -132,6 +214,9 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
     return () => clearTimeout(t);
   }, [open]);
   if (!mounted) return null;
+
+  const N = SPLASH_SLIDES.length;
+  const go = (d) => setSlide((s) => Math.min(N - 1, Math.max(0, s + d)));
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
@@ -141,22 +226,39 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
         transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .22s cubic-bezier(.2,.85,.25,1)',
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
-        {/* hero ilustrado */}
-        <div style={{ flexShrink: 0, display: 'flex', justifyContent: 'center', padding: '34px 0 6px' }}>
-          <CajaHeroArt size={232} animate={shown} />
+        {/* slider de value prop: swipe o tap para avanzar, dots para saltar */}
+        <div
+          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', userSelect: 'none', touchAction: 'pan-y', cursor: 'pointer' }}
+          onPointerDown={(e) => { startX.current = e.clientX; }}
+          onPointerUp={(e) => {
+            if (startX.current == null) return;
+            const dx = e.clientX - startX.current;
+            startX.current = null;
+            if (dx < -40) go(1);else
+            if (dx > 40) go(-1);else
+            setSlide((s) => (s + 1) % N);
+          }}>
+          <div style={{ display: 'flex', width: `${N * 100}%`, transform: `translateX(-${slide * (100 / N)}%)`, transition: 'transform .35s cubic-bezier(.25,.85,.3,1)' }}>
+            {SPLASH_SLIDES.map((sl) =>
+            <div key={sl.id} style={{ width: `${100 / N}%`, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '0 28px' }}>
+                {sl.id === 'orden' ? <CajaHeroArt size={212} animate={shown && slide === 0} /> :
+              sl.id === 'seguro' ? <CajaLockArt size={212} /> : <CajaYieldArt size={212} />}
+                <div style={{ font: '500 29px Geist', lineHeight: '35px', letterSpacing: '-0.01em', color: '#141414', marginTop: 14 }}>{sl.title}</div>
+                <div style={{ font: '400 14px Inter', lineHeight: '22px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 10, maxWidth: 306 }}>{sl.body}</div>
+                <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {sl.chips.map(([e, t]) =>
+                <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(8,8,9,0.05)', borderRadius: 999, padding: '6px 13px', font: '500 12px Inter', color: '#141414' }}>
+                      <span style={{ fontSize: 13, lineHeight: 1 }}>{e}</span> {t}
+                    </span>)}
+                </div>
+              </div>)}
+          </div>
         </div>
 
-        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 24, padding: '8px 16px 8px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'center', padding: '0 8px' }}>
-            <div style={{ font: '500 32px Geist', lineHeight: '38px', letterSpacing: '-0.01em', color: '#141414' }}>Ordená tu plata en cofres</div>
-            <div style={{ font: '400 14px Inter', lineHeight: '22px', letterSpacing: '-0.1px', color: '#141414' }}>Apartá pesos por objetivo y dejalos rindiendo, lejos de tus gastos de todos los días.</div>
-          </div>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 22, padding: '0 4px' }}>
-            <SplashFeature icon="earn" title="Rinden todos los días" tag={TNA_LABEL} sub="También los findes y feriados. Sin hacer nada." />
-            <SplashFeature icon="card-off" title="Apartada de verdad" sub="La tarjeta y el QR no la ven: lo que guardás acá no se gasta sin querer." />
-            <SplashFeature icon="money" title="Volvela a usar cuando quieras" sub="La podés retirar al instante." />
-          </div>
+        {/* dots */}
+        <div style={{ flexShrink: 0, display: 'flex', gap: 6, justifyContent: 'center', padding: '16px 0 0' }}>
+          {SPLASH_SLIDES.map((_, i) =>
+          <button key={i} onClick={() => setSlide(i)} style={{ width: i === slide ? 22 : 7, height: 7, borderRadius: 999, border: 0, padding: 0, cursor: 'pointer', background: i === slide ? '#141414' : 'rgba(8,8,9,0.15)', transition: 'width .25s, background .25s' }} />)}
         </div>
 
         <div style={{ flexShrink: 0, padding: '16px 16px calc(40px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -503,7 +605,7 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
 
 Object.assign(window, {
   TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, fmtC, fmtC2, fmtY, BigAmount,
-  CAJA_TEMPLATES, getTemplate, CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajasSplash, CajaRow,
+  CAJA_TEMPLATES, getTemplate, CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajaLockArt, CajaYieldArt, CajasSplash, CajaRow,
   NoGastoHint, Keypad, AmountScreen, buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp,
   ConfettiBurst, CajaSuccessArt
 });
