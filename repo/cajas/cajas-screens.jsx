@@ -320,10 +320,17 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
   const [emoji, setEmoji] = useStateX(null);
   const [goal, setGoal] = useStateX(null);
   const [currency, setCurrency] = useStateX('ARS');
+  const [armored, setArmored] = useStateX(false);
+  const [fundAmount, setFundAmount] = useStateX(0);
   const [sheetOpen, setSheetOpen] = useStateX(false);
 
   const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
   const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setSheetOpen(true); };
+  // blindado: antes de crear, elige su PIN; líquido: se crea directo
+  const finish = (amount) => {
+    if (armored) { setFundAmount(amount); setStep('pinset'); } else
+    onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, armored: false, pin: null, amount });
+  };
 
   // ── 1. el sueño: elegís el objetivo y lo confirmás en el sheet ──
   if (step === 'dream')
@@ -381,6 +388,18 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
               </button>)}
           </div>
 
+          {/* blindaje opcional: el usuario elige la fricción de su cofre */}
+          <button onClick={() => setArmored(!armored)} style={{ display: 'flex', alignItems: 'center', gap: 11, width: '100%', textAlign: 'left', marginTop: 10, background: '#fff', border: armored ? '2px solid #141414' : `1.5px solid ${LX.border}`, borderRadius: 14, padding: '10px 14px', cursor: 'pointer' }}>
+            <span style={{ fontSize: 19, lineHeight: 1 }}>🛡️</span>
+            <span style={{ flex: 1, minWidth: 0 }}>
+              <span style={{ display: 'block', font: '600 13px Inter', color: '#141414' }}>Cofre blindado</span>
+              <span style={{ display: 'block', font: '400 11px Inter', color: '#818181', marginTop: 1 }}>PIN para abrirlo y 24 h para retirar. Ideal para montos grandes.</span>
+            </span>
+            <span style={{ position: 'relative', width: 42, height: 25, borderRadius: 999, background: armored ? 'var(--c-lime-40)' : 'rgba(8,8,9,0.12)', transition: 'background .2s', flexShrink: 0 }}>
+              <span style={{ position: 'absolute', top: 2.5, left: armored ? 20 : 2.5, width: 20, height: 20, borderRadius: 999, background: '#fff', boxShadow: '0 1px 3px rgba(0,0,0,0.25)', transition: 'left .2s' }} />
+            </span>
+          </button>
+
           <div style={{ flex: 1 }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 24, paddingBottom: 6 }}>
             <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
@@ -408,6 +427,15 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       onClose={onCancel}
       onConfirm={(v) => { setGoal(v); setStep('fund'); }} />);
 
+  // ── 3.5 blindado: elegí el PIN antes de crear ──
+  if (step === 'pinset')
+  return (
+    <PinSetScreen
+      headerTitle={headerTitle}
+      caja={{ emoji, bg: tpl.bg }}
+      onBack={() => setStep('fund')}
+      onSet={(pin) => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, armored: true, pin, amount: fundAmount })} />);
+
   // ── 3. arrancar: cuánto ponés hoy (o creá el cofre vacío) ──
   return (
     <AmountScreen
@@ -419,10 +447,59 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       subtitle={goal ? `${name.trim()} · Objetivo ${fmtC(goal, currency)}` : name.trim()}
       max={currency === 'USD' ? availableUSD : available}
       cta="Poner a rendir"
-      secondary={{ label: 'Crear sin poner plata', onPress: () => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount: 0 }) }}
+      secondary={{ label: 'Crear sin poner plata', onPress: () => finish(0) }}
       onBack={() => setStep('goal')}
       onClose={onCancel}
-      onConfirm={(amount) => onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount })} />);
+      onConfirm={finish} />);
+}
+
+// ── Elegir el PIN del cofre blindado (dos fases: elegir + repetir) ──
+function PinSetScreen({ headerTitle, caja, onBack, onSet }) {
+  const [entered, setEntered] = useStateX('');
+  const [first, setFirst] = useStateX(null);
+  const [error, setError] = useStateX(false);
+  const entRef = React.useRef('');
+
+  const sync = (v) => { entRef.current = v; setEntered(v); };
+  const digit = (d) => {
+    if (entRef.current.length >= 4) return;
+    const next = entRef.current + String(d);
+    sync(next);
+    setError(false);
+    if (next.length === 4) {
+      if (first == null) setTimeout(() => { setFirst(next); sync(''); }, 240);
+      else if (next === first) setTimeout(() => onSet(next), 180);
+      else { setError(true); setTimeout(() => { setFirst(null); sync(''); }, 550); }
+    }
+  };
+
+  return (
+    <Screen bg="#F3F3F3" scroll={false}>
+      <StepHeader title={headerTitle} onBack={onBack} />
+      <div style={{ height: 'calc(100% - 52px)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '18px 16px 0' }}>
+        <div style={{ position: 'relative' }}>
+          <CajaBadge caja={caja} size={64} />
+          <span style={{ position: 'absolute', right: -6, bottom: -4, fontSize: 22 }}>🛡️</span>
+        </div>
+        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 16 }}>
+          {first == null ? 'Elegí el PIN de tu cofre' : 'Repetilo para confirmar'}
+        </div>
+        <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5, textAlign: 'center', maxWidth: 280 }}>
+          {first == null ? 'Te lo vamos a pedir cada vez que lo abras.' : 'Una vez más, así no hay dudas.'}
+        </div>
+
+        <div style={{ display: 'flex', gap: 14, marginTop: 26 }}>
+          {[0, 1, 2, 3].map((i) =>
+          <span key={i} style={{ width: 14, height: 14, borderRadius: 999, transition: 'background .15s', background: error ? 'var(--c-rose-40)' : i < entered.length ? '#141414' : 'rgba(8,8,9,0.12)' }} />)}
+        </div>
+        <div style={{ font: '500 13px Inter', color: 'var(--c-rose-40)', marginTop: 14, minHeight: 18 }}>{error ? 'No coinciden: arranquemos de nuevo.' : ''}</div>
+
+        <div style={{ flex: 1 }} />
+        <div style={{ width: '100%', paddingBottom: 34 }}>
+          <Keypad onDigit={digit} onBackspace={() => { sync(entRef.current.slice(0, -1)); setError(false); }} />
+        </div>
+      </div>
+    </Screen>);
 }
 
 // ── SUCCESS — la moneda entra a TU cofre + el monto cuenta + confetti ──
@@ -465,7 +542,7 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}</div>
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}{caja.armored && ' · 🛡️ Blindado'}</div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtC(caja.amount, ck)}</div>
@@ -530,7 +607,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
             {!caja.goal && <span style={{ font: '400 12px Inter', color: '#818181' }}>Cofre libre</span>}
             {caja.pin &&
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '500 12px Inter', color: '#818181', background: 'rgba(8,8,9,0.05)', padding: '3px 10px', borderRadius: 999 }}>
-              <LI name="lock" size={12} color="#818181" /> Protegido
+              <LI name="lock" size={12} color="#818181" /> {caja.armored ? 'Blindado' : 'Protegido'}
             </span>}
           </div>}
           <div style={{ display: 'flex', gap: 10, marginTop: 18, width: '100%' }}>
@@ -604,7 +681,16 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
         </div>
         </>}
 
-        <NoGastoHint source={cur.source.toLowerCase()} />
+        {caja.pendingOut > 0 &&
+        <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'var(--c-solar-5)', borderRadius: 18, padding: '13px 16px' }}>
+          <IconBadge icon="alert-time" bg="#FAE4CF" fg="var(--c-solar-50)" size={38} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ font: '600 13px Inter', color: '#141414' }}>{fmtC(caja.pendingOut, ck)} en camino</div>
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>Llega a tus {cur.source.toLowerCase()} mañana: los cofres blindados retiran en 24 h.</div>
+          </div>
+        </div>}
+
+        <NoGastoHint source={cur.source.toLowerCase()} armored={caja.armored} />
 
         {/* movimientos */}
         <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', margin: '6px 2px 0' }}>Movimientos</div>
@@ -687,7 +773,7 @@ function EditCajaSheet({ open, caja, onClose, onSave, onDelete }) {
       {caja.pin && !pinEditing ?
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1px solid ${LX.border}` }}>
           <LI name="lock" size={18} color="#141414" />
-          <span style={{ flex: 1, font: '500 14px Inter', color: '#141414' }}>PIN activado</span>
+          <span style={{ flex: 1, font: '500 14px Inter', color: '#141414' }}>{caja.armored ? 'Blindado · PIN + 24 h para retirar' : 'PIN activado'}</span>
           <button onClick={() => { setPinEditing(true); setPinDraft(''); }} style={{ border: 0, cursor: 'pointer', background: 'transparent', font: '600 13px Inter', color: 'var(--c-rose-40)' }}>Quitar</button>
         </div> :
       !pinEditing ?
@@ -762,4 +848,4 @@ function PinGate({ caja, onBack, onUnlock }) {
     </Screen>);
 }
 
-Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, EditCajaSheet, PinGate });
+Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, EditCajaSheet, PinGate, PinSetScreen });

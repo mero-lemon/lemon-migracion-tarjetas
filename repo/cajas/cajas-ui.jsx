@@ -186,8 +186,8 @@ const SPLASH_SLIDES = [
   {
     id: 'seguro',
     title: 'Bajo llave, de verdad',
-    body: 'La tarjeta y el QR no ven esta plata: no se gasta sin querer. Sumale un PIN para abrirlo y guardá montos grandes, tranquilo.',
-    chips: [['🔒', 'PIN opcional'], ['💳', 'Invisible para la tarjeta']]
+    body: 'La tarjeta y el QR no ven esta plata: no se gasta sin querer. Y si guardás mucho, blindalo: PIN para abrirlo y 24 h para retirar.',
+    chips: [['🛡️', 'Blindaje opcional'], ['💳', 'Invisible para la tarjeta']]
   },
   {
     id: 'rinde',
@@ -366,11 +366,13 @@ const CajaSuccessArt = ({ caja, size = 210 }) =>
   </svg>;
 
 // ── Aviso "apartada de verdad" (tarjeta/QR no la ven) ───────────
-const NoGastoHint = ({ source = 'pesos digitales' }) =>
+const NoGastoHint = ({ source = 'pesos digitales', armored = false }) =>
 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 6px' }}>
     <LI name="card-off" size={16} color="#818181" style={{ marginTop: 2, flexShrink: 0 }} />
     <span style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.45 }}>
-      La tarjeta y el QR no ven esta plata. Para gastarla, retirala: vuelve a tus {source} al instante, sin penalidad.
+      {armored ?
+    <>La tarjeta y el QR no ven esta plata. Es un cofre blindado: los retiros llegan a tus {source} en 24 h.</> :
+    <>La tarjeta y el QR no ven esta plata. Para gastarla, retirala: vuelve a tus {source} al instante, sin penalidad.</>}
     </span>
   </div>;
 
@@ -564,7 +566,11 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '500 13px Inter', color: 'var(--c-rose-40)' }}>
                   <LI name="feedback-warning" size={16} color="var(--c-rose-40)" /> Te pasás de lo {withdraw ? 'que hay en el cofre' : 'disponible'}
                 </div> :
-              !withdraw &&
+              withdraw ?
+              hint &&
+              <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-solar-5)', borderRadius: 999, padding: '6px 14px', font: '500 12px Inter', color: 'var(--c-solar-60)', maxWidth: 320 }}>
+                  <LI name="alert-time" size={14} color="var(--c-solar-50)" /> {hint}
+                </div> :
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-lime-10)', borderRadius: 999, padding: '6px 14px', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>
                   <LI name="earn" size={15} color="var(--c-lime-60)" />
                   {value > 0 ? `Rinde ≈ +${fmtY(monthlyYield(value, cur.tna), currency)} por mes` : `Rinde ${cur.label}, todos los días`}

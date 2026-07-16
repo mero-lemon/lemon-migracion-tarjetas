@@ -41,9 +41,10 @@ function CajasExperience() {
     }
   }, [route]);
 
-  const createCaja = ({ tplId, name, emoji, goal, currency, amount }) => {
+  const createCaja = ({ tplId, name, emoji, goal, currency, armored, pin, amount }) => {
     const nueva = {
-      id: 'c' + Date.now(), tplId, name, emoji, goal, currency, amount, earned: 0, pin: null,
+      id: 'c' + Date.now(), tplId, name, emoji, goal, currency, amount, earned: 0,
+      armored: !!armored, pin: pin || null, pendingOut: 0,
       ageDays: 0, events: [{ day: 0, amount }],
       movs: [{ icon: 'vault', title: 'Creaste el cofre', date: 'Hoy', amount: fmtC(amount, currency), sign: '+' }]
     };
@@ -64,25 +65,29 @@ function CajasExperience() {
     setRoute('detail');
   };
 
-  // retira del aporte primero; si no alcanza, el resto sale del rendimiento
+  // retira del aporte primero; si no alcanza, el resto sale del rendimiento.
+  // cofre blindado: el retiro queda programado 24 h (no acredita al instante).
   const withdrawFromCaja = (id, v) => {
     const caja = cajas.find((c) => c.id === id);
+    const armored = caja.armored;
     setCajas((cs) => cs.map((c) => {
       if (c.id !== id) return c;
       const fromAmount = Math.min(c.amount, v);
       const fromEarned = v - fromAmount;
       return {
         ...c, amount: c.amount - fromAmount, earned: c.earned - fromEarned,
+        pendingOut: (c.pendingOut || 0) + (armored ? v : 0),
         events: [...c.events, { day: c.ageDays || 0, amount: -fromAmount }],
-        movs: [{ icon: 'returns', title: `Retiraste a ${curOf(c).source}`, date: 'Hoy', amount: fmtC(v, c.currency || 'ARS'), sign: '−' }, ...c.movs]
+        movs: [{ icon: armored ? 'alert-time' : 'returns', title: armored ? 'Retiro programado' : `Retiraste a ${curOf(c).source}`, date: armored ? 'Llega mañana' : 'Hoy', amount: fmtC(v, c.currency || 'ARS'), sign: '−' }, ...c.movs]
       };
     }));
-    shiftBalance(caja.currency || 'ARS', v);
+    if (!armored) shiftBalance(caja.currency || 'ARS', v);
     setRoute('detail');
   };
 
   // Editar: renombrar, cambiar emoji, convertir libre ↔ objetivo, PIN
   const updateCaja = (id, patch) => {
+    if (patch.pin === null) patch = { ...patch, armored: false };
     setCajas((cs) => cs.map((c) => c.id === id ? { ...c, ...patch } : c));
   };
 
@@ -142,7 +147,8 @@ function CajasExperience() {
       title="¿Cuánto retirás?"
       subtitle={open.name}
       max={cajaTotal(open)}
-      cta="Retirar al instante"
+      cta={open.armored ? 'Programar retiro' : 'Retirar al instante'}
+      hint={open.armored ? 'Cofre blindado: tu plata llega en 24 h.' : undefined}
       quick="Retirar todo"
       onBack={() => setRoute('detail')}
       onClose={() => setRoute('detail')}
