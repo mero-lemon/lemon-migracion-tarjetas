@@ -173,24 +173,24 @@ const CajaYieldArt = ({ size = 200 }) =>
     <path d="M48 78l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#96C400" />
   </svg>;
 
-// ── Slider de value prop del splash ─────────────────────────────
+// ── Value props del splash (acordeón) ───────────────────────────
 // Cimientos, en orden: 1) orden (la necesidad), 2) seguridad (el
 // diferencial de largo plazo), 3) rinde y siempre es tuya (sin resignar).
 const SPLASH_SLIDES = [
   {
-    id: 'orden',
+    id: 'orden', icon: '🎯', iconBg: 'var(--c-lime-10)',
     title: 'Un cofre para cada objetivo',
     body: 'Separá tu plata como en frascos: cada meta con su nombre, su emoji y su progreso, lejos de tus gastos de todos los días.',
     chips: [['🏖️', 'Bariloche'], ['🛟', 'Emergencias'], ['🚗', 'El auto']]
   },
   {
-    id: 'seguro',
+    id: 'seguro', icon: '🛡️', iconBg: 'var(--c-nebula-5)',
     title: 'Bajo llave, de verdad',
     body: 'La tarjeta y el QR no ven esta plata: no se gasta sin querer. Y si guardás mucho, blindalo: PIN para abrirlo y 24 h para retirar.',
     chips: [['🛡️', 'Blindaje opcional'], ['💳', 'Invisible para la tarjeta']]
   },
   {
-    id: 'rinde',
+    id: 'rinde', icon: '📈', iconBg: 'var(--c-lemon-5)',
     title: 'Rinde, y siempre es tuya',
     body: 'Tu plata genera rendimientos todos los días mientras está guardada. Y la retirás al instante, sin plazos ni penalidades.',
     chips: [['📈', '36,2% TNA en pesos'], ['💵', '4,6% TNA en dólares']]
@@ -200,23 +200,21 @@ const SPLASH_SLIDES = [
 const CajasSplash = ({ open, onClose, onPrimary }) => {
   const [mounted, setMounted] = useStateU(false);
   const [shown, setShown] = useStateU(false);
-  const [slide, setSlide] = useStateU(0);
-  const startX = React.useRef(null);
+  const [openId, setOpenId] = useStateU(null);
   useEffectU(() => {
     if (open) {
       setMounted(true);
-      setSlide(0);
+      setOpenId(null);
       const t = setTimeout(() => setShown(true), 20);
-      return () => clearTimeout(t);
+      // el primero se abre solo: enseña la interacción sin explicarla
+      const t2 = setTimeout(() => setOpenId((v) => v == null ? 'orden' : v), 620);
+      return () => { clearTimeout(t); clearTimeout(t2); };
     }
     setShown(false);
     const t = setTimeout(() => setMounted(false), 260);
     return () => clearTimeout(t);
   }, [open]);
   if (!mounted) return null;
-
-  const N = SPLASH_SLIDES.length;
-  const go = (d) => setSlide((s) => Math.min(N - 1, Math.max(0, s + d)));
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
@@ -226,39 +224,44 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
         transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .22s cubic-bezier(.2,.85,.25,1)',
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
-        {/* slider de value prop: swipe o tap para avanzar, dots para saltar */}
-        <div
-          style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', overflow: 'hidden', userSelect: 'none', touchAction: 'pan-y', cursor: 'pointer' }}
-          onPointerDown={(e) => { startX.current = e.clientX; }}
-          onPointerUp={(e) => {
-            if (startX.current == null) return;
-            const dx = e.clientX - startX.current;
-            startX.current = null;
-            if (dx < -40) go(1);else
-            if (dx > 40) go(-1);else
-            setSlide((s) => (s + 1) % N);
-          }}>
-          <div style={{ display: 'flex', width: `${N * 100}%`, transform: `translateX(-${slide * (100 / N)}%)`, transition: 'transform .35s cubic-bezier(.25,.85,.3,1)' }}>
-            {SPLASH_SLIDES.map((sl) =>
-            <div key={sl.id} style={{ width: `${100 / N}%`, flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', padding: '0 28px' }}>
-                {sl.id === 'orden' ? <CajaHeroArt size={212} animate={shown && slide === 0} /> :
-              sl.id === 'seguro' ? <CajaLockArt size={212} /> : <CajaYieldArt size={212} />}
-                <div style={{ font: '500 29px Geist', lineHeight: '35px', letterSpacing: '-0.01em', color: '#141414', marginTop: 14 }}>{sl.title}</div>
-                <div style={{ font: '400 14px Inter', lineHeight: '22px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 10, maxWidth: 306 }}>{sl.body}</div>
-                <div style={{ display: 'flex', gap: 8, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
-                  {sl.chips.map(([e, t]) =>
-                <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'rgba(8,8,9,0.05)', borderRadius: 999, padding: '6px 13px', font: '500 12px Inter', color: '#141414' }}>
-                      <span style={{ fontSize: 13, lineHeight: 1 }}>{e}</span> {t}
-                    </span>)}
-                </div>
-              </div>)}
-          </div>
+        {/* título + acordeón: tocás cada propuesta y se despliega */}
+        <div style={{ flexShrink: 0, padding: '24px 24px 2px' }}>
+          <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Nuevo en Lemon</div>
+          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414', marginTop: 8 }}>Ordená tu plata en cofres</div>
         </div>
 
-        {/* dots */}
-        <div style={{ flexShrink: 0, display: 'flex', gap: 6, justifyContent: 'center', padding: '16px 0 0' }}>
-          {SPLASH_SLIDES.map((_, i) =>
-          <button key={i} onClick={() => setSlide(i)} style={{ width: i === slide ? 22 : 7, height: 7, borderRadius: 999, border: 0, padding: 0, cursor: 'pointer', background: i === slide ? '#141414' : 'rgba(8,8,9,0.15)', transition: 'width .25s, background .25s' }} />)}
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '16px 16px 4px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {SPLASH_SLIDES.map((sl) => {
+            const abierto = openId === sl.id;
+            return (
+              <button key={sl.id} onClick={() => setOpenId(abierto ? null : sl.id)} style={{ textAlign: 'left', width: '100%', background: '#FAFAFA', border: abierto ? '2px solid #141414' : '2px solid transparent', borderRadius: 20, padding: '14px 16px', cursor: 'pointer', transition: 'border-color .25s' }}>
+                {/* fila del título, siempre visible */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ width: 40, height: 40, borderRadius: 999, background: sl.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, lineHeight: 1, flexShrink: 0 }}>{sl.icon}</span>
+                  <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{sl.title}</span>
+                  <LI name="arrow-expand-more" size={18} color="#818181" style={{ flexShrink: 0, transform: abierto ? 'rotate(180deg)' : 'none', transition: 'transform .3s' }} />
+                </div>
+
+                {/* contenido desplegable */}
+                <div style={{ display: 'grid', gridTemplateRows: abierto ? '1fr' : '0fr', transition: 'grid-template-rows .38s cubic-bezier(.25,.85,.3,1)' }}>
+                  <div style={{ minHeight: 0, overflow: 'hidden' }}>
+                    <div style={{ paddingTop: 12, opacity: abierto ? 1 : 0, transition: 'opacity .25s .1s' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        {sl.id === 'orden' ? <CajaHeroArt size={158} animate={abierto} /> :
+                        sl.id === 'seguro' ? <CajaLockArt size={158} /> : <CajaYieldArt size={158} />}
+                      </div>
+                      <div style={{ font: '400 13px Inter', lineHeight: '20px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 8 }}>{sl.body}</div>
+                      <div style={{ display: 'flex', gap: 7, marginTop: 12, flexWrap: 'wrap' }}>
+                        {sl.chips.map(([e, t]) =>
+                        <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff', border: `1px solid ${LX.border}`, borderRadius: 999, padding: '5px 12px', font: '500 12px Inter', color: '#141414' }}>
+                            <span style={{ fontSize: 13, lineHeight: 1 }}>{e}</span> {t}
+                          </span>)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>);
+          })}
         </div>
 
         <div style={{ flexShrink: 0, padding: '16px 16px calc(40px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 16 }}>
