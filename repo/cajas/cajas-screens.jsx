@@ -155,11 +155,7 @@ function PortfolioHome({ disponible, disponibleUSD, cajas, totalCajas, totalCaja
               {cajas.length === 0 &&
               <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 10px Inter', letterSpacing: '0.03em', padding: '2px 7px', borderRadius: 101 }}>NUEVO</span>}
             </div>
-            <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-              <span style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414' }}>{fmtP2(totalCajas)}</span>
-              {totalCajasUSD > 0 &&
-              <span style={{ font: '500 13px Geist', letterSpacing: '-0.01em', color: '#818181' }}>+ {fmtC2(totalCajasUSD, 'USD')}</span>}
-            </div>
+            <div style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414', marginTop: 4 }}>{fmtP2(totalCajas)}</div>
           </div>
           <span style={{ background: 'var(--c-lime-40)', color: 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101, flexShrink: 0 }}>{TNA_LABEL.replace(' TNA', '')}</span>
           <LI name="arrow-foward" size={17} color="#B4B4B4" style={{ flexShrink: 0 }} />
@@ -264,13 +260,30 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
           <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, padding: '18px 20px', background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)', boxShadow: '0 12px 26px rgba(120,200,20,0.3)' }}>
             <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
             <div style={{ position: 'relative' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.7)' }}>Apartado en cofres</span>
-                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{TNA_LABEL}</span>
-              </div>
-              <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 5 }}>{fmtP(totalCajas)}</div>
-              {totalCajasUSD > 0 &&
-              <div style={{ font: '600 13px Inter', color: 'rgba(11,26,0,0.75)', marginTop: 3 }}>+ {fmtC2(totalCajasUSD, 'USD')} en dólares · {CURRENCIES.USD.label}</div>}
+              {(() => {
+                const hasUSD = cajas.some((c) => (c.currency || 'ARS') === 'USD');
+                const hasARS = cajas.some((c) => (c.currency || 'ARS') === 'ARS');
+                const both = hasARS && hasUSD;
+                const single = hasUSD && !hasARS ? 'USD' : 'ARS';
+                return (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                      <span style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.7)' }}>Apartado en cofres</span>
+                      {!both &&
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{CURRENCIES[single].label}</span>}
+                    </div>
+                    {both ?
+                    /* pesos y dólares, con la misma jerarquía */
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', marginTop: 10 }}>
+                      {[['ARS', totalCajas], ['USD', totalCajasUSD]].map(([k, v], i) =>
+                      <div key={k} style={{ padding: i === 0 ? '0 14px 0 0' : '0 0 0 14px', borderLeft: i === 1 ? '1px solid rgba(11,26,0,0.16)' : 'none' }}>
+                          <div style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.65)' }}>{k === 'ARS' ? 'Pesos' : 'Dólares'} · {CURRENCIES[k].short} TNA</div>
+                          <div style={{ font: '500 26px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 2 }}>{fmtC(v, k)}</div>
+                        </div>)}
+                    </div> :
+                    <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 5 }}>{fmtC(single === 'USD' ? totalCajasUSD : totalCajas, single)}</div>}
+                  </>);
+              })()}
 
               {/* lo que rindieron tus cofres, en total */}
               <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(11,26,0,0.10)', borderRadius: 16, padding: '10px 14px', marginTop: 12 }}>
