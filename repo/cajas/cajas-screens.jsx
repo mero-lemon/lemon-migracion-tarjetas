@@ -256,19 +256,19 @@ function CajasHome({ cajas, totalCajas, totalEarned, onBack, onCreate, onOpenCaj
           </button> :
 
         <>
-          {/* resumen: total apartado + rendimiento */}
-          <div style={{ position: 'relative', overflow: 'hidden', background: '#141414', borderRadius: 24, padding: '18px 20px' }}>
-            <div style={{ position: 'absolute', top: -40, right: -40, width: 170, height: 170, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.22), transparent 70%)' }} />
+          {/* resumen: total apartado + rendimiento — mismo lenguaje que el banner NUEVO */}
+          <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, padding: '18px 20px', background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)', boxShadow: '0 12px 26px rgba(120,200,20,0.3)' }}>
+            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
             <div style={{ position: 'relative' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ font: '500 13px Inter', color: 'rgba(255,255,255,0.6)' }}>Apartado en cofres</span>
-                <TnaChip compact label={TNA_LABEL} />
+                <span style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.7)' }}>Apartado en cofres</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{TNA_LABEL}</span>
               </div>
-              <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#fff', marginTop: 5 }}>{fmtP(totalCajas)}</div>
+              <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 5 }}>{fmtP(totalCajas)}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7 }}>
-                <LI name="earn" size={14} color="var(--c-lime-40)" />
-                <span style={{ font: '500 13px Inter', color: 'var(--c-lime-40)' }}>+{fmtP2(totalEarned)} generados</span>
-                <span style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.45)' }}>· rinde a diario</span>
+                <LI name="earn" size={14} color="#0b1a00" />
+                <span style={{ font: '600 13px Inter', color: '#0b1a00' }}>+{fmtP2(totalEarned)} generados</span>
+                <span style={{ font: '400 12px Inter', color: 'rgba(11,26,0,0.55)' }}>· rinde a diario</span>
               </div>
             </div>
           </div>
