@@ -22,6 +22,8 @@ const fmtP = (n) => '$' + Math.round(n).toLocaleString('es-AR');
 const fmtP2 = (n) => '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const fmtC = (n, cur = 'ARS') => CURRENCIES[cur].prefix + Math.round(n).toLocaleString('es-AR');
 const fmtC2 = (n, cur = 'ARS') => CURRENCIES[cur].prefix + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+// rendimientos: en dólares la tasa es baja y los montos chicos → siempre con centavos
+const fmtY = (n, cur = 'ARS') => cur === 'USD' ? fmtC2(n, cur) : fmtC(n, cur);
 
 // saldo grande estilo app: entero en Geist 44 + centavos en 24 gris
 const BigAmount = ({ value, prefix = '$', size = 44, color = '#141414' }) => {
@@ -463,7 +465,7 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
               !withdraw &&
               <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-lime-10)', borderRadius: 999, padding: '6px 14px', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>
                   <LI name="earn" size={15} color="var(--c-lime-60)" />
-                  {value > 0 ? `Rinde ≈ +${fmtC(monthlyYield(value, cur.tna), currency)} por mes` : `Rinde ${cur.label}, todos los días`}
+                  {value > 0 ? `Rinde ≈ +${fmtY(monthlyYield(value, cur.tna), currency)} por mes` : `Rinde ${cur.label}, todos los días`}
                 </div>}
             </>}
           </div>
@@ -500,7 +502,7 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
 }
 
 Object.assign(window, {
-  TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, fmtC, fmtC2, BigAmount,
+  TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, fmtC, fmtC2, fmtY, BigAmount,
   CAJA_TEMPLATES, getTemplate, CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajasSplash, CajaRow,
   NoGastoHint, Keypad, AmountScreen, buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp,
   ConfettiBurst, CajaSuccessArt

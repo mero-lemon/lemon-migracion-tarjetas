@@ -480,7 +480,7 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <span style={{ font: '400 13px Inter', color: LX.text2, lineHeight: 1.4 }}>
               {empty ?
               <>Está vacío por ahora: agregale plata desde el cofre cuando quieras.</> :
-              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtC(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin que hagas nada.</>}
+              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtY(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin que hagas nada.</>}
             </span>
           </div>
         </div>
@@ -557,7 +557,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
             <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>generados desde que lo creaste</div>
           </> :
           <>
-            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>≈ +{fmtC(daily, ck)} hoy</div>
+            <div style={{ font: '500 30px Geist', letterSpacing: '-0.02em', color: 'var(--c-lemon-50)', marginTop: 12 }}>≈ +{fmtY(daily, ck)} hoy</div>
             <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>tu primer rendimiento se acredita hoy mismo</div>
           </>}
 
@@ -566,7 +566,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
             <IconBadge icon="earn" bg="var(--c-lime-40)" fg="#141414" size={38} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '400 12px Inter', color: 'var(--c-lime-70)' }}>Ritmo mensual</div>
-              <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 1 }}>≈ +{fmtC(monthly, ck)}</div>
+              <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 1 }}>≈ +{fmtY(monthly, ck)}</div>
             </div>
           </div>
         </div> :
@@ -595,7 +595,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete }) {
             <TnaChip compact label={cur.label} />
           </div>
           <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-            {[['Generado hasta ahora', `+${fmtC2(caja.earned, ck)}`], ['Próximos 30 días', `≈ +${fmtC(daily * 30, ck)}`]].map(([k, v]) =>
+            {[['Generado hasta ahora', `+${fmtC2(caja.earned, ck)}`], ['Próximos 30 días', `≈ +${fmtY(daily * 30, ck)}`]].map(([k, v]) =>
             <div key={k} style={{ flex: 1, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '10px 12px' }}>
                 <div style={{ font: '400 11px Inter', color: '#818181' }}>{k}</div>
                 <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)', marginTop: 2 }}>{v}</div>
