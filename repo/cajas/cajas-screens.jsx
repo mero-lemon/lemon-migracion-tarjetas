@@ -326,10 +326,10 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
       {/* sube desde abajo: tu cofre armado, para confirmar o retocar */}
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
         {tpl &&
-        <div style={{ textAlign: 'center', padding: '2px 2px 0' }}>
+        <div style={{ textAlign: 'center', padding: '6px 2px 0', minHeight: 560, display: 'flex', flexDirection: 'column' }}>
           <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
-          <div key={tpl.id} style={{ display: 'flex', justifyContent: 'center', marginTop: 12, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
-            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={76} />
+          <div key={tpl.id} style={{ display: 'flex', justifyContent: 'center', marginTop: 22, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
+            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={104} />
           </div>
           <input
             value={name}
@@ -337,15 +337,16 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
             maxLength={28}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre de tu cofre"
-            style={{ width: '100%', marginTop: 14, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 24px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
-          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 4 }}>Tocá el nombre o el emoji para cambiarlos.</div>
+            style={{ width: '100%', marginTop: 20, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
+          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>Tocá el nombre o el emoji para cambiarlos.</div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 6, marginTop: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 7, marginTop: 24 }}>
             {CAJA_EMOJIS.map((e) =>
-            <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 17, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
+            <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 18 }}>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 24, paddingBottom: 6 }}>
             <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
             <Btn variant="ghost" onClick={() => setSheetOpen(false)}>Elegir otro objetivo</Btn>
           </div>
@@ -360,7 +361,8 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
       key="goal"
       goalMode
       headerTitle={headerTitle}
-      title={<><span style={{ display: 'inline-flex' }}><CajaBadge caja={{ emoji, bg: tpl.bg }} size={34} /></span>¿Cuánto necesitás para {name.trim()}?</>}
+      badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
+      title={`¿Cuánto necesitás para ${name.trim()}?`}
       max={999999999}
       cta="Definir objetivo"
       hint="Es tu meta, no un límite: la ajustás cuando quieras desde Editar."
@@ -374,7 +376,9 @@ function CreateCajaFlow({ available, isFirst, onCancel, onDone }) {
     <AmountScreen
       key="fund"
       headerTitle={headerTitle}
-      title={<><span style={{ display: 'inline-flex' }}><CajaBadge caja={{ emoji, bg: tpl.bg }} size={34} /></span>¿Con cuánto arrancás?</>}
+      badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
+      title="¿Con cuánto arrancás?"
+      subtitle={goal ? `${name.trim()} · Objetivo ${fmtP(goal)}` : name.trim()}
       max={available}
       cta="Poner a rendir"
       onBack={() => setStep('goal')}

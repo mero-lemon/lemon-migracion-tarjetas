@@ -91,7 +91,9 @@ function CajasExperience() {
     <AmountScreen
       key="add"
       headerTitle={open.name}
-      title={<><span style={{ display: 'inline-flex' }}><CajaBadge caja={open} size={34} /></span>¿Cuánto le agregás?</>}
+      badge={<CajaBadge caja={open} size={46} />}
+      title="¿Cuánto le agregás?"
+      subtitle={open.name}
       max={disponible}
       cta="Agregar al cofre"
       onBack={() => setRoute('detail')}
@@ -104,7 +106,9 @@ function CajasExperience() {
       key="withdraw"
       withdraw
       headerTitle={open.name}
-      title={<><span style={{ display: 'inline-flex' }}><CajaBadge caja={open} size={34} /></span>¿Cuánto retirás?</>}
+      badge={<CajaBadge caja={open} size={46} />}
+      title="¿Cuánto retirás?"
+      subtitle={open.name}
       max={cajaTotal(open)}
       cta="Retirar al instante"
       onBack={() => setRoute('detail')}

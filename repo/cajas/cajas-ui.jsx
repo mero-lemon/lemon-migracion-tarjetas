@@ -385,7 +385,7 @@ const Keypad = ({ onDigit, onBackspace }) => {
 // max = tope disponible. goalMode: sin origen de fondos ni tope real
 // (define una meta, no mueve plata); hint = leyenda bajo el monto;
 // secondary = { label, onPress } botón fantasma bajo el CTA.
-function AmountScreen({ headerTitle, title, sourceLabel = 'Pesos digitales', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary }) {
+function AmountScreen({ headerTitle, title, subtitle, sourceLabel = 'Pesos digitales', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary }) {
   const [value, setValue] = useStateU(0);
   const [assetSheet, setAssetSheet] = useStateU(false);
   const over = value > max;
@@ -405,8 +405,13 @@ function AmountScreen({ headerTitle, title, sourceLabel = 'Pesos digitales', max
         <StepHeader title={headerTitle} onBack={onBack} onClose={onClose} />
         <div style={{ height: 'calc(100% - 52px)', display: 'flex', flexDirection: 'column', padding: '4px 16px 0' }}>
 
-          <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: LX.text1, display: 'flex', alignItems: 'center', gap: 10 }}>
-            {badge}{title}
+          {/* cabecera centrada: el cofre arriba, la pregunta abajo */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 12, padding: '4px 8px 0' }}>
+            {badge}
+            <div>
+              <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.25 }}>{title}</div>
+              {subtitle && <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5 }}>{subtitle}</div>}
+            </div>
           </div>
 
           {/* monto grande centrado */}
