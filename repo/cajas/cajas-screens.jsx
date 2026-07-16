@@ -269,16 +269,20 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
                 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{TNA_LABEL}</span>
               </div>
               <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 5 }}>{fmtP(totalCajas)}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 7 }}>
-                <LI name="earn" size={14} color="#0b1a00" />
-                <span style={{ font: '600 13px Inter', color: '#0b1a00' }}>+{fmtP2(totalEarned)} generados</span>
-                <span style={{ font: '400 12px Inter', color: 'rgba(11,26,0,0.55)' }}>· rinde a diario</span>
-              </div>
               {totalCajasUSD > 0 &&
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 8, paddingTop: 8, borderTop: '1px solid rgba(11,26,0,0.12)' }}>
-                <span style={{ font: '600 13px Inter', color: '#0b1a00' }}>+ {fmtC2(totalCajasUSD, 'USD')} en dólares</span>
-                <span style={{ font: '400 12px Inter', color: 'rgba(11,26,0,0.55)' }}>· +{fmtC2(totalEarnedUSD, 'USD')} generados · {CURRENCIES.USD.label}</span>
-              </div>}
+              <div style={{ font: '600 13px Inter', color: 'rgba(11,26,0,0.75)', marginTop: 3 }}>+ {fmtC2(totalCajasUSD, 'USD')} en dólares · {CURRENCIES.USD.label}</div>}
+
+              {/* lo que rindieron tus cofres, en total */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(11,26,0,0.10)', borderRadius: 16, padding: '10px 14px', marginTop: 12 }}>
+                <LI name="earn" size={19} color="#0b1a00" />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.6)' }}>Rendimiento total generado</div>
+                  <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: '#0b1a00', marginTop: 1 }}>
+                    +{fmtP2(totalEarned)}{totalEarnedUSD > 0 && <span style={{ font: '500 14px Geist' }}> + {fmtC2(totalEarnedUSD, 'USD')}</span>}
+                  </div>
+                </div>
+                <span style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.55)', flexShrink: 0 }}>rinde a diario</span>
+              </div>
             </div>
           </div>
 
