@@ -225,9 +225,8 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
         {/* título + acordeón: tocás cada propuesta y se despliega */}
-        <div style={{ flexShrink: 0, padding: '24px 24px 2px' }}>
-          <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Nuevo en Lemon</div>
-          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414', marginTop: 8 }}>Ordená tu plata en cofres</div>
+        <div style={{ flexShrink: 0, padding: '28px 24px 2px' }}>
+          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414' }}>Ordená tu plata en cofres</div>
         </div>
 
         <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '16px 16px 4px', display: 'flex', flexDirection: 'column', gap: 10 }}>
