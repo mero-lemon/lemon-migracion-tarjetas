@@ -507,9 +507,6 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <CountUp to={caja.amount} render={(v) =>
             <div style={{ font: '500 42px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums' }}>{fmtC(v, ck)}</div>} />
             <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, marginTop: 6 }}>ya están rindiendo en {caja.name}</div>
-            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.5 }}>
-              Desde hoy, todos los días, con {cur.label}.
-            </div>
           </>}
         </div>
 
