@@ -119,7 +119,12 @@ function CajasExperience() {
 
   if (route === 'detail' && open)
   return <CajaDetail caja={open} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
-    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} />;
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onArm={() => setRoute('armpin')} />;
+
+  // blindar un cofre existente: elegís el PIN y queda blindado
+  if (route === 'armpin' && open)
+  return <PinSetScreen headerTitle={open.name} caja={open} onBack={() => setRoute('detail')}
+    onSet={(pin) => { updateCaja(open.id, { pin, armored: true }); setRoute('detail'); }} />;
 
   if (route === 'add' && open)
   return (
