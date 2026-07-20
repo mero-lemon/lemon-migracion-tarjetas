@@ -248,6 +248,35 @@ const GRhythmChart = ({ buckets, avgBucket }) => {
     </div>);
 };
 
+// ── La carrera del mes: tu plata corre contra los días ──────────
+// Dos carriles animados: el TIEMPO (día N de M) y tu PLATA (cuánto de
+// tu mes típico consumiste). Si la plata corre atrás del tiempo, vas
+// ganando. Es la verdad fría, presentada como partida en curso.
+const GRaceTrack = ({ timePct, moneyPct, timeLabel, moneyLabel, moneyFill, delay = 400 }) => {
+  const [on, setOn] = useStateG(false);
+  useEffectG(() => { const t = setTimeout(() => setOn(true), delay); return () => clearTimeout(t); }, []);
+  const Lane = ({ emoji, name, pct, fill, label, dur }) => {
+    const w = Math.max(5, Math.min(100, pct * 100));
+    return (
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
+          <span style={{ font: '500 12px Inter', color: '#5E5E5E' }}>{name}</span>
+          <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{label}</span>
+        </div>
+        <div style={{ position: 'relative', height: 26, borderRadius: 999, background: 'rgba(8,8,9,0.05)' }}>
+          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: on ? `${w}%` : '5%', borderRadius: 999, background: fill, transition: `width ${dur}s cubic-bezier(.3,.85,.3,1)` }} />
+          <span style={{ position: 'absolute', top: '50%', left: on ? `${w}%` : '5%', transform: 'translate(-85%, -50%)', fontSize: 15, lineHeight: 1, transition: `left ${dur}s cubic-bezier(.3,.85,.3,1)`, filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))' }}>{emoji}</span>
+          <span style={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', fontSize: 12, lineHeight: 1, opacity: 0.55 }}>🏁</span>
+        </div>
+      </div>);
+  };
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <Lane emoji="📅" name="El mes" pct={timePct} fill="linear-gradient(90deg, #3d3d3d, #141414)" label={timeLabel} dur={0.9} />
+      <Lane emoji="💸" name="Tu plata" pct={moneyPct} fill={moneyFill} label={moneyLabel} dur={1.5} />
+    </div>);
+};
+
 // ── Insight automático ──────────────────────────────────────────
 const GInsight = ({ insight, prevName }) => {
   if (!insight) return null;
@@ -373,6 +402,6 @@ const GToast = ({ text }) =>
 
 Object.assign(window, {
   gFmt, gFmt2, gFmtCompact, gBarLabel, gHora, G_METHODS, GScreen, GCountUp, GReveal, GBigAmount, GSegControl, GPeriodNav,
-  GCompareChip, GMiniDelta, GCatIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart,
+  GCompareChip, GMiniDelta, GCatIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack,
   GInsight, GMovRow, GMovList, groupByDay, gDayLabel, GSearchInput, GEmptyState, GSkel, GSkeletonHome, GToast
 });

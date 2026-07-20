@@ -337,15 +337,19 @@ const ExpensesRepository = {
     // medido sobre el mismo tramo transcurrido. Es la base del veredicto:
     // compararte con vos mismo tranquiliza más que compararte con un mes puntual.
     const samples = [];
+    const fullSamples = [];
     let cur = p;
     for (let i = 0; i < 3; i++) {
       const prevP = periodInfo(p.unit, cur.prevAnchor);
       if (prevP.start < G_DATA_START) break;
       const end = addDays(prevP.start, Math.min(p.elapsedDays, prevP.totalDays));
       samples.push(G_ALL.filter((m) => m.date >= prevP.start && m.date < end).reduce((a, m) => a + m.amount, 0));
+      // el período anterior completo — la "meta" de la carrera del mes
+      fullSamples.push(G_ALL.filter((m) => m.date >= prevP.start && m.date < prevP.end).reduce((a, m) => a + m.amount, 0));
       cur = prevP;
     }
     const usual = samples.length >= 2 ? samples.reduce((a, b) => a + b, 0) / samples.length : null;
+    const usualFull = fullSamples.length >= 2 ? fullSamples.reduce((a, b) => a + b, 0) / fullSamples.length : null;
 
     // insight: la categoría que más movió la aguja vs. el período anterior
     let insight = null;
@@ -360,7 +364,7 @@ const ExpensesRepository = {
         insight = { cat: movers[0].cat, delta: movers[0].delta };
     }
 
-    return { total, count: movs.length, prevTotal, hasPrev, byCategory, buckets, avgBucket, projection, usual, insight };
+    return { total, count: movs.length, prevTotal, hasPrev, byCategory, buckets, avgBucket, projection, usual, usualFull, insight };
   },
 
   // Top comercios de una categoría en el período
