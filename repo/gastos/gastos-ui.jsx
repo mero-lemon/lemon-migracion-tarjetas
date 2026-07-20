@@ -158,6 +158,39 @@ const GMerchantAvatar = ({ name, cat, size = 38 }) =>
 const gBarLabel = (n) => n >= 1000000 ? (n / 1000000).toLocaleString('es-AR', { maximumFractionDigits: 1 }) + ' M' :
   n >= 1000 ? Math.round(n / 1000).toLocaleString('es-AR') + ' mil' : Math.round(n).toLocaleString('es-AR');
 
+// ── Diagrama de barras del desglose: columnas redondeadas por grupo ──
+// Top 5 categorías + "Otros". Tap en una columna → buscador con esa
+// categoría precargada.
+const GBarChart = ({ byCategory, onTap, h = 126, delay = 80 }) => {
+  const [on, setOn] = useStateG(false);
+  useEffectG(() => { const t = setTimeout(() => setOn(true), delay); return () => clearTimeout(t); }, []);
+  const top = byCategory.slice(0, 5);
+  const rest = byCategory.slice(5);
+  const restTotal = rest.reduce((a, c) => a + c.total, 0);
+  const cols = top.map((c) => ({ id: c.cat.id, cat: c.cat, total: c.total }));
+  if (restTotal > 0) cols.push({ id: '_otros', others: true, total: restTotal, n: rest.length });
+  const max = Math.max(...cols.map((c) => c.total)) || 1;
+  return (
+    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+      {cols.map((c, i) =>
+        <button key={c.id} onClick={() => onTap(c)} style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+          <span style={{ font: '500 11px Geist', letterSpacing: '-0.01em', color: '#5E5E5E', whiteSpace: 'nowrap' }}>{gBarLabel(c.total)}</span>
+          <div style={{ width: '100%', height: h, display: 'flex', alignItems: 'flex-end' }}>
+            <div style={{
+              width: '100%', height: on ? `${Math.max(7, c.total / max * 100)}%` : '7%', borderRadius: 12,
+              background: c.others ? 'linear-gradient(180deg, #D8D8D8, #C4C4C2)' : `linear-gradient(180deg, ${c.cat.color}, ${c.cat.color}B0)`,
+              boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.3)',
+              transition: `height .65s cubic-bezier(.25,.8,.3,1) ${i * 0.07}s`
+            }} />
+          </div>
+          {c.others ?
+            <div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(8,8,9,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 11px Inter', color: '#5E5E5E' }}>+{c.n}</div> :
+            <GCatIcon cat={c.cat} size={30} />}
+          <span style={{ font: '400 10px Inter', color: '#818181', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.others ? 'Otros' : c.cat.short}</span>
+        </button>)}
+    </div>);
+};
+
 // ── Fila de dato (card "Cómo viene tu mes") ─────────────────────
 const GDataRow = ({ icon, iconEl, label, value, valueColor = '#141414', sub }) =>
   <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0' }}>
@@ -216,64 +249,32 @@ const GRhythmChart = ({ buckets, avgBucket }) => {
     </div>);
 };
 
-// ── La carrera del mes: tu plata corre contra los días ──────────
-// Un solo gráfico para las dos preguntas: el carril del TIEMPO (día N
-// de M) y el carril de tu PLATA, que se rellena APILADO por categoría —
-// cuánto llevás contra tu mes típico Y en qué se te fue, en la misma
-// barra. Tap en un segmento o en la leyenda → buscador.
-const GRaceTrack = ({ timePct, timeLabel, moneyLabel, segments, onSegment, delay = 400 }) => {
+// ── La carrera del mes: un solo carril ──────────────────────────
+// La pista es tu mes típico (la meta 🏁). El relleno es tu plata 💸;
+// la marca 📅 es dónde está parado el calendario hoy. Si el relleno
+// todavía no alcanzó la marca, vas ganando.
+const GRaceTrack = ({ timePct, moneyPct, moneyFill, bottomLeft, bottomRight, delay = 400 }) => {
   const [on, setOn] = useStateG(false);
   useEffectG(() => { const t = setTimeout(() => setOn(true), delay); return () => clearTimeout(t); }, []);
-  const moneyPct = Math.min(1, segments.reduce((a, s) => a + s.pct, 0));
-  const tw = Math.max(5, Math.min(100, timePct * 100));
-  const mw = Math.max(5, moneyPct * 100);
-  const labels = (name, label) =>
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 5 }}>
-      <span style={{ font: '500 12px Inter', color: '#5E5E5E' }}>{name}</span>
-      <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{label}</span>
-    </div>;
+  const tp = Math.max(5, Math.min(98, timePct * 100));
+  const mw = Math.max(5, Math.min(100, moneyPct * 100));
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {/* carril del tiempo */}
-      <div>
-        {labels('El mes', timeLabel)}
-        <div style={{ position: 'relative', height: 26, borderRadius: 999, background: 'rgba(8,8,9,0.05)' }}>
-          <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: on ? `${tw}%` : '5%', borderRadius: 999, background: 'linear-gradient(90deg, #3d3d3d, #141414)', transition: 'width .9s cubic-bezier(.3,.85,.3,1)' }} />
-          <span style={{ position: 'absolute', top: '50%', left: on ? `${tw}%` : '5%', transform: 'translate(-85%, -50%)', fontSize: 15, lineHeight: 1, transition: 'left .9s cubic-bezier(.3,.85,.3,1)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))' }}>📅</span>
-          <span style={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', fontSize: 12, lineHeight: 1, opacity: 0.55 }}>🏁</span>
-        </div>
+    <div>
+      <div style={{ position: 'relative', height: 30, borderRadius: 999, background: 'rgba(8,8,9,0.05)', marginTop: 22 }}>
+        {/* relleno: tu plata */}
+        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: on ? `${mw}%` : '5%', borderRadius: 999, background: moneyFill, transition: 'width 1.4s cubic-bezier(.3,.85,.3,1)' }} />
+        <span style={{ position: 'absolute', top: '50%', left: on ? `${mw}%` : '5%', transform: 'translate(-85%, -50%)', fontSize: 16, lineHeight: 1, transition: 'left 1.4s cubic-bezier(.3,.85,.3,1)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))', zIndex: 2 }}>💸</span>
+        {/* la marca del calendario: hoy */}
+        <div style={{ position: 'absolute', top: -5, bottom: -5, left: on ? `${tp}%` : '5%', width: 2.5, borderRadius: 999, background: '#141414', transition: 'left .9s cubic-bezier(.3,.85,.3,1)', zIndex: 1 }} />
+        <span style={{ position: 'absolute', top: -22, left: on ? `${tp}%` : '5%', transform: 'translateX(-50%)', fontSize: 13, lineHeight: 1, transition: 'left .9s cubic-bezier(.3,.85,.3,1)' }}>📅</span>
+        <span style={{ position: 'absolute', top: '50%', right: 9, transform: 'translateY(-50%)', fontSize: 13, lineHeight: 1, opacity: 0.55 }}>🏁</span>
       </div>
-      {/* carril de tu plata, apilado por categoría */}
-      <div>
-        {labels('Tu plata', moneyLabel)}
-        <div style={{ position: 'relative', height: 26, borderRadius: 999, background: 'rgba(8,8,9,0.05)' }}>
-          <div style={{ position: 'absolute', inset: 0, display: 'flex', borderRadius: 999, overflow: 'hidden' }}>
-            {segments.map((s, i) =>
-              <button key={s.id || 'otros'} onClick={() => onSegment(s.id)} title={s.name} style={{
-                width: on ? `${s.pct * 100}%` : 0, border: 0, padding: 0, cursor: 'pointer', background: s.color,
-                borderRight: i < segments.length - 1 ? '1.5px solid rgba(255,255,255,0.85)' : 'none',
-                transition: `width 1.3s cubic-bezier(.3,.85,.3,1) ${i * 0.06}s`
-              }} />)}
-          </div>
-          <span style={{ position: 'absolute', top: '50%', left: on ? `${mw}%` : '5%', transform: 'translate(-85%, -50%)', fontSize: 15, lineHeight: 1, transition: 'left 1.6s cubic-bezier(.3,.85,.3,1)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))', pointerEvents: 'none' }}>💸</span>
-          <span style={{ position: 'absolute', top: '50%', right: 8, transform: 'translateY(-50%)', fontSize: 12, lineHeight: 1, opacity: 0.55, pointerEvents: 'none' }}>🏁</span>
-        </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 9 }}>
+        <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{bottomLeft}</span>
+        <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{bottomRight}</span>
       </div>
     </div>);
 };
-
-// leyenda de la carrera: en qué se te va, tappeable → buscador
-const GRaceLegend = ({ segments, onTap }) =>
-  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px', marginTop: 14 }}>
-    {segments.map((s) =>
-      <button key={s.id || 'otros'} onClick={() => onTap(s.id)} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 0, background: 'transparent', padding: '5px 0', cursor: 'pointer', minWidth: 0 }}>
-        {s.cat ?
-          <GCatIcon cat={s.cat} size={26} /> :
-          <div style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(8,8,9,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 9px Inter', color: '#5E5E5E', flexShrink: 0 }}>+{s.n}</div>}
-        <span style={{ flex: 1, textAlign: 'left', font: '400 12px Inter', color: '#5E5E5E', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{s.name}</span>
-        <span style={{ font: '500 12px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{gBarLabel(s.total)}</span>
-      </button>)}
-  </div>;
 
 // ── Insight automático ──────────────────────────────────────────
 const GInsight = ({ insight, prevName }) => {
@@ -400,6 +401,6 @@ const GToast = ({ text }) =>
 
 Object.assign(window, {
   gFmt, gFmt2, gFmtCompact, gBarLabel, gHora, G_METHODS, GScreen, GCountUp, GReveal, GBigAmount, GSegControl, GPeriodNav,
-  GCompareChip, GMiniDelta, GCatIcon, GCatChip, GMerchantAvatar, GDataRow, GFilterChip, GRhythmChart, GRaceTrack, GRaceLegend,
+  GCompareChip, GMiniDelta, GCatIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack,
   GInsight, GMovRow, GMovList, groupByDay, gDayLabel, GSearchInput, GEmptyState, GSkel, GSkeletonHome, GToast
 });
