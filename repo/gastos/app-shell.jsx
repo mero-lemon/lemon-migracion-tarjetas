@@ -19,7 +19,7 @@ const GTopBar = () =>
     <LI name="view-notification" size={23} color="#141414" />
   </div>;
 
-// ── Nav flotante (pill blanca + QR), según Figma: activo = pill de color ──
+// ── Nav flotante (pill blanca + QR) — mismo estilo activo que Cofres ──
 const GNavBar = ({ active, onHome, onPortfolio, onMiniApps }) => {
   const items = [
     ['home', 'home', onHome],
@@ -28,21 +28,20 @@ const GNavBar = ({ active, onHome, onPortfolio, onMiniApps }) => {
     ['apps', 'mini-apps', onMiniApps]];
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', background: '#fff', borderRadius: 999, padding: 4, height: 56, boxShadow: '0 10px 28px rgba(0,0,0,0.10)' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: '#fff', borderRadius: 999, padding: '12px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10)' }}>
         {items.map(([id, ic, fn]) => {
           const on = id === active;
           return (
             <button key={id} onClick={fn || undefined} style={{
-              flex: 1, height: 48, border: 0, borderRadius: 999, cursor: fn && !on ? 'pointer' : 'default',
-              background: on ? '#FF007A' : 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'center',
-              transition: 'background .2s'
+              border: 0, background: on ? '#FAFAFA' : 'transparent', borderRadius: 999, padding: '6px 10px',
+              cursor: fn && !on ? 'pointer' : 'default', display: 'flex', transition: 'background .2s'
             }}>
               <LI name={`${ic}-${on ? 'on' : 'off'}`} size={22} color={on ? '#080808' : '#818181'} />
             </button>);
         })}
       </div>
-      <div style={{ width: 56, height: 56, borderRadius: 999, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 10px 28px rgba(0,0,0,0.18)' }}>
-        <LI name="QR-Scanner" size={26} color="var(--c-lime-40)" />
+      <div style={{ width: 52, height: 52, borderRadius: 999, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 10px 28px rgba(0,0,0,0.18)' }}>
+        <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
       </div>
     </div>);
 };
@@ -133,27 +132,6 @@ function AppHome({ onPortfolio, onMiniApps, onGastos }) {
 
         {/* la novedad: Mis gastos */}
         <GastosNovedadBanner onTap={onGastos} />
-
-        {/* últimos movimientos, para dar vida a la home */}
-        <Surface pad={'4px 14px'} style={{ borderRadius: 24 }}>
-          {[
-            ['food', 'Cuervo Café', 'Hoy', '$ 4.200,00'],
-            ['streaming', 'DLO*PrimeVideo', 'Ayer', '$ 7.863,79'],
-            ['shopping-cart', 'Carrefour', 'Ayer', '$ 48.520,50']].map(([ic, t, d, a], i) =>
-              <React.Fragment key={t}>
-                {i > 0 && <Divider />}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 0' }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 999, background: 'rgba(8,8,9,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <LI name={ic} size={17} color="#141414" />
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{t}</div>
-                    <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>{d}</div>
-                  </div>
-                  <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>− {a}</span>
-                </div>
-              </React.Fragment>)}
-        </Surface>
       </div>
     </GScreen>);
 }
