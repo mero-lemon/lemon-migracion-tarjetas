@@ -1,4 +1,4 @@
-# Prototipos Lemon · tarjetas + cajas
+# Prototipos Lemon · tarjetas + cajas + gastos
 
 Prototipos interactivos (alta fidelidad) construidos con el **Lemon Mobile Design System**.
 Es un sitio **100% estático** — no tiene paso de build: HTML + React/Babel cargados desde
@@ -6,6 +6,7 @@ CDN + componentes JSX locales.
 
 - `/` → **Migración de tarjetas** (flujos GP → Pomelo, NFC/Apple Pay)
 - `/cajas/` → **Cofres** (FTE: pesos apartados que rinden, dentro de Portfolio; la tarjeta/QR no los ven)
+- `/gastos/` → **Mis gastos** (home de un vistazo + buscador con filtros — ver `gastos/README.md`)
 
 ## Estructura
 
