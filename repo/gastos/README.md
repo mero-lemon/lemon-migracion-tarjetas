@@ -20,6 +20,14 @@ la demo es idéntica en cada run.
 
 ## Estructura de la experiencia
 
+**Shell de la app** — el prototipo arranca en la home real de Lemon:
+- **Home**: balance card (Inicio/Portfolio) + **banner lime de novedad** ("Llegó Mis gastos") + últimos movimientos + nav flotante (pill + QR).
+- **Portfolio**: balance total + grid de activos.
+- **Mini apps** (botón del footer, al lado del QR): tabs **Para vos** (grid de tiles con
+  gradientes + lemon badge + banner de novedad) y **Descubrí** (nuevas mini-apps de terceros,
+  card destacada con strip blur, links para devs). El tile **Gastos** y ambos banners abren
+  la sección Mis gastos.
+
 **Home** — entrás con miedo, la pantalla te responde primero "¿estoy bien?" y después "¿cuánto?":
 1. **Veredicto** arriba de todo ("Venís gastando menos que de costumbre."), calculado contra
    **tu propio ritmo habitual** (promedio de los últimos 3 meses al mismo día). El ambiente

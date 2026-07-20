@@ -18,10 +18,11 @@ const G_METHODS = {
 };
 
 // ── Pantalla base dentro del frame ──────────────────────────────
-const GScreen = ({ children, header, bg = LX.page }) =>
+const GScreen = ({ children, header, footer, bg = LX.page }) =>
   <div style={{ height: '100%', background: bg, display: 'flex', flexDirection: 'column', paddingTop: 48 }}>
     {header && <div style={{ flexShrink: 0 }}>{header}</div>}
     <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</div>
+    {footer && <div style={{ flexShrink: 0, padding: '10px 16px 24px' }}>{footer}</div>}
   </div>;
 
 // ── Contador animado del número grande ──────────────────────────
@@ -59,13 +60,13 @@ const GReveal = ({ delay = 0, children }) => {
 };
 
 // saldo grande estilo app: entero en Geist + centavos chicos en gris
-const GBigAmount = ({ value, size = 42, color = '#141414' }) => {
+const GBigAmount = ({ value, size = 42, color = '#141414', prefix = '$ ' }) => {
   const ent = Math.floor(value);
   const cents = Math.round((value - ent) * 100);
   return (
     <div style={{ display: 'flex', alignItems: 'flex-end' }}>
       <span style={{ font: `500 ${size}px Geist`, lineHeight: 1.15, letterSpacing: '-0.03em', color }}>
-        $ {ent.toLocaleString('es-AR')}
+        {prefix}{ent.toLocaleString('es-AR')}
       </span>
       <span style={{ font: `500 ${Math.round(size * 0.55)}px Geist`, lineHeight: 1.45, letterSpacing: '-0.03em', color: '#B4B4B4' }}>
         ,{String(cents).padStart(2, '0')}

@@ -3,21 +3,28 @@
 const { useState: useStateZ, useEffect: useEffectZ } = React;
 
 function GastosExperience() {
-  const [route, setRoute] = useStateZ('home'); // home | buscar
+  const [route, setRoute] = useStateZ('home'); // home | portfolio | miniapps | gastos | buscar
+  const [gastosFrom, setGastosFrom] = useStateZ('home'); // desde dónde entraste a Mis gastos
   // los filtros del buscador viven acá: volver atrás no los pierde
   const [filters, setFilters] = useStateZ({ unit: 'month', anchor: dayStart(G_TODAY), cats: [], methods: [], text: '' });
   const [openMov, setOpenMov] = useStateZ(null);
   const [sheetOpen, setSheetOpen] = useStateZ(false);
-  const [loading, setLoading] = useStateZ(true);
+  const [gastosLoading, setGastosLoading] = useStateZ(false);
+  const [gastosSeen, setGastosSeen] = useStateZ(false);
   const [splash, setSplash] = useStateZ(false);
   const [toast, setToast] = useStateZ(null);
 
-  // primera carga: skeleton breve → splash de primer uso
-  useEffectZ(() => {
-    const t1 = setTimeout(() => setLoading(false), 750);
-    const t2 = setTimeout(() => setSplash(true), 1050);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, []);
+  // primera entrada a Mis gastos: skeleton breve → splash de primer uso
+  const openGastos = (from) => {
+    setGastosFrom(from);
+    setRoute('gastos');
+    if (!gastosSeen) {
+      setGastosSeen(true);
+      setGastosLoading(true);
+      setTimeout(() => setGastosLoading(false), 750);
+      setTimeout(() => setSplash(true), 1050);
+    }
+  };
 
   // entrar al buscador; catId opcional (tap en una barra del home)
   const openBuscar = (catId) => {
@@ -31,24 +38,30 @@ function GastosExperience() {
     setTimeout(() => setToast(null), 2200);
   };
 
-  if (loading)
-    return (
-      <GScreen>
-        <div style={{ padding: '10px 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <GSkel w={150} h={26} r={10} />
-          <GSkel w={40} h={40} r={999} />
-        </div>
-        <GSkeletonHome />
-      </GScreen>);
-
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       {route === 'home' &&
-        <MisGastosHome onBuscar={openBuscar} onOpenMov={openMovement} />}
+        <AppHome onPortfolio={() => setRoute('portfolio')} onMiniApps={() => setRoute('miniapps')} onGastos={() => openGastos('home')} />}
+
+      {route === 'portfolio' &&
+        <AppPortfolio onHome={() => setRoute('home')} onMiniApps={() => setRoute('miniapps')} />}
+
+      {route === 'miniapps' &&
+        <MiniAppsHome onHome={() => setRoute('home')} onPortfolio={() => setRoute('portfolio')} onOpenGastos={() => openGastos('miniapps')} />}
+
+      {route === 'gastos' && (gastosLoading ?
+        <GScreen>
+          <div style={{ padding: '10px 16px 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <GSkel w={150} h={26} r={10} />
+            <GSkel w={40} h={40} r={999} />
+          </div>
+          <GSkeletonHome />
+        </GScreen> :
+        <MisGastosHome onBack={() => setRoute(gastosFrom)} onBuscar={openBuscar} onOpenMov={openMovement} />)}
 
       {route === 'buscar' &&
         <GastosBuscador filters={filters} setFilters={setFilters}
-          onBack={() => setRoute('home')} onOpenMov={openMovement} />}
+          onBack={() => setRoute('gastos')} onOpenMov={openMovement} />}
 
       <GMovSheet mov={openMov} open={sheetOpen} onClose={() => setSheetOpen(false)} onFlag={flagCategory} />
       <GastosSplash open={splash} onClose={() => setSplash(false)} />

@@ -14,7 +14,7 @@ const G_VERDICTS = {
   high: { tint: '#FBE3E3', text: 'Este mes se te está yendo más que de costumbre.' }
 };
 
-function MisGastosHome({ onBuscar, onOpenMov }) {
+function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), []);
   const summary = useMemoS(() => ExpensesRepository.getSummary(info), []);
   const recent = useMemoS(() => ExpensesRepository.getMovements(info).slice(0, 4), []);
@@ -39,7 +39,12 @@ function MisGastosHome({ onBuscar, onOpenMov }) {
 
         {/* título + acceso al buscador */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0 0' }}>
-          <div style={{ font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }}>Mis gastos</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, marginLeft: -2, display: 'flex' }}>
+              <LI name="arrow-back" size={24} color="#141414" />
+            </button>
+            <div style={{ font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }}>Mis gastos</div>
+          </div>
           <button onClick={() => onBuscar()} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: 'rgba(8,8,9,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <LI name="search" size={20} color="#141414" />
           </button>
