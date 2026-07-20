@@ -300,10 +300,6 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
           </div>
 
           {cajas.map((c) => <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)} />)}
-
-          <button onClick={onCreate} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', border: `1.5px dashed ${LX.text3}`, cursor: 'pointer', background: 'transparent', borderRadius: 20, padding: '14px 0', font: '600 14px Inter', color: '#141414' }}>
-            <LI name="add-more" size={18} color="#141414" /> Nuevo cofre
-          </button>
         </>}
       </div>
     </Screen>);
@@ -321,9 +317,10 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
   const [goal, setGoal] = useStateX(null);
   const [currency, setCurrency] = useStateX('ARS');
   const [sheetOpen, setSheetOpen] = useStateX(false);
+  const [pickingEmoji, setPickingEmoji] = useStateX(false);
 
   const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
-  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setSheetOpen(true); };
+  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setPickingEmoji(false); setSheetOpen(true); };
   // el blindaje no es parte de la creación: se suma después, desde el cofre
   const finish = (amount) =>
   onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, armored: false, pin: null, amount });
@@ -356,10 +353,17 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       {/* sube desde abajo: tu cofre armado, para confirmar o retocar */}
       <Sheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
         {tpl &&
-        <div style={{ textAlign: 'center', padding: '6px 2px 0', minHeight: 560, display: 'flex', flexDirection: 'column' }}>
+        <div style={{ textAlign: 'center', padding: '6px 2px 0', display: 'flex', flexDirection: 'column' }}>
           <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
           <div key={tpl.id} style={{ display: 'flex', justifyContent: 'center', marginTop: 22, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
-            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={104} />
+            <button
+              onClick={() => setPickingEmoji((v) => !v)}
+              style={{ position: 'relative', border: 0, background: 'transparent', padding: 0, cursor: 'pointer', lineHeight: 0 }}>
+              <CajaBadge caja={{ emoji, bg: tpl.bg }} size={104} />
+              <span style={{ position: 'absolute', right: -2, bottom: -2, width: 34, height: 34, borderRadius: 999, background: '#141414', border: '3px solid #fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LI name={pickingEmoji ? 'close' : 'edit'} size={16} color="#fff" />
+              </span>
+            </button>
           </div>
           <input
             value={name}
@@ -368,12 +372,13 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
             onChange={(e) => setName(e.target.value)}
             placeholder="Nombre de tu cofre"
             style={{ width: '100%', marginTop: 20, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
-          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>Tocá el nombre o el emoji para cambiarlos.</div>
+          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>Tocá el nombre para cambiarlo, o el emoji para editarlo.</div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 7, marginTop: 24 }}>
+          {pickingEmoji &&
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 7, marginTop: 24, animation: 'lc-pop .3s ease both' }}>
             {CAJA_EMOJIS.map((e) =>
-            <button key={e} onClick={() => setEmoji(e)} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
-          </div>
+            <button key={e} onClick={() => { setEmoji(e); setPickingEmoji(false); }} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
+          </div>}
 
           {/* con qué rinde: pesos o dólares digitales */}
           <div style={{ display: 'flex', gap: 8, marginTop: 20 }}>
@@ -385,8 +390,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
           </div>
 
 
-          <div style={{ flex: 1 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 24, paddingBottom: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginTop: 28, paddingBottom: 6 }}>
             <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
             <Btn variant="ghost" onClick={() => setSheetOpen(false)}>Elegir otro objetivo</Btn>
           </div>
