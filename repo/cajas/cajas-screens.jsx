@@ -633,7 +633,7 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, 
           <span style={{ width: 40, height: 40, borderRadius: 999, background: 'var(--c-nebula-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, lineHeight: 1, flexShrink: 0 }}>🛡️</span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Blindá este cofre</span>
-            <span style={{ display: 'block', font: '400 12px Inter', color: '#818181', marginTop: 2 }}>Configurá un PIN y sumale un nivel extra de seguridad: para que solo vos retires plata.</span>
+            <span style={{ display: 'block', font: '400 12px Inter', color: '#818181', marginTop: 2 }}>Configurá un PIN y sumale un nivel extra de seguridad.</span>
           </span>
           <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
         </button>}
