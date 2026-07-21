@@ -174,29 +174,29 @@ const CajaYieldArt = ({ size = 200 }) =>
   </svg>;
 
 // ── Value props del splash (acordeón) ───────────────────────────
-// Cimientos, en orden: 1) orden (la necesidad), 2) seguridad (el
-// diferencial de largo plazo), 3) rinde y siempre es tuya (sin resignar).
+// En orden: 1) orden (la necesidad), 2) seguridad (el diferencial),
+// 3) rinde y siempre es tuya (sin resignar). Copy sobrio: se lee literal.
 const SPLASH_SLIDES = [
   {
     id: 'orden', icon: '🎯', iconBg: 'var(--c-lime-10)',
     title: 'Un cofre para cada objetivo',
-    body: 'Separá tu plata como en frascos: cada meta con su nombre, su emoji y su progreso, lejos de tus gastos de todos los días.',
+    body: 'Separá tu plata por metas, cada una con su nombre y su progreso, lejos de tus gastos del día a día.',
     chips: [['🏖️', 'Bariloche'], ['🛟', 'Emergencias'], ['🚗', 'El auto']]
   },
   {
     id: 'seguro', icon: '🛡️', iconBg: 'var(--c-nebula-5)',
-    title: 'Bajo llave, de verdad',
-    body: 'La tarjeta y el QR no ven esta plata: no se gasta sin querer. Y si guardás mucho, blindalo: PIN para abrirlo y 24 h para retirar.',
+    title: 'Tu plata, 100% protegida',
+    body: 'Lo que guardás en un cofre no se puede gastar: la tarjeta y el QR no lo tocan. Y si guardás mucho, blindalo con un PIN.',
     chips: [['🛡️', 'Blindaje opcional'], ['💳', 'Invisible para la tarjeta']]
   },
   {
     id: 'rinde', icon: '📈', iconBg: 'var(--c-lemon-5)',
-    title: 'Rinde, y siempre es tuya',
-    body: 'Tu plata genera rendimientos todos los días mientras está guardada. Y la retirás al instante, sin plazos ni penalidades.',
-    chips: [['📈', '36,2% TNA en pesos'], ['💵', '4,6% TNA en dólares']]
+    title: 'Rinde todos los días',
+    body: 'Genera rendimientos a diario mientras está guardada. Y la retirás al instante, sin plazos ni penalidades.',
+    chips: [['📈', `${CURRENCIES.ARS.short} TNA en pesos`], ['💵', `${CURRENCIES.USD.short} TNA en dólares`]]
   }];
 
-// ── Splash FTE (full-screen, sube de abajo — mismo patrón que NfcSplash) ──
+// ── Splash FTE (sube de abajo, deja ver el notch — patrón NfcSplash) ──
 const CajasSplash = ({ open, onClose, onPrimary }) => {
   const [mounted, setMounted] = useStateU(false);
   const [shown, setShown] = useStateU(false);
@@ -219,13 +219,13 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
       <div style={{
-        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '95%',
+        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '89%',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .22s cubic-bezier(.2,.85,.25,1)',
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
         {/* título + acordeón: tocás cada propuesta y se despliega */}
-        <div style={{ flexShrink: 0, padding: '28px 24px 2px' }}>
+        <div style={{ flexShrink: 0, padding: '26px 24px 2px' }}>
           <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414' }}>Ordená tu plata en cofres</div>
         </div>
 
@@ -367,14 +367,14 @@ const CajaSuccessArt = ({ caja, size = 210 }) =>
     <path d="M172 58l2 4.5 4.5 2-4.5 2-2 4.5-2-4.5-4.5-2 4.5-2Z" fill="#00AA18" />
   </svg>;
 
-// ── Aviso "apartada de verdad" (tarjeta/QR no la ven) ───────────
+// ── Aviso "100% protegida" (no se puede gastar sin retirarla) ───
 const NoGastoHint = ({ source = 'pesos digitales', armored = false }) =>
 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '2px 6px' }}>
     <LI name="card-off" size={16} color="#818181" style={{ marginTop: 2, flexShrink: 0 }} />
     <span style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.45 }}>
       {armored ?
-    <>La tarjeta y el QR no ven esta plata. Es un cofre blindado: los retiros llegan a tus {source} en 24 h.</> :
-    <>La tarjeta y el QR no ven esta plata. Para gastarla, retirala: vuelve a tus {source} al instante, sin penalidad.</>}
+    <>La plata del cofre no se puede gastar: queda 100% protegida hasta que la retires. Como está blindado, los retiros llegan a tus {source} en 24 h.</> :
+    <>La plata del cofre no se puede gastar: queda 100% protegida hasta que la retires. Y retirarla es al instante: vuelve directo a tus {source}.</>}
     </span>
   </div>;
 
@@ -511,7 +511,6 @@ const Keypad = ({ onDigit, onBackspace }) => {
 // currency define prefijo, tasa y origen de fondos del cofre.
 function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick }) {
   const [value, setValue] = useStateU(0);
-  const [assetSheet, setAssetSheet] = useStateU(false);
   const cur = CURRENCIES[currency];
   const over = value > max;
   const ok = value > 0 && !over;
@@ -552,31 +551,36 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
             <div style={{ font: '400 13px Inter', color: '#818181', lineHeight: 1.45, maxWidth: 280, textAlign: 'center' }}>{hint}</div> :
 
             <>
-              {/* origen de fondos */}
-              <button onClick={() => setAssetSheet(true)} style={{ display: 'flex', alignItems: 'center', gap: 8, border: 0, cursor: 'pointer', background: 'rgba(8,8,9,0.05)', borderRadius: 999, padding: '7px 14px' }}>
-                <LI name={cur.icon} size={16} color="#141414" />
-                <span style={{ font: '500 13px Inter', color: '#141414' }}>{withdraw ? `Vuelve a ${cur.source}` : cur.source}</span>
-                <span style={{ font: '400 13px Inter', color: '#818181' }}>· {withdraw ? 'en el cofre' : 'disponible'} {fmtC2(max, currency)}</span>
-                {!withdraw && <LI name="arrow-expand-more" size={15} color="#818181" />}
-              </button>
+              {/* origen de fondos + rendimiento: un solo componente, sin select
+                  (la moneda ya se eligió al armar el cofre) */}
+              <div style={{ width: '100%', maxWidth: 320, background: 'rgba(8,8,9,0.04)', borderRadius: 18, padding: '0 16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+                  <LI name={cur.icon} size={17} color="#141414" />
+                  <span style={{ flex: 1, font: '500 13px Inter', color: '#141414', textAlign: 'left' }}>{withdraw ? 'En el cofre' : 'Disponible'}</span>
+                  <span style={{ font: '500 13px Inter', color: '#141414' }}>{fmtC2(max, currency)}</span>
+                </div>
+                <Divider />
+                {over ?
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', font: '500 13px Inter', color: 'var(--c-rose-40)' }}>
+                    <LI name="feedback-warning" size={16} color="var(--c-rose-40)" /> Te pasás de lo {withdraw ? 'que hay en el cofre' : 'disponible'}
+                  </div> :
+                withdraw ?
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0', font: '400 13px Inter', color: hint ? 'var(--c-solar-60)' : '#818181', textAlign: 'left' }}>
+                    <LI name={hint ? 'alert-time' : 'returns'} size={16} color={hint ? 'var(--c-solar-50)' : '#818181'} />
+                    <span style={{ flex: 1 }}>{hint || 'Vuelve al instante, sin penalidad.'}</span>
+                  </div> :
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
+                    <LI name="earn" size={16} color="var(--c-lime-60)" />
+                    <span style={{ flex: 1, font: '500 13px Inter', color: 'var(--c-lime-70)', textAlign: 'left' }}>
+                      {value > 0 ? `Suma ≈ +${fmtY(monthlyYield(value, cur.tna), currency)} por mes` : 'Rinde todos los días'}
+                    </span>
+                    <TnaChip compact label={cur.label} />
+                  </div>}
+              </div>
 
               {/* acceso rápido: cargar el máximo (Retirar todo / Total disponible) */}
               {quick &&
               <button onClick={() => setValue(max)} style={{ border: `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 999, padding: '8px 18px', background: value === max ? '#141414' : LX.layer, font: '600 13px Inter', color: value === max ? '#fff' : '#141414' }}>{quick}</button>}
-
-              {over ?
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '500 13px Inter', color: 'var(--c-rose-40)' }}>
-                  <LI name="feedback-warning" size={16} color="var(--c-rose-40)" /> Te pasás de lo {withdraw ? 'que hay en el cofre' : 'disponible'}
-                </div> :
-              withdraw ?
-              hint &&
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-solar-5)', borderRadius: 999, padding: '6px 14px', font: '500 12px Inter', color: 'var(--c-solar-60)', maxWidth: 320 }}>
-                  <LI name="alert-time" size={14} color="var(--c-solar-50)" /> {hint}
-                </div> :
-              <div style={{ display: 'flex', alignItems: 'center', gap: 7, background: 'var(--c-lime-10)', borderRadius: 999, padding: '6px 14px', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>
-                  <LI name="earn" size={15} color="var(--c-lime-60)" />
-                  {value > 0 ? `Rinde ≈ +${fmtY(monthlyYield(value, cur.tna), currency)} por mes` : `Rinde ${cur.label}, todos los días`}
-                </div>}
             </>}
           </div>
 
@@ -586,28 +590,6 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
           </div>
         </div>
       </Screen>
-
-      {/* sheet: con qué activo rinde este cofre */}
-      <Sheet open={assetSheet} onClose={() => setAssetSheet(false)}>
-        <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 4px' }}>¿Con qué rinde?</div>
-        <div style={{ font: '400 13px Inter', color: LX.text2, margin: '0 2px 14px' }}>Cada cofre rinde en su moneda. Pronto se suman cripto y acciones.</div>
-        {[
-        ['ARS', 'currency-peso', 'Pesos digitales', CURRENCIES.ARS.label, false],
-        ['USD', 'currency-dollar', 'Dólares digitales', CURRENCIES.USD.label, false],
-        ['BTC', 'currency-bitcoin', 'Bitcoin y cripto', 'Pronto', true],
-        ['STK', 'stocks', 'Acciones', 'Pronto', true]].map(([id, ic, t, tag, soon]) =>
-        <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 2px', opacity: soon ? 0.55 : 1 }}>
-            <IconBadge icon={ic} bg="rgba(8,8,9,0.05)" fg="#141414" size={40} />
-            <span style={{ flex: 1, font: '500 15px Inter', color: '#141414' }}>{t}</span>
-            {soon ?
-          <span style={{ font: '600 11px Inter', color: LX.text2, background: LX.layer3, padding: '4px 10px', borderRadius: 999 }}>{tag}</span> :
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <TnaChip compact label={tag} />
-                {id === currency && <LI name="selected" size={20} color="var(--c-lemon-50)" />}
-              </span>}
-          </div>)}
-        <Btn variant="primary" onClick={() => setAssetSheet(false)} style={{ marginTop: 12 }}>Listo</Btn>
-      </Sheet>
     </div>);
 }
 

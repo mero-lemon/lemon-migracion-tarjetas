@@ -10,7 +10,7 @@ const hydrate = (c) => { const t = getTemplate(c.tplId); return { ...c, icon: t.
 
 // ── Experiencia completa ────────────────────────────────────────
 function CajasExperience() {
-  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | add | withdraw | pin
+  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | movs | add | withdraw | pin
   const [cajas, setCajas] = useStateZ([]);
   // los disponibles viven en el estado: el rendimiento solo entra cuando lo retirás de un cofre
   const [disponible, setDisponible] = useStateZ(BASE_PESOS);
@@ -117,9 +117,12 @@ function CajasExperience() {
   if (route === 'pin' && open)
   return <PinGate caja={open} onBack={() => setRoute('cajas')} onUnlock={() => setRoute('detail')} />;
 
+  if (route === 'movs' && open)
+  return <CajaMovsScreen caja={open} onBack={() => setRoute('detail')} />;
+
   if (route === 'detail' && open)
   return <CajaDetail caja={open} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
-    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onArm={() => setRoute('armpin')} />;
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onArm={() => setRoute('armpin')} onMovs={() => setRoute('movs')} />;
 
   // blindar un cofre existente: elegís el PIN y queda blindado
   if (route === 'armpin' && open)
