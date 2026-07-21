@@ -358,7 +358,8 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       </div>
     }>
       <StepHeader title={headerTitle} onBack={() => setStep('dream')} onClose={onCancel} />
-      <div style={{ padding: '22px 20px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+      <div style={{ minHeight: '100%', boxSizing: 'border-box', padding: '8px 20px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+        <div style={{ flex: 1, minHeight: 12 }} />
         <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
         <div key={tpl.id} style={{ marginTop: 30, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
           <button
@@ -393,6 +394,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
               <div style={{ font: '400 12px Inter', color: currency === k ? 'var(--c-lime-40)' : '#818181', marginTop: 2 }}>Rinde {CURRENCIES[k].short} TNA</div>
             </button>)}
         </div>
+        <div style={{ flex: 1, minHeight: 12 }} />
       </div>
     </Screen>);
 
