@@ -1,6 +1,6 @@
-# Mis gastos · prototipo Lemon
+# Tus gastos · prototipo Lemon
 
-Prototipo navegable (alta fidelidad, mobile-first) de la sección **Mis gastos**: entender
+Prototipo navegable (alta fidelidad, mobile-first) de la sección **Tus gastos**: entender
 cuánto gastaste, en qué, y si vas mejor o peor que el mes pasado. Pensada como mini-app
 dentro de la app de Lemon.
 
@@ -21,12 +21,12 @@ la demo es idéntica en cada run.
 ## Estructura de la experiencia
 
 **Shell de la app** — el prototipo arranca en la home real de Lemon:
-- **Home**: balance card (Inicio/Portfolio) + **banner lime de novedad** ("Llegó Mis gastos") + últimos movimientos + nav flotante (pill + QR).
+- **Home**: balance card (Inicio/Portfolio) + **banner lime de novedad** ("Llegó Tus gastos") + últimos movimientos + nav flotante (pill + QR).
 - **Portfolio**: balance total + grid de activos.
 - **Mini apps** (botón del footer, al lado del QR): tabs **Para vos** (grid de tiles con
   gradientes + lemon badge + banner de novedad) y **Descubrí** (nuevas mini-apps de terceros,
   card destacada con strip blur, links para devs). El tile **Gastos** y ambos banners abren
-  la sección Mis gastos.
+  la sección Tus gastos.
 
 **Home** — entrás con miedo, la pantalla te responde primero "¿estoy bien?" y después "¿cuánto?":
 1. **Veredicto** arriba de todo ("Venís gastando menos que de costumbre."), calculado contra

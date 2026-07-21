@@ -60,7 +60,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
         <GReveal delay={40}>
           <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 9, padding: '12px 8px 2px' }}>
             <span style={{ font: '600 11px Inter', letterSpacing: '0.08em', color: '#818181', textTransform: 'uppercase' }}>{mes} · Día {G_TODAY.getDate()} de {info.totalDays}</span>
-            <span style={{ font: '500 21px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.3, maxWidth: 300 }}>Tu gasto total</span>
+            <span style={{ font: '500 21px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.3, maxWidth: 300 }}>Gasto total</span>
             <GCountUp fromZero delay={420} duration={950} to={summary.total} render={(v) => <GBigAmount value={v} />} />
           </div>
         </GReveal>
@@ -77,7 +77,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
-                {raceCall} La meta 🏁 es tu mes típico (promedio de los últimos 3).
+                {raceCall} La meta es tu mes típico (promedio de los últimos 3).
               </div>
             </Surface>
           </GReveal>}
@@ -95,7 +95,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
           <Surface pad={'6px 16px'}>
             <GDataRow icon="returns"
               label={`vs. ${info.prevName} a esta altura`}
-              value={summary.prevTotal > 0 ? `− ${gFmt(Math.abs(delta))} · ▲ ${Math.round(Math.abs(delta) / summary.prevTotal * 100)}%` : '—'}
+              value={summary.prevTotal > 0 ? `− ${gFmt(Math.abs(delta))} · ▼ ${Math.round(Math.abs(delta) / summary.prevTotal * 100)}%` : '—'}
               valueColor="#0F7A35" />
             {summary.insight &&
               <>
@@ -395,7 +395,7 @@ function GastosSplash({ open, onClose, onBuscar }) {
       setOpenId(null);
       const t = setTimeout(() => setShown(true), 20);
       // el primero se abre solo: enseña la interacción sin explicarla
-      const t2 = setTimeout(() => setOpenId((v) => v == null ? 'todo' : v), 620);
+      const t2 = setTimeout(() => setOpenId((v) => v == null ? 'todo' : v), 340);
       return () => { clearTimeout(t); clearTimeout(t2); };
     }
     setShown(false);

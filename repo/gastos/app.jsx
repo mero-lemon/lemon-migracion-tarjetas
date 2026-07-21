@@ -14,15 +14,15 @@ function GastosExperience() {
   const [splash, setSplash] = useStateZ(false);
   const [toast, setToast] = useStateZ(null);
 
-  // primera entrada a Mis gastos: skeleton breve → splash de primer uso
+  // primera entrada a Tus gastos: skeleton breve → splash de primer uso
   const openGastos = (from) => {
     setGastosFrom(from);
     setRoute('gastos');
     if (!gastosSeen) {
       setGastosSeen(true);
       setGastosLoading(true);
-      setTimeout(() => setGastosLoading(false), 750);
-      setTimeout(() => setSplash(true), 1050);
+      setTimeout(() => setGastosLoading(false), 380);
+      setTimeout(() => setSplash(true), 560);
     }
   };
 
@@ -101,7 +101,7 @@ function GastosStage() {
         <span style={{ width: 26, height: 26, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <Leaf size={15} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
         </span>
-        <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Mis gastos <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
+        <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Tus gastos <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
         <div style={{ font: '400 12px Inter', color: '#8a8985' }}>“Hoy” es el lunes 20/7/2026 · data seedeada, idéntica en cada run</div>
 
         <button onClick={() => setResetKey((k) => k + 1)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>

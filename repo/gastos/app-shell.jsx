@@ -56,7 +56,7 @@ const GBalanceTabs = ({ active, onInicio, onPortfolio }) =>
 // ── Mini apps de Lemon (gradientes del Figma) ───────────────────
 const MINI_APPS = [
   { id: 'servicios', name: 'Servicios', icon: 'receipt', bg: 'linear-gradient(316.38deg, #520071 0%, #7B4EC8 92.46%)', inset: 'inset 1px 1px 4px rgba(113,60,180,0.6)' },
-  { id: 'gastos', name: 'Gastos', icon: 'spend', bg: 'linear-gradient(180deg, #282828 0%, #141414 100%)', inset: 'inset 1px 1px 4px -1px rgba(255,255,255,0.25)', lime: true, nuevo: true },
+  { id: 'gastos', name: 'Tus gastos', icon: 'spend', bg: 'linear-gradient(180deg, #282828 0%, #141414 100%)', inset: 'inset 1px 1px 4px -1px rgba(255,255,255,0.25)', lime: true, nuevo: true },
   { id: 'earn', name: 'Earn', icon: 'earn', bg: 'linear-gradient(135deg, #FF8200 0%, #854600 100%)', inset: 'inset 1px 1px 4px -1px rgba(255,255,255,0.36)' },
   { id: 'p2p', name: 'P2P', icon: 'friends', bg: 'linear-gradient(137.7deg, #007D36 9.86%, #003D1B 95.32%)', inset: 'inset 1px 1px 4px -1px rgba(0,240,104,0.38)' },
   { id: 'euros', name: 'Euros', glyph: '€', bg: 'linear-gradient(315deg, #0E1B44 0%, #1B3381 100%)', inset: 'inset 1px 1px 4px -1px #1A317C' },
@@ -96,7 +96,7 @@ const GastosNovedadBanner = ({ onTap }) =>
     </div>
     <div style={{ flex: 1, minWidth: 0 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ font: '600 14px Inter', color: '#141414' }}>Llegó Mis gastos</span>
+        <span style={{ font: '600 14px Inter', color: '#141414' }}>Llegó Tus gastos</span>
         <span style={{ background: '#141414', color: '#CFFF2E', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
       </div>
       <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#141414', marginTop: 2 }}>Entendé en qué se va tu plata: todos tus consumos, juntos y ordenados.</div>
