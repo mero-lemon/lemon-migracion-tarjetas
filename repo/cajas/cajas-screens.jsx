@@ -2,6 +2,11 @@
 // flujo de creación (plantilla → nombre/objetivo → monto), success y detalle.
 const { useState: useStateX, useEffect: useEffectX } = React;
 
+// Haptic — en la app nativa esto dispara el Taptic Engine (Expo/RN Haptics:
+// notificationAsync(Success) al crear el cofre). En web es solo la Vibration
+// API: funciona en Android, y es no-op en iOS Safari (Apple nunca la implementó).
+const haptic = (pattern) => { try { navigator.vibrate && navigator.vibrate(pattern); } catch (e) {} };
+
 // ── Top bar de la app (avatar + search/rewards/notifications) ───
 const TopBar = () =>
 <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 10px' }}>
@@ -310,93 +315,94 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
 // 2. cuantificar: ponéle un número a ese sueño (o seguí sin objetivo)
 // 3. arrancar: cuánto ponés hoy para empezar
 function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) {
-  const [step, setStep] = useStateX('dream'); // dream | confirm | goal | fund
+  const [step, setStep] = useStateX('dream'); // dream | goal | fund
   const [tpl, setTpl] = useStateX(null);
   const [name, setName] = useStateX('');
   const [emoji, setEmoji] = useStateX(null);
   const [goal, setGoal] = useStateX(null);
   const [currency, setCurrency] = useStateX('ARS');
   const [pickingEmoji, setPickingEmoji] = useStateX(false);
+  const [sheetOpen, setSheetOpen] = useStateX(false);
 
   const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
-  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setPickingEmoji(false); setStep('confirm'); };
+  const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setPickingEmoji(false); setSheetOpen(true); };
   // el blindaje no es parte de la creación: se suma después, desde el cofre
   const finish = (amount) =>
   onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, armored: false, pin: null, amount });
 
-  // ── 1a. el sueño: elegís el objetivo ──
+  // ── 1. el sueño: elegís el objetivo; al elegir, sube el sheet con tu cofre ──
   if (step === 'dream')
   return (
-    <Screen bg="#F3F3F3">
-      <StepHeader title={headerTitle} onBack={onCancel} onClose={onCancel} />
-      <div style={{ padding: '6px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué querés lograr?</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí para qué vas a guardar: cada cofre tiene su nombre y su progreso.</div>
-        </div>
+    <div style={{ height: '100%', position: 'relative' }}>
+      <Screen bg="#F3F3F3">
+        <StepHeader title={headerTitle} onBack={onCancel} onClose={onCancel} />
+        <div style={{ padding: '6px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+          <div>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué querés lograr?</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí para qué vas a guardar: cada cofre tiene su nombre y su progreso.</div>
+          </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-          {CAJA_TEMPLATES.map((t) =>
-          <button key={t.id} onClick={() => pick(t)} style={{ textAlign: 'left', cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: 14, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: 'var(--shadow-card)', border: tpl && tpl.id === t.id ? '2px solid #141414' : '2px solid transparent' }}>
-              <CajaBadge caja={{ emoji: t.emoji, bg: t.bg }} size={40} />
-              <div>
-                <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{t.name}</div>
-                <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 3, lineHeight: 1.35 }}>{t.sub}</div>
-              </div>
-            </button>)}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            {CAJA_TEMPLATES.map((t) =>
+            <button key={t.id} onClick={() => pick(t)} style={{ textAlign: 'left', cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: 14, display: 'flex', flexDirection: 'column', gap: 10, boxShadow: 'var(--shadow-card)', border: tpl && tpl.id === t.id ? '2px solid #141414' : '2px solid transparent' }}>
+                <CajaBadge caja={{ emoji: t.emoji, bg: t.bg }} size={40} />
+                <div>
+                  <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{t.name}</div>
+                  <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 3, lineHeight: 1.35 }}>{t.sub}</div>
+                </div>
+              </button>)}
+          </div>
         </div>
-      </div>
-    </Screen>);
+      </Screen>
 
-  // ── 1b. tu cofre armado, en pantalla completa: confirmá o retocá ──
-  if (step === 'confirm')
-  return (
-    <Screen bg="#F3F3F3" footer={
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-        <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
-        <Btn variant="ghost" onClick={() => setStep('dream')}>Elegir otro objetivo</Btn>
-      </div>
-    }>
-      <StepHeader title={headerTitle} onBack={() => setStep('dream')} onClose={onCancel} />
-      <div style={{ minHeight: '100%', boxSizing: 'border-box', padding: '8px 20px 20px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
-        <div style={{ flex: 1, minHeight: 12 }} />
-        <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
-        <div key={tpl.id} style={{ marginTop: 30, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
-          <button
-            onClick={() => setPickingEmoji((v) => !v)}
-            style={{ position: 'relative', border: 0, background: 'transparent', padding: 0, cursor: 'pointer', lineHeight: 0 }}>
-            <CajaBadge caja={{ emoji, bg: tpl.bg }} size={120} />
-            <span style={{ position: 'absolute', right: -2, bottom: -2, width: 36, height: 36, borderRadius: 999, background: '#141414', border: '3px solid #F3F3F3', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <LI name={pickingEmoji ? 'close' : 'edit'} size={17} color="#fff" />
-            </span>
-          </button>
-        </div>
-        <input
-          value={name}
-          autoFocus={tpl.id === 'custom'}
-          maxLength={28}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Nombre de tu cofre"
-          style={{ width: '100%', marginTop: 26, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 30px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
-        <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 7 }}>Tocá el nombre para cambiarlo, o el emoji para editarlo.</div>
+      {/* sube desde abajo: tu cofre armado como recap — confirmás o retocás.
+          Se siente más "a confirmación" que empujar otra pantalla full.
+          Es recap (no formulario): el nombre es editable pero SIN autofocus,
+          así no dispara el teclado y no compite con el sheet. */}
+      <Sheet open={sheetOpen} onClose={() => { setSheetOpen(false); setPickingEmoji(false); }}>
+        {tpl &&
+        <div style={{ textAlign: 'center', padding: '2px 2px 0', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ font: '600 11px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: LX.text3 }}>Tu cofre</div>
+          <div key={tpl.id} style={{ marginTop: 18, animation: 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' }}>
+            <button
+              onClick={() => setPickingEmoji((v) => !v)}
+              style={{ position: 'relative', border: 0, background: 'transparent', padding: 0, cursor: 'pointer', lineHeight: 0 }}>
+              <CajaBadge caja={{ emoji, bg: tpl.bg }} size={104} />
+              <span style={{ position: 'absolute', right: -2, bottom: -2, width: 34, height: 34, borderRadius: 999, background: '#141414', border: `3px solid ${LX.page}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LI name={pickingEmoji ? 'close' : 'edit'} size={16} color="#fff" />
+              </span>
+            </button>
+          </div>
+          <input
+            value={name}
+            maxLength={28}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Nombre de tu cofre"
+            style={{ width: '100%', marginTop: 16, border: 0, outline: 'none', background: 'transparent', textAlign: 'center', font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }} />
+          <div style={{ font: '400 12px Inter', color: LX.text3, marginTop: 6 }}>Tocá el nombre para cambiarlo, o el emoji para editarlo.</div>
 
-        {pickingEmoji &&
-        <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 7, marginTop: 26, animation: 'lc-pop .3s ease both' }}>
-          {CAJA_EMOJIS.map((e) =>
-          <button key={e} onClick={() => { setEmoji(e); setPickingEmoji(false); }} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
+          {pickingEmoji &&
+          <div style={{ width: '100%', display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 7, marginTop: 18, animation: 'lc-pop .3s ease both' }}>
+            {CAJA_EMOJIS.map((e) =>
+            <button key={e} onClick={() => { setEmoji(e); setPickingEmoji(false); }} style={{ aspectRatio: '1', border: emoji === e ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 12, background: emoji === e ? tpl.bg : '#fff', fontSize: 18, lineHeight: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}>{e}</button>)}
+          </div>}
+
+          {/* con qué rinde: pesos o dólares digitales */}
+          <div style={{ width: '100%', display: 'flex', gap: 8, marginTop: 18 }}>
+            {['ARS', 'USD'].map((k) =>
+            <button key={k} onClick={() => setCurrency(k)} style={{ flex: 1, border: currency === k ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 14, padding: '10px 8px', background: currency === k ? '#141414' : '#fff', textAlign: 'center' }}>
+                <div style={{ font: '600 13px Inter', color: currency === k ? '#fff' : '#141414' }}>{CURRENCIES[k].source}</div>
+                <div style={{ font: '400 12px Inter', color: currency === k ? 'var(--c-lime-40)' : '#818181', marginTop: 2 }}>Rinde {CURRENCIES[k].short} TNA</div>
+              </button>)}
+          </div>
+
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6, marginTop: 22 }}>
+            <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
+            <Btn variant="ghost" onClick={() => { setSheetOpen(false); setPickingEmoji(false); }}>Elegir otro objetivo</Btn>
+          </div>
         </div>}
-
-        {/* con qué rinde: pesos o dólares digitales */}
-        <div style={{ width: '100%', display: 'flex', gap: 8, marginTop: 30 }}>
-          {['ARS', 'USD'].map((k) =>
-          <button key={k} onClick={() => setCurrency(k)} style={{ flex: 1, border: currency === k ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 14, padding: '12px 8px', background: currency === k ? '#141414' : '#fff', textAlign: 'center' }}>
-              <div style={{ font: '600 13px Inter', color: currency === k ? '#fff' : '#141414' }}>{CURRENCIES[k].source}</div>
-              <div style={{ font: '400 12px Inter', color: currency === k ? 'var(--c-lime-40)' : '#818181', marginTop: 2 }}>Rinde {CURRENCIES[k].short} TNA</div>
-            </button>)}
-        </div>
-        <div style={{ flex: 1, minHeight: 12 }} />
-      </div>
-    </Screen>);
+      </Sheet>
+    </div>);
 
   // ── 2. cuantificar el sueño: el monto del objetivo ──
   if (step === 'goal')
@@ -412,7 +418,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       cta="Definir objetivo"
       hint="Es tu meta, no un límite: la ajustás cuando quieras desde Editar."
       secondary={{ label: 'Prefiero sin objetivo', onPress: () => { setGoal(null); setStep('fund'); } }}
-      onBack={() => setStep('confirm')}
+      onBack={() => { setStep('dream'); setSheetOpen(true); }}
       onClose={onCancel}
       onConfirm={(v) => { setGoal(v); setStep('fund'); }} />);
 
@@ -487,6 +493,8 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
   const empty = caja.amount === 0;
+  // recompensa táctil: success haptic al crear el cofre (en nativo = notification success)
+  useEffectX(() => { haptic([16, 55, 32]); }, []);
   return (
     <Screen bg="#F3F3F3" footer={
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
