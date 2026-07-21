@@ -23,7 +23,6 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const mes = G_MESES[G_TODAY.getMonth()];
 
   const delta = summary.total - summary.prevTotal;
-  const up = delta > 0;
 
   // la carrera: cuántos "días de plata" consumiste vs. cuántos días pasaron
   const usualFull = summary.usualFull;
@@ -32,9 +31,6 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
-  // vs. junio: verde si gastaste menos, amarillo si fluctuó ±5% (normal), rojo si te pasaste
-  const deltaPct = summary.prevTotal > 0 ? delta / summary.prevTotal : 0;
-  const deltaColor = Math.abs(deltaPct) <= 0.05 ? '#D67100' : deltaPct < 0 ? '#0F7A35' : '#C32432';
   const raceCall = diff == null ? null :
     Math.abs(diff) < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
     diff > 0 ? 'Tu plata 💸 todavía no alcanzó al calendario 📅: vas ganando.' :
@@ -53,7 +49,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
             <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, marginLeft: -2, display: 'flex' }}>
               <LI name="arrow-back" size={24} color="#141414" />
             </button>
-            <div style={{ font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }}>Mis gastos</div>
+            <div style={{ font: '500 28px Geist', letterSpacing: '-0.02em', color: '#141414' }}>Tus gastos</div>
           </div>
           <button onClick={() => onBuscar()} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: 'rgba(8,8,9,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
             <LI name="search" size={20} color="#141414" />
@@ -63,8 +59,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
         {/* 1º el veredicto, 2º el número frío que lo respalda */}
         <GReveal delay={40}>
           <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 9, padding: '12px 8px 2px' }}>
-            <span style={{ font: '600 11px Inter', letterSpacing: '0.08em', color: '#818181', textTransform: 'uppercase' }}>{mes} · Día {G_TODAY.getDate()}</span>
-            <span style={{ font: '500 21px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.3, maxWidth: 300 }}>{verdict.text}</span>
+            <span style={{ font: '600 11px Inter', letterSpacing: '0.08em', color: '#818181', textTransform: 'uppercase' }}>{mes} · Día {G_TODAY.getDate()} de {info.totalDays}</span>
+            <span style={{ font: '500 21px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.3, maxWidth: 300 }}>Tu gasto total</span>
             <GCountUp fromZero delay={420} duration={950} to={summary.total} render={(v) => <GBigAmount value={v} />} />
           </div>
         </GReveal>
@@ -76,10 +72,9 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
         {moneyPct != null &&
           <GReveal delay={200}>
             <Surface pad={16}>
-              <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>La carrera del mes</span>
+              <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{verdict.text}</span>
               <GRaceTrack
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
-                bottomRight={`Día ${info.elapsedDays} de ${info.totalDays}`}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
                 {raceCall} La meta 🏁 es tu mes típico (promedio de los últimos 3).
@@ -100,8 +95,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
           <Surface pad={'6px 16px'}>
             <GDataRow icon="returns"
               label={`vs. ${info.prevName} a esta altura`}
-              value={summary.prevTotal > 0 ? `${up ? '+' : '−'} ${gFmt(Math.abs(delta))} · ${up ? '▲' : '▼'} ${Math.round(Math.abs(delta) / summary.prevTotal * 100)}%` : '—'}
-              valueColor={deltaColor} />
+              value={summary.prevTotal > 0 ? `− ${gFmt(Math.abs(delta))} · ▲ ${Math.round(Math.abs(delta) / summary.prevTotal * 100)}%` : '—'}
+              valueColor="#0F7A35" />
             {summary.insight &&
               <>
                 <Divider />
