@@ -101,11 +101,14 @@ function GastosStage() {
     return () => window.removeEventListener('resize', calc);
   }, []);
 
-  // cambiar de mes = cambiar de caso: recalibra la data y entra directo a la sección
+  // cambiar de mes = cambiar de caso: recalibra la data y entra directo a la
+  // sección (el contador fuerza el remount aunque toques el mes ya activo)
+  const [jump, setJump] = useStateZ(0);
   const pickScenario = (id) => {
     setGastosScenario(id);
     setScenario(id);
     setVisited(true);
+    setJump((j) => j + 1);
   };
   const reset = () => {
     setGastosScenario('jul');
@@ -142,7 +145,7 @@ function GastosStage() {
       {/* body */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px' }}>
         <PhoneG scale={scale}>
-          <GastosExperience key={`${resetKey}-${scenario}`} initialRoute={visited ? 'gastos' : 'home'} introSeen={visited} />
+          <GastosExperience key={`${resetKey}-${scenario}-${jump}`} initialRoute={visited ? 'gastos' : 'home'} introSeen={visited} />
         </PhoneG>
       </div>
     </div>);

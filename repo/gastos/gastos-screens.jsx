@@ -10,10 +10,26 @@ const { useState: useStateS, useEffect: useEffectS, useMemo: useMemoS } = React;
 // La carrera del mes: tu plata corre contra los días. Si al día 20
 // consumiste menos del 20/31 de tu mes típico, le vas ganando.
 const G_VERDICTS = {
-  low: { tint: '#EAF6C9', text: 'Le vas ganando al mes.', fill: 'linear-gradient(90deg, #00CA57, #CFFF2E)' },
-  ok: { tint: '#EAF6C9', text: 'Vas palo a palo con el mes.', fill: 'linear-gradient(90deg, #96C400, #CFFF2E)' },
-  warn: { tint: '#FFF3E6', text: 'El mes te saca una ventaja corta.', fill: 'linear-gradient(90deg, #F0A20B, #FFA53F)' },
-  high: { tint: '#FBE3E3', text: 'Este mes tu plata corre más rápido que los días.', fill: 'linear-gradient(90deg, #EA2B3C, #FF7933)' }
+  low: {
+    tint: '#EAF6C9', fill: 'linear-gradient(90deg, #00CA57, #CFFF2E)',
+    text: 'Le vas ganando al mes.',
+    call: 'Venís gastando 💸 menos de lo habitual para este momento del mes 📅.'
+  },
+  ok: {
+    tint: '#EAF6C9', fill: 'linear-gradient(90deg, #96C400, #CFFF2E)',
+    text: 'Vas palo a palo con el mes.',
+    call: 'Venís gastando 💸 justo lo habitual para este momento del mes 📅.'
+  },
+  warn: {
+    tint: '#FFF3E6', fill: 'linear-gradient(90deg, #F0A20B, #FFA53F)',
+    text: 'Venís gastando un poco más de lo habitual.',
+    call: 'Venís gastando 💸 un poco más de lo habitual para este momento del mes 📅.'
+  },
+  high: {
+    tint: '#FBE3E3', fill: 'linear-gradient(90deg, #EA2B3C, #FF7933)',
+    text: 'Estás gastando más que los últimos meses.',
+    call: 'Venís gastando 💸 bastante más de lo habitual para este momento del mes 📅.'
+  }
 };
 
 function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
@@ -34,10 +50,6 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   // vs. mes anterior: verde si gastaste menos, ámbar si fluctuó ±5% (normal), rojo si te pasaste
   const deltaPct = summary.prevTotal > 0 ? delta / summary.prevTotal : 0;
   const deltaColor = Math.abs(deltaPct) <= 0.05 ? '#D67100' : deltaPct < 0 ? '#0F7A35' : '#C32432';
-  const raceCall = diff == null ? null :
-    Math.abs(diff) < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
-    diff > 0 ? 'Tu plata 💸 todavía no alcanzó al calendario 📅: vas ganando.' :
-    'Tu plata 💸 ya pasó al calendario 📅: vas gastando adelantado.';
 
   return (
     <GScreen>
@@ -80,7 +92,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
-                {raceCall} La meta es tu mes típico (promedio de los últimos 3).
+                {verdict.call} Comparamos contra el promedio de tus últimos 3 meses.
               </div>
             </Surface>
           </GReveal>}

@@ -389,8 +389,8 @@ const ExpensesRepository = {
 const G_SCENARIOS = [
   { id: 'jul', label: 'Julio', month: 6, targetDiff: 3, caso: 'Le vas ganando al mes' },
   { id: 'jun', label: 'Junio', month: 5, targetDiff: 0, caso: 'Palo a palo con el mes' },
-  { id: 'may', label: 'Mayo', month: 4, targetDiff: -2.2, caso: 'El mes te saca ventaja corta' },
-  { id: 'abr', label: 'Abril', month: 3, targetDiff: -5, caso: 'Se te está escapando' }];
+  { id: 'may', label: 'Mayo', month: 4, targetDiff: -2.2, caso: 'Un poco más de lo habitual' },
+  { id: 'abr', label: 'Abril', month: 3, targetDiff: -5, caso: 'Gastando más que los últimos meses' }];
 
 const setGastosScenario = (id) => {
   const s = G_SCENARIOS.find((x) => x.id === id) || G_SCENARIOS[0];
