@@ -31,6 +31,9 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
+  // vs. mes anterior: verde si gastaste menos, ámbar si fluctuó ±5% (normal), rojo si te pasaste
+  const deltaPct = summary.prevTotal > 0 ? delta / summary.prevTotal : 0;
+  const deltaColor = Math.abs(deltaPct) <= 0.05 ? '#D67100' : deltaPct < 0 ? '#0F7A35' : '#C32432';
   const raceCall = diff == null ? null :
     Math.abs(diff) < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
     diff > 0 ? 'Tu plata 💸 todavía no alcanzó al calendario 📅: vas ganando.' :
@@ -95,8 +98,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
           <Surface pad={'6px 16px'}>
             <GDataRow icon="returns"
               label={`vs. ${info.prevName} a esta altura`}
-              value={summary.prevTotal > 0 ? `− ${gFmt(Math.abs(delta))} · ▼ ${Math.round(Math.abs(delta) / summary.prevTotal * 100)}%` : '—'}
-              valueColor="#0F7A35" />
+              value={summary.prevTotal > 0 ? `${delta < 0 ? '−' : '+'} ${gFmt(Math.abs(delta))} · ${delta < 0 ? '▼' : '▲'} ${Math.round(Math.abs(deltaPct) * 100)}%` : '—'}
+              valueColor={deltaColor} />
             {summary.insight &&
               <>
                 <Divider />

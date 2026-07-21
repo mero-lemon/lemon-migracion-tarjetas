@@ -4,8 +4,9 @@
 // se enchufa reemplazando este objeto sin tocar pantallas.
 
 // ── Fecha de referencia del prototipo ───────────────────────────
-// "Hoy" es fijo para que la demo sea idéntica en cada run.
-const G_TODAY = new Date(2026, 6, 20, 19, 30); // lunes 20 de julio de 2026
+// "Hoy" es fijo para que la demo sea idéntica en cada run. Los
+// escenarios de demo (ver G_SCENARIOS) pueden moverlo a otro mes.
+let G_TODAY = new Date(2026, 6, 20, 19, 30); // lunes 20 de julio de 2026
 const G_DATA_START = new Date(2026, 1, 1); // 1 de febrero de 2026
 
 // ── Taxonomía fija (la del motor de clasificación real) ─────────
@@ -200,7 +201,8 @@ const buildMovements = () => {
   return movs;
 };
 
-const G_ALL = buildMovements();
+const G_BASE = buildMovements(); // la historia completa, sin escalar
+let G_ALL = G_BASE;
 
 // ── Períodos ────────────────────────────────────────────────────
 const G_MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
@@ -379,4 +381,40 @@ const ExpensesRepository = {
   }
 };
 
-Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1 });
+// ── Escenarios de demo: cada mes cae en un caso distinto ────────
+// El selector del stage mueve "hoy" al día 20 de otro mes y escala el
+// gasto de ese mes para calibrar la carrera a un diff exacto de días.
+// Así los 4 casos posibles del veredicto quedan cubiertos con data real:
+// nada se hardcodea, todos los indicadores se derivan igual que siempre.
+const G_SCENARIOS = [
+  { id: 'jul', label: 'Julio', month: 6, targetDiff: 3, caso: 'Le vas ganando al mes' },
+  { id: 'jun', label: 'Junio', month: 5, targetDiff: 0, caso: 'Palo a palo con el mes' },
+  { id: 'may', label: 'Mayo', month: 4, targetDiff: -2.2, caso: 'El mes te saca ventaja corta' },
+  { id: 'abr', label: 'Abril', month: 3, targetDiff: -5, caso: 'Se te está escapando' }];
+
+const setGastosScenario = (id) => {
+  const s = G_SCENARIOS.find((x) => x.id === id) || G_SCENARIOS[0];
+  G_TODAY = new Date(2026, s.month, 20, 19, 30);
+  window.G_TODAY = G_TODAY;
+  const cut = G_BASE.filter((m) => m.date <= G_TODAY);
+  const p = periodInfo('month', G_TODAY);
+  const baseTotal = cut.filter((m) => m.date >= p.start).reduce((a, m) => a + m.amount, 0);
+  // la meta de la carrera: promedio de los meses previos completos
+  const fulls = [];
+  let cur = p;
+  for (let i = 0; i < 3; i++) {
+    const prevP = periodInfo('month', cur.prevAnchor);
+    if (prevP.start < G_DATA_START) break;
+    fulls.push(cut.filter((m) => m.date >= prevP.start && m.date < prevP.end).reduce((a, m) => a + m.amount, 0));
+    cur = prevP;
+  }
+  const usualFull = fulls.length >= 2 ? fulls.reduce((a, b) => a + b, 0) / fulls.length : null;
+  // factor tal que diff = elapsed − (total/usualFull)·totalDays == targetDiff
+  let factor = 1;
+  if (s.targetDiff != null && usualFull && baseTotal > 0)
+    factor = ((p.elapsedDays - s.targetDiff) / p.totalDays) * usualFull / baseTotal;
+  G_ALL = cut.map((m) => m.date >= p.start ? { ...m, amount: Math.round(m.amount * factor * 100) / 100 } : m);
+};
+setGastosScenario('jul'); // arranca calibrado: julio = ganando
+
+Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1, G_SCENARIOS, setGastosScenario });

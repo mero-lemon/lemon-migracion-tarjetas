@@ -2,28 +2,33 @@
 // de carga y splash de primer uso.
 const { useState: useStateZ, useEffect: useEffectZ } = React;
 
-function GastosExperience() {
-  const [route, setRoute] = useStateZ('home'); // home | portfolio | miniapps | gastos | buscar
-  const [gastosFrom, setGastosFrom] = useStateZ('home'); // desde dónde entraste a Mis gastos
+function GastosExperience({ initialRoute = 'home', introSeen = false }) {
+  const [route, setRoute] = useStateZ(initialRoute); // home | portfolio | miniapps | gastos | buscar
+  const [gastosFrom, setGastosFrom] = useStateZ('home'); // desde dónde entraste a Tus gastos
   // los filtros del buscador viven acá: volver atrás no los pierde
   const [filters, setFilters] = useStateZ({ unit: 'month', anchor: dayStart(G_TODAY), cats: [], methods: [], text: '' });
   const [openMov, setOpenMov] = useStateZ(null);
   const [sheetOpen, setSheetOpen] = useStateZ(false);
   const [gastosLoading, setGastosLoading] = useStateZ(false);
-  const [gastosSeen, setGastosSeen] = useStateZ(false);
+  const [gastosSeen, setGastosSeen] = useStateZ(introSeen);
   const [splash, setSplash] = useStateZ(false);
   const [toast, setToast] = useStateZ(null);
 
-  // primera entrada a Tus gastos: skeleton breve → splash de primer uso
+  // primera entrada a Tus gastos: el splash sube ya (con el skeleton
+  // pintándose detrás) y la sección recién se carga cuando lo cerrás
   const openGastos = (from) => {
     setGastosFrom(from);
     setRoute('gastos');
     if (!gastosSeen) {
       setGastosSeen(true);
       setGastosLoading(true);
-      setTimeout(() => setGastosLoading(false), 380);
-      setTimeout(() => setSplash(true), 560);
+      setTimeout(() => setSplash(true), 60);
     }
+  };
+  const closeSplash = () => {
+    setSplash(false);
+    // el home entra con su coreografía apenas el splash termina de bajar
+    setTimeout(() => setGastosLoading(false), 200);
   };
 
   // entrar al buscador; catId opcional (tap en una barra del home)
@@ -64,7 +69,7 @@ function GastosExperience() {
           onBack={() => setRoute('gastos')} onOpenMov={openMovement} />}
 
       <GMovSheet mov={openMov} open={sheetOpen} onClose={() => setSheetOpen(false)} onFlag={flagCategory} />
-      <GastosSplash open={splash} onClose={() => setSplash(false)} onBuscar={() => { setSplash(false); openBuscar(); }} />
+      <GastosSplash open={splash} onClose={closeSplash} onBuscar={() => { closeSplash(); openBuscar(); }} />
       {toast && <GToast text={toast} />}
     </div>);
 }
@@ -83,6 +88,8 @@ function PhoneG({ scale, children }) {
 function GastosStage() {
   const [scale, setScale] = useStateZ(1);
   const [resetKey, setResetKey] = useStateZ(0);
+  const [scenario, setScenario] = useStateZ('jul');
+  const [visited, setVisited] = useStateZ(false); // ya pasó el intro alguna vez
 
   useEffectZ(() => {
     const calc = () => {
@@ -94,6 +101,19 @@ function GastosStage() {
     return () => window.removeEventListener('resize', calc);
   }, []);
 
+  // cambiar de mes = cambiar de caso: recalibra la data y entra directo a la sección
+  const pickScenario = (id) => {
+    setGastosScenario(id);
+    setScenario(id);
+    setVisited(true);
+  };
+  const reset = () => {
+    setGastosScenario('jul');
+    setScenario('jul');
+    setVisited(false);
+    setResetKey((k) => k + 1);
+  };
+
   return (
     <div style={{ minHeight: '100vh', background: '#E6E5E1', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, system-ui' }}>
       {/* control strip */}
@@ -102,9 +122,19 @@ function GastosStage() {
           <Leaf size={15} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
         </span>
         <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Tus gastos <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
-        <div style={{ font: '400 12px Inter', color: '#8a8985' }}>“Hoy” es el lunes 20/7/2026 · data seedeada, idéntica en cada run</div>
+        <div style={{ font: '400 12px Inter', color: '#8a8985' }}>“Hoy” es el 20/{G_TODAY.getMonth() + 1}/2026 · data seedeada, idéntica en cada run</div>
 
-        <button onClick={() => setResetKey((k) => k + 1)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
+        {/* selector de escenarios: un mes por caso de la carrera */}
+        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: '#fff', border: '1px solid #D0CFCA', borderRadius: 999, padding: 3 }}>
+          {G_SCENARIOS.map((s) =>
+            <button key={s.id} onClick={() => pickScenario(s.id)} title={s.caso} style={{
+              border: 0, borderRadius: 999, padding: '5px 11px', cursor: 'pointer',
+              background: scenario === s.id ? '#141414' : 'transparent',
+              font: `600 12px Inter`, color: scenario === s.id ? '#fff' : '#5E5E5E', transition: 'background .15s'
+            }}>{s.label}</button>)}
+        </div>
+
+        <button onClick={reset} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
           <LI name="swap" size={14} color="#2a2a28" /> Reiniciar
         </button>
       </div>
@@ -112,7 +142,7 @@ function GastosStage() {
       {/* body */}
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px' }}>
         <PhoneG scale={scale}>
-          <GastosExperience key={resetKey} />
+          <GastosExperience key={`${resetKey}-${scenario}`} initialRoute={visited ? 'gastos' : 'home'} introSeen={visited} />
         </PhoneG>
       </div>
     </div>);
