@@ -32,13 +32,13 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
-  // los datos acompañan el veredicto: si venís ganando, se leen en verde
-  const deltaColor = status === 'low' || status === 'ok' ? '#0F7A35' : '#C32432';
-  const diffDays = diff == null ? 0 : Math.round(Math.abs(diff));
+  // vs. junio: verde si gastaste menos, amarillo si fluctuó ±5% (normal), rojo si te pasaste
+  const deltaPct = summary.prevTotal > 0 ? delta / summary.prevTotal : 0;
+  const deltaColor = Math.abs(deltaPct) <= 0.05 ? '#D67100' : deltaPct < 0 ? '#0F7A35' : '#C32432';
   const raceCall = diff == null ? null :
-    diffDays < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
-    diff > 0 ? `Tu plata 💸 todavía no alcanzó al calendario 📅: vas ganando por ${diffDays} ${diffDays === 1 ? 'día' : 'días'}.` :
-    `Tu plata 💸 ya pasó al calendario 📅: vas ${diffDays} ${diffDays === 1 ? 'día' : 'días'} adelantado.`;
+    Math.abs(diff) < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
+    diff > 0 ? 'Tu plata 💸 todavía no alcanzó al calendario 📅: vas ganando.' :
+    'Tu plata 💸 ya pasó al calendario 📅: vas gastando adelantado.';
 
   return (
     <GScreen>
@@ -79,7 +79,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>La carrera del mes</span>
               <GRaceTrack
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
-                bottomRight={`📅 Hoy · día ${info.elapsedDays} de ${info.totalDays}`}
+                bottomRight={`Día ${info.elapsedDays} de ${info.totalDays}`}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
                 {raceCall} La meta 🏁 es tu mes típico (promedio de los últimos 3).
@@ -113,18 +113,9 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
           </Surface>
         </GReveal>
 
-        {/* acceso al buscador, con pinta de buscador */}
-        <GReveal delay={560}>
-          <button onClick={() => onBuscar()} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', height: 48, padding: '0 16px', background: '#fff', border: `1px solid ${LX.border}`, borderRadius: 999, cursor: 'pointer', boxShadow: 'var(--shadow-card)' }}>
-            <LI name="filter" size={18} color="#141414" />
-            <span style={{ flex: 1, textAlign: 'left', font: '400 14px Inter', color: '#818181' }}>Buscar por período, categoría o comercio</span>
-            <LI name="arrow-foward" size={16} color="#B4B4B4" />
-          </button>
-        </GReveal>
-
         {/* últimos movimientos */}
         {recent.length > 0 &&
-          <GReveal delay={660}>
+          <GReveal delay={560}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '4px 2px 10px' }}>
                 <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Últimos movimientos</span>
