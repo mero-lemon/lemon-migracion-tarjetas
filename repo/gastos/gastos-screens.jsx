@@ -13,32 +13,32 @@ const G_VERDICTS = {
   low: {
     tint: '#EAF6C9', fill: 'linear-gradient(90deg, #00CA57, #CFFF2E)',
     text: 'Le vas ganando al mes.',
-    call: 'Venís gastando 💸 menos de lo habitual para este momento del mes 📅.'
+    call: 'Venís gastando menos de lo habitual para este momento del mes.'
   },
   ok: {
     tint: '#EAF6C9', fill: 'linear-gradient(90deg, #96C400, #CFFF2E)',
     text: 'Vas palo a palo con el mes.',
-    call: 'Venís gastando 💸 justo lo habitual para este momento del mes 📅.'
+    call: 'Venís gastando justo lo habitual para este momento del mes.'
   },
   warn: {
     tint: '#FFF3E6', fill: 'linear-gradient(90deg, #F0A20B, #FFA53F)',
     text: 'Venís gastando un poco más de lo habitual.',
-    call: 'Venís gastando 💸 un poco más de lo habitual para este momento del mes 📅.'
+    call: 'Venís gastando un poco más de lo habitual para este momento del mes.'
   },
   high: {
     tint: '#FBE3E3', fill: 'linear-gradient(90deg, #EA2B3C, #FF7933)',
     text: 'Estás gastando más que los últimos meses.',
-    call: 'Venís gastando 💸 bastante más de lo habitual para este momento del mes 📅.'
+    call: 'Venís gastando bastante más de lo habitual para este momento del mes.'
   }
 };
 
 // Con objetivo de total del mes la pantalla cambia de modo: deja de
 // compararte con "lo habitual" y te mide contra TU número. El relato
-// acompaña: ya no hay promedio, hay ritmo contra el objetivo 🎯.
+// acompaña: ya no hay promedio, hay ritmo contra el objetivo.
 const G_GOAL_CALLS = {
-  low: 'A este ritmo terminás el mes abajo de tu objetivo 🎯.',
-  ok: 'Vas justo al ritmo de tu objetivo 🎯.',
-  warn: 'Venís un poco rápido para tu objetivo 🎯.',
+  low: 'A este ritmo terminás el mes abajo de tu objetivo.',
+  ok: 'Vas justo al ritmo de tu objetivo.',
+  warn: 'Venís un poco rápido para tu objetivo.',
   high: 'A este ritmo te pasás de tu objetivo antes de fin de mes.',
   over: 'Ya pasaste tu objetivo de este mes.'
 };
@@ -112,10 +112,11 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
           <GReveal delay={200}>
             <Surface pad={16}>
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tu objetivo del mes</span>
-              {/* abajo de la pista: lo que te queda disponible contra tu objetivo */}
+              {/* abajo de la pista: lo que te queda contra tu objetivo. "Te quedan"
+                  y no "disponible": disponible ya nombra al saldo de la cuenta */}
               <GRaceTrack
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
-                bottomLeft={goalOver ? `Te pasaste por ${gFmt(-goalRemaining)}` : `${gFmt(goalRemaining)} disponible`}
+                bottomLeft={goalOver ? `Te pasaste por ${gFmt(-goalRemaining)}` : `Te quedan ${gFmt(goalRemaining)}`}
                 bottomRight={`Objetivo: ${gFmt(goalTotal)}`}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
@@ -169,7 +170,12 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
         {/* en qué: diagrama de barras de los grupos más grandes (solo pesos) */}
         <GReveal delay={380}>
           <Surface pad={16}>
-            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginBottom: 16 }}>Tus gastos por categoría</div>
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tus gastos por categoría</div>
+              {/* la aclaración solo aparece si este mes hay consumos en otras monedas */}
+              {summary.byCurrency.length > 0 &&
+                <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 3 }}>No incluye tus gastos en otras monedas.</div>}
+            </div>
             <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
           </Surface>
         </GReveal>
@@ -249,7 +255,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
     </GScreen>);
 }
 
-// ── Buscador: período + categorías + medio de pago + comercio ───
+// ── Buscador: período siempre visible + filtros plegados (cada fila
+//    muestra su selección; el detalle se pide tocando) ─────────────
 function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 0 }) {
   const { unit, anchor, cats, methods, curs, text } = filters;
   const set = (patch) => setFilters({ ...filters, ...patch });
@@ -263,10 +270,39 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 
   const merchants = useMemoS(() => singleCat ? ExpensesRepository.getTopMerchants(info, singleCat) : [], [unit, +anchor, singleCat, dataVersion]);
   const maxMerchant = merchants.length ? merchants[0].total : 1;
   const hasFilters = cats.length > 0 || methods.length > 0 || curs.length > 0 || text.trim().length > 0;
+  const [openSec, setOpenSec] = useStateS(null); // qué filtro está desplegado
+  const [showAllMovs, setShowAllMovs] = useStateS(false);
+  // cambiar la búsqueda vuelve a la vista corta de movimientos
+  useEffectS(() => { setShowAllMovs(false); }, [unit, +anchor, cats, methods, curs, text]);
 
   const toggle = (list, id) => list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
   const Label = ({ children }) =>
     <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '0 2px 10px' }}>{children}</div>;
+
+  // fila plegable: label + resumen de lo elegido + chevron. Es una función
+  // (no un componente) para que el subtree no se remonte en cada render y
+  // el input de comercio conserve el foco.
+  const filterSection = (id, label, summary, active, children) => {
+    const open = openSec === id;
+    return (
+      <div key={id}>
+        <button onClick={() => setOpenSec(open ? null : id)} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', border: 0, background: 'transparent', cursor: 'pointer', padding: '13px 0', textAlign: 'left' }}>
+          <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{label}</span>
+          <span style={{ flex: 1, textAlign: 'right', font: `${active ? 500 : 400} 12px Inter`, color: active ? '#141414' : '#999', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{summary}</span>
+          <LI name="arrow-expand-more" size={16} color="#818181" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .25s' }} />
+        </button>
+        <div style={{ display: 'grid', gridTemplateRows: open ? '1fr' : '0fr', transition: 'grid-template-rows .3s cubic-bezier(.25,.85,.3,1)' }}>
+          <div style={{ minHeight: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '2px 0 14px' }}>{children}</div>
+          </div>
+        </div>
+      </div>);
+  };
+
+  const catSummary = cats.length === 0 ? 'Todas' : cats.map((id) => (G_CAT[id] || {}).short).filter(Boolean).join(', ');
+  const methodSummary = methods.length === 0 ? 'Todos' : methods.map((id) => G_METHODS[id].label).join(', ');
+  const curSummary = curs.length === 0 ? 'Todas' : curs.map((id) => G_CUR[id].label).join(', ');
+  const textSummary = text.trim() ? `“${text.trim()}”` : 'Todos';
 
   return (
     <GScreen>
@@ -285,45 +321,39 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 
             </Surface>
           </div>
 
-          {/* 2. categorías */}
+          {/* 2. filtros plegados: el resumen de cada uno queda a la vista */}
           <div>
-            <Label>Categorías</Label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <GFilterChip active={cats.length === 0} onTap={() => set({ cats: [] })} label="Todas" />
-              {G_CATS.map((c) =>
-                <GFilterChip key={c.id} active={cats.includes(c.id)} onTap={() => set({ cats: toggle(cats, c.id) })}
-                  icon={c.icon} color={c.color} label={c.short} />)}
-            </div>
-          </div>
-
-          {/* 3. medio de pago */}
-          <div>
-            <Label>Medio de pago</Label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <GFilterChip active={methods.length === 0} onTap={() => set({ methods: [] })} label="Todos" />
-              {Object.entries(G_METHODS).map(([id, m]) =>
-                <GFilterChip key={id} active={methods.includes(id)} onTap={() => set({ methods: toggle(methods, id) })}
-                  icon={m.icon} label={m.label} />)}
-            </div>
-          </div>
-
-          {/* 4. moneda */}
-          <div>
-            <Label>Moneda</Label>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-              <GFilterChip active={curs.length === 0} onTap={() => set({ curs: [] })} label="Todas" />
-              {['ars', 'usd', 'brl'].map((id) => {
-                const c = G_CUR[id];
-                return <GFilterChip key={id} active={curs.includes(id)} onTap={() => set({ curs: toggle(curs, id) })}
-                  icon={c.icon} color={c.color} label={c.label} />;
-              })}
-            </div>
-          </div>
-
-          {/* 5. comercio */}
-          <div>
-            <Label>Comercio</Label>
-            <GSearchInput value={text} onChange={(v) => set({ text: v })} />
+            <Label>Filtros</Label>
+            <Surface pad={'2px 16px'}>
+              {filterSection('cats', 'Categorías', catSummary, cats.length > 0,
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <GFilterChip active={cats.length === 0} onTap={() => set({ cats: [] })} label="Todas" />
+                  {G_CATS.map((c) =>
+                    <GFilterChip key={c.id} active={cats.includes(c.id)} onTap={() => set({ cats: toggle(cats, c.id) })}
+                      icon={c.icon} color={c.color} label={c.short} />)}
+                </div>)}
+              <Divider />
+              {filterSection('methods', 'Medio de pago', methodSummary, methods.length > 0,
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <GFilterChip active={methods.length === 0} onTap={() => set({ methods: [] })} label="Todos" />
+                  {Object.entries(G_METHODS).map(([id, m]) =>
+                    <GFilterChip key={id} active={methods.includes(id)} onTap={() => set({ methods: toggle(methods, id) })}
+                      icon={m.icon} label={m.label} />)}
+                </div>)}
+              <Divider />
+              {filterSection('curs', 'Moneda', curSummary, curs.length > 0,
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  <GFilterChip active={curs.length === 0} onTap={() => set({ curs: [] })} label="Todas" />
+                  {['ars', 'usd', 'brl'].map((id) => {
+                    const c = G_CUR[id];
+                    return <GFilterChip key={id} active={curs.includes(id)} onTap={() => set({ curs: toggle(curs, id) })}
+                      icon={c.icon} color={c.color} label={c.label} />;
+                  })}
+                </div>)}
+              <Divider />
+              {filterSection('text', 'Comercio', textSummary, text.trim().length > 0,
+                <GSearchInput value={text} onChange={(v) => set({ text: v })} />)}
+            </Surface>
           </div>
 
           {/* resultados */}
@@ -380,10 +410,16 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 
                       </React.Fragment>)}
                   </Surface>}
 
-                {/* movimientos: el historial completo de la selección */}
+                {/* movimientos: arranca con los últimos 5 — el resto se pide */}
                 <div style={{ marginTop: 16 }}>
                   <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', margin: '2px 2px 2px' }}>Movimientos</div>
-                  <GMovList movs={movs} onTap={onOpenMov} showChip={cats.length !== 1} />
+                  {/* con la lista recortada, el total del día sumaría solo lo visible: se oculta */}
+                  <GMovList movs={showAllMovs ? movs : movs.slice(0, 5)} onTap={onOpenMov} showChip={cats.length !== 1}
+                    groupTotals={showAllMovs || movs.length <= 5} />
+                  {!showAllMovs && movs.length > 5 &&
+                    <button onClick={() => setShowAllMovs(true)} style={{ width: '100%', border: 0, background: 'transparent', cursor: 'pointer', font: '600 13px Inter', color: 'var(--c-greent-50)', padding: '12px 0 2px' }}>
+                      Ver los {movs.length} movimientos
+                    </button>}
                 </div>
               </>}
           </div>

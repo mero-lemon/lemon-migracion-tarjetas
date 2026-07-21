@@ -284,7 +284,7 @@ const GRaceTrack = ({ timePct, moneyPct, moneyFill, bottomLeft, bottomRight, del
       </div>
       {(bottomLeft || bottomRight) &&
         <div style={{ display: 'flex', justifyContent: bottomLeft ? 'space-between' : 'flex-end', alignItems: 'baseline', marginTop: 9 }}>
-          {bottomLeft && <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{bottomLeft}</span>}
+          {bottomLeft && <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{bottomLeft}</span>}
           {bottomRight && <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{bottomRight}</span>}
         </div>}
     </div>);
