@@ -32,6 +32,17 @@ const G_VERDICTS = {
   }
 };
 
+// Con objetivo de total del mes la pantalla cambia de modo: deja de
+// compararte con "lo habitual" y te mide contra TU número. El relato
+// acompaña: ya no hay promedio, hay ritmo contra el objetivo 🎯.
+const G_GOAL_CALLS = {
+  low: 'A este ritmo terminás el mes abajo de tu objetivo 🎯.',
+  ok: 'Vas justo al ritmo de tu objetivo 🎯.',
+  warn: 'Venís un poco rápido para tu objetivo 🎯.',
+  high: 'A este ritmo te pasás de tu objetivo antes de fin de mes.',
+  over: 'Ya pasaste tu objetivo de este mes.'
+};
+
 function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = { total: null, byCat: {} }, onEditGoals }) {
   const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), [dataVersion]);
   const summary = useMemoS(() => ExpensesRepository.getSummary(info), [dataVersion]);
@@ -47,7 +58,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
   const timePct = info.elapsedDays / info.totalDays;
   const moneyPct = metaValue > 0 ? summary.total / metaValue : null;
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
-  const refText = goalTotal ? `Referencia: tu objetivo de ${gFmt(goalTotal)}.` : 'Referencia: el promedio de tus últimos 3 meses.';
+  const goalRemaining = goalTotal ? goalTotal - summary.total : null;
+  const goalOver = goalRemaining != null && goalRemaining < 0;
 
   // objetivos por categoría, con lo gastado hasta hoy
   const catGoals = Object.entries(goals && goals.byCat ? goals.byCat : {}).map(([id, goal]) => {
@@ -57,6 +69,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
     const ratio = goal > 0 ? spent / goal : 0;
     return { cat: c, goal, spent, ratio, color: ratio >= 1 ? '#EA2B3C' : ratio >= 0.85 ? '#F0A20B' : '#0F7A35' };
   }).filter(Boolean);
+  const hasGoals = !!goalTotal || catGoals.length > 0;
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
   // vs. mes anterior: verde si gastaste menos, ámbar si fluctuó ±5% (normal), rojo si te pasaste
@@ -92,11 +105,27 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
           </div>
         </GReveal>
 
-        {/* la carrera del mes, en un solo carril: el relleno es tu plata,
-            la marca 📅 es el calendario, la meta 🏁 es tu mes típico.
-            Indicador simple, sin números — lo que queda claro es el
-            progreso del mes. */}
-        {moneyPct != null &&
+        {/* la herramienta de control cambia de forma según el compromiso:
+            sin objetivo → la carrera contra tu mes típico (diagnóstico);
+            con objetivo de total → presupuesto contra TU número. */}
+        {moneyPct != null && (goalTotal ?
+          <GReveal delay={200}>
+            <Surface pad={16}>
+              <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tu objetivo del mes</span>
+              {/* abajo de la pista: lo que te queda disponible contra tu objetivo */}
+              <GRaceTrack
+                timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
+                bottomLeft={goalOver ? `Te pasaste por ${gFmt(-goalRemaining)}` : `${gFmt(goalRemaining)} disponible`}
+                bottomRight={`Objetivo: ${gFmt(goalTotal)}`}
+                delay={520} />
+              <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
+                {G_GOAL_CALLS[goalOver ? 'over' : status]}
+              </div>
+              <button onClick={onEditGoals} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-greent-50)', padding: '8px 0 0', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <LI name="settings" size={13} color="var(--c-greent-50)" /> Editar objetivo
+              </button>
+            </Surface>
+          </GReveal> :
           <GReveal delay={200}>
             <Surface pad={16}>
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{verdict.text}</span>
@@ -104,25 +133,19 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
-                {verdict.call} {refText}
+                {verdict.call} Referencia: el promedio de tus últimos 3 meses.
               </div>
               <button onClick={onEditGoals} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-greent-50)', padding: '8px 0 0', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
-                <LI name="settings" size={13} color="var(--c-greent-50)" /> {goalTotal ? 'Editar objetivo' : 'Poné un objetivo'}
+                <LI name="settings" size={13} color="var(--c-greent-50)" /> Poné un objetivo
               </button>
             </Surface>
-          </GReveal>}
+          </GReveal>)}
 
-        {/* en qué: diagrama de barras de los grupos más grandes (solo pesos) */}
-        <GReveal delay={340}>
-          <Surface pad={16}>
-            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginBottom: 16 }}>Tus gastos por categoría</div>
-            <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
-          </Surface>
-        </GReveal>
-
-        {/* objetivos por categoría: cuánto llevás vs. tu tope, con color por estado */}
+        {/* objetivos por categoría: cuánto llevás vs. tu tope, con color por
+            estado. Va antes del desglose: si hay un compromiso, su estado
+            importa más que la foto descriptiva. */}
         {catGoals.length > 0 &&
-          <GReveal delay={400}>
+          <GReveal delay={320}>
             <Surface pad={'6px 16px'}>
               <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', padding: '10px 0 6px' }}>Objetivos por categoría</div>
               {catGoals.map((g, i) =>
@@ -142,6 +165,14 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
                 </React.Fragment>)}
             </Surface>
           </GReveal>}
+
+        {/* en qué: diagrama de barras de los grupos más grandes (solo pesos) */}
+        <GReveal delay={380}>
+          <Surface pad={16}>
+            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginBottom: 16 }}>Tus gastos por categoría</div>
+            <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
+          </Surface>
+        </GReveal>
 
         {/* consumos que no son en pesos: su propio grupo, sin desglose interno */}
         {summary.byCurrency.length > 0 &&
@@ -166,9 +197,11 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
             </Surface>
           </GReveal>}
 
-        {/* la verdad fría, en dos datos: vs junio + qué movió la aguja */}
+        {/* tu mes en contexto: las referencias del mes — vs junio, qué movió
+            la aguja, y desde acá también elegís tu propia vara (objetivos) */}
         <GReveal delay={540}>
           <Surface pad={'6px 16px'}>
+            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', padding: '10px 0 2px' }}>Tu mes en contexto</div>
             <GDataRow icon="returns"
               label="vs. mismo día del mes anterior"
               value={summary.prevTotal > 0 ? `${delta < 0 ? '−' : '+'} ${gFmt(Math.abs(delta))} · ${delta < 0 ? '▼' : '▲'} ${Math.round(Math.abs(deltaPct) * 100)}%` : '—'}
@@ -181,6 +214,17 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
                   value={`${summary.insight.delta > 0 ? '+' : '−'} ${gFmt(Math.abs(summary.insight.delta))}`}
                   valueColor={summary.insight.delta > 0 ? '#C32432' : '#0F7A35'} />
               </>}
+            <Divider />
+            <button onClick={onEditGoals} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '11px 0' }}>
+              <div style={{ width: 36, height: 36, borderRadius: 999, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="limits" size={17} color="var(--c-lime-60)" />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '500 13px Inter', color: '#141414' }}>{hasGoals ? 'Editar tus objetivos' : 'Poné un objetivo'}</div>
+                <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 1 }}>{hasGoals ? 'Total del mes y por categoría' : 'Elegí cuánto querés gastar: total del mes o por categoría'}</div>
+              </div>
+              <LI name="arrow-foward" size={15} color="#B4B4B4" />
+            </button>
           </Surface>
         </GReveal>
 
@@ -537,6 +581,10 @@ function GGoalsSheet({ open, goals, onClose, onSave }) {
   Object.keys(goals && goals.byCat ? goals.byCat : {}).forEach((id) => {
     if (!catList.find((c) => c.id === id) && G_CAT[id]) catList.push(G_CAT[id]);
   });
+  // las categorías creadas por el usuario entran aunque todavía no tengan gastos
+  window.G_CATS.filter((c) => c.user).forEach((c) => {
+    if (!catList.find((x) => x.id === c.id)) catList.push(c);
+  });
 
   const setCat = (id, v) => setByCat((prev) => { const n = { ...prev }; if (v) n[id] = v; else delete n[id]; return n; });
   const save = () => onSave({
@@ -547,34 +595,34 @@ function GGoalsSheet({ open, goals, onClose, onSave }) {
 
   return (
     <Sheet open={open} onClose={onClose}>
-      <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#141414', textAlign: 'center' }}>Tus objetivos del mes</div>
-      <div style={{ font: '400 12.5px Inter', color: '#818181', textAlign: 'center', marginTop: 2, marginBottom: 14, lineHeight: 1.4 }}>Poné cuánto querés gastar. Lo usamos como meta en lugar de tu promedio.</div>
+      <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: '#141414', textAlign: 'center', padding: '6px 0 0' }}>Tus objetivos del mes</div>
+      <div style={{ font: '400 13.5px Inter', color: '#818181', textAlign: 'center', marginTop: 5, marginBottom: 18, lineHeight: 1.45 }}>Para controlar mejor, definite objetivos.</div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '2px 2px 12px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '2px 2px 14px' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Total del mes</div>
-          {suggestion > 0 && <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 2 }}>Tu promedio: {gFmt(suggestion)}</div>}
+          <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Total del mes</div>
+          {suggestion > 0 && <div style={{ font: '400 11.5px Inter', color: '#B4B4B4', marginTop: 2 }}>Tu promedio: {gFmt(suggestion)}</div>}
         </div>
         <div style={{ width: 148, flexShrink: 0 }}>
-          <GMoneyField value={total} onChange={setTotal} placeholder="Tu promedio" />
+          <GMoneyField value={total} onChange={setTotal} placeholder="Monto" />
         </div>
       </div>
 
       <Divider />
-      <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '14px 2px 4px' }}>Por categoría (opcional)</div>
+      <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '16px 2px 6px' }}>Por categoría</div>
 
-      <div style={{ maxHeight: 214, overflowY: 'auto', margin: '0 -6px', padding: '0 6px' }}>
+      <div style={{ maxHeight: 292, overflowY: 'auto', margin: '0 -6px', padding: '0 6px' }}>
         {catList.map((c) =>
-          <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
-            <GCatIcon cat={c} size={34} />
-            <span style={{ flex: 1, font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</span>
+          <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0' }}>
+            <GCatIcon cat={c} size={36} />
+            <span style={{ flex: 1, font: '500 14.5px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</span>
             <div style={{ width: 128, flexShrink: 0 }}>
-              <GMoneyField sm value={byCat[c.id] || ''} onChange={(v) => setCat(c.id, v)} />
+              <GMoneyField sm value={byCat[c.id] || ''} onChange={(v) => setCat(c.id, v)} placeholder="Monto" />
             </div>
           </div>)}
       </div>
 
-      <Btn onClick={save} style={{ marginTop: 14 }}>Guardar objetivos</Btn>
+      <Btn onClick={save} style={{ marginTop: 16 }}>Guardar objetivos</Btn>
       {hasSaved ?
         <Btn variant="light" onClick={() => onSave({ total: null, byCat: {} })} style={{ marginTop: 10 }}>Volver a mi promedio</Btn> :
         <Btn variant="light" onClick={onClose} style={{ marginTop: 10 }}>Cancelar</Btn>}

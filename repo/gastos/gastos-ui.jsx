@@ -374,7 +374,7 @@ const GSearchInput = ({ value, onChange, placeholder = 'Buscá por comercio' }) 
 // ── Campo de monto (objetivos): $ + miles es-AR mientras tipeás ──
 const gDigits = (s) => (s || '').replace(/\D/g, '');
 const gGroup = (digits) => digits ? Number(digits).toLocaleString('es-AR') : '';
-const GMoneyField = ({ value, onChange, placeholder = 'Sin objetivo', sm = false }) =>
+const GMoneyField = ({ value, onChange, placeholder = 'Monto', sm = false }) =>
   <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: sm ? 38 : 44, padding: '0 12px', background: '#fff', border: '1px solid #E6E6E6', borderRadius: sm ? 12 : 14, minWidth: 0 }}>
     <span style={{ font: '500 14px Geist', color: value ? '#141414' : '#B4B4B4' }}>$</span>
     <input inputMode="numeric" value={gGroup(value)} onChange={(e) => onChange(gDigits(e.target.value))} placeholder={placeholder}
