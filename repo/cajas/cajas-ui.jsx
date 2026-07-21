@@ -43,12 +43,12 @@ const BigAmount = ({ value, prefix = '$', size = 44, color = '#141414' }) => {
 
 // ── Plantillas de caja ──────────────────────────────────────────
 const CAJA_TEMPLATES = [
-  { id: 'emergencia', icon: 'shield-alt', emoji: '🛟', name: 'Fondo de emergencia', sub: 'Para dormir tranqui.', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)' },
-  { id: 'vacaciones', icon: 'travel', emoji: '✈️', name: 'Vacaciones', sub: 'El próximo viaje.', bg: '#E8F1FE', fg: '#2F6BDB' },
-  { id: 'auto', icon: 'car', emoji: '🚗', name: 'El auto', sub: 'Cambiarlo o mantenerlo.', bg: 'var(--c-solar-5)', fg: 'var(--c-solar-50)' },
-  { id: 'regalos', icon: 'view-gift', emoji: '🎁', name: 'Regalos', sub: 'Cumples y fiestas.', bg: '#FDEBF5', fg: '#D6006A' },
-  { id: 'mudanza', icon: 'key', emoji: '🔑', name: 'Mudanza', sub: 'Depósito y flete.', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)' },
-  { id: 'custom', icon: 'vault', emoji: '📦', name: 'Otra cosa', sub: 'Armala a tu manera.', bg: 'var(--c-lime-10)', fg: 'var(--c-lime-60)' }];
+  { id: 'emergencia', icon: 'shield-alt', emoji: '🛟', name: 'Fondo de emergencia', sub: 'Para dormir tranquilo', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)' },
+  { id: 'vacaciones', icon: 'travel', emoji: '✈️', name: 'Vacaciones', sub: 'Tu próximo viaje', bg: '#E8F1FE', fg: '#2F6BDB' },
+  { id: 'auto', icon: 'car', emoji: '🚗', name: 'Auto', sub: 'Para cambiarlo o mantenerlo', bg: 'var(--c-solar-5)', fg: 'var(--c-solar-50)' },
+  { id: 'regalos', icon: 'view-gift', emoji: '🎁', name: 'Regalos', sub: 'Cumpleaños y fiestas', bg: '#FDEBF5', fg: '#D6006A' },
+  { id: 'mudanza', icon: 'key', emoji: '🔑', name: 'Mudanza', sub: 'Depósito y flete', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)' },
+  { id: 'custom', icon: 'vault', emoji: '📦', name: 'Otra cosa', sub: 'Personalizalo con el nombre y el emoji que quieras', bg: 'var(--c-lime-10)', fg: 'var(--c-lime-60)' }];
 
 const getTemplate = (id) => CAJA_TEMPLATES.find((t) => t.id === id) || CAJA_TEMPLATES[5];
 
@@ -180,19 +180,19 @@ const SPLASH_SLIDES = [
   {
     id: 'orden', icon: '🎯', iconBg: 'var(--c-lime-10)',
     title: 'Un cofre para cada objetivo',
-    body: 'Separá tu plata por metas, cada una con su nombre y su progreso, lejos de tus gastos del día a día.',
+    body: 'Separá plata para tus metas y guardala en cofres. Poneles un nombre, seguí su progreso y mantenelos lejos de tus gastos del día a día.',
     chips: [['🏖️', 'Bariloche'], ['🛟', 'Emergencias'], ['🚗', 'El auto']]
   },
   {
     id: 'seguro', icon: '🛡️', iconBg: 'var(--c-nebula-5)',
-    title: 'Tu plata, 100% protegida',
-    body: 'Lo que guardás en un cofre no se puede gastar: la tarjeta y el QR no lo tocan. Y si guardás mucho, blindalo con un PIN.',
+    title: 'Tu plata 100% protegida',
+    body: 'Lo que guardás en tus cofres no se gasta: ni la tarjeta ni el QR usan esos fondos. Además, podés blindar tus cofres con un PIN.',
     chips: [['🛡️', 'Blindaje opcional'], ['💳', 'Invisible para la tarjeta']]
   },
   {
     id: 'rinde', icon: '📈', iconBg: 'var(--c-lemon-5)',
     title: 'Rinde todos los días',
-    body: 'Genera rendimientos a diario mientras está guardada. Y la retirás al instante, sin plazos ni penalidades.',
+    body: 'Tu plata en cofres genera rendimientos diarios. Si la necesitás, podés retirarla al instante, sin plazos ni penalidades.',
     chips: [['📈', `${CURRENCIES.ARS.short} TNA en pesos`], ['💵', `${CURRENCIES.USD.short} TNA en dólares`]]
   }];
 
@@ -373,8 +373,8 @@ const NoGastoHint = ({ source = 'pesos digitales', armored = false }) =>
     <LI name="card-off" size={16} color="#818181" style={{ marginTop: 2, flexShrink: 0 }} />
     <span style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.45 }}>
       {armored ?
-    <>La plata del cofre no se puede gastar: queda 100% protegida hasta que la retires. Como está blindado, los retiros llegan a tus {source} en 24 h.</> :
-    <>La plata del cofre no se puede gastar: queda 100% protegida hasta que la retires. Y retirarla es al instante: vuelve directo a tus {source}.</>}
+    <>La plata del cofre no se puede gastar: queda protegida hasta que la retires. Como está blindado, los retiros llegan a tus {source} en 24 h.</> :
+    <>La plata del cofre no se puede gastar: queda protegida hasta que la retires. Podés hacerlo cuando quieras, al instante.</>}
     </span>
   </div>;
 

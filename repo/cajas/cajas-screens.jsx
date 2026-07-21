@@ -339,7 +339,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
         <div style={{ padding: '6px 16px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div>
             <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1 }}>¿Qué querés lograr?</div>
-            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí para qué vas a guardar: cada cofre tiene su nombre y su progreso.</div>
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>Elegí tu próxima meta: creá un cofre y seguí su progreso.</div>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
@@ -416,7 +416,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       title={`¿Cuánto necesitás para ${name.trim()}?`}
       max={999999999}
       cta="Definir objetivo"
-      hint="Es tu meta, no un límite: la ajustás cuando quieras desde Editar."
+      hint="Es tu meta, no un límite: podés ajustarla cuando quieras desde “Editar”."
       secondary={{ label: 'Prefiero sin objetivo', onPress: () => { setGoal(null); setStep('fund'); } }}
       onBack={() => { setStep('dream'); setSheetOpen(true); }}
       onClose={onCancel}
@@ -508,17 +508,19 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
           <ConfettiBurst />
         </div>
         <div>
+          {/* título genérico a propósito: "¡Tu cofre ya está listo!" nunca
+              choca en género/número con el nombre elegido (Vacaciones, etc.) */}
+          <div style={{ font: '500 30px Geist', lineHeight: 1.15, letterSpacing: '-0.02em', color: '#141414' }}>¡Tu cofre ya está listo!</div>
           {empty ?
-          <>
-            <div style={{ font: '500 30px Geist', lineHeight: 1.15, letterSpacing: '-0.02em', color: '#141414' }}>¡{caja.name} ya está listo!</div>
-            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
-              Ponele plata cuando quieras: rinde {cur.label} desde el primer peso.
-            </div>
-          </> :
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
+            Ponele plata cuando quieras: rinde {cur.label} desde el primer peso.
+          </div> :
           <>
             <CountUp to={caja.amount} render={(v) =>
-            <div style={{ font: '500 42px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums' }}>{fmtC(v, ck)}</div>} />
-            <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', color: LX.text1, marginTop: 6 }}>ya están rindiendo en {caja.name}</div>
+            <div style={{ font: '500 36px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums', marginTop: 10 }}>{fmtC(v, ck)}</div>} />
+            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
+              Esta plata queda apartada y la podés retirar cuando quieras, al instante.
+            </div>
           </>}
         </div>
 
@@ -539,14 +541,10 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
             <span style={{ flex: 1, font: '400 13px Inter', color: LX.text2, lineHeight: 1.4 }}>
               {empty ?
               <>Está vacío por ahora: agregale plata desde el cofre cuando quieras.</> :
-              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtY(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin que hagas nada.</>}
+              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtY(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin hacer nada extra.</>}
             </span>
             <TnaChip compact label={cur.label} />
           </div>
-        </div>
-
-        <div style={{ font: '400 12px Inter', color: LX.text3, lineHeight: 1.5, maxWidth: 300 }}>
-          Esta plata quedó 100% apartada. La retirás cuando quieras, al instante.
         </div>
       </div>
     </Screen>);
