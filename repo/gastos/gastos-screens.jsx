@@ -24,7 +24,6 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
 
   const delta = summary.total - summary.prevTotal;
   const up = delta > 0;
-  const deltaColor = up ? '#C32432' : '#0F7A35';
 
   // la carrera: cuántos "días de plata" consumiste vs. cuántos días pasaron
   const usualFull = summary.usualFull;
@@ -33,6 +32,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
+  // los datos acompañan el veredicto: si venís ganando, se leen en verde
+  const deltaColor = status === 'low' || status === 'ok' ? '#0F7A35' : '#C32432';
   const diffDays = diff == null ? 0 : Math.round(Math.abs(diff));
   const raceCall = diff == null ? null :
     diffDays < 1 ? 'Palo a palo: tu plata 💸 va justo donde está parado el calendario 📅.' :
@@ -69,20 +70,15 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
         </GReveal>
 
         {/* la carrera del mes, en un solo carril: el relleno es tu plata,
-            la marca 📅 es el calendario, la meta 🏁 es tu mes típico */}
+            la marca 📅 es el calendario, la meta 🏁 es tu mes típico.
+            Indicador simple, sin números — lo que queda claro es el
+            progreso del mes. */}
         {moneyPct != null &&
           <GReveal delay={200}>
             <Surface pad={16}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>La carrera del mes</span>
-                {diffDays >= 1 &&
-                  <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: diff > 0 ? 'var(--c-lime-10)' : '#FBE3E3', color: diff > 0 ? 'var(--c-lime-70)' : '#C32432', font: '600 11px Inter', padding: '3px 10px', borderRadius: 999 }}>
-                    {diff > 0 ? '🏁' : '⚠️'} {diff > 0 ? `+${diffDays}` : `−${diffDays}`} {diffDays === 1 ? 'día' : 'días'}
-                  </span>}
-              </div>
+              <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>La carrera del mes</span>
               <GRaceTrack
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
-                bottomLeft={`💸 ${gFmtCompact(summary.total)} de ~${gFmtCompact(usualFull)}`}
                 bottomRight={`📅 Hoy · día ${info.elapsedDays} de ${info.totalDays}`}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>

@@ -269,8 +269,8 @@ const GRaceTrack = ({ timePct, moneyPct, moneyFill, bottomLeft, bottomRight, del
         <span style={{ position: 'absolute', top: -22, left: on ? `${tp}%` : '5%', transform: 'translateX(-50%)', fontSize: 13, lineHeight: 1, transition: 'left .9s cubic-bezier(.3,.85,.3,1)' }}>📅</span>
         <span style={{ position: 'absolute', top: '50%', right: 9, transform: 'translateY(-50%)', fontSize: 13, lineHeight: 1, opacity: 0.55 }}>🏁</span>
       </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 9 }}>
-        <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{bottomLeft}</span>
+      <div style={{ display: 'flex', justifyContent: bottomLeft ? 'space-between' : 'flex-end', alignItems: 'baseline', marginTop: 9 }}>
+        {bottomLeft && <span style={{ font: '500 11.5px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{bottomLeft}</span>}
         <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{bottomRight}</span>
       </div>
     </div>);
