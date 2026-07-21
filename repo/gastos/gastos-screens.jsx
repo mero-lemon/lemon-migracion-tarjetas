@@ -299,46 +299,167 @@ function GMovSheet({ mov, open, onClose, onFlag }) {
     </Sheet>);
 }
 
-// ── Splash de primer uso ────────────────────────────────────────
-function GastosSplash({ open, onClose }) {
+// ── Artes del splash (SVG a mano, estilo piezas de Cofres) ──────
+// Barras por categoría que crecen + moneda que cae
+const GArtBars = ({ size = 158, animate }) =>
+  <svg width={size} height={size * 0.86} viewBox="0 0 240 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="120" cy="106" r="92" fill="#EAF6C9" />
+    {[[54, 86, '#00AA18'], [96, 62, '#FF8700'], [138, 44, '#08C7E0'], [180, 30, '#925DEE']].map(([x, h, c], i) =>
+      <g key={i} style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.16))' }}>
+        <rect x={x} y={168 - h} width="30" height={h} rx="9" fill={c}
+          style={animate ? { animation: `lc-grow-y .55s cubic-bezier(.25,.85,.3,1) ${0.25 + i * 0.09}s both`, transformOrigin: `${x + 15}px 168px` } : null} />
+      </g>)}
+    <rect x="46" y="168" width="172" height="6" rx="3" fill="rgba(8,8,9,0.12)" />
+    {/* moneda cayendo */}
+    <g style={animate ? { animation: 'lc-coin-drop 1.2s cubic-bezier(.3,1.4,.5,1) both', animationDelay: '.5s' } : null}>
+      <circle cx="120" cy="46" r="16" fill="#141414" />
+      <circle cx="120" cy="46" r="16" fill="none" stroke="#CFFF2E" strokeWidth="2.5" />
+      <text x="120" y="52" textAnchor="middle" fill="#CFFF2E" style={{ font: '700 18px Inter' }}>$</text>
+    </g>
+    <path d="M46 58l3.5 8 8 3.5-8 3.5-3.5 8-3.5-8-8-3.5 8-3.5Z" fill="#96C400" />
+    <path d="M198 44l2.5 5.5 5.5 2.5-5.5 2.5-2.5 5.5-2.5-5.5-5.5-2.5 5.5-2.5Z" fill="#00AA18" />
+  </svg>;
+
+// La carrera: la pista con el relleno corriendo hacia la marca 📅 y la meta 🏁
+const GArtRace = ({ size = 158, animate }) =>
+  <svg width={size} height={size * 0.86} viewBox="0 0 240 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="gRaceFill" x1="42" y1="0" x2="150" y2="0" gradientUnits="userSpaceOnUse">
+        <stop stopColor="#00CA57" /><stop offset="1" stopColor="#CFFF2E" />
+      </linearGradient>
+    </defs>
+    <circle cx="120" cy="106" r="92" fill="#EAF6C9" />
+    <g style={{ filter: 'drop-shadow(0 8px 14px rgba(0,0,0,0.14))' }}>
+      <rect x="42" y="92" width="156" height="30" rx="15" fill="#fff" />
+    </g>
+    <rect x="42" y="92" width="106" height="30" rx="15" fill="url(#gRaceFill)"
+      style={animate ? { animation: 'lc-grow-x 1.1s cubic-bezier(.3,.85,.3,1) .35s both', transformOrigin: '42px 107px' } : null} />
+    <text x="140" y="114" textAnchor="middle" style={{ fontSize: 17, ...(animate ? { animation: 'lc-pop .4s cubic-bezier(.3,1.4,.5,1) 1.3s both' } : {}) }}>💸</text>
+    {/* la marca del calendario */}
+    <rect x="160" y="84" width="3" height="46" rx="1.5" fill="#141414" />
+    <text x="162" y="76" textAnchor="middle" style={{ fontSize: 15 }}>📅</text>
+    <text x="186" y="114" textAnchor="middle" style={{ fontSize: 14, opacity: 0.7 }}>🏁</text>
+    {/* chip: vas ganando */}
+    <g style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.16))' }}>
+      <rect x="76" y="140" width="90" height="26" rx="13" fill="#141414" />
+      <text x="121" y="157" textAnchor="middle" fill="#CFFF2E" style={{ font: '600 12px Inter' }}>vas ganando</text>
+    </g>
+    <path d="M50 56l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#96C400" />
+    <path d="M196 150l2.5 5.5 5.5 2.5-5.5 2.5-2.5 5.5-2.5-5.5-5.5-2.5 5.5-2.5Z" fill="#00AA18" />
+  </svg>;
+
+// El buscador: lupa sobre movimientos, uno resaltado en lime
+const GArtSearch = ({ size = 158, animate }) =>
+  <svg width={size} height={size * 0.86} viewBox="0 0 240 206" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="120" cy="106" r="92" fill="#EAF6C9" />
+    {[[62, '#fff'], [90, '#CFFF2E'], [118, '#fff'], [146, '#fff']].map(([y, c], i) =>
+      <g key={i} style={{ filter: 'drop-shadow(0 4px 8px rgba(0,0,0,0.10))', ...(animate ? { animation: `lc-pop .4s cubic-bezier(.3,1.4,.5,1) ${0.25 + i * 0.09}s both` } : {}) }}>
+        <rect x="52" y={y} width="118" height="20" rx="10" fill={c} />
+        <circle cx="64" cy={y + 10} r="6" fill={c === '#CFFF2E' ? '#141414' : 'rgba(8,8,9,0.14)'} />
+        <rect x="76" y={y + 7} width={54 - i * 6} height="6" rx="3" fill={c === '#CFFF2E' ? 'rgba(8,8,8,0.45)' : 'rgba(8,8,9,0.14)'} />
+      </g>)}
+    {/* lupa */}
+    <g style={{ filter: 'drop-shadow(0 6px 10px rgba(0,0,0,0.22))' }}>
+      <circle cx="162" cy="100" r="27" fill="rgba(255,255,255,0.4)" stroke="#141414" strokeWidth="8" />
+      <rect x="180" y="120" width="12" height="34" rx="6" transform="rotate(-45 186 122)" fill="#141414" />
+    </g>
+    <path d="M52 44l3 7 7 3-7 3-3 7-3-7-7-3 7-3Z" fill="#96C400" />
+  </svg>;
+
+// ── Splash de primer uso — acordeón estilo Cofres, el 1º se abre solo ──
+const GASTOS_SLIDES = [
+  {
+    id: 'todo', icon: '🧾', iconBg: 'var(--c-lime-10)',
+    title: 'Todos tus gastos, juntos',
+    body: 'Tarjeta, QR, débitos y servicios: cada consumo ordenado por categoría, para que veas tu mes de un vistazo.',
+    chips: [['🛒', 'Súper'], ['🍔', 'Delivery'], ['📺', 'Suscripciones']],
+    art: GArtBars
+  },
+  {
+    id: 'carrera', icon: '🏁', iconBg: 'var(--c-nebula-5)',
+    title: 'La carrera del mes',
+    body: 'Tu plata corre contra los días: si va detrás del calendario, le vas ganando al mes. La meta es tu mes típico.',
+    chips: [['📅', 'El calendario'], ['💸', 'Tu plata'], ['🏁', 'Tu mes típico']],
+    art: GArtRace
+  },
+  {
+    id: 'buscar', icon: '🔎', iconBg: 'var(--c-solar-5)',
+    title: 'Encontrá cualquier gasto',
+    body: 'Filtrá por período, categoría o medio de pago, y buscá por comercio. La verdad, clara y fría.',
+    chips: [['📆', 'Por período'], ['🏷️', 'Por categoría'], ['💳', 'Por medio de pago']],
+    art: GArtSearch
+  }];
+
+function GastosSplash({ open, onClose, onBuscar }) {
   const [mounted, setMounted] = useStateS(false);
   const [shown, setShown] = useStateS(false);
+  const [openId, setOpenId] = useStateS(null);
   useEffectS(() => {
-    if (open) { setMounted(true); const t = setTimeout(() => setShown(true), 30); return () => clearTimeout(t); }
+    if (open) {
+      setMounted(true);
+      setOpenId(null);
+      const t = setTimeout(() => setShown(true), 20);
+      // el primero se abre solo: enseña la interacción sin explicarla
+      const t2 = setTimeout(() => setOpenId((v) => v == null ? 'todo' : v), 620);
+      return () => { clearTimeout(t); clearTimeout(t2); };
+    }
     setShown(false);
-    const t = setTimeout(() => setMounted(false), 300);
+    const t = setTimeout(() => setMounted(false), 260);
     return () => clearTimeout(t);
   }, [open]);
   if (!mounted) return null;
-  const Feature = ({ icon, color, title, sub }) =>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 13, width: '100%' }}>
-      <div style={{ width: 40, height: 40, borderRadius: 999, background: color + '1F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <LI name={icon} size={20} color={color} />
-      </div>
-      <div style={{ flex: 1, textAlign: 'left' }}>
-        <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{title}</div>
-        <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2, lineHeight: 1.4 }}>{sub}</div>
-      </div>
-    </div>;
   return (
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
       <div style={{
-        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0',
-        transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .3s cubic-bezier(.2,.85,.25,1)',
-        boxShadow: '0 -12px 44px rgba(0,0,0,0.24)', padding: '30px 22px calc(36px + env(safe-area-inset-bottom))',
-        display: 'flex', flexDirection: 'column', gap: 22
+        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '95%',
+        display: 'flex', flexDirection: 'column', overflow: 'hidden',
+        transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .22s cubic-bezier(.2,.85,.25,1)',
+        boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
-        <div>
-          <div style={{ font: '500 27px Geist', lineHeight: '33px', letterSpacing: '-0.01em', color: '#141414' }}>Entendé en qué se va tu plata</div>
-          <div style={{ font: '400 14px Inter', color: '#5E5E5E', marginTop: 8, lineHeight: 1.5 }}>Todos tus gastos — tarjeta, QR, servicios — juntos y ordenados por primera vez.</div>
+        <div style={{ flexShrink: 0, padding: '28px 24px 2px' }}>
+          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414' }}>Entendé en qué se va tu plata</div>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
-          <Feature icon="summary" color="#00AA18" title="Tu mes, de un vistazo" sub="Cuánto llevás gastado, en qué, y cómo venís vs. el mes pasado." />
-          <Feature icon="filter" color="#925DEE" title="Buscá y filtrá lo que quieras" sub="Por período, categoría, medio de pago o comercio." />
-          <Feature icon="auto-complete-magic" color="#F0A20B" title="Sabé cómo termina el mes" sub="Una proyección simple de cierre, a tu ritmo de gasto real." />
+
+        {/* acordeón: tocás cada propuesta y se despliega con su arte */}
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '16px 16px 4px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+          {GASTOS_SLIDES.map((sl) => {
+            const abierto = openId === sl.id;
+            const Art = sl.art;
+            return (
+              <button key={sl.id} onClick={() => setOpenId(abierto ? null : sl.id)} style={{ textAlign: 'left', width: '100%', background: '#FAFAFA', border: abierto ? '2px solid #141414' : '2px solid transparent', borderRadius: 20, padding: '14px 16px', cursor: 'pointer', transition: 'border-color .25s' }}>
+                {/* fila del título, siempre visible */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <span style={{ width: 40, height: 40, borderRadius: 999, background: sl.iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, lineHeight: 1, flexShrink: 0 }}>{sl.icon}</span>
+                  <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', lineHeight: 1.25 }}>{sl.title}</span>
+                  <LI name="arrow-expand-more" size={18} color="#818181" style={{ flexShrink: 0, transform: abierto ? 'rotate(180deg)' : 'none', transition: 'transform .3s' }} />
+                </div>
+
+                {/* contenido desplegable */}
+                <div style={{ display: 'grid', gridTemplateRows: abierto ? '1fr' : '0fr', transition: 'grid-template-rows .38s cubic-bezier(.25,.85,.3,1)' }}>
+                  <div style={{ minHeight: 0, overflow: 'hidden' }}>
+                    <div style={{ paddingTop: 12, opacity: abierto ? 1 : 0, transition: 'opacity .25s .1s' }}>
+                      <div style={{ display: 'flex', justifyContent: 'center' }}>
+                        <Art size={158} animate={abierto} />
+                      </div>
+                      <div style={{ font: '400 13px Inter', lineHeight: '20px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 8 }}>{sl.body}</div>
+                      <div style={{ display: 'flex', gap: 7, marginTop: 12, flexWrap: 'wrap' }}>
+                        {sl.chips.map(([e, t]) =>
+                          <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff', border: `1px solid ${LX.border}`, borderRadius: 999, padding: '5px 12px', font: '500 12px Inter', color: '#141414' }}>
+                            <span style={{ fontSize: 13, lineHeight: 1 }}>{e}</span> {t}
+                          </span>)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>);
+          })}
         </div>
-        <button onClick={onClose} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#fff', font: '600 16px Inter' }}>Ver mis gastos</button>
+
+        <div style={{ flexShrink: 0, padding: '16px 16px calc(40px + env(safe-area-inset-bottom))', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <button onClick={onClose} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#FFFFFF', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Ver mis gastos</button>
+          <button onClick={() => { onClose(); onBuscar && onBuscar(); }} style={{ width: '100%', height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: 'rgba(8,8,8,0.1)', color: '#141414', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Probar el buscador</button>
+        </div>
       </div>
     </div>);
 }

@@ -64,7 +64,7 @@ function GastosExperience() {
           onBack={() => setRoute('gastos')} onOpenMov={openMovement} />}
 
       <GMovSheet mov={openMov} open={sheetOpen} onClose={() => setSheetOpen(false)} onFlag={flagCategory} />
-      <GastosSplash open={splash} onClose={() => setSplash(false)} />
+      <GastosSplash open={splash} onClose={() => setSplash(false)} onBuscar={() => { setSplash(false); openBuscar(); }} />
       {toast && <GToast text={toast} />}
     </div>);
 }

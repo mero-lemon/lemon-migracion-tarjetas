@@ -17,6 +17,9 @@
   @keyframes lcspin { to { transform: rotate(360deg); } }
   @keyframes lc-skel { 0% { opacity: 0.55; } 50% { opacity: 1; } 100% { opacity: 0.55; } }
   @keyframes lc-pop { 0% { transform: scale(0.5); opacity: 0; } 60% { transform: scale(1.08); } 100% { transform: scale(1); opacity: 1; } }
+  @keyframes lc-grow-y { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+  @keyframes lc-grow-x { from { transform: scaleX(0.12); } to { transform: scaleX(1); } }
+  @keyframes lc-coin-drop { 0% { transform: translateY(-26px); opacity: 0; } 55% { opacity: 1; } 100% { transform: translateY(0); opacity: 1; } }
   @keyframes lc-toast { 0% { transform: translateY(16px); opacity: 0; } 100% { transform: none; opacity: 1; } }
   .lc-spin { animation: lcspin 0.9s linear infinite; }
 </style>
@@ -28,12 +31,14 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script type="text/babel" src="ios-frame.jsx"></script>
-<script type="text/babel" src="lemon-ui.jsx"></script>
-<script type="text/babel" src="gastos-data.jsx"></script>
-<script type="text/babel" src="gastos-ui.jsx"></script>
-<script type="text/babel" src="gastos-screens.jsx"></script>
-<script type="text/babel" src="app-shell.jsx"></script>
-<script type="text/babel" src="app.jsx"></script>
+<script>
+// dev: los .jsx se cargan con versión dinámica para que el navegador
+// nunca ejecute una copia cacheada vieja (babel los baja por XHR)
+(function () {
+  var v = Date.now();
+  ['ios-frame.jsx', 'lemon-ui.jsx', 'gastos-data.jsx', 'gastos-ui.jsx', 'gastos-screens.jsx', 'app-shell.jsx', 'app.jsx']
+    .forEach(function (f) { document.write('<scr' + 'ipt type="text/babel" src="' + f + '?v=' + v + '"></scr' + 'ipt>'); });
+})();
+</script>
 </body>
 </html>
