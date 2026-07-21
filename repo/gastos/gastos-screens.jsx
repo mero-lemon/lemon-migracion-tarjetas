@@ -32,19 +32,31 @@ const G_VERDICTS = {
   }
 };
 
-function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
-  const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), []);
-  const summary = useMemoS(() => ExpensesRepository.getSummary(info), []);
-  const recent = useMemoS(() => ExpensesRepository.getMovements(info).slice(0, 4), []);
+function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = { total: null, byCat: {} }, onEditGoals }) {
+  const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), [dataVersion]);
+  const summary = useMemoS(() => ExpensesRepository.getSummary(info), [dataVersion]);
+  const recent = useMemoS(() => ExpensesRepository.getMovements(info).slice(0, 4), [dataVersion]);
   const mes = G_MESES[G_TODAY.getMonth()];
 
   const delta = summary.total - summary.prevTotal;
 
-  // la carrera: cuántos "días de plata" consumiste vs. cuántos días pasaron
-  const usualFull = summary.usualFull;
+  // la carrera: cuántos "días de plata" consumiste vs. cuántos días pasaron.
+  // la meta 🏁 es tu objetivo si lo definiste; si no, tu promedio de 3 meses.
+  const goalTotal = goals && goals.total ? goals.total : null;
+  const metaValue = goalTotal || summary.usualFull;
   const timePct = info.elapsedDays / info.totalDays;
-  const moneyPct = usualFull > 0 ? summary.total / usualFull : null;
+  const moneyPct = metaValue > 0 ? summary.total / metaValue : null;
   const diff = moneyPct == null ? null : info.elapsedDays - moneyPct * info.totalDays; // >0 → vas adelante
+  const refText = goalTotal ? `Referencia: tu objetivo de ${gFmt(goalTotal)}.` : 'Referencia: el promedio de tus últimos 3 meses.';
+
+  // objetivos por categoría, con lo gastado hasta hoy
+  const catGoals = Object.entries(goals && goals.byCat ? goals.byCat : {}).map(([id, goal]) => {
+    const c = G_CAT[id];
+    if (!c) return null;
+    const spent = (summary.byCategory.find((x) => x.cat.id === id) || {}).total || 0;
+    const ratio = goal > 0 ? spent / goal : 0;
+    return { cat: c, goal, spent, ratio, color: ratio >= 1 ? '#EA2B3C' : ratio >= 0.85 ? '#F0A20B' : '#0F7A35' };
+  }).filter(Boolean);
   const status = diff == null ? 'ok' : diff >= 1 ? 'low' : diff > -1 ? 'ok' : diff > -3.5 ? 'warn' : 'high';
   const verdict = G_VERDICTS[status];
   // vs. mes anterior: verde si gastaste menos, ámbar si fluctuó ±5% (normal), rojo si te pasaste
@@ -92,24 +104,73 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
                 delay={520} />
               <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10 }}>
-                {verdict.call} Comparamos contra el promedio de tus últimos 3 meses.
+                {verdict.call} {refText}
               </div>
+              <button onClick={onEditGoals} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-greent-50)', padding: '8px 0 0', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <LI name="settings" size={13} color="var(--c-greent-50)" /> {goalTotal ? 'Editar objetivo' : 'Poné un objetivo'}
+              </button>
             </Surface>
           </GReveal>}
 
-        {/* en qué: diagrama de barras de los grupos más grandes */}
+        {/* en qué: diagrama de barras de los grupos más grandes (solo pesos) */}
         <GReveal delay={340}>
           <Surface pad={16}>
-            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginBottom: 16 }}>En qué se te va</div>
-            <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? null : c.id)} />
+            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', marginBottom: 16 }}>Tus gastos por categoría</div>
+            <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
           </Surface>
         </GReveal>
 
+        {/* objetivos por categoría: cuánto llevás vs. tu tope, con color por estado */}
+        {catGoals.length > 0 &&
+          <GReveal delay={400}>
+            <Surface pad={'6px 16px'}>
+              <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', padding: '10px 0 6px' }}>Objetivos por categoría</div>
+              {catGoals.map((g, i) =>
+                <React.Fragment key={g.cat.id}>
+                  {i > 0 && <Divider />}
+                  <button onClick={() => onBuscar({ cats: [g.cat.id] })} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '11px 0' }}>
+                    <GCatIcon cat={g.cat} size={36} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, marginBottom: 6 }}>
+                        <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{g.cat.name}</span>
+                        <span style={{ font: '500 12px Geist', color: g.color, flexShrink: 0 }}>{g.ratio >= 1 ? 'Te pasaste' : `${Math.round(g.ratio * 100)}%`}</span>
+                      </div>
+                      <Meter value={g.ratio} color={g.color} h={6} />
+                      <div style={{ font: '400 11px Inter', color: '#818181', marginTop: 6 }}>{gFmt(g.spent)} de {gFmt(g.goal)}</div>
+                    </div>
+                  </button>
+                </React.Fragment>)}
+            </Surface>
+          </GReveal>}
+
+        {/* consumos que no son en pesos: su propio grupo, sin desglose interno */}
+        {summary.byCurrency.length > 0 &&
+          <GReveal delay={440}>
+            <Surface pad={'6px 16px'}>
+              <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', padding: '10px 0 4px' }}>En otras monedas</div>
+              {summary.byCurrency.map((c, i) =>
+                <React.Fragment key={c.cur}>
+                  {i > 0 && <Divider />}
+                  <button onClick={() => onBuscar({ curs: [c.cur] })} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '11px 0' }}>
+                    <GCurIcon cur={c.cur} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{c.meta.label}</div>
+                      <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 2 }}>{c.count} {c.count === 1 ? 'consumo' : 'consumos'}</div>
+                    </div>
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{gCur(c.cur, c.curTotal)}</div>
+                      <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 1 }}>≈ {gFmt(c.total)}</div>
+                    </div>
+                  </button>
+                </React.Fragment>)}
+            </Surface>
+          </GReveal>}
+
         {/* la verdad fría, en dos datos: vs junio + qué movió la aguja */}
-        <GReveal delay={460}>
+        <GReveal delay={540}>
           <Surface pad={'6px 16px'}>
             <GDataRow icon="returns"
-              label={`vs. ${info.prevName} a esta altura`}
+              label="vs. mismo día del mes anterior"
               value={summary.prevTotal > 0 ? `${delta < 0 ? '−' : '+'} ${gFmt(Math.abs(delta))} · ${delta < 0 ? '▼' : '▲'} ${Math.round(Math.abs(deltaPct) * 100)}%` : '—'}
               valueColor={deltaColor} />
             {summary.insight &&
@@ -125,7 +186,7 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
 
         {/* últimos movimientos */}
         {recent.length > 0 &&
-          <GReveal delay={560}>
+          <GReveal delay={640}>
             <div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '4px 2px 10px' }}>
                 <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Últimos movimientos</span>
@@ -145,19 +206,19 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov }) {
 }
 
 // ── Buscador: período + categorías + medio de pago + comercio ───
-function GastosBuscador({ filters, setFilters, onBack, onOpenMov }) {
-  const { unit, anchor, cats, methods, text } = filters;
+function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 0 }) {
+  const { unit, anchor, cats, methods, curs, text } = filters;
   const set = (patch) => setFilters({ ...filters, ...patch });
   const info = useMemoS(() => periodInfo(unit, anchor), [unit, +anchor]);
-  const movs = useMemoS(() => ExpensesRepository.query(info, { cats, methods, text }), [unit, +anchor, cats, methods, text]);
+  const movs = useMemoS(() => ExpensesRepository.query(info, { cats, methods, curs, text }), [unit, +anchor, cats, methods, curs, text, dataVersion]);
   const total = movs.reduce((a, m) => a + m.amount, 0);
   const buckets = useMemoS(() => bucketize(info, movs), [movs]);
   const elapsed = buckets.filter((b) => !b.future);
   const avgBucket = elapsed.length ? elapsed.reduce((a, b) => a + b.total, 0) / elapsed.length : 0;
   const singleCat = cats.length === 1 ? cats[0] : null;
-  const merchants = useMemoS(() => singleCat ? ExpensesRepository.getTopMerchants(info, singleCat) : [], [unit, +anchor, singleCat]);
+  const merchants = useMemoS(() => singleCat ? ExpensesRepository.getTopMerchants(info, singleCat) : [], [unit, +anchor, singleCat, dataVersion]);
   const maxMerchant = merchants.length ? merchants[0].total : 1;
-  const hasFilters = cats.length > 0 || methods.length > 0 || text.trim().length > 0;
+  const hasFilters = cats.length > 0 || methods.length > 0 || curs.length > 0 || text.trim().length > 0;
 
   const toggle = (list, id) => list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
   const Label = ({ children }) =>
@@ -202,7 +263,20 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov }) {
             </div>
           </div>
 
-          {/* 4. comercio */}
+          {/* 4. moneda */}
+          <div>
+            <Label>Moneda</Label>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              <GFilterChip active={curs.length === 0} onTap={() => set({ curs: [] })} label="Todas" />
+              {['ars', 'usd', 'brl'].map((id) => {
+                const c = G_CUR[id];
+                return <GFilterChip key={id} active={curs.includes(id)} onTap={() => set({ curs: toggle(curs, id) })}
+                  icon={c.icon} color={c.color} label={c.label} />;
+              })}
+            </div>
+          </div>
+
+          {/* 5. comercio */}
           <div>
             <Label>Comercio</Label>
             <GSearchInput value={text} onChange={(v) => set({ text: v })} />
@@ -213,7 +287,7 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov }) {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', margin: '2px 2px 10px' }}>
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Resultados</span>
               {hasFilters &&
-                <button onClick={() => set({ cats: [], methods: [], text: '' })} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 13px Inter', color: 'var(--c-greent-50)', padding: 0 }}>Limpiar filtros</button>}
+                <button onClick={() => set({ cats: [], methods: [], curs: [], text: '' })} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 13px Inter', color: 'var(--c-greent-50)', padding: 0 }}>Limpiar filtros</button>}
             </div>
 
             {movs.length === 0 ?
@@ -262,8 +336,9 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov }) {
                       </React.Fragment>)}
                   </Surface>}
 
-                {/* movimientos */}
-                <div style={{ marginTop: 8 }}>
+                {/* movimientos: el historial completo de la selección */}
+                <div style={{ marginTop: 16 }}>
+                  <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', margin: '2px 2px 2px' }}>Movimientos</div>
                   <GMovList movs={movs} onTap={onOpenMov} showChip={cats.length !== 1} />
                 </div>
               </>}
@@ -274,10 +349,11 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov }) {
 }
 
 // ── Detalle de movimiento (bottom sheet) ────────────────────────
-function GMovSheet({ mov, open, onClose, onFlag }) {
+function GMovSheet({ mov, open, onClose, onRecat }) {
   if (!mov) return null;
   const cat = G_CAT[mov.cat];
   const method = G_METHODS[mov.method];
+  const foreign = mov.cur && mov.cur !== 'ars';
   const d = mov.date;
   const fecha = cap1(`${G_DIAS[d.getDay()]} ${d.getDate()} de ${G_MESES[d.getMonth()]} · ${gHora(d)}`);
   const Row = ({ icon, label, value }) =>
@@ -290,22 +366,218 @@ function GMovSheet({ mov, open, onClose, onFlag }) {
     </div>;
   return (
     <Sheet open={open} onClose={onClose}>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 10, padding: '4px 0 10px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 8, padding: '4px 0 12px' }}>
         <GMerchantAvatar name={mov.name} cat={cat} size={52} />
         <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{mov.name}</div>
-        <GBigAmount value={mov.amount} size={32} />
-        <GCatChip cat={cat} size={12} />
+        {foreign ?
+          <>
+            <GBigAmount value={mov.curAmount} size={32} prefix={G_CUR[mov.cur].sym + ' '} />
+            <div style={{ font: '400 12px Inter', color: '#818181' }}>≈ {gFmt(mov.amount)}</div>
+          </> :
+          <GBigAmount value={mov.amount} size={32} />}
       </div>
       <Divider style={{ margin: '2px 0 4px' }} />
       <Row icon="programed-tx" label="Fecha" value={fecha} />
       <Divider />
       <Row icon={method.icon} label="Medio de pago" value={method.label} />
       <Divider />
-      {/* affordance de corrección: dummy en v1, alimenta el motor a futuro */}
-      <button onClick={onFlag} style={{ width: '100%', border: 0, background: 'transparent', cursor: 'pointer', padding: '14px 2px 6px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, font: '600 13px Inter', color: '#818181' }}>
-        <LI name="feedback-warning" size={15} color="#818181" /> ¿Está mal la categoría?
+      {/* categoría editable: recategorizar o crear una nueva */}
+      <button onClick={() => onRecat(mov)} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '11px 2px' }}>
+        <div style={{ width: 36, height: 36, borderRadius: 999, background: 'rgba(8,8,9,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <LI name="pallete-color" size={17} color="#141414" />
+        </div>
+        <span style={{ flex: 1, font: '400 13px Inter', color: '#818181' }}>Categoría</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 7, flexShrink: 0 }}>
+          <GCatChip cat={cat} size={11} />
+          <LI name="arrow-foward" size={15} color="#B4B4B4" />
+        </span>
       </button>
-      <Btn variant="light" onClick={onClose} style={{ marginTop: 10 }}>Cerrar</Btn>
+      <Btn variant="light" onClick={onClose} style={{ marginTop: 12 }}>Cerrar</Btn>
+    </Sheet>);
+}
+
+// ── Recategorizar / crear categoría desde un gasto (Proposal 3) ──
+const G_NEWCAT_COLORS = ['#00AA18', '#FF8700', '#3B83F7', '#62688F', '#F0A20B', '#925DEE', '#06A192', '#FF007A', '#274BBE', '#08C7E0', '#EA2B3C', '#00CA57'];
+const G_NEWCAT_ICONS = ['shopping-cart', 'food', 'car', 'health', 'clothes', 'tech', 'entertainment', 'education', 'travel', 'gaming', 'party', 'personal-care', 'home-on', 'rewards', 'receipt', 'tree'];
+const gShortMerchant = (name) => name.replace(/^(Transferencia a |Transferencia — |Recarga )/, '');
+
+function GRecategorizeSheet({ mov, open, onClose, onApply }) {
+  const [view, setView] = useStateS('pick');
+  const [sel, setSel] = useStateS(null);
+  const [scope, setScope] = useStateS('all');
+  const [nName, setNName] = useStateS('');
+  const [nColor, setNColor] = useStateS(G_NEWCAT_COLORS[0]);
+  const [nIcon, setNIcon] = useStateS(G_NEWCAT_ICONS[0]);
+
+  useEffectS(() => {
+    if (open) {
+      setView('pick'); setSel(mov ? mov.cat : null); setScope('all');
+      setNName(''); setNColor(G_NEWCAT_COLORS[0]); setNIcon(G_NEWCAT_ICONS[0]);
+    }
+  }, [open, mov && mov.id]);
+
+  if (!mov) return null;
+  const merchant = gShortMerchant(mov.name);
+  const cats = window.G_CATS;
+
+  const doCreate = () => {
+    const name = nName.trim();
+    if (!name) return;
+    const cat = createCategory({ name, color: nColor, icon: nIcon });
+    setSel(cat.id);
+    setView('pick');
+  };
+
+  return (
+    <Sheet open={open} onClose={onClose}>
+      {view === 'pick' ?
+        <div>
+          <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#141414', textAlign: 'center' }}>Cambiar categoría</div>
+          <div style={{ font: '400 12.5px Inter', color: '#818181', textAlign: 'center', marginTop: 2, marginBottom: 12 }}>{merchant}</div>
+
+          <div style={{ maxHeight: 232, overflowY: 'auto', margin: '0 -6px', padding: '0 6px' }}>
+            {cats.map((c) => {
+              const on = sel === c.id;
+              return (
+                <button key={c.id} onClick={() => setSel(c.id)} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: on ? 'rgba(8,8,9,0.05)' : 'transparent', cursor: 'pointer', padding: '8px 10px', borderRadius: 12 }}>
+                  <GCatIcon cat={c} size={34} />
+                  <span style={{ flex: 1, font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{c.name}</span>
+                  {c.user && <span style={{ font: '500 10px Inter', color: '#B4B4B4', marginRight: 4 }}>nueva</span>}
+                  {on && <LI name="selected" size={20} color="var(--c-greent-50)" />}
+                </button>);
+            })}
+            <button onClick={() => setView('create')} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, background: 'transparent', cursor: 'pointer', padding: '8px 10px', borderRadius: 12 }}>
+              <div style={{ width: 34, height: 34, borderRadius: 999, border: '1.5px dashed #B4B4B4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <LI name="add-more" size={17} color="#5E5E5E" />
+              </div>
+              <span style={{ flex: 1, font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Crear categoría nueva</span>
+            </button>
+          </div>
+
+          {/* alcance del cambio */}
+          <div style={{ marginTop: 14 }}>
+            <div style={{ display: 'flex', background: 'rgba(8,8,9,0.06)', borderRadius: 999, padding: 3 }}>
+              {[['all', `Todos los de ${merchant}`], ['one', 'Solo este']].map(([id, lbl]) =>
+                <button key={id} onClick={() => setScope(id)} style={{
+                  flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '8px 6px',
+                  background: scope === id ? '#fff' : 'transparent',
+                  boxShadow: scope === id ? '0 1px 4px rgba(18,18,18,0.12)' : 'none',
+                  font: `${scope === id ? 600 : 500} 12px Inter`, color: scope === id ? '#141414' : '#6E6E6E',
+                  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+                }}>{lbl}</button>)}
+            </div>
+            <div style={{ font: '400 11.5px Inter', color: '#818181', lineHeight: 1.45, marginTop: 10, textAlign: 'center' }}>
+              {scope === 'all' ?
+                `Movemos este y todos los consumos de ${merchant}, viejos y nuevos, a la categoría que elijas.` :
+                'Cambiamos la categoría solo de este movimiento.'}
+            </div>
+          </div>
+
+          <Btn onClick={() => onApply(sel, scope)} disabled={!sel} style={{ marginTop: 14 }}>Guardar</Btn>
+          <Btn variant="light" onClick={onClose} style={{ marginTop: 10 }}>Cancelar</Btn>
+        </div> :
+
+        /* crear categoría nueva: nombre + color + ícono */
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <button onClick={() => setView('pick')} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex' }}>
+              <LI name="arrow-back" size={22} color="#141414" />
+            </button>
+            <div style={{ flex: 1, font: '600 16px Inter', color: '#141414', textAlign: 'center', marginLeft: -22 }}>Nueva categoría</div>
+          </div>
+
+          {/* preview en vivo */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+            <GCatIcon cat={{ color: nColor, icon: nIcon }} size={56} />
+            <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: nName.trim() ? '#141414' : '#B4B4B4' }}>{nName.trim() || 'Nombre de la categoría'}</span>
+          </div>
+
+          <input value={nName} onChange={(e) => setNName(e.target.value)} placeholder="Nombre" maxLength={20}
+            style={{ width: '100%', height: 44, padding: '0 14px', border: '1px solid #E6E6E6', background: '#fff', borderRadius: 14, font: '400 14px Inter', color: '#141414', outline: 'none' }} />
+
+          <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '16px 2px 8px' }}>Color</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10 }}>
+            {G_NEWCAT_COLORS.map((col) =>
+              <button key={col} onClick={() => setNColor(col)} style={{ width: 34, height: 34, borderRadius: 999, border: nColor === col ? '2.5px solid #141414' : '2.5px solid transparent', background: 'transparent', cursor: 'pointer', padding: 3, display: 'flex' }}>
+                <span style={{ flex: 1, borderRadius: 999, background: col }} />
+              </button>)}
+          </div>
+
+          <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '16px 2px 8px' }}>Ícono</div>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+            {G_NEWCAT_ICONS.map((ic) =>
+              <button key={ic} onClick={() => setNIcon(ic)} style={{ width: 42, height: 42, borderRadius: 12, border: nIcon === ic ? `2px solid ${nColor}` : '2px solid rgba(8,8,9,0.08)', background: nIcon === ic ? nColor + '1F' : '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LI name={ic} size={20} color={nIcon === ic ? nColor : '#5E5E5E'} />
+              </button>)}
+          </div>
+
+          <Btn onClick={doCreate} disabled={!nName.trim()} style={{ marginTop: 18 }}>Crear y elegir</Btn>
+        </div>}
+    </Sheet>);
+}
+
+// ── Objetivos del mes: total + por categoría (opcional) ─────────
+// Reemplaza el promedio de 3 meses como meta de la carrera. Default:
+// sin objetivo (usa el promedio). El total alimenta la carrera; las
+// categorías, la card "Objetivos por categoría" del home.
+function GGoalsSheet({ open, goals, onClose, onSave }) {
+  const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), [open]);
+  const summary = useMemoS(() => ExpensesRepository.getSummary(info), [open]);
+  const [total, setTotal] = useStateS('');
+  const [byCat, setByCat] = useStateS({});
+  useEffectS(() => {
+    if (open) {
+      setTotal(goals && goals.total ? String(goals.total) : '');
+      setByCat(goals && goals.byCat ? Object.fromEntries(Object.entries(goals.byCat).map(([k, v]) => [k, String(v)])) : {});
+    }
+  }, [open]);
+
+  const suggestion = summary.usualFull ? Math.round(summary.usualFull) : 0;
+  const catList = summary.byCategory.map((c) => c.cat);
+  Object.keys(goals && goals.byCat ? goals.byCat : {}).forEach((id) => {
+    if (!catList.find((c) => c.id === id) && G_CAT[id]) catList.push(G_CAT[id]);
+  });
+
+  const setCat = (id, v) => setByCat((prev) => { const n = { ...prev }; if (v) n[id] = v; else delete n[id]; return n; });
+  const save = () => onSave({
+    total: total ? Number(total) : null,
+    byCat: Object.fromEntries(Object.entries(byCat).map(([k, v]) => [k, Number(v)]).filter(([, v]) => v > 0))
+  });
+  const hasSaved = (goals && goals.total) || (goals && goals.byCat && Object.keys(goals.byCat).length);
+
+  return (
+    <Sheet open={open} onClose={onClose}>
+      <div style={{ font: '600 17px Geist', letterSpacing: '-0.01em', color: '#141414', textAlign: 'center' }}>Tus objetivos del mes</div>
+      <div style={{ font: '400 12.5px Inter', color: '#818181', textAlign: 'center', marginTop: 2, marginBottom: 14, lineHeight: 1.4 }}>Poné cuánto querés gastar. Lo usamos como meta en lugar de tu promedio.</div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '2px 2px 12px' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Total del mes</div>
+          {suggestion > 0 && <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 2 }}>Tu promedio: {gFmt(suggestion)}</div>}
+        </div>
+        <div style={{ width: 148, flexShrink: 0 }}>
+          <GMoneyField value={total} onChange={setTotal} placeholder="Tu promedio" />
+        </div>
+      </div>
+
+      <Divider />
+      <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '14px 2px 4px' }}>Por categoría (opcional)</div>
+
+      <div style={{ maxHeight: 214, overflowY: 'auto', margin: '0 -6px', padding: '0 6px' }}>
+        {catList.map((c) =>
+          <div key={c.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 0' }}>
+            <GCatIcon cat={c} size={34} />
+            <span style={{ flex: 1, font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</span>
+            <div style={{ width: 128, flexShrink: 0 }}>
+              <GMoneyField sm value={byCat[c.id] || ''} onChange={(v) => setCat(c.id, v)} />
+            </div>
+          </div>)}
+      </div>
+
+      <Btn onClick={save} style={{ marginTop: 14 }}>Guardar objetivos</Btn>
+      {hasSaved ?
+        <Btn variant="light" onClick={() => onSave({ total: null, byCat: {} })} style={{ marginTop: 10 }}>Volver a mi promedio</Btn> :
+        <Btn variant="light" onClick={onClose} style={{ marginTop: 10 }}>Cancelar</Btn>}
     </Sheet>);
 }
 
@@ -380,23 +652,23 @@ const GArtSearch = ({ size = 158, animate }) =>
 const GASTOS_SLIDES = [
   {
     id: 'todo', icon: '🧾', iconBg: 'var(--c-lime-10)',
-    title: 'Todos tus gastos, juntos',
-    body: 'Tarjeta, QR, débitos y servicios: cada consumo ordenado por categoría, para que veas tu mes de un vistazo.',
+    title: 'Todos tus gastos juntos',
+    body: 'Tarjeta, QR, débitos y servicios: todos tus consumos ordenados por categoría para seguirlos fácilmente.',
     chips: [['🛒', 'Súper'], ['🍔', 'Delivery'], ['📺', 'Suscripciones']],
     art: GArtBars
   },
   {
     id: 'carrera', icon: '🏁', iconBg: 'var(--c-nebula-5)',
     title: 'La carrera del mes',
-    body: 'Tu plata corre contra los días: si va detrás del calendario, le vas ganando al mes. La meta es tu mes típico.',
+    body: 'Compará tus gastos con tu ritmo habitual y descubrí si venís gastando más o menos. Cada día cuenta.',
     chips: [['📅', 'El calendario'], ['💸', 'Tu plata'], ['🏁', 'Tu mes típico']],
     art: GArtRace
   },
   {
     id: 'buscar', icon: '🔎', iconBg: 'var(--c-solar-5)',
     title: 'Encontrá cualquier gasto',
-    body: 'Filtrá por período, categoría o medio de pago, y buscá por comercio. La verdad, clara y fría.',
-    chips: [['📆', 'Por período'], ['🏷️', 'Por categoría'], ['💳', 'Por medio de pago']],
+    body: 'Filtrá por categoría o medio de pago, o buscá por comercio.',
+    chips: [['🏷️', 'Por categoría'], ['💳', 'Medio de pago'], ['💵', 'Por moneda']],
     art: GArtSearch
   }];
 
@@ -428,7 +700,7 @@ function GastosSplash({ open, onClose, onBuscar }) {
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
       }}>
         <div style={{ flexShrink: 0, padding: '28px 24px 2px' }}>
-          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414' }}>Entendé en qué se va tu plata</div>
+          <div style={{ font: '500 30px Geist', lineHeight: '36px', letterSpacing: '-0.01em', color: '#141414' }}>Tomá control de tus gastos</div>
         </div>
 
         {/* acordeón: tocás cada propuesta y se despliega con su arte */}
@@ -474,4 +746,4 @@ function GastosSplash({ open, onClose, onBuscar }) {
     </div>);
 }
 
-Object.assign(window, { MisGastosHome, GastosBuscador, GMovSheet, GastosSplash });
+Object.assign(window, { MisGastosHome, GastosBuscador, GMovSheet, GRecategorizeSheet, GGoalsSheet, GastosSplash });

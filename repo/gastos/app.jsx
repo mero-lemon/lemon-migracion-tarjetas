@@ -6,13 +6,19 @@ function GastosExperience({ initialRoute = 'home', introSeen = false }) {
   const [route, setRoute] = useStateZ(initialRoute); // home | portfolio | miniapps | gastos | buscar
   const [gastosFrom, setGastosFrom] = useStateZ('home'); // desde dónde entraste a Tus gastos
   // los filtros del buscador viven acá: volver atrás no los pierde
-  const [filters, setFilters] = useStateZ({ unit: 'month', anchor: dayStart(G_TODAY), cats: [], methods: [], text: '' });
+  const [filters, setFilters] = useStateZ({ unit: 'month', anchor: dayStart(G_TODAY), cats: [], methods: [], curs: [], text: '' });
   const [openMov, setOpenMov] = useStateZ(null);
   const [sheetOpen, setSheetOpen] = useStateZ(false);
+  const [recatOpen, setRecatOpen] = useStateZ(false);
   const [gastosLoading, setGastosLoading] = useStateZ(false);
   const [gastosSeen, setGastosSeen] = useStateZ(introSeen);
   const [splash, setSplash] = useStateZ(false);
   const [toast, setToast] = useStateZ(null);
+  // sube al recategorizar/crear categoría → home y buscador recalculan
+  const [dataVersion, setDataVersion] = useStateZ(0);
+  // objetivo del mes (opcional): total + por categoría. null/{} = usar promedio
+  const [goals, setGoals] = useStateZ({ total: null, byCat: {} });
+  const [goalsOpen, setGoalsOpen] = useStateZ(false);
 
   // primera entrada a Tus gastos: el splash sube ya (con el skeleton
   // pintándose detrás) y la sección recién se carga cuando lo cerrás
@@ -31,16 +37,33 @@ function GastosExperience({ initialRoute = 'home', introSeen = false }) {
     setTimeout(() => setGastosLoading(false), 200);
   };
 
-  // entrar al buscador; catId opcional (tap en una barra del home)
-  const openBuscar = (catId) => {
-    if (catId) setFilters((f) => ({ ...f, unit: 'month', anchor: dayStart(G_TODAY), cats: [catId] }));
+  // entrar al buscador con un filtro precargado (tap en una barra o en un
+  // grupo de moneda). patch = { cats:[...] } | { curs:[...] } | undefined.
+  const openBuscar = (patch) => {
+    if (patch) setFilters({ unit: 'month', anchor: dayStart(G_TODAY), cats: [], methods: [], curs: [], text: '', ...patch });
     setRoute('buscar');
   };
   const openMovement = (m) => { setOpenMov(m); setSheetOpen(true); };
-  const flagCategory = () => {
-    setSheetOpen(false);
-    setToast('¡Gracias! Vamos a revisar la categoría 🙌');
-    setTimeout(() => setToast(null), 2200);
+  // recategorizar: se abre encima del detalle; cancelar vuelve al detalle
+  const openRecat = () => { setSheetOpen(false); setRecatOpen(true); };
+  const cancelRecat = () => { setRecatOpen(false); setSheetOpen(true); };
+  const applyRecat = (catId, scope) => {
+    recategorize(openMov, catId, scope);
+    setRecatOpen(false);
+    const cat = G_CAT[catId];
+    const merchant = openMov.name.replace(/^(Transferencia a |Transferencia — |Recarga )/, '');
+    setToast(scope === 'all' ?
+      `Listo. Movimos todos los consumos de ${merchant} a ${cat.name} 🙌` :
+      `Listo. Movimos este movimiento a ${cat.name} 🙌`);
+    setDataVersion((v) => v + 1);
+    setTimeout(() => setToast(null), 2800);
+  };
+  const saveGoals = (g) => {
+    setGoals(g);
+    setGoalsOpen(false);
+    const any = g.total || (g.byCat && Object.keys(g.byCat).length);
+    setToast(any ? '¡Listo! Guardamos tus objetivos 🎯' : 'Volviste a tu promedio de 3 meses');
+    setTimeout(() => setToast(null), 2400);
   };
 
   return (
@@ -62,13 +85,15 @@ function GastosExperience({ initialRoute = 'home', introSeen = false }) {
           </div>
           <GSkeletonHome />
         </GScreen> :
-        <MisGastosHome onBack={() => setRoute(gastosFrom)} onBuscar={openBuscar} onOpenMov={openMovement} />)}
+        <MisGastosHome onBack={() => setRoute(gastosFrom)} onBuscar={openBuscar} onOpenMov={openMovement} dataVersion={dataVersion} goals={goals} onEditGoals={() => setGoalsOpen(true)} />)}
 
       {route === 'buscar' &&
         <GastosBuscador filters={filters} setFilters={setFilters}
-          onBack={() => setRoute('gastos')} onOpenMov={openMovement} />}
+          onBack={() => setRoute('gastos')} onOpenMov={openMovement} dataVersion={dataVersion} />}
 
-      <GMovSheet mov={openMov} open={sheetOpen} onClose={() => setSheetOpen(false)} onFlag={flagCategory} />
+      <GMovSheet mov={openMov} open={sheetOpen} onClose={() => setSheetOpen(false)} onRecat={openRecat} />
+      <GRecategorizeSheet mov={openMov} open={recatOpen} onClose={cancelRecat} onApply={applyRecat} />
+      <GGoalsSheet open={goalsOpen} goals={goals} onClose={() => setGoalsOpen(false)} onSave={saveGoals} />
       <GastosSplash open={splash} onClose={closeSplash} onBuscar={() => { closeSplash(); openBuscar(); }} />
       {toast && <GToast text={toast} />}
     </div>);
@@ -125,7 +150,7 @@ function GastosStage() {
           <Leaf size={15} color="var(--c-lime-40)" vein="rgba(0,0,0,0.3)" />
         </span>
         <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Tus gastos <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
-        <div style={{ font: '400 12px Inter', color: '#8a8985' }}>“Hoy” es el 20/{G_TODAY.getMonth() + 1}/2026 · data seedeada, idéntica en cada run</div>
+        <div style={{ font: '400 12px Inter', color: '#8a8985' }}>“Hoy” es el {G_TODAY.getDate()}/{G_TODAY.getMonth() + 1}/2026 · data seedeada, idéntica en cada run</div>
 
         {/* selector de escenarios: un mes por caso de la carrera */}
         <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 4, background: '#fff', border: '1px solid #D0CFCA', borderRadius: 999, padding: 3 }}>

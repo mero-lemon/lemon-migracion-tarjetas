@@ -99,6 +99,46 @@ const G_MERCHANTS = [
 const G_MER = {};
 G_MERCHANTS.forEach((m) => { G_MER[m.id] = m; });
 
+// ── Moneda extranjera y PIX ─────────────────────────────────────
+// Los consumos que no son en pesos viven en su propio grupo (USD o PIX):
+// se muestran aparte, sin desglose interno por categoría. El monto se
+// guarda también en pesos (curAmount·fx) para que los totales del mes cierren.
+const G_FX = { usd: 1350, brl: 245 }; // pesos por unidad (valores de demo)
+const G_CUR = {
+  ars: { code: 'ars', label: 'Pesos', short: 'Pesos', sym: '$', icon: 'currency-peso', color: '#00AA18' },
+  usd: { code: 'usd', label: 'Dólares', short: 'USD', sym: 'US$', icon: 'currency-dollar', color: '#1F8A4C' },
+  brl: { code: 'brl', label: 'PIX', short: 'PIX', sym: 'R$', icon: 'pix-on', color: '#00B3A4' }
+};
+
+// Comercios en moneda extranjera (montos en su moneda original).
+// pm = consumos esperados por mes (probabilidad ≈ pm/30 por día).
+// day = suscripción mensual fija (siempre cae ese día del mes).
+const G_FOREIGN = [
+  // USD — servicios y compras internacionales, pagados con tarjeta
+  { id: 'f-openai', name: 'OpenAI', cat: 'tech', cur: 'usd', min: 20, max: 20, day: 5, hours: [6, 8] },
+  { id: 'f-apple', name: 'Apple.com', cat: 'tech', cur: 'usd', min: 2.99, max: 129, pm: 3, hours: [11, 22] },
+  { id: 'f-steam', name: 'Steam', cat: 'entretenimiento', cur: 'usd', min: 4.99, max: 59.99, pm: 1.5, hours: [20, 23] },
+  { id: 'f-amazon', name: 'Amazon', cat: 'ropa', cur: 'usd', min: 12, max: 180, pm: 1.5, hours: [11, 22] },
+  { id: 'f-booking', name: 'Booking.com', cat: 'viajes', cur: 'usd', min: 55, max: 320, pm: 0.5, hours: [10, 22] },
+  // PIX — reales, consumos en Brasil
+  { id: 'f-ifood', name: 'iFood', cat: 'gastro', cur: 'brl', min: 28, max: 120, pm: 2, hours: [12, 23] },
+  { id: 'f-uberbr', name: 'Uber · Brasil', cat: 'transporte', cur: 'brl', min: 11, max: 55, pm: 1.5, hours: [9, 23] },
+  { id: 'f-mercadobr', name: 'Mercado · Rio', cat: 'super', cur: 'brl', min: 35, max: 160, pm: 1, hours: [10, 20] },
+  { id: 'f-pousada', name: 'Pousada Trancoso', cat: 'viajes', cur: 'brl', min: 180, max: 720, pm: 0.4, hours: [10, 20] }];
+const G_FOR = {};
+G_FOREIGN.forEach((f) => { G_FOR[f.id] = f; });
+
+// Qué monedas extranjeras hay en cada mes, para que el demo muestre
+// todos los casos de "En otras monedas": ambas, solo una, o ninguna.
+// (meses fuera del mapa = ambas, historia normal).
+const G_CUR_MONTHS = {
+  6: ['usd', 'brl'], // julio  → ambas
+  5: ['usd'],        // junio  → solo dólares
+  4: ['brl'],        // mayo   → solo PIX
+  3: []              // abril  → ninguna
+};
+const curEnabled = (monthIdx, cur) => (G_CUR_MONTHS[monthIdx] || ['usd', 'brl']).includes(cur);
+
 // ── Gastos fijos mensuales (día de facturación + monto base) ────
 // Alimentan al generador Y a la proyección de cierre de mes:
 // lo que todavía no facturó este mes se suma como "fijo pendiente".
@@ -152,6 +192,18 @@ const buildMovements = () => {
     movs.push({ id: 'g' + seq++, date: dt, cat: m.cat, mid, name: m.name, amount, method });
   };
 
+  // consumo en moneda extranjera: guarda el monto original (curAmount) y su
+  // equivalente en pesos (amount) para que los totales del mes cierren.
+  const pushForeign = (date, f, curAmount, h, min) => {
+    const dt = new Date(date.getFullYear(), date.getMonth(), date.getDate(), h, min);
+    if (dt > G_TODAY) return;
+    movs.push({
+      id: 'g' + seq++, date: dt, cat: f.cat, mid: f.id, name: f.name,
+      amount: Math.round(curAmount * G_FX[f.cur]), method: f.cur === 'brl' ? 'pix' : 'tarjeta',
+      cur: f.cur, curAmount
+    });
+  };
+
   const amountFor = (m) => {
     let v = m.min + rng() * (m.max - m.min);
     v = Math.round(v / 10) * 10;
@@ -176,6 +228,17 @@ const buildMovements = () => {
       if (r.day === dom) {
         const jitter = 1 + (rng() - 0.5) * 0.03;
         push(d, r.mid, Math.round(inflate(r.base, d) * jitter), r.method, G_MER[r.mid].hours[0], Math.floor(rng() * 50));
+      }
+    });
+
+    // 1.5 consumos en moneda extranjera / PIX (su propio grupo)
+    G_FOREIGN.forEach((f) => {
+      if (!curEnabled(d.getMonth(), f.cur)) return; // este mes no tiene esa moneda
+      const hit = f.day != null ? dom === f.day : rng() < f.pm / 30;
+      if (hit) {
+        const amt = f.day != null ? f.min : Math.round((f.min + rng() * (f.max - f.min)) * 100) / 100;
+        const h = f.hours[0] + Math.floor(rng() * (f.hours[1] - f.hours[0] + 1));
+        pushForeign(d, f, amt, h, Math.floor(rng() * 60));
       }
     });
 
@@ -250,6 +313,7 @@ const periodInfo = (unit, anchor) => {
 
 // ── Repositorio (la interfaz que después implementa el backend) ─
 const inRange = (m, s, e) => m.date >= s && m.date < e;
+const isArs = (m) => !m.cur || m.cur === 'ars'; // pesos (los grupos USD/PIX van aparte)
 
 // ritmo: barras del período (día → por hora, mes/semana → por día, año → por mes)
 // Sirve tanto para el resumen del período como para una selección filtrada.
@@ -286,11 +350,12 @@ const ExpensesRepository = {
     return this.getMovements(p).filter((m) => m.name.toLowerCase().includes(s));
   },
 
-  // Buscador: período + categorías + medios de pago + texto, todo opcional
-  query(p, { cats = [], methods = [], text = '' } = {}) {
+  // Buscador: período + categorías + medios de pago + moneda + texto, todo opcional
+  query(p, { cats = [], methods = [], curs = [], text = '' } = {}) {
     let list = this.getMovements(p);
     if (cats.length) list = list.filter((m) => cats.includes(m.cat));
     if (methods.length) list = list.filter((m) => methods.includes(m.method));
+    if (curs.length) list = list.filter((m) => curs.includes(m.cur || 'ars'));
     if (text.trim()) { const s = text.trim().toLowerCase(); list = list.filter((m) => m.name.toLowerCase().includes(s)); }
     return list;
   },
@@ -309,13 +374,28 @@ const ExpensesRepository = {
     const prevTotal = prevMovs.reduce((a, m) => a + m.amount, 0);
     const hasPrev = prev.start >= G_DATA_START || prevTotal > 0;
 
+    // los grupos USD/PIX se muestran aparte → el desglose por categoría
+    // (y su comparación) mira solo los consumos en pesos.
+    const arsMovs = movs.filter(isArs);
+    const prevArs = prevMovs.filter(isArs);
+
     // desglose por categoría (con su vs-anterior)
     const byCategory = G_CATS.map((c) => {
-      const mine = movs.filter((m) => m.cat === c.id);
+      const mine = arsMovs.filter((m) => m.cat === c.id);
       const t = mine.reduce((a, m) => a + m.amount, 0);
-      const pt = prevMovs.filter((m) => m.cat === c.id).reduce((a, m) => a + m.amount, 0);
+      const pt = prevArs.filter((m) => m.cat === c.id).reduce((a, m) => a + m.amount, 0);
       return { cat: c, total: t, count: mine.length, prevTotal: pt, pct: total > 0 ? t / total : 0 };
     }).filter((c) => c.total > 0).sort((a, b) => b.total - a.total);
+
+    // grupos de moneda extranjera / PIX (total en pesos + total en su moneda)
+    const byCurrency = ['usd', 'brl'].map((cur) => {
+      const mine = movs.filter((m) => m.cur === cur);
+      return {
+        cur, meta: G_CUR[cur], count: mine.length,
+        total: mine.reduce((a, m) => a + m.amount, 0),
+        curTotal: mine.reduce((a, m) => a + m.curAmount, 0)
+      };
+    }).filter((c) => c.count > 0);
 
     const buckets = bucketize(p, movs);
     const elapsedBuckets = buckets.filter((b) => !b.future);
@@ -359,14 +439,14 @@ const ExpensesRepository = {
       const movers = byCategory.concat(
         // categorías que desaparecieron también cuentan como baja
         G_CATS.filter((c) => !byCategory.find((b) => b.cat.id === c.id))
-          .map((c) => ({ cat: c, total: 0, prevTotal: prevMovs.filter((m) => m.cat === c.id).reduce((a, m) => a + m.amount, 0) }))
+          .map((c) => ({ cat: c, total: 0, prevTotal: prevArs.filter((m) => m.cat === c.id).reduce((a, m) => a + m.amount, 0) }))
           .filter((c) => c.prevTotal > 0)
       ).map((c) => ({ ...c, delta: c.total - c.prevTotal })).sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
       if (movers.length && Math.abs(movers[0].delta) > Math.max(4000, prevTotal * 0.02))
         insight = { cat: movers[0].cat, delta: movers[0].delta };
     }
 
-    return { total, count: movs.length, prevTotal, hasPrev, byCategory, buckets, avgBucket, projection, usual, usualFull, insight };
+    return { total, count: movs.length, prevTotal, hasPrev, byCategory, byCurrency, buckets, avgBucket, projection, usual, usualFull, insight };
   },
 
   // Top comercios de una categoría en el período
@@ -386,15 +466,17 @@ const ExpensesRepository = {
 // gasto de ese mes para calibrar la carrera a un diff exacto de días.
 // Así los 4 casos posibles del veredicto quedan cubiertos con data real:
 // nada se hardcodea, todos los indicadores se derivan igual que siempre.
+// day = "hoy" de cada escenario (distinto en cada mes). Julio ≤ 20:
+// la data seedeada llega hasta el 20/7, no hay nada después.
 const G_SCENARIOS = [
-  { id: 'jul', label: 'Julio', month: 6, targetDiff: 3, caso: 'Le vas ganando al mes' },
-  { id: 'jun', label: 'Junio', month: 5, targetDiff: 0, caso: 'Palo a palo con el mes' },
-  { id: 'may', label: 'Mayo', month: 4, targetDiff: -2.2, caso: 'Un poco más de lo habitual' },
-  { id: 'abr', label: 'Abril', month: 3, targetDiff: -5, caso: 'Gastando más que los últimos meses' }];
+  { id: 'jul', label: 'Julio', month: 6, day: 20, targetDiff: 3, caso: 'Le vas ganando al mes · USD + PIX' },
+  { id: 'jun', label: 'Junio', month: 5, day: 26, targetDiff: 0, caso: 'Palo a palo con el mes · solo USD' },
+  { id: 'may', label: 'Mayo', month: 4, day: 12, targetDiff: -2.2, caso: 'Un poco más de lo habitual · solo PIX' },
+  { id: 'abr', label: 'Abril', month: 3, day: 8, targetDiff: -5, caso: 'Gastando más que los últimos meses · sin moneda extranjera' }];
 
 const setGastosScenario = (id) => {
   const s = G_SCENARIOS.find((x) => x.id === id) || G_SCENARIOS[0];
-  G_TODAY = new Date(2026, s.month, 20, 19, 30);
+  G_TODAY = new Date(2026, s.month, s.day || 20, 19, 30);
   window.G_TODAY = G_TODAY;
   const cut = G_BASE.filter((m) => m.date <= G_TODAY);
   const p = periodInfo('month', G_TODAY);
@@ -413,8 +495,30 @@ const setGastosScenario = (id) => {
   let factor = 1;
   if (s.targetDiff != null && usualFull && baseTotal > 0)
     factor = ((p.elapsedDays - s.targetDiff) / p.totalDays) * usualFull / baseTotal;
-  G_ALL = cut.map((m) => m.date >= p.start ? { ...m, amount: Math.round(m.amount * factor * 100) / 100 } : m);
+  G_ALL = cut.map((m) => m.date >= p.start ?
+    { ...m, amount: Math.round(m.amount * factor * 100) / 100, ...(m.curAmount != null ? { curAmount: Math.round(m.curAmount * factor * 100) / 100 } : {}) } :
+    m);
 };
 setGastosScenario('jul'); // arranca calibrado: julio = ganando
 
-Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1, G_SCENARIOS, setGastosScenario });
+// ── Recategorización de gastos (Proposal 3) ─────────────────────
+// Mutamos la data en memoria (base + actual) para que el cambio se vea
+// reflejado al toque en el desglose. scope 'one' = solo ese movimiento;
+// 'all' = todos los consumos del comercio (viejos y nuevos).
+const recategorize = (mov, catId, scope) => {
+  const hit = (m) => scope === 'all' ? m.mid === mov.mid : m.id === mov.id;
+  G_BASE.forEach((m) => { if (hit(m)) m.cat = catId; });
+  G_ALL.forEach((m) => { if (hit(m)) m.cat = catId; });
+};
+
+// Crea una categoría de usuario y la suma a la taxonomía viva.
+let G_USER_SEQ = 0;
+const createCategory = ({ name, color, icon }) => {
+  const id = 'user-' + (++G_USER_SEQ);
+  const cat = { id, name, short: name.length > 10 ? name.slice(0, 9) + '…' : name, icon, color, user: true };
+  G_CATS.push(cat);
+  G_CAT[id] = cat;
+  return cat;
+};
+
+Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1, G_SCENARIOS, setGastosScenario, G_CUR, G_FX, G_FOREIGN, G_FOR, recategorize, createCategory });

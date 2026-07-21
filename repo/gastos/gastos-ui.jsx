@@ -14,8 +14,12 @@ const G_METHODS = {
   tarjeta: { label: 'Tarjeta Lemon', icon: 'card-on' },
   qr: { label: 'Pago QR', icon: 'celphone' },
   debito: { label: 'Débito automático', icon: 'programed-tx' },
-  transferencia: { label: 'Transferencia', icon: 'send-money' }
+  transferencia: { label: 'Transferencia', icon: 'send-money' },
+  pix: { label: 'PIX', icon: 'pix-on' }
 };
+
+// monto en moneda extranjera: "US$ 84,30" / "R$ 210,00"
+const gCur = (cur, amount) => G_CUR[cur].sym + ' ' + amount.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 // ── Pantalla base dentro del frame ──────────────────────────────
 const GScreen = ({ children, header, footer, bg = LX.page }) =>
@@ -141,6 +145,15 @@ const GCatIcon = ({ cat, size = 40 }) =>
   <div style={{ width: size, height: size, borderRadius: 999, background: cat.color + '1F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
     <LI name={cat.icon} size={Math.round(size * 0.5)} color={cat.color} />
   </div>;
+
+// ── Ícono de moneda (círculo tintado, para los grupos USD / PIX) ──
+const GCurIcon = ({ cur, size = 40 }) => {
+  const c = G_CUR[cur];
+  return (
+    <div style={{ width: size, height: size, borderRadius: 999, background: c.color + '1F', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+      <LI name={c.icon} size={Math.round(size * 0.5)} color={c.color} />
+    </div>);
+};
 
 // chip chico de categoría (en filas de movimiento y sheet)
 const GCatChip = ({ cat, size = 11 }) =>
@@ -303,7 +316,12 @@ const GMovRow = ({ mov, onTap, showChip = true }) => {
           <span style={{ font: '400 11px Inter', color: '#B4B4B4' }}>{gHora(mov.date)}</span>
         </div>
       </div>
-      <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>− {gFmt2(mov.amount)}</span>
+      {mov.cur && mov.cur !== 'ars' ?
+        <div style={{ textAlign: 'right', flexShrink: 0 }}>
+          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>− {gCur(mov.cur, mov.curAmount)}</div>
+          <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 1 }}>≈ {gFmt(mov.amount)}</div>
+        </div> :
+        <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>− {gFmt2(mov.amount)}</span>}
     </button>);
 };
 
@@ -344,13 +362,23 @@ const GMovList = ({ movs, onTap, showChip = true, groupTotals = true }) => {
 };
 
 // ── Búsqueda ────────────────────────────────────────────────────
-const GSearchInput = ({ value, onChange, placeholder = 'Buscá un comercio' }) =>
+const GSearchInput = ({ value, onChange, placeholder = 'Buscá por comercio' }) =>
   <div style={{ display: 'flex', alignItems: 'center', gap: 10, height: 44, padding: '0 14px', background: 'rgba(8,8,9,0.05)', border: '1px solid #E6E6E6', borderRadius: 999 }}>
     <LI name="search" size={18} color="#818181" />
     <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
       style={{ flex: 1, border: 0, outline: 'none', background: 'transparent', font: '400 14px Inter', color: '#141414' }} />
     {value && <button onClick={() => onChange('')} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex' }}>
       <LI name="cancel" size={16} color="#B4B4B4" /></button>}
+  </div>;
+
+// ── Campo de monto (objetivos): $ + miles es-AR mientras tipeás ──
+const gDigits = (s) => (s || '').replace(/\D/g, '');
+const gGroup = (digits) => digits ? Number(digits).toLocaleString('es-AR') : '';
+const GMoneyField = ({ value, onChange, placeholder = 'Sin objetivo', sm = false }) =>
+  <div style={{ display: 'flex', alignItems: 'center', gap: 6, height: sm ? 38 : 44, padding: '0 12px', background: '#fff', border: '1px solid #E6E6E6', borderRadius: sm ? 12 : 14, minWidth: 0 }}>
+    <span style={{ font: '500 14px Geist', color: value ? '#141414' : '#B4B4B4' }}>$</span>
+    <input inputMode="numeric" value={gGroup(value)} onChange={(e) => onChange(gDigits(e.target.value))} placeholder={placeholder}
+      style={{ flex: 1, minWidth: 0, border: 0, outline: 'none', background: 'transparent', font: '500 14px Geist', color: '#141414', textAlign: 'right' }} />
   </div>;
 
 // ── Estados ─────────────────────────────────────────────────────
@@ -401,7 +429,7 @@ const GToast = ({ text }) =>
   </div>;
 
 Object.assign(window, {
-  gFmt, gFmt2, gFmtCompact, gBarLabel, gHora, G_METHODS, GScreen, GCountUp, GReveal, GBigAmount, GSegControl, GPeriodNav,
-  GCompareChip, GMiniDelta, GCatIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack,
-  GInsight, GMovRow, GMovList, groupByDay, gDayLabel, GSearchInput, GEmptyState, GSkel, GSkeletonHome, GToast
+  gFmt, gFmt2, gFmtCompact, gBarLabel, gHora, gCur, G_METHODS, GScreen, GCountUp, GReveal, GBigAmount, GSegControl, GPeriodNav,
+  GCompareChip, GMiniDelta, GCatIcon, GCurIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack,
+  GInsight, GMovRow, GMovList, groupByDay, gDayLabel, GSearchInput, GMoneyField, GEmptyState, GSkel, GSkeletonHome, GToast
 });
