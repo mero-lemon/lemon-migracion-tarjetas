@@ -251,7 +251,12 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
                       </div>
                       <div style={{ font: '400 13px Inter', lineHeight: '20px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 8 }}>{sl.body}</div>
                       <div style={{ display: 'flex', gap: 7, marginTop: 12, flexWrap: 'wrap' }}>
-                        {sl.chips.map(([e, t]) =>
+                        {/* con campaña activa, la slide "rinde" difunde la tasa
+                            potenciada con "hasta": el boost se activa por cofre */}
+                        {(sl.id === 'rinde' && activeCamp() ?
+                        [[campFor('ARS') ? activeCamp().emoji : '📈', campFor('ARS') ? `hasta ${effShort('ARS')} TNA en pesos` : `${CURRENCIES.ARS.short} TNA en pesos`],
+                        [campFor('USD') ? activeCamp().emoji : '💵', campFor('USD') ? `hasta ${effShort('USD')} TNA en dólares` : `${CURRENCIES.USD.short} TNA en dólares`]] :
+                        sl.chips).map(([e, t]) =>
                         <span key={t} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff', border: `1px solid ${LX.border}`, borderRadius: 999, padding: '5px 12px', font: '500 12px Inter', color: '#141414' }}>
                             <span style={{ fontSize: 13, lineHeight: 1 }}>{e}</span> {t}
                           </span>)}
@@ -272,7 +277,9 @@ const CajasSplash = ({ open, onClose, onPrimary }) => {
 };
 
 // ── Fila de caja (lista en Pesos digitales) ─────────────────────
-const CajaRow = ({ caja, onTap }) => {
+// boostState: 'boosted' (chip de tasa potenciada) | 'eligible' (hint para
+// entrar a activarlo) | null
+const CajaRow = ({ caja, onTap, boostState }) => {
   const total = cajaTotal(caja);
   const ck = caja.currency || 'ARS';
   const pct = caja.goal ? Math.min(1, total / caja.goal) : null;
@@ -283,12 +290,15 @@ const CajaRow = ({ caja, onTap }) => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6 }}>
             {caja.pin && <LI name="lock" size={13} color="#B4B4B4" />}{caja.name}
+            {boostState === 'boosted' && activeCamp() &&
+            <span style={{ background: '#141414', color: 'var(--c-lime-40)', font: '500 10px Inter', padding: '2px 7px', borderRadius: 999, flexShrink: 0 }}>{pctShort(boostTna(activeCamp()))}</span>}
           </span>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{fmtC(total, ck)}</span>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 3 }}>
           <span style={{ font: '400 12px Inter', color: '#818181' }}>
             {caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}{ck === 'USD' && ' · Dólares'}
+            {boostState === 'eligible' && <span style={{ color: 'var(--c-lemon-50)', fontWeight: 500 }}> · Boost disponible</span>}
           </span>
           <span style={{ font: '500 12px Inter', color: 'var(--c-lemon-50)', flexShrink: 0 }}>+{fmtC2(caja.earned, ck)}</span>
         </div>
@@ -396,7 +406,8 @@ const buildSeries = (caja) => {
 };
 
 // ── Sparkline del saldo: banda gris = aportes, banda lime = rendimiento ──
-// Caja recién creada (sin historia): proyección punteada de los próximos 30 días.
+// Caja recién creada (sin historia): curva punteada RETROSPECTIVA — lo que
+// habría generado los últimos 30 días (legales: nada de proyecciones futuras).
 const CajaSparkline = ({ caja }) => {
   const W = 320, H = 92, PAD = 4;
   const isNew = (caja.ageDays || 0) < 1;
@@ -410,7 +421,7 @@ const CajaSparkline = ({ caja }) => {
     const y = (v, min, max) => H - PAD - (v - min) / (max - min || 1) * (H - PAD * 2);
     const min = total * 0.999, max = end * 1.001;
     const pts = Array.from({ length: 31 }, (_, i) => `${PAD + i * (W - PAD * 2) / 30},${y(total + dailyYield(total, tna) * i, min, max)}`);
-    label = 'Próximos 30 días · proyección';
+    label = 'Últimos 30 días · lo que habría generado';
     content =
     <>
         <polygon points={`${PAD},${H - PAD} ${pts.join(' ')} ${W - PAD},${H - PAD}`} fill="rgba(8,8,9,0.05)" />
@@ -509,7 +520,7 @@ const Keypad = ({ onDigit, onBackspace }) => {
 // secondary = { label, onPress } botón fantasma bajo el CTA;
 // quick = etiqueta de acceso rápido que carga el máximo (p.ej. Retirar todo);
 // currency define prefijo, tasa y origen de fondos del cofre.
-function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick }) {
+function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', boosted = false, max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick }) {
   const [value, setValue] = useStateU(0);
   const cur = CURRENCIES[currency];
   const over = value > max;
@@ -569,13 +580,32 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', max, cta
                     <LI name={hint ? 'alert-time' : 'returns'} size={16} color={hint ? 'var(--c-solar-50)' : '#818181'} />
                     <span style={{ flex: 1 }}>{hint || 'Vuelve al instante, sin penalidad.'}</span>
                   </div> :
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 0' }}>
-                    <LI name="earn" size={16} color="var(--c-lime-60)" />
-                    <span style={{ flex: 1, font: '500 13px Inter', color: 'var(--c-lime-70)', textAlign: 'left' }}>
-                      {value > 0 ? `Suma ≈ +${fmtY(monthlyYield(value, cur.tna), currency)} por mes` : 'Rinde todos los días'}
-                    </span>
-                    <TnaChip compact label={cur.label} />
-                  </div>}
+                (() => {
+                  // el rendimiento se cuenta SOLO en pasado condicional (legales) y
+                  // SOLO acá: monto en una línea, marco temporal en la segunda, así
+                  // el texto no pelea el ancho con el chip. Cofre con boost activado:
+                  // cap-aware, con desglose si supera el tope.
+                  const camp = boosted ? campFor(currency) : null;
+                  const cap = camp ? campCap(camp) : null;
+                  const overCap = camp && cap != null && value > cap;
+                  return (
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '12px 0' }}>
+                      <LI name="earn" size={16} color="var(--c-lime-60)" style={{ marginTop: 1, flexShrink: 0 }} />
+                      <span style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                        {value > 0 ?
+                        <>
+                          <span style={{ display: 'block', font: '500 13px Inter', color: 'var(--c-lime-70)' }}>Habría generado +{fmtY(split30(value, currency, boosted), currency)}</span>
+                          <span style={{ display: 'block', font: '400 11px Inter', color: '#818181', marginTop: 2 }}>en los últimos 30 días</span>
+                        </> :
+                        <span style={{ display: 'block', font: '500 13px Inter', color: 'var(--c-lime-70)', paddingTop: 1 }}>{camp ? `Tasa potenciada hasta el ${camp.end}` : 'Rinde todos los días'}</span>}
+                        {overCap &&
+                        <span style={{ display: 'block', font: '400 11px Inter', color: '#818181', marginTop: 2 }}>
+                          Hasta {fmtC(cap, currency)} al {pctShort(boostTna(camp))} · el resto al {cur.short}
+                        </span>}
+                      </span>
+                      <YieldChip ck={currency} boosted={boosted} compact />
+                    </div>);
+                })()}
               </div>
 
               {/* acceso rápido: cargar el máximo (Retirar todo / Total disponible) */}

@@ -87,6 +87,18 @@ function CajasExperience() {
     setRoute('detail');
   };
 
+  // opt-in de campaña: el usuario acepta las condiciones y ESE cofre
+  // pasa a rendir la tasa potenciada (queda en el historial del cofre)
+  const activateBoost = (id) => {
+    setCajas((cs) => cs.map((c) => c.id === id ? {
+      ...c, boosted: true,
+      movs: [{ icon: 'rewards', title: 'Activaste la tasa potenciada', date: 'Hoy', amount: activeCamp() ? `${pctShort(boostTna(activeCamp()))} TNA` : '', sign: '' }, ...c.movs]
+    } : c));
+  };
+
+  // el panel de marketing (afuera del teléfono) lee el consumo de acá
+  window.__campUsage = { used: poolUsed(cajas), count: enrolledCount(cajas) };
+
   // Editar: renombrar, cambiar emoji, convertir libre ↔ objetivo, PIN
   const updateCaja = (id, patch) => {
     if (patch.pin === null) patch = { ...patch, armored: false };
@@ -114,7 +126,8 @@ function CajasExperience() {
   return <CreateCajaFlow available={disponible} availableUSD={disponibleUSD} isFirst={cajas.length === 0} onCancel={() => setRoute('cajas')} onDone={createCaja} />;
 
   if (route === 'success' && lastCreated)
-  return <CajaSuccess caja={hydrate(cajas.find((c) => c.id === lastCreated))} onGoCaja={() => { setOpenId(lastCreated); setRoute('detail'); }} onGoPesos={() => setRoute('cajas')} />;
+  return <CajaSuccess caja={hydrate(cajas.find((c) => c.id === lastCreated))} cajas={cajas} onActivate={() => activateBoost(lastCreated)}
+    onGoCaja={() => { setOpenId(lastCreated); setRoute('detail'); }} onGoPesos={() => setRoute('cajas')} />;
 
   if (route === 'pin' && open)
   return <PinGate caja={open} onBack={() => setRoute('cajas')} onUnlock={() => setRoute('detail')} />;
@@ -123,7 +136,7 @@ function CajasExperience() {
   return <CajaMovsScreen caja={open} onBack={() => setRoute('detail')} />;
 
   if (route === 'detail' && open)
-  return <CajaDetail caja={open} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
+  return <CajaDetail caja={open} cajas={cajas} onActivate={() => activateBoost(open.id)} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
     onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onArm={() => setRoute('armpin')} onMovs={() => setRoute('movs')} />;
 
   // blindar un cofre existente: elegís el PIN y queda blindado
@@ -136,6 +149,7 @@ function CajasExperience() {
     <AmountScreen
       key="add"
       currency={open.currency || 'ARS'}
+      boosted={!!open.boosted}
       headerTitle={open.name}
       badge={<CajaBadge caja={open} size={46} />}
       title="¿Cuánto le agregás?"
@@ -203,6 +217,11 @@ function PhoneC({ scale, children }) {
 function CajasStage() {
   const [scale, setScale] = useStateZ(1);
   const [resetKey, setResetKey] = useStateZ(0);
+  // panel de marketing: setea la campaña a mano; publicar (o apagar)
+  // reinicia la experiencia para ver el impacto desde el descubrimiento
+  const [panelOpen, setPanelOpen] = useStateZ(false);
+  const publishCampaign = (cfg) => { setCampaign(cfg); setPanelOpen(false); setResetKey((k) => k + 1); };
+  const stopCampaign = () => { setCampaign(null); setPanelOpen(false); setResetKey((k) => k + 1); };
 
   useEffectZ(() => {
     const calc = () => {
@@ -223,7 +242,17 @@ function CajasStage() {
         </span>
         <div style={{ font: '600 13px Inter', color: '#2a2a28' }}>Cofres <span style={{ color: '#8a8985', fontWeight: 500 }}>· prototipo</span></div>
 
-        <button onClick={() => setResetKey((k) => k + 1)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
+        {/* abre el panel de marketing donde se setea la campaña a mano */}
+        <button onClick={() => setPanelOpen(true)} style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 12px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
+          <LI name="rewards" size={14} color={activeCamp() ? '#2a2a28' : '#8a8985'} />
+          <span style={{ color: '#8a8985', fontWeight: 500 }}>Campaña</span>
+          {activeCamp() ?
+          <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}>{activeCamp().name}
+            <span style={{ width: 7, height: 7, borderRadius: 999, background: 'var(--c-lemon-40, #00DF1A)' }} /></span> :
+          'Sin campaña'}
+        </button>
+
+        <button onClick={() => setResetKey((k) => k + 1)} style={{ display: 'flex', alignItems: 'center', gap: 6, border: '1px solid #D0CFCA', background: '#fff', borderRadius: 999, padding: '6px 14px', cursor: 'pointer', font: '600 12px Inter', color: '#2a2a28' }}>
           <LI name="swap" size={14} color="#2a2a28" /> Reiniciar
         </button>
       </div>
@@ -234,6 +263,8 @@ function CajasStage() {
           <CajasExperience key={resetKey} />
         </PhoneC>
       </div>
+
+      <CampaignPanel open={panelOpen} onClose={() => setPanelOpen(false)} onPublish={publishCampaign} onStop={stopCampaign} />
     </div>);
 }
 

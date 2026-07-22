@@ -52,6 +52,32 @@ const BalanceTabs = ({ active, onInicio, onPortfolio }) =>
     <button onClick={onPortfolio} style={{ flex: 1, border: 0, textAlign: 'center', font: '500 12px Inter', letterSpacing: '-0.1px', color: '#141414', padding: '14px 0', cursor: active === 'portfolio' ? 'default' : 'pointer', background: active === 'portfolio' ? 'transparent' : 'var(--c-lime-40)', borderRadius: active === 'portfolio' ? 0 : '0 32px 0 24px' }}>Portfolio</button>
   </div>;
 
+// ── Lemon Card en el home (Per_Home real: card lime 328x204 r32 con
+//    label "Tarjeta virtual" → acá "Lemon Card" + •• 1234 y MC mono) ──
+const LemonCardHome = () =>
+  <div style={{ position: 'relative', width: '100%', aspectRatio: '328 / 204', borderRadius: 32, background: '#CFFF2E', border: '1px solid rgba(255,255,255,0.2)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+    {/* eco de la textura cromatográfica del arte real, en gradientes */}
+    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(95% 130% at 85% -12%, rgba(0,202,87,0.5) 0%, rgba(0,202,87,0) 55%), radial-gradient(75% 105% at 6% 112%, rgba(150,196,0,0.55) 0%, rgba(150,196,0,0) 58%), linear-gradient(118deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 34%)', opacity: 0.5 }} />
+    <div style={{ position: 'absolute', left: 24, top: 22 }}>
+      <Leaf size={26} color="#141414" vein="rgba(207,255,46,0.5)" />
+    </div>
+    <div style={{ position: 'absolute', left: 24, bottom: 18 }}>
+      <div style={{ font: '500 14px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>Lemon Card</div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
+        <span style={{ display: 'flex', gap: 2 }}>
+          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
+          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
+        </span>
+        <span style={{ font: '400 12px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>1234</span>
+      </div>
+    </div>
+    {/* mastercard mono */}
+    <div style={{ position: 'absolute', right: 24, bottom: 20, display: 'flex' }}>
+      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C' }} />
+      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C', marginLeft: -6, opacity: 0.8 }} />
+    </div>
+  </div>;
+
 // ── INICIO — tu plata del día a día ─────────────────────────────
 function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas, promoOff, onClosePromo }) {
   return (
@@ -81,25 +107,30 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas, promo
             </div>
           </div>
 
+          {/* tu Lemon Card, como en la home real */}
+          <LemonCardHome />
+
           <div style={{ flex: 1 }} />
 
           {/* hook a cajas: anatomía del banner real (card blanca 84px, arte
               60, título+bajada 12, X). La salience justa: el color vive en
               el arte, entrada animada y un brillo que pasa dos veces. Solo
               hasta crear la primera (después la sección vive en Portfolio). */}
-          {cajas.length === 0 && !promoOff &&
+          {(cajas.length === 0 || activeCamp()) && !promoOff &&
           <div style={{ position: 'relative', animation: 'screenIn .5s cubic-bezier(.25,.85,.3,1) .35s both' }}>
             <button onClick={onCajas} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, width: '100%', minHeight: 84, textAlign: 'left', cursor: 'pointer', background: '#fff', border: '1.5px solid rgba(207,255,46,0.9)', borderRadius: 24, padding: '12px 34px 12px 12px', boxShadow: '0 8px 20px rgba(160,220,20,0.22), 0 4px 8px rgba(43,42,40,0.04)' }}>
               <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '30%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-shine 3.2s ease-in-out 1s infinite' }} />
               <div style={{ position: 'relative', width: 60, height: 60, flexShrink: 0, borderRadius: 16, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
                 <CajaHeroArt size={54} animate={false} />
               </div>
+              {/* con campaña activa, el banner vende la promo (y sigue vivo
+                  aunque ya tengas cofres); sin campaña, la novedad */}
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>Llegaron los Cofres</span>
-                  <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
+                  <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>{activeCamp() ? activeCamp().banner.title : 'Llegaron los Cofres'}</span>
+                  <span style={{ background: activeCamp() ? '#141414' : 'var(--c-lime-40)', color: activeCamp() ? 'var(--c-lime-40)' : '#080808', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>{activeCamp() ? 'PROMO' : 'NUEVO'}</span>
                 </div>
-                <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Apartá por objetivo y rendí {TNA_LABEL.replace(' TNA', '')} TNA.</div>
+                <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{activeCamp() ? activeCamp().banner.copy : `Apartá por objetivo y rendí ${TNA_LABEL.replace(' TNA', '')} TNA.`}</div>
               </div>
             </button>
             {onClosePromo &&
@@ -169,7 +200,12 @@ function PortfolioHome({ disponible, disponibleUSD, cajas, totalCajas, totalCaja
             </div>
             <div style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414', marginTop: 4 }}>{fmtP2(totalCajas)}</div>
           </div>
-          <span style={{ background: 'var(--c-lime-40)', color: 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101, flexShrink: 0 }}>{TNA_LABEL.replace(' TNA', '')}</span>
+          {/* el chip dice la verdad de TUS cofres: potenciado solo si activaste
+              el boost en alguno; la difusión de la promo vive en el banner */}
+          {(() => {
+            const arsBoosted = cajas.some((c) => c.boosted && (c.currency || 'ARS') === 'ARS');
+            return <span style={{ background: arsBoosted ? '#141414' : 'var(--c-lime-40)', color: arsBoosted ? 'var(--c-lime-40)' : 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101, flexShrink: 0 }}>{arsBoosted ? effShort('ARS') : CURRENCIES.ARS.short}</span>;
+          })()}
           <LI name="arrow-foward" size={17} color="#B4B4B4" style={{ flexShrink: 0 }} />
         </button>
       </div>
@@ -217,9 +253,11 @@ function PesosScreen({ disponible, hasCajas, onBack, onCajas }) {
             {hasCajas ? 'Tus cofres' : 'Guardá en cofres'}
           </div>
           <div style={{ position: 'absolute', left: 16, top: 48, fontFamily: 'LemonCitrus, serif', fontWeight: 400, fontSize: 56, lineHeight: '56px', color: '#CFFF2E' }}>
-            {TNA_LABEL.replace(' TNA', '')}
+            {effShort('ARS')}
           </div>
-          <div style={{ position: 'absolute', left: 16, top: 112, font: '400 12px Inter', letterSpacing: '-0.1px', color: '#FFFFFF' }}>Rendimiento estimado anual</div>
+          <div style={{ position: 'absolute', left: 16, top: 112, font: '400 12px Inter', letterSpacing: '-0.1px', color: '#FFFFFF' }}>
+            {campFor('ARS') ? `Tasa de campaña hasta el ${campFor('ARS').end} · se activa por cofre` : 'Rendimiento estimado anual'}
+          </div>
           <span style={{ position: 'absolute', right: 16, bottom: 16, display: 'inline-flex', alignItems: 'center', height: 32, padding: '0 12px', background: 'rgba(8,8,8,0.1)', borderRadius: 100, font: '600 12px Inter', letterSpacing: '-0.1px', color: '#FFFFFF' }}>
             {hasCajas ? 'Mis cofres' : 'Crear cofre'}
           </span>
@@ -253,6 +291,9 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
     <Screen bg="#F3F3F3">
       <BigHeader title="Cofres" onBack={onBack} right={cajas.length > 0 ? AddBtn : <span style={{ width: 40 }} />} />
       <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        {/* campaña activa: el hero de la promo vive arriba de todo */}
+        <CampaignCard />
 
         {cajas.length === 0 ?
         /* FTE: empty state que invita a conocer las cajas */
@@ -311,7 +352,9 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
             </div>
           </div>
 
-          {cajas.map((c) => <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)} />)}
+          {cajas.map((c) =>
+          <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)}
+            boostState={c.boosted ? 'boosted' : canActivate(c, cajas) ? 'eligible' : null} />)}
         </>}
       </div>
     </Screen>);
@@ -399,6 +442,8 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
             {['ARS', 'USD'].map((k) =>
             <button key={k} onClick={() => setCurrency(k)} style={{ flex: 1, border: currency === k ? '2px solid #141414' : `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 14, padding: '10px 8px', background: currency === k ? '#141414' : '#fff', textAlign: 'center' }}>
                 <div style={{ font: '600 13px Inter', color: currency === k ? '#fff' : '#141414' }}>{CURRENCIES[k].source}</div>
+                {/* la creación es SIEMPRE a tasa base: el boost se activa
+                    después, aceptando las condiciones (no se mezclan flujos) */}
                 <div style={{ font: '400 12px Inter', color: currency === k ? 'var(--c-lime-40)' : '#818181', marginTop: 2 }}>Rinde {CURRENCIES[k].short} TNA</div>
               </button>)}
           </div>
@@ -496,7 +541,9 @@ function PinSetScreen({ headerTitle, caja, onBack, onSet }) {
 }
 
 // ── SUCCESS — la moneda entra a TU cofre + el monto cuenta + confetti ──
-function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
+// Si hay campaña, acá se prende el banner de activación: el cofre ya existe
+// (flujo de creación limpio) y este es el momento de máxima atención.
+function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
   const empty = caja.amount === 0;
@@ -542,16 +589,25 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
           </div>
           {caja.goal &&
           <div style={{ marginTop: 14 }}><Meter value={Math.min(1, caja.amount / caja.goal)} color={caja.fg} h={6} /></div>}
-          <Divider style={{ margin: '14px 0' }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-            <LI name="earn" size={17} color="var(--c-lime-60)" />
-            <span style={{ flex: 1, font: '400 13px Inter', color: LX.text2, lineHeight: 1.4 }}>
-              {empty ?
-              <>Está vacío por ahora: agregale plata desde el cofre cuando quieras.</> :
-              <>A este ritmo suma <b style={{ color: LX.text1 }}>≈ +{fmtY(monthlyYield(caja.amount, cur.tna), ck)} por mes</b>, sin hacer nada extra.</>}
-            </span>
-            <TnaChip compact label={cur.label} />
-          </div>
+          {/* sin línea de rendimiento acá: el "habría generado" vive solo en
+              la pantalla de monto (decisión 22-jul). El vacío conserva su hint. */}
+          {empty &&
+          <>
+            <Divider style={{ margin: '14px 0' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+              <LI name="earn" size={17} color="var(--c-lime-60)" />
+              <span style={{ flex: 1, font: '400 13px Inter', color: LX.text2, lineHeight: 1.4 }}>
+                Está vacío por ahora: agregale plata desde el cofre cuando quieras.
+              </span>
+              <YieldChip ck={ck} boosted={caja.boosted} compact />
+            </div>
+          </>}
+        </div>
+
+        {/* el hook de la campaña: activable acá mismo, o queda esperando
+            en el detalle del cofre */}
+        <div style={{ width: '100%' }}>
+          <CampaignCofreCard caja={caja} cajas={cajas} onActivate={onActivate} />
         </div>
       </div>
     </Screen>);
@@ -559,13 +615,11 @@ function CajaSuccess({ caja, onGoCaja, onGoPesos }) {
 
 // ── DETALLE DE CAJA — dos modos: libre (rendimiento protagonista)
 //    y con objetivo (progreso + cómo el rendimiento te empuja) ───
-function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, onMovs }) {
+function CajaDetail({ caja, cajas, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, onMovs }) {
   const [editOpen, setEditOpen] = useStateX(false);
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
   const total = cajaTotal(caja);
-  const daily = dailyYield(total, cur.tna);
-  const monthly = monthlyYield(total, cur.tna);
   const pct = caja.goal ? total / caja.goal : null;
   const remaining = caja.goal ? Math.max(0, caja.goal - total) : null;
   const reached = caja.goal && remaining <= 0;
@@ -608,12 +662,13 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, 
               <span style={{ font: '400 12px Inter', color: '#818181' }}>Objetivo {fmtC(caja.goal, ck)}</span>
             </div>
           </div> :
-          /* libre: el rendimiento vive junto al saldo */
+          /* libre: el rendimiento vive junto al saldo — solo lo ya generado
+             (legales); sin historia todavía, la tasa habla por sí sola */
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
             {caja.earned > 0 ?
             <span style={{ font: '500 13px Inter', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)} <span style={{ fontWeight: 400, color: '#818181' }}>de rendimiento</span></span> :
-            <span style={{ font: '400 13px Inter', color: '#818181' }}>Rinde ≈ +{fmtY(monthly, ck)} por mes</span>}
-            <TnaChip compact label={cur.label} />
+            <span style={{ font: '400 13px Inter', color: '#818181' }}>Rinde todos los días</span>}
+            <YieldChip ck={ck} boosted={caja.boosted} compact />
           </div>}
 
           <div style={{ display: 'flex', gap: 10, marginTop: 18, width: '100%' }}>
@@ -626,20 +681,23 @@ function CajaDetail({ caja, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, 
           </div>
         </div>
 
+        {/* el corazón del opt-in: creaste el cofre normal y ACÁ activás el
+            boost aceptando las condiciones; si ya lo activaste, muestra el
+            estado potenciado con las condiciones a un tap */}
+        <CampaignCofreCard caja={caja} cajas={cajas} onActivate={onActivate} />
+
         {/* con objetivo, el rendimiento acompaña en su propia card */}
         {caja.goal &&
         <div style={{ background: LX.layer, borderRadius: 24, padding: 18, boxShadow: 'var(--shadow-card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LI name="earn" size={18} color="var(--c-lime-60)" />
             <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
-            <TnaChip compact label={cur.label} />
+            <YieldChip ck={ck} boosted={caja.boosted} compact />
           </div>
-          <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
-            {[['Generado hasta ahora', `+${fmtC2(caja.earned, ck)}`], ['Próximos 30 días', `≈ +${fmtY(daily * 30, ck)}`]].map(([k, v]) =>
-            <div key={k} style={{ flex: 1, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '10px 12px' }}>
-                <div style={{ font: '400 11px Inter', color: '#818181' }}>{k}</div>
-                <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)', marginTop: 2 }}>{v}</div>
-              </div>)}
+          {/* solo lo YA generado (legales): un único stat a lo ancho */}
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '12px 14px', marginTop: 14 }}>
+            <div style={{ font: '400 12px Inter', color: '#818181' }}>Generado hasta ahora</div>
+            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)}</div>
           </div>
         </div>}
 
