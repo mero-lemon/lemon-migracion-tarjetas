@@ -290,6 +290,29 @@ const GRaceTrack = ({ timePct, moneyPct, moneyFill, bottomLeft, bottomRight, del
     </div>);
 };
 
+// ── Balance del mes: una sola pista, lo que salió sobre lo que entró ──
+// Si entró más: el relleno oscuro es lo que salió y el tramo verde que
+// queda a la vista ES lo que te queda a favor. Si salió más: el relleno
+// verde es lo que entró y el resto ámbar es lo que salió de más. La
+// etiqueta izquierda nombra al relleno; la derecha, al total de la pista.
+const GBalanceBar = ({ inTotal, outTotal, delay = 350 }) => {
+  const [on, setOn] = useStateG(false);
+  useEffectG(() => { const t = setTimeout(() => setOn(true), delay); return () => clearTimeout(t); }, []);
+  const positive = inTotal >= outTotal;
+  const max = Math.max(inTotal, outTotal) || 1;
+  const pct = Math.max(3, Math.min(100, (positive ? outTotal : inTotal) / max * 100));
+  return (
+    <div>
+      <div style={{ display: 'flex', height: 14, borderRadius: 999, overflow: 'hidden', background: positive ? '#D6EDDA' : '#F2C083' }}>
+        <div style={{ width: on ? `${pct}%` : '3%', background: positive ? '#141414' : '#00AA18', borderRadius: pct >= 99 ? 0 : '0 999px 999px 0', transition: 'width 1.1s cubic-bezier(.3,.85,.3,1)' }} />
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 9 }}>
+        <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{positive ? 'Salió' : 'Entró'} {gFmt(positive ? outTotal : inTotal)}</span>
+        <span style={{ font: '400 11.5px Inter', color: '#818181' }}>{positive ? 'Entró' : 'Salió'} {gFmt(positive ? inTotal : outTotal)}</span>
+      </div>
+    </div>);
+};
+
 // ── Insight automático ──────────────────────────────────────────
 const GInsight = ({ insight, prevName }) => {
   if (!insight) return null;
@@ -430,6 +453,6 @@ const GToast = ({ text }) =>
 
 Object.assign(window, {
   gFmt, gFmt2, gFmtCompact, gBarLabel, gHora, gCur, G_METHODS, GScreen, GCountUp, GReveal, GBigAmount, GSegControl, GPeriodNav,
-  GCompareChip, GMiniDelta, GCatIcon, GCurIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack,
+  GCompareChip, GMiniDelta, GCatIcon, GCurIcon, GCatChip, GMerchantAvatar, GBarChart, GDataRow, GFilterChip, GRhythmChart, GRaceTrack, GBalanceBar,
   GInsight, GMovRow, GMovList, groupByDay, gDayLabel, GSearchInput, GMoneyField, GEmptyState, GSkel, GSkeletonHome, GToast
 });

@@ -46,6 +46,7 @@ const G_GOAL_CALLS = {
 function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = { total: null, byCat: {} }, onEditGoals }) {
   const info = useMemoS(() => periodInfo('month', dayStart(G_TODAY)), [dataVersion]);
   const summary = useMemoS(() => ExpensesRepository.getSummary(info), [dataVersion]);
+  const balance = useMemoS(() => ExpensesRepository.getBalance(info), [dataVersion]);
   const recent = useMemoS(() => ExpensesRepository.getMovements(info).slice(0, 4), [dataVersion]);
   const mes = G_MESES[G_TODAY.getMonth()];
 
@@ -230,6 +231,28 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
               </div>
               <LI name="arrow-foward" size={15} color="#B4B4B4" />
             </button>
+          </Surface>
+        </GReveal>
+
+        {/* el balance del mes: epílogo descriptivo — cuánta plata entró y
+            cuánta salió. Sin veredicto propio (el único juez del home es la
+            carrera) y "entró/salió" en vez de "ingresos/egresos": a una
+            billetera entra plata que no es ingreso (tu banco, devoluciones). */}
+        <GReveal delay={590}>
+          <Surface pad={16}>
+            {/* sin ancla temporal propia: el kicker del hero ya dice mes y día */}
+            <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tu balance del mes</div>
+            {/* el dato central es el neto; entró/salió son el pie de la pista */}
+            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 12 }}>
+              {balance.net >= 0 ? 'Te queda a favor' : 'Salió más de lo que entró'}
+            </div>
+            <div style={{ marginTop: 3 }}>
+              <GCountUp fromZero delay={760} duration={800} to={Math.abs(balance.net)}
+                render={(v) => <GBigAmount value={v} size={26} color={balance.net >= 0 ? '#0F7A35' : '#D67100'} prefix={balance.net >= 0 ? '$ ' : '− $ '} />} />
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <GBalanceBar inTotal={balance.inTotal} outTotal={balance.outTotal} delay={820} />
+            </div>
           </Surface>
         </GReveal>
 

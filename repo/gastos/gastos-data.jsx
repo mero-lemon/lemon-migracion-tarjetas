@@ -267,6 +267,41 @@ const buildMovements = () => {
 const G_BASE = buildMovements(); // la historia completa, sin escalar
 let G_ALL = G_BASE;
 
+// ── Ingresos: la plata que ENTRÓ (para "Tu balance del mes") ────
+// Sueldo el 1° (en abril cae el 10: al día 8 del escenario todavía
+// no entró → caso "salió más de lo que entró"), aguinaldo el 1/7 y
+// algunas transferencias recibidas. Los escenarios NO escalan esto:
+// el gasto se calibra, lo que entra queda fijo, y el balance de cada
+// mes cae en un caso distinto (jul holgado · jun justo · may cómodo
+// · abr negativo). Framing honesto: es flujo ("entró"), no "ingresos"
+// contables — a una billetera entra plata que no es ingreso.
+const G_SALARY_BASE = 4650000; // sueldo de julio 2026; hacia atrás desinfla como los fijos
+const G_SALARY_DAY = { 3: 10 }; // mes (0-index) → día de cobro distinto del 1°
+const G_INCOME_SENDERS = ['Transferencia de Marcos G.', 'Transferencia de Sofía R.', 'Transferencia de Caro M.'];
+
+const buildIncomes = () => {
+  const rng = mulberry32(20260721);
+  const list = [];
+  let seq = 0;
+  const push = (mo, day, name, amount, kind, h) => {
+    list.push({ id: 'in' + seq++, date: new Date(2026, mo, day, h, Math.floor(rng() * 55)), name, amount: Math.round(amount), kind, in: true });
+  };
+  for (let mo = G_DATA_START.getMonth(); mo <= 6; mo++) {
+    const sueldo = inflate(G_SALARY_BASE, new Date(2026, mo, 1)) * (1 + (rng() - 0.5) * 0.02);
+    push(mo, G_SALARY_DAY[mo] || 1, 'Sueldo', sueldo, 'sueldo', 9);
+    if (mo === 6) push(mo, 1, 'Aguinaldo', sueldo / 2, 'aguinaldo', 9);
+    const n = 2 + Math.floor(rng() * 2); // 2-3 transferencias recibidas por mes
+    // la primera cae en los primeros días: aunque "hoy" sea temprano
+    // (abril = día 8), "Entró" nunca queda en cero pelado
+    for (let i = 0; i < n; i++)
+      push(mo, 2 + Math.floor(rng() * (i === 0 ? 6 : 26)), G_INCOME_SENDERS[Math.floor(rng() * G_INCOME_SENDERS.length)],
+        15000 + rng() * 105000, 'transferencia', 10 + Math.floor(rng() * 12));
+  }
+  list.sort((a, b) => b.date - a.date);
+  return list;
+};
+const G_INCOMES = buildIncomes();
+
 // ── Períodos ────────────────────────────────────────────────────
 const G_MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 const G_DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -449,6 +484,16 @@ const ExpensesRepository = {
     return { total, count: movs.length, prevTotal, hasPrev, byCategory, byCurrency, buckets, avgBucket, projection, usual, usualFull, insight };
   },
 
+  // Balance del período: cuánta plata entró vs. salió. Descriptivo,
+  // sin veredicto (el único juez del home es la carrera). "salió" =
+  // el mismo total que el hero (incluye otras monedas en pesos).
+  getBalance(p) {
+    const incomes = G_INCOMES.filter((m) => m.date >= p.start && m.date < p.end && m.date <= G_TODAY);
+    const inTotal = incomes.reduce((a, m) => a + m.amount, 0);
+    const outTotal = this.getMovements(p).reduce((a, m) => a + m.amount, 0);
+    return { inTotal, outTotal, net: inTotal - outTotal, incomes };
+  },
+
   // Top comercios de una categoría en el período
   getTopMerchants(p, catId) {
     const movs = this.getMovements(p, catId);
@@ -469,10 +514,10 @@ const ExpensesRepository = {
 // day = "hoy" de cada escenario (distinto en cada mes). Julio ≤ 20:
 // la data seedeada llega hasta el 20/7, no hay nada después.
 const G_SCENARIOS = [
-  { id: 'jul', label: 'Julio', month: 6, day: 20, targetDiff: 3, caso: 'Le vas ganando al mes · USD + PIX' },
-  { id: 'jun', label: 'Junio', month: 5, day: 26, targetDiff: 0, caso: 'Palo a palo con el mes · solo USD' },
-  { id: 'may', label: 'Mayo', month: 4, day: 12, targetDiff: -2.2, caso: 'Un poco más de lo habitual · solo PIX' },
-  { id: 'abr', label: 'Abril', month: 3, day: 8, targetDiff: -5, caso: 'Gastando más que los últimos meses · sin moneda extranjera' }];
+  { id: 'jul', label: 'Julio', month: 6, day: 20, targetDiff: 3, caso: 'Le vas ganando al mes · USD + PIX · balance holgado (aguinaldo)' },
+  { id: 'jun', label: 'Junio', month: 5, day: 26, targetDiff: 0, caso: 'Palo a palo con el mes · solo USD · balance justo' },
+  { id: 'may', label: 'Mayo', month: 4, day: 12, targetDiff: -2.2, caso: 'Un poco más de lo habitual · solo PIX · balance cómodo' },
+  { id: 'abr', label: 'Abril', month: 3, day: 8, targetDiff: -5, caso: 'Gastando más que los últimos meses · sin moneda extranjera · balance negativo (el sueldo cae el 10)' }];
 
 const setGastosScenario = (id) => {
   const s = G_SCENARIOS.find((x) => x.id === id) || G_SCENARIOS[0];
@@ -521,4 +566,4 @@ const createCategory = ({ name, color, icon }) => {
   return cat;
 };
 
-Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1, G_SCENARIOS, setGastosScenario, G_CUR, G_FX, G_FOREIGN, G_FOR, recategorize, createCategory });
+Object.assign(window, { G_TODAY, G_DATA_START, G_CATS, G_CAT, G_MER, ExpensesRepository, periodInfo, bucketize, G_MESES, G_DIAS, dayStart, addDays, sameDay, cap1, G_SCENARIOS, setGastosScenario, G_CUR, G_FX, G_FOREIGN, G_FOR, recategorize, createCategory, G_INCOMES });
