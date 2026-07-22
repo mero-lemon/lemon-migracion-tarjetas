@@ -4,7 +4,7 @@ const { useState: useStateSh } = React;
 // Screen shell inside the iPhone frame (clears status bar + home indicator)
 const Screen = ({ children, bg = LX.page, footer, scroll = true }) =>
 <div style={{ height: '100%', background: bg, display: 'flex', flexDirection: 'column', paddingTop: 48 }}>
-    <div style={{ flex: 1, minHeight: 0, overflowY: scroll ? 'auto' : 'visible' }}>{children}</div>
+    <div style={{ flex: 1, minHeight: 0, overflowY: scroll ? 'auto' : 'visible', overflowX: scroll ? 'hidden' : 'visible' }}>{children}</div>
     {footer &&
   <div style={{ padding: '12px 16px 30px', background: bg, borderTop: 'none' }}>{footer}</div>
   }

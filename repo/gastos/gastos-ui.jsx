@@ -25,7 +25,7 @@ const gCur = (cur, amount) => G_CUR[cur].sym + ' ' + amount.toLocaleString('es-A
 const GScreen = ({ children, header, footer, bg = LX.page }) =>
   <div style={{ height: '100%', background: bg, display: 'flex', flexDirection: 'column', paddingTop: 48 }}>
     {header && <div style={{ flexShrink: 0 }}>{header}</div>}
-    <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</div>
+    <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden' }}>{children}</div>
     {footer && <div style={{ flexShrink: 0, padding: '10px 16px 24px' }}>{footer}</div>}
   </div>;
 

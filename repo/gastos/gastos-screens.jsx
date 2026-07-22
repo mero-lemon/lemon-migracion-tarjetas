@@ -5,8 +5,8 @@ const { useState: useStateS, useEffect: useEffectS, useMemo: useMemoS } = React;
 
 // ── Home: responde rápido "¿cuánto y en qué vengo gastando este mes?" ──
 // La historia: entrás con miedo → primero el veredicto (¿estoy bien?),
-// después la verdad fría (el número), después el detalle. Fondo liso:
-// el estado del mes lo cuenta la pista, no el ambiente.
+// después la verdad fría (el número), después el detalle. Fondo liso;
+// el ambiente (color del estado) vive como halo de la card del veredicto.
 // La carrera del mes: tu plata corre contra los días. Si al día 20
 // consumiste menos del 20/31 de tu mes típico, le vas ganando.
 const G_VERDICTS = {
@@ -107,7 +107,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
             con objetivo de total → presupuesto contra TU número. */}
         {moneyPct != null && (goalTotal ?
           <GReveal delay={200}>
-            <Surface pad={16}>
+            {/* el ambiente vive alrededor de la card: halo del color del estado */}
+            <Surface pad={16} style={{ boxShadow: `0 0 0 6px ${verdict.tint}, 0 14px 30px ${verdict.tint}`, transition: 'box-shadow .6s' }}>
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tu objetivo del mes</span>
               {/* abajo de la pista: lo que te queda contra tu objetivo. "Te quedan"
                   y no "disponible": disponible ya nombra al saldo de la cuenta */}
@@ -125,7 +126,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
             </Surface>
           </GReveal> :
           <GReveal delay={200}>
-            <Surface pad={16}>
+            {/* el ambiente vive alrededor de la card: halo del color del estado */}
+            <Surface pad={16} style={{ boxShadow: `0 0 0 6px ${verdict.tint}, 0 14px 30px ${verdict.tint}`, transition: 'box-shadow .6s' }}>
               <span style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{verdict.text}</span>
               <GRaceTrack
                 timePct={timePct} moneyPct={moneyPct} moneyFill={verdict.fill}
