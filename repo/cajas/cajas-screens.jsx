@@ -53,54 +53,61 @@ const BalanceTabs = ({ active, onInicio, onPortfolio }) =>
   </div>;
 
 // ── INICIO — tu plata del día a día ─────────────────────────────
-function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas }) {
+function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas, promoOff, onClosePromo }) {
   return (
     <Screen bg="#F3F3F3" footer={<NavPill active="home" onPortfolio={onPortfolio} />}>
-      <TopBar />
-      <div style={{ padding: '4px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ background: LX.layer, borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
-          <BalanceTabs active="inicio" onPortfolio={onPortfolio} />
-          <div style={{ padding: '20px 24px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
-              <LI name="view-balance-on" size={18} color="#818181" />
-            </div>
-            <div style={{ marginTop: 6 }}><BigAmount value={disponible} /></div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 24 }}>
-              {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
-              <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <LI name={ic} size={22} color="var(--c-lime-40)" />
-                  </div>
-                  <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
-                </div>)}
+      {/* columna a pantalla completa: la novedad vive abajo, sobre el nav,
+          como el banner de la app real */}
+      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <TopBar />
+        <div style={{ flex: 1, padding: '4px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: LX.layer, borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+            <BalanceTabs active="inicio" onPortfolio={onPortfolio} />
+            <div style={{ padding: '20px 24px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
+                <LI name="view-balance-on" size={18} color="#818181" />
+              </div>
+              <div style={{ marginTop: 6 }}><BigAmount value={disponible} /></div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 24 }}>
+                {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+                <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <LI name={ic} size={22} color="var(--c-lime-40)" />
+                    </div>
+                    <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
+                  </div>)}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* hook a cajas: solo hasta que crea la primera (después, la sección vive en Portfolio) */}
-        {cajas.length === 0 &&
-        <button onClick={onCajas} style={{
-          position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
-          borderRadius: 26, minHeight: 96, padding: '16px 48px 16px 118px',
-          background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)',
-          boxShadow: '0 12px 26px rgba(120,200,20,0.36)'
-        }}>
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
-            <div style={{ position: 'absolute', left: -6, top: '50%', transform: 'translateY(-50%)' }}>
-              <CajaHeroArt size={118} animate={false} />
-            </div>
-            <div style={{ position: 'relative' }}>
-              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '700 10px Inter', letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 999 }}>
-                <LI name="vault" size={11} color="#0b1a00" /> NUEVO
-              </span>
-              <div style={{ font: '800 17px Inter', color: '#0b1a00', lineHeight: 1.15, marginTop: 7 }}>Cofres</div>
-              <div style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.78)', marginTop: 3, lineHeight: 1.3 }}>Apartá por objetivo y rendí {TNA_LABEL.replace(' TNA', '')} TNA.</div>
-            </div>
-            <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <LI name="arrow-foward" size={16} color="#0b1a00" />
-            </span>
-          </button>}
+          <div style={{ flex: 1 }} />
+
+          {/* hook a cajas: anatomía del banner real (card blanca 84px, arte
+              60, título+bajada 12, X). La salience justa: el color vive en
+              el arte, entrada animada y un brillo que pasa dos veces. Solo
+              hasta crear la primera (después la sección vive en Portfolio). */}
+          {cajas.length === 0 && !promoOff &&
+          <div style={{ position: 'relative', animation: 'screenIn .5s cubic-bezier(.25,.85,.3,1) .35s both' }}>
+            <button onClick={onCajas} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, width: '100%', minHeight: 84, textAlign: 'left', cursor: 'pointer', background: '#fff', border: '1.5px solid rgba(207,255,46,0.9)', borderRadius: 24, padding: '12px 34px 12px 12px', boxShadow: '0 8px 20px rgba(160,220,20,0.22), 0 4px 8px rgba(43,42,40,0.04)' }}>
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '30%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-shine 3.2s ease-in-out 1s infinite' }} />
+              <div style={{ position: 'relative', width: 60, height: 60, flexShrink: 0, borderRadius: 16, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <CajaHeroArt size={54} animate={false} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>Llegaron los Cofres</span>
+                  <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
+                </div>
+                <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Apartá por objetivo y rendí {TNA_LABEL.replace(' TNA', '')} TNA.</div>
+              </div>
+            </button>
+            {onClosePromo &&
+              <button onClick={onClosePromo} style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, border: 0, borderRadius: 999, background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <LI name="close" size={14} color="#B4B4B4" />
+              </button>}
+          </div>}
+        </div>
       </div>
     </Screen>);
 }

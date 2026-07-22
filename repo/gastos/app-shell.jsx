@@ -87,51 +87,68 @@ const MiniAppTile = ({ app, onTap, size = 56, labeled = true }) =>
       </span>}
   </button>;
 
-// ── Banner de novedad (Figma New Banner: lime, radius 24) ───────
-const GastosNovedadBanner = ({ onTap }) =>
-  <button onClick={onTap} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: '#CFFF2E', borderRadius: 24, padding: '15px 16px 15px 12px', boxShadow: '0 10px 24px rgba(160,220,20,0.35)' }}>
-    <div style={{ position: 'relative', width: 56, height: 56, flexShrink: 0, borderRadius: 12, background: 'linear-gradient(180deg, #282828 0%, #141414 100%)', boxShadow: 'inset 1px 1px 4px -1px rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <LI name="spend" size={26} color="var(--c-lime-40)" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }} />
-      <LemonTag />
-    </div>
-    <div style={{ flex: 1, minWidth: 0 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-        <span style={{ font: '600 14px Inter', color: '#141414' }}>Llegó Tus gastos</span>
-        <span style={{ background: '#141414', color: '#CFFF2E', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
+// ── Banner de novedad — anatomía del banner real de la app (card
+//    blanca 84px, arte 60, título Geist 13 + bajada Inter 12 gris, X
+//    para cerrar, abajo del home). Contra la ceguera de banner, tres
+//    señales medidas: el color vive en el arte, entrada animada al
+//    cargar, y un brillo lime que pasa dos veces y se apaga.
+const GastosNovedadBanner = ({ onTap, onClose }) =>
+  <div style={{ position: 'relative', animation: 'lc-toast .5s cubic-bezier(.25,.85,.3,1) .35s both' }}>
+    <button onClick={onTap} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, width: '100%', minHeight: 84, textAlign: 'left', cursor: 'pointer', background: '#fff', border: '1.5px solid rgba(207,255,46,0.9)', borderRadius: 24, padding: '12px 34px 12px 12px', boxShadow: '0 8px 20px rgba(160,220,20,0.22), 0 4px 8px rgba(43,42,40,0.04)' }}>
+      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '30%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-shine 3.2s ease-in-out 1s infinite' }} />
+      <div style={{ position: 'relative', width: 60, height: 60, flexShrink: 0, borderRadius: 16, background: 'linear-gradient(180deg, #282828 0%, #141414 100%)', boxShadow: 'inset 1px 1px 4px -1px rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <LI name="spend" size={27} color="var(--c-lime-40)" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.4))' }} />
+        <LemonTag />
       </div>
-      <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#141414', marginTop: 2 }}>Entendé en qué se va tu plata: todos tus consumos, juntos y ordenados.</div>
-    </div>
-    <LI name="arrow-foward" size={18} color="#141414" style={{ flexShrink: 0 }} />
-  </button>;
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>Llegó Tus gastos</span>
+          <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
+        </div>
+        {/* una sola línea: misma altura que el banner de Cofres */}
+        <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Entendé en qué se va tu plata.</div>
+      </div>
+    </button>
+    {onClose &&
+      <button onClick={onClose} style={{ position: 'absolute', top: 8, right: 8, width: 26, height: 26, border: 0, borderRadius: 999, background: 'transparent', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <LI name="close" size={14} color="#B4B4B4" />
+      </button>}
+  </div>;
 
 // ── HOME de la app ──────────────────────────────────────────────
-function AppHome({ onPortfolio, onMiniApps, onGastos }) {
+function AppHome({ onPortfolio, onMiniApps, onGastos, promoOff, onClosePromo }) {
   return (
     <GScreen bg="#F3F3F3" footer={<GNavBar active="home" onPortfolio={onPortfolio} onMiniApps={onMiniApps} />}>
-      <GTopBar />
-      <div style={{ padding: '4px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <div style={{ background: '#fff', borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
-          <GBalanceTabs active="inicio" onPortfolio={onPortfolio} />
-          <div style={{ padding: '20px 24px 24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
-              <LI name="view-balance-on" size={18} color="#818181" />
-            </div>
-            <div style={{ marginTop: 6 }}><GBigAmount value={1487283.93} prefix="$" size={44} /></div>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 24 }}>
-              {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
-                <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-                  <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <LI name={ic} size={22} color="var(--c-lime-40)" />
-                  </div>
-                  <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
-                </div>)}
+      {/* columna a pantalla completa: la novedad vive abajo, sobre el nav,
+          como el banner de la app real */}
+      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+        <GTopBar />
+        <div style={{ flex: 1, padding: '4px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ background: '#fff', borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+            <GBalanceTabs active="inicio" onPortfolio={onPortfolio} />
+            <div style={{ padding: '20px 24px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
+                <LI name="view-balance-on" size={18} color="#818181" />
+              </div>
+              <div style={{ marginTop: 6 }}><GBigAmount value={1487283.93} prefix="$" size={44} /></div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 24 }}>
+                {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
+                  <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+                    <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <LI name={ic} size={22} color="var(--c-lime-40)" />
+                    </div>
+                    <span style={{ font: '500 12px Inter', color: '#141414', letterSpacing: '-0.1px' }}>{lb}</span>
+                  </div>)}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* la novedad: Mis gastos */}
-        <GastosNovedadBanner onTap={onGastos} />
+          <div style={{ flex: 1 }} />
+
+          {/* la novedad: Mis gastos */}
+          {!promoOff && <GastosNovedadBanner onTap={onGastos} onClose={onClosePromo} />}
+        </div>
       </div>
     </GScreen>);
 }
@@ -187,7 +204,7 @@ const DISCOVER_APPS = [
   { name: 'Curve', sub: 'Cambiá stables con el mejor precio', users: '8k usuarios', emoji: '🌀', bg: 'linear-gradient(135deg, #1A2B6B 0%, #0E1B44 100%)' },
   { name: 'Aave', sub: 'Prestá y pedí prestado, sin banco', users: '22k usuarios', emoji: '👻', bg: 'linear-gradient(135deg, #2B2F6B 0%, #05877B 100%)' }];
 
-function MiniAppsHome({ onHome, onPortfolio, onOpenGastos }) {
+function MiniAppsHome({ onHome, onPortfolio, onOpenGastos, promoOff, onClosePromo }) {
   const [tab, setTab] = useStateA('vos'); // vos | descubri
 
   return (
@@ -215,7 +232,7 @@ function MiniAppsHome({ onHome, onPortfolio, onOpenGastos }) {
           </div>
 
           {/* banner de novedad */}
-          <GastosNovedadBanner onTap={onOpenGastos} />
+          {!promoOff && <GastosNovedadBanner onTap={onOpenGastos} onClose={onClosePromo} />}
         </div> :
 
         <div key="descubri" style={{ animation: 'screenIn .25s ease both', padding: '18px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>

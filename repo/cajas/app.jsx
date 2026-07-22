@@ -19,6 +19,8 @@ function CajasExperience() {
   const [lastCreated, setLastCreated] = useStateZ(null);
   const [splashOpen, setSplashOpen] = useStateZ(false);
   const [splashSeen, setSplashSeen] = useStateZ(false);
+  // el banner de novedad se puede cerrar (X), como en la app real
+  const [promoOff, setPromoOff] = useStateZ(false);
 
   const isUSD = (c) => (c.currency || 'ARS') === 'USD';
   const totalCajas = cajas.filter((c) => !isUSD(c)).reduce((a, c) => a + cajaTotal(c), 0);
@@ -170,7 +172,8 @@ function CajasExperience() {
     <div style={{ height: '100%', position: 'relative' }}>
       {route === 'inicio' &&
       <InicioHome disponible={disponible} cajas={cajas} totalCajas={totalCajas}
-        onPortfolio={() => setRoute('portfolio')} onCajas={goCajas} />}
+        onPortfolio={() => setRoute('portfolio')} onCajas={goCajas}
+        promoOff={promoOff} onClosePromo={() => setPromoOff(true)} />}
 
       {route === 'portfolio' &&
       <PortfolioHome disponible={disponible} disponibleUSD={disponibleUSD} cajas={cajas} totalCajas={totalCajas} totalCajasUSD={totalCajasUSD}

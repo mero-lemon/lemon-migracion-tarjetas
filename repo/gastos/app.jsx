@@ -19,6 +19,8 @@ function GastosExperience({ initialRoute = 'home', introSeen = false }) {
   // objetivo del mes (opcional): total + por categoría. null/{} = usar promedio
   const [goals, setGoals] = useStateZ({ total: null, byCat: {} });
   const [goalsOpen, setGoalsOpen] = useStateZ(false);
+  // el banner de novedad se puede cerrar (X), como en la app real
+  const [promoOff, setPromoOff] = useStateZ(false);
 
   // primera entrada a Tus gastos: el splash sube ya (con el skeleton
   // pintándose detrás) y la sección recién se carga cuando lo cerrás
@@ -69,13 +71,15 @@ function GastosExperience({ initialRoute = 'home', introSeen = false }) {
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       {route === 'home' &&
-        <AppHome onPortfolio={() => setRoute('portfolio')} onMiniApps={() => setRoute('miniapps')} onGastos={() => openGastos('home')} />}
+        <AppHome onPortfolio={() => setRoute('portfolio')} onMiniApps={() => setRoute('miniapps')} onGastos={() => openGastos('home')}
+          promoOff={promoOff} onClosePromo={() => setPromoOff(true)} />}
 
       {route === 'portfolio' &&
         <AppPortfolio onHome={() => setRoute('home')} onMiniApps={() => setRoute('miniapps')} />}
 
       {route === 'miniapps' &&
-        <MiniAppsHome onHome={() => setRoute('home')} onPortfolio={() => setRoute('portfolio')} onOpenGastos={() => openGastos('miniapps')} />}
+        <MiniAppsHome onHome={() => setRoute('home')} onPortfolio={() => setRoute('portfolio')} onOpenGastos={() => openGastos('miniapps')}
+          promoOff={promoOff} onClosePromo={() => setPromoOff(true)} />}
 
       {route === 'gastos' && (gastosLoading ?
         <GScreen>
