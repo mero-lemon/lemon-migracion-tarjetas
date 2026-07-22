@@ -64,8 +64,8 @@ const YieldChip = ({ ck = 'ARS', boosted = false, compact }) => {
   const c = boosted ? campFor(ck) : null;
   if (!c) return <TnaChip compact label={CURRENCIES[ck].label} />;
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#141414', color: 'var(--c-lime-40)', font: '500 12px Inter', padding: compact ? '2px 9px' : '3px 10px', borderRadius: 999, whiteSpace: 'nowrap' }}>
-      <s style={{ opacity: 0.5, fontWeight: 400 }}>{CURRENCIES[ck].short}</s> {pctShort(boostTna(c))} TNA
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--c-lime-10)', color: 'var(--c-lime-60)', font: '600 12px Inter', padding: compact ? '2px 9px' : '3px 10px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+      <s style={{ opacity: 0.55, fontWeight: 400 }}>{CURRENCIES[ck].short}</s> {pctShort(boostTna(c))} TNA
     </span>);
 };
 
@@ -129,15 +129,20 @@ function CampaignCofreCard({ caja, cajas, onActivate }) {
   if (caja.boosted)
   return (
     <>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#141414', borderRadius: 20, padding: '13px 16px', boxShadow: 'var(--shadow-card)' }}>
-        <span style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(207,255,46,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{camp.emoji}</span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: 'var(--c-lime-10)', border: '1.5px solid var(--c-lime-40)', borderRadius: 20, padding: '13px 16px', boxShadow: 'var(--shadow-card)' }}>
+        <span style={{ position: 'relative', width: 38, height: 38, borderRadius: 999, background: 'var(--c-lime-40)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>
+          {camp.emoji}
+          <span style={{ position: 'absolute', right: -3, bottom: -3, width: 17, height: 17, borderRadius: 999, background: 'var(--c-lime-60)', border: '2px solid var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LI name="trusted-icon" size={9} color="#fff" />
+          </span>
+        </span>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ font: '500 13px Inter', color: '#fff' }}>Tasa potenciada: <b style={{ color: 'var(--c-lime-40)' }}>{pctShort(boostTna(camp))} TNA</b></div>
-          <div style={{ font: '400 11px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 2 }}>
+          <div style={{ font: '500 13px Inter', color: '#141414' }}>Tasa potenciada: <b style={{ color: 'var(--c-lime-60)' }}>{pctShort(boostTna(camp))} TNA</b></div>
+          <div style={{ font: '400 11px Inter', color: '#818181', marginTop: 2 }}>
             Hasta el {camp.end}{campCap(camp) != null && <> · hasta {fmtC(campCap(camp), ck)}</>}
           </div>
         </div>
-        <button onClick={() => setCondOpen(true)} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-lime-40)', flexShrink: 0, padding: 0 }}>Condiciones</button>
+        <button onClick={() => setCondOpen(true)} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-lime-60)', flexShrink: 0, padding: 0 }}>Condiciones</button>
       </div>
       <CampaignConditions open={condOpen} camp={camp} onClose={() => setCondOpen(false)} />
     </>);
@@ -165,31 +170,19 @@ function CampaignCard() {
   const camp = activeCamp();
   if (!camp) return null;
   const cur = CURRENCIES[camp.currency];
-  const metaChip = { background: 'rgba(255,255,255,0.10)', color: 'rgba(255,255,255,0.8)', font: '400 11px Inter', padding: '3px 9px', borderRadius: 999, whiteSpace: 'nowrap' };
   return (
     <>
-      <div style={{ position: 'relative', overflow: 'hidden', background: '#141414', borderRadius: 24, padding: '16px 18px', boxShadow: '0 10px 24px rgba(0,0,0,0.18)' }}>
-        <div style={{ position: 'absolute', top: -60, right: -40, width: 180, height: 180, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.28), transparent 70%)' }} />
-        <div style={{ position: 'relative' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(207,255,46,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{camp.emoji}</span>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#fff' }}>{camp.name}</div>
-              <div style={{ font: '400 11px Inter', color: 'rgba(255,255,255,0.55)', marginTop: 1 }}>Hasta el {camp.end} · activable por cofre</div>
-            </div>
-            <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 12px Inter', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
-              <s style={{ opacity: 0.55, fontWeight: 400 }}>{cur.short}</s> {pctShort(boostTna(camp))} TNA
-            </span>
-          </div>
-          <div style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.75)', lineHeight: 1.5, marginTop: 10 }}>{camp.pitch}</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 12, flexWrap: 'wrap' }}>
-            {camp.capPerCofre != null && <span style={metaChip}>Hasta {fmtC(camp.capPerCofre, camp.currency)} por cofre</span>}
-            {camp.capPerUser != null && <span style={metaChip}>Hasta {fmtC(camp.capPerUser, camp.currency)} por persona</span>}
-            {camp.maxPerUser != null && <span style={metaChip}>{camp.maxPerUser === 1 ? '1 cofre' : `${camp.maxPerUser} cofres`} por persona</span>}
-            <button onClick={() => setCondOpen(true)} style={{ marginLeft: 'auto', border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: 'var(--c-lime-40)', padding: 0 }}>Ver condiciones</button>
-          </div>
+      <button onClick={() => setCondOpen(true)} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: '#fff', border: '1.5px solid var(--c-lime-40)', borderRadius: 20, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
+        <span style={{ width: 38, height: 38, borderRadius: 999, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{camp.emoji}</span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{camp.name}</div>
+          <div style={{ font: '400 11px Inter', color: '#818181', marginTop: 1 }}>Hasta el {camp.end} · tocá para ver detalles</div>
         </div>
-      </div>
+        <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 12px Inter', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <s style={{ opacity: 0.55, fontWeight: 400 }}>{cur.short}</s> {pctShort(boostTna(camp))} TNA
+        </span>
+        <LI name="arrow-foward" size={15} color="#B4B4B4" style={{ flexShrink: 0 }} />
+      </button>
       <CampaignConditions open={condOpen} camp={camp} onClose={() => setCondOpen(false)} />
     </>);
 }
@@ -201,7 +194,8 @@ function CampaignCard() {
 const CAMPAIGN_TEMPLATES = [
 { key: 'launch', label: '🚀 Lanzamiento 50%', form: { name: 'Tasa de lanzamiento', currency: 'ARS', mode: 'fixed', pct: 50, scope: 'new', capPerCofre: 500000, capPerUser: 1500000, poolMax: 100000000, maxPerUser: 1, end: '31/8' } },
 { key: 'plus6', label: '⚡ +6 puntos', form: { name: 'Puntos extra', currency: 'ARS', mode: 'extra', pct: 6, scope: 'all', capPerCofre: 2000000, capPerUser: null, poolMax: 5000000, maxPerUser: 3, end: '31/8' } },
-{ key: 'usd', label: '💵 Dólares +2', form: { name: 'Boost en dólares', currency: 'USD', mode: 'extra', pct: 2, scope: 'new', capPerCofre: null, capPerUser: 1000, poolMax: 500000, maxPerUser: 1, end: '30/9' } }];
+{ key: 'usd', label: '💵 Dólares +2', form: { name: 'Boost en dólares', currency: 'USD', mode: 'extra', pct: 2, scope: 'new', capPerCofre: null, capPerUser: 1000, poolMax: 500000, maxPerUser: 1, end: '30/9' } },
+{ key: 'custom', label: '✏️ Otra', form: { name: '', currency: 'ARS', mode: 'extra', pct: 0, scope: 'all', capPerCofre: null, capPerUser: null, poolMax: null, maxPerUser: null, end: '' } }];
 
 // del formulario al objeto campaña (deriva emoji, banner y pitch)
 const buildCampaign = (f) => {
@@ -244,6 +238,7 @@ function CampaignPanel({ open, onClose, onPublish, onStop }) {
   const usage = window.__campUsage || { used: 0, count: 0 };
 
   const L = ({ children }) => <div style={{ font: '600 10px Inter', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#8a8985', margin: '0 0 6px' }}>{children}</div>;
+  const SubL = ({ children }) => <div style={{ display: 'flex', alignItems: 'center', gap: 6, font: '700 11px Inter', color: '#141414', margin: '0 0 8px' }}><span style={{ width: 4, height: 4, borderRadius: 999, background: 'var(--c-lime-60)' }} />{children}</div>;
   const inputS = { width: '100%', border: '1.5px solid #E3E2DD', borderRadius: 12, padding: '9px 12px', font: '500 13px Inter', color: '#141414', outline: 'none', background: '#fff' };
   const Seg = ({ options, value, onChange }) =>
   <div style={{ display: 'flex', gap: 6 }}>
@@ -309,9 +304,9 @@ function CampaignPanel({ open, onClose, onPublish, onStop }) {
           {/* plantillas rápidas */}
           <div>
             <L>Plantillas</L>
-            <div style={{ display: 'flex', gap: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
               {CAMPAIGN_TEMPLATES.map((t) =>
-              <button key={t.key} onClick={() => { setF({ ...t.form }); setTpl(t.key); }} style={{ flex: 1, border: tpl === t.key ? '1.5px solid #141414' : '1.5px solid #E3E2DD', cursor: 'pointer', borderRadius: 12, padding: '8px 6px', background: '#fff', font: '600 11px Inter', color: '#141414', whiteSpace: 'nowrap' }}>{t.label}</button>)}
+              <button key={t.key} onClick={() => { setF({ ...t.form }); setTpl(t.key); }} style={{ border: tpl === t.key ? '1.5px solid #141414' : '1.5px solid #E3E2DD', cursor: 'pointer', borderRadius: 12, padding: '9px 8px', background: '#fff', font: '600 11px Inter', color: '#141414', whiteSpace: 'nowrap' }}>{t.label}</button>)}
             </div>
           </div>
 
@@ -349,20 +344,33 @@ function CampaignPanel({ open, onClose, onPublish, onStop }) {
           </div>
 
           <div>
-            <L>Guardrails de budget</L>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Money label="Tope por cofre" value={f.capPerCofre} onChange={(v) => set({ capPerCofre: v })} />
-                <Money label="Tope por usuario" value={f.capPerUser} onChange={(v) => set({ capPerUser: v })} />
-              </div>
-              <div style={{ display: 'flex', gap: 10 }}>
-                <Money label="Monto máx. a alcanzar" value={f.poolMax} onChange={(v) => set({ poolMax: v })} placeholder="Sin límite" />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <L>Cofres por usuario</L>
-                  <input inputMode="numeric" value={f.maxPerUser != null ? f.maxPerUser : ''} placeholder="Sin límite"
-                  onChange={(e) => { const n = parseInt(e.target.value.replace(/\D/g, ''), 10); set({ maxPerUser: n > 0 ? n : null }); }}
-                  style={inputS} />
+            <L>Restricciones</L>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+
+              {/* límites de lo que gana cada persona */}
+              <div>
+                <SubL>Por usuario</SubL>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <Money label="Tope por cofre" value={f.capPerCofre} onChange={(v) => set({ capPerCofre: v })} />
+                    <Money label="Tope por usuario" value={f.capPerUser} onChange={(v) => set({ capPerUser: v })} />
+                  </div>
+                  <div style={{ width: 'calc(50% - 5px)' }}>
+                    <L>Cofres por usuario</L>
+                    <input inputMode="numeric" value={f.maxPerUser != null ? f.maxPerUser : ''} placeholder="Sin límite"
+                    onChange={(e) => { const n = parseInt(e.target.value.replace(/\D/g, ''), 10); set({ maxPerUser: n > 0 ? n : null }); }}
+                    style={inputS} />
+                  </div>
                 </div>
+              </div>
+
+              {/* techo global de toda la campaña, sumando a todos */}
+              <div>
+                <SubL>Total de la campaña</SubL>
+                <div style={{ width: 'calc(50% - 5px)' }}>
+                  <Money label="Monto máx. a alcanzar" value={f.poolMax} onChange={(v) => set({ poolMax: v })} placeholder="Sin límite" />
+                </div>
+                <div style={{ font: '400 11px Inter', color: '#8a8985', lineHeight: 1.45, marginTop: 6 }}>Cupo máximo de la campaña sumando a todos los usuarios. Al alcanzarlo, se cierra para nuevas activaciones.</div>
               </div>
             </div>
           </div>

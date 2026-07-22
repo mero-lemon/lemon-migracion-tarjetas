@@ -48,7 +48,7 @@ const CAJA_TEMPLATES = [
   { id: 'auto', icon: 'car', emoji: '🚗', name: 'Auto', sub: 'Para cambiarlo o mantenerlo', bg: 'var(--c-solar-5)', fg: 'var(--c-solar-50)' },
   { id: 'regalos', icon: 'view-gift', emoji: '🎁', name: 'Regalos', sub: 'Cumpleaños y fiestas', bg: '#FDEBF5', fg: '#D6006A' },
   { id: 'mudanza', icon: 'key', emoji: '🔑', name: 'Mudanza', sub: 'Depósito y flete', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)' },
-  { id: 'custom', icon: 'vault', emoji: '📦', name: 'Otra cosa', sub: 'Personalizalo con el nombre y el emoji que quieras', bg: 'var(--c-lime-10)', fg: 'var(--c-lime-60)' }];
+  { id: 'custom', icon: 'vault', emoji: '📦', name: 'Otra cosa', sub: 'Personalizalo como quieras', bg: 'var(--c-lime-10)', fg: 'var(--c-lime-60)' }];
 
 const getTemplate = (id) => CAJA_TEMPLATES.find((t) => t.id === id) || CAJA_TEMPLATES[5];
 
