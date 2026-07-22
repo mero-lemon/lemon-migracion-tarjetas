@@ -87,32 +87,6 @@ const MiniAppTile = ({ app, onTap, size = 56, labeled = true }) =>
       </span>}
   </button>;
 
-// ── Lemon Card en el home (Per_Home real: card lime 328x204 r32 con
-//    label "Tarjeta virtual" → acá "Lemon Card" + •• 1234 y MC mono) ──
-const LemonCardHome = () =>
-  <div style={{ position: 'relative', width: '100%', aspectRatio: '328 / 204', borderRadius: 32, background: '#CFFF2E', border: '1px solid rgba(255,255,255,0.2)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
-    {/* eco de la textura cromatográfica del arte real, en gradientes */}
-    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(95% 130% at 85% -12%, rgba(0,202,87,0.5) 0%, rgba(0,202,87,0) 55%), radial-gradient(75% 105% at 6% 112%, rgba(150,196,0,0.55) 0%, rgba(150,196,0,0) 58%), linear-gradient(118deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 34%)', opacity: 0.5 }} />
-    <div style={{ position: 'absolute', left: 24, top: 22 }}>
-      <Leaf size={26} color="#141414" vein="rgba(207,255,46,0.5)" />
-    </div>
-    <div style={{ position: 'absolute', left: 24, bottom: 18 }}>
-      <div style={{ font: '500 14px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>Lemon Card</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-        <span style={{ display: 'flex', gap: 2 }}>
-          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
-          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
-        </span>
-        <span style={{ font: '400 12px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>1234</span>
-      </div>
-    </div>
-    {/* mastercard mono */}
-    <div style={{ position: 'absolute', right: 24, bottom: 20, display: 'flex' }}>
-      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C' }} />
-      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C', marginLeft: -6, opacity: 0.8 }} />
-    </div>
-  </div>;
-
 // ── Banner de novedad — anatomía del banner real de la app (card
 //    blanca 84px, arte 60, título Geist 13 + bajada Inter 12 gris, X
 //    para cerrar, abajo del home). Contra la ceguera de banner, tres
@@ -169,9 +143,6 @@ function AppHome({ onPortfolio, onMiniApps, onGastos, promoOff, onClosePromo }) 
               </div>
             </div>
           </div>
-
-          {/* tu Lemon Card, como en la home real */}
-          <LemonCardHome />
 
           <div style={{ flex: 1 }} />
 
@@ -319,4 +290,4 @@ function MiniAppsHome({ onHome, onPortfolio, onOpenGastos, promoOff, onCloseProm
     </GScreen>);
 }
 
-Object.assign(window, { GTopBar, GNavBar, GBalanceTabs, MINI_APPS, MiniAppTile, LemonTag, LemonCardHome, GastosNovedadBanner, AppHome, AppPortfolio, MiniAppsHome });
+Object.assign(window, { GTopBar, GNavBar, GBalanceTabs, MINI_APPS, MiniAppTile, LemonTag, GastosNovedadBanner, AppHome, AppPortfolio, MiniAppsHome });
