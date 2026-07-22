@@ -52,32 +52,6 @@ const BalanceTabs = ({ active, onInicio, onPortfolio }) =>
     <button onClick={onPortfolio} style={{ flex: 1, border: 0, textAlign: 'center', font: '500 12px Inter', letterSpacing: '-0.1px', color: '#141414', padding: '14px 0', cursor: active === 'portfolio' ? 'default' : 'pointer', background: active === 'portfolio' ? 'transparent' : 'var(--c-lime-40)', borderRadius: active === 'portfolio' ? 0 : '0 32px 0 24px' }}>Portfolio</button>
   </div>;
 
-// ── Lemon Card en el home (Per_Home real: card lime 328x204 r32 con
-//    label "Tarjeta virtual" → acá "Lemon Card" + •• 1234 y MC mono) ──
-const LemonCardHome = () =>
-  <div style={{ position: 'relative', width: '100%', aspectRatio: '328 / 204', borderRadius: 32, background: '#CFFF2E', border: '1px solid rgba(255,255,255,0.2)', overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
-    {/* eco de la textura cromatográfica del arte real, en gradientes */}
-    <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(95% 130% at 85% -12%, rgba(0,202,87,0.5) 0%, rgba(0,202,87,0) 55%), radial-gradient(75% 105% at 6% 112%, rgba(150,196,0,0.55) 0%, rgba(150,196,0,0) 58%), linear-gradient(118deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 34%)', opacity: 0.5 }} />
-    <div style={{ position: 'absolute', left: 24, top: 22 }}>
-      <Leaf size={26} color="#141414" vein="rgba(207,255,46,0.5)" />
-    </div>
-    <div style={{ position: 'absolute', left: 24, bottom: 18 }}>
-      <div style={{ font: '500 14px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>Lemon Card</div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 2 }}>
-        <span style={{ display: 'flex', gap: 2 }}>
-          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
-          <span style={{ width: 4, height: 4, borderRadius: 999, background: '#1C1C1C' }} />
-        </span>
-        <span style={{ font: '400 12px Inter', letterSpacing: '-0.1px', color: '#1C1C1C' }}>1234</span>
-      </div>
-    </div>
-    {/* mastercard mono */}
-    <div style={{ position: 'absolute', right: 24, bottom: 20, display: 'flex' }}>
-      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C' }} />
-      <span style={{ width: 17, height: 17, borderRadius: 999, background: '#1C1C1C', marginLeft: -6, opacity: 0.8 }} />
-    </div>
-  </div>;
-
 // ── INICIO — tu plata del día a día ─────────────────────────────
 function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas, promoOff, onClosePromo }) {
   return (
@@ -106,9 +80,6 @@ function InicioHome({ disponible, cajas, totalCajas, onPortfolio, onCajas, promo
               </div>
             </div>
           </div>
-
-          {/* tu Lemon Card, como en la home real */}
-          <LemonCardHome />
 
           <div style={{ flex: 1 }} />
 
