@@ -778,7 +778,7 @@ function GastosSplash({ open, onClose, onBuscar }) {
     <div style={{ position: 'absolute', inset: 0, zIndex: 50, display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', pointerEvents: shown ? 'auto' : 'none' }}>
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: shown ? 1 : 0, transition: 'opacity .3s' }} />
       <div style={{
-        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '95%',
+        position: 'relative', background: '#fff', borderRadius: '30px 30px 0 0', height: '89%',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         transform: shown ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .22s cubic-bezier(.2,.85,.25,1)',
         boxShadow: '0 -12px 44px rgba(0,0,0,0.24)'
