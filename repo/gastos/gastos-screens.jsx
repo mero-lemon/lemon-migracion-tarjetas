@@ -5,8 +5,8 @@ const { useState: useStateS, useEffect: useEffectS, useMemo: useMemoS } = React;
 
 // ── Home: responde rápido "¿cuánto y en qué vengo gastando este mes?" ──
 // La historia: entrás con miedo → primero el veredicto (¿estoy bien?),
-// después la verdad fría (el número), después el detalle. El ambiente
-// (degradé superior) acompaña el estado del mes.
+// después la verdad fría (el número), después el detalle. Fondo liso:
+// el estado del mes lo cuenta la pista, no el ambiente.
 // La carrera del mes: tu plata corre contra los días. Si al día 20
 // consumiste menos del 20/31 de tu mes típico, le vas ganando.
 const G_VERDICTS = {
@@ -79,9 +79,6 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
   return (
     <GScreen>
       <div style={{ position: 'relative', padding: '2px 16px 32px', display: 'flex', flexDirection: 'column', gap: 16 }}>
-
-        {/* ambiente: el color de fondo cuenta cómo venís, sin gritar */}
-        <div style={{ position: 'absolute', left: -16, right: -16, top: -50, height: 350, pointerEvents: 'none', background: `radial-gradient(110% 72% at 50% 0%, ${verdict.tint} 0%, rgba(255,255,255,0) 74%)`, transition: 'background .6s' }} />
 
         {/* título + acceso al buscador */}
         <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0 0' }}>
