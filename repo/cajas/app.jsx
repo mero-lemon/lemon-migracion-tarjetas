@@ -98,10 +98,12 @@ function CajasExperience() {
   };
 
   // opt-in de campaña: el usuario acepta las condiciones y ESE cofre
-  // pasa a rendir la tasa potenciada (queda en el historial del cofre)
+  // pasa a rendir la tasa potenciada (queda en el historial del cofre).
+  // boostedAt guarda el orden de activación: el primero tiene prioridad
+  // cuando el tope por usuario no alcanza para todos.
   const activateBoost = (id) => {
     setCajas((cs) => cs.map((c) => c.id === id ? {
-      ...c, boosted: true,
+      ...c, boosted: true, boostedAt: Date.now(),
       movs: [{ icon: 'rewards', title: 'Activaste la tasa potenciada', date: 'Hoy', amount: activeCamp() ? `${pctShort(boostTna(activeCamp()))} TNA` : '', sign: '' }, ...c.movs]
     } : c));
   };

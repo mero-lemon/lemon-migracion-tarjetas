@@ -59,6 +59,27 @@ const canActivate = (caja, cajas) => {
   return true;
 };
 
+// ── Cuánto de ESTE cofre rinde potenciado y cuánto a tasa base ──
+// Regla de prioridad: el tope por usuario se reparte por orden de
+// activación (el primero que activó tiene prioridad); cada cofre entra
+// hasta su tope por cofre, y recién cuando se llena pasa al siguiente,
+// que mete lo que quede del cupo. Lo que excede rinde la tasa base.
+const boostAlloc = (caja, cajas) => {
+  const c = activeCamp();
+  const total = cajaTotal(caja);
+  if (!c || !caja.boosted || c.currency !== (caja.currency || 'ARS')) return { hot: 0, cold: total };
+  let remUser = c.capPerUser != null ? c.capPerUser : Infinity;
+  const enrolled = cajas.
+  filter((x) => x.boosted && (x.currency || 'ARS') === c.currency).
+  sort((a, b) => (a.boostedAt || 0) - (b.boostedAt || 0));
+  for (const x of enrolled) {
+    const alloc = Math.min(cajaTotal(x), c.capPerCofre != null ? c.capPerCofre : Infinity, remUser);
+    if (x.id === caja.id) return { hot: alloc, cold: cajaTotal(x) - alloc };
+    remUser -= alloc;
+  }
+  return { hot: 0, cold: total };
+};
+
 // ── Chip de tasa de un cofre: potenciada SOLO si ese cofre activó ──
 const YieldChip = ({ ck = 'ARS', boosted = false, compact }) => {
   const c = boosted ? campFor(ck) : null;
@@ -197,8 +218,9 @@ function CampaignCofreCard({ caja, cajas, onActivate, compact }) {
 }
 
 // ── Hero de la campaña en la sección Cofres (superficie de difusión) ──
-// onOpen: navega a la pantalla Beneficios (activación cofre por cofre);
-// sin onOpen, cae al sheet de condiciones (comportamiento anterior).
+// Fondo oscuro a propósito: que se lea como promo y no compita con las
+// filas blancas de los cofres. onOpen navega a Beneficios (activación
+// cofre por cofre); sin onOpen, cae al sheet de condiciones.
 function CampaignCard({ onOpen }) {
   const [condOpen, setCondOpen] = useStateC(false);
   const camp = activeCamp();
@@ -206,16 +228,17 @@ function CampaignCard({ onOpen }) {
   const cur = CURRENCIES[camp.currency];
   return (
     <>
-      <button onClick={onOpen || (() => setCondOpen(true))} style={{ width: '100%', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: '#fff', border: '1.5px solid var(--c-lime-40)', borderRadius: 20, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
-        <span style={{ width: 38, height: 38, borderRadius: 999, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{camp.emoji}</span>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{camp.name}</div>
-          <div style={{ font: '400 11px Inter', color: '#818181', marginTop: 1 }}>{onOpen ? 'Activalo cofre por cofre' : 'Tocá para ver detalles'} · hasta el {camp.end}</div>
+      <button onClick={onOpen || (() => setCondOpen(true))} style={{ position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12, background: '#141414', border: 0, borderRadius: 20, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
+        <div style={{ position: 'absolute', top: -46, right: -26, width: 150, height: 150, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.22), transparent 70%)', pointerEvents: 'none' }} />
+        <span style={{ width: 38, height: 38, borderRadius: 999, background: 'rgba(207,255,46,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0 }}>{camp.emoji}</span>
+        <div style={{ flex: 1, minWidth: 0, position: 'relative' }}>
+          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#fff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{camp.name}</div>
+          <div style={{ font: '400 11px Inter', color: 'rgba(255,255,255,0.6)', marginTop: 1 }}>{onOpen ? 'Activalo cofre por cofre' : 'Tocá para ver detalles'} · hasta el {camp.end}</div>
         </div>
-        <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 12px Inter', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
+        <span style={{ position: 'relative', background: 'var(--c-lime-40)', color: '#080808', font: '600 12px Inter', padding: '4px 10px', borderRadius: 999, whiteSpace: 'nowrap', flexShrink: 0 }}>
           <s style={{ opacity: 0.55, fontWeight: 400 }}>{cur.short}</s> {pctShort(boostTna(camp))} TNA
         </span>
-        <LI name="arrow-foward" size={15} color="#B4B4B4" style={{ flexShrink: 0 }} />
+        <LI name="arrow-foward" size={15} color="rgba(255,255,255,0.55)" style={{ flexShrink: 0, position: 'relative' }} />
       </button>
       {!onOpen && <CampaignConditions open={condOpen} camp={camp} onClose={() => setCondOpen(false)} />}
     </>);
@@ -242,26 +265,22 @@ function BeneficiosScreen({ cajas, onActivate, onBack, onCreate }) {
 
   return (
     <Screen bg="#F3F3F3">
-      <BigHeader title="Beneficios" onBack={onBack} right={<span style={{ width: 40 }} />} />
-      <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+      {/* la campaña contada directo, sin cartel "Beneficios" ni banner:
+          el nombre es el título de la pantalla y la info vive desnuda */}
+      <BigHeader title={camp.name} onBack={onBack} right={<span style={{ width: 40 }} />} />
+      <div style={{ padding: '0 16px 28px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
-        {/* hero de la campaña: qué es, hasta cuándo, condiciones a un tap */}
-        <div style={{ position: 'relative', overflow: 'hidden', background: '#141414', borderRadius: 24, padding: '20px 20px 18px' }}>
-          <div style={{ position: 'absolute', top: -60, right: -40, width: 210, height: 210, borderRadius: 999, background: 'radial-gradient(circle, rgba(207,255,46,0.28), transparent 70%)' }} />
-          <div style={{ position: 'relative' }}>
-            <span style={{ width: 44, height: 44, borderRadius: 999, background: 'rgba(207,255,46,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 21 }}>{camp.emoji}</span>
-            <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#fff', marginTop: 12 }}>{camp.name}</div>
-            <div style={{ font: '400 13px Inter', color: 'rgba(255,255,255,0.65)', marginTop: 4, lineHeight: 1.45 }}>
-              Tus cofres en {moneda} pueden rendir más. Lo activás vos, cofre por cofre.
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 14 }}>
-              <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 13px Inter', padding: '5px 12px', borderRadius: 999 }}>
-                <s style={{ opacity: 0.55, fontWeight: 400 }}>{cur.short}</s> {pctShort(boostTna(camp))} TNA
-              </span>
-              <span style={{ font: '400 12px Inter', color: 'rgba(255,255,255,0.6)' }}>hasta el {camp.end}</span>
-              <span style={{ flex: 1 }} />
-              <button onClick={() => setCondFor('info')} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '500 12px Inter', color: 'var(--c-lime-40)', padding: 0 }}>Condiciones</button>
-            </div>
+        <div style={{ padding: '0 2px' }}>
+          <div style={{ font: '400 14px Inter', color: '#5E5E5E', lineHeight: 1.5 }}>
+            Tus cofres en {moneda} pueden rendir más. Lo activás vos, cofre por cofre.
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 12 }}>
+            <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 13px Inter', padding: '5px 12px', borderRadius: 999, whiteSpace: 'nowrap' }}>
+              <s style={{ opacity: 0.55, fontWeight: 400 }}>{cur.short}</s> {pctShort(boostTna(camp))} TNA
+            </span>
+            <span style={{ font: '400 12px Inter', color: '#818181' }}>hasta el {camp.end}</span>
+            <span style={{ flex: 1 }} />
+            <button onClick={() => setCondFor('info')} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '500 13px Inter', color: 'var(--c-lemon-50)', padding: 0 }}>Condiciones</button>
           </div>
         </div>
 
@@ -285,7 +304,12 @@ function BeneficiosScreen({ cajas, onActivate, onBack, onCreate }) {
                   <CajaBadge caja={c} size={42} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.name}</div>
-                    <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{fmtC(cajaTotal(c), camp.currency)}{c.boosted && <span style={{ color: 'var(--c-lime-60)', fontWeight: 500 }}> · rinde {pctShort(boostTna(camp))} TNA</span>}</div>
+                    {/* si el tope no cubre todo el saldo, decirlo acá también:
+                        nunca sobreprometer cuánto rinde potenciado */}
+                    <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{fmtC(cajaTotal(c), camp.currency)}{c.boosted && (() => {
+                      const a = boostAlloc(c, cajas);
+                      return <span style={{ color: 'var(--c-lime-60)', fontWeight: 500 }}> · {pctShort(boostTna(camp))} TNA{a.cold > 0 && ` hasta ${fmtC(a.hot, camp.currency)}`}</span>;
+                    })()}</div>
                   </div>
                   {c.boosted ?
                   <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--c-lime-40)', color: '#080808', font: '600 12px Inter', padding: '7px 13px', borderRadius: 999, flexShrink: 0, animation: justOn === c.id ? 'lc-pop .45s cubic-bezier(.3,1.4,.5,1) both' : 'none' }}>
@@ -524,6 +548,6 @@ function CampaignPanel({ open, onClose, onPublish, onStop }) {
 
 Object.assign(window, {
   setCampaign, activeCamp, campFor, pctShort, boostTna, effTna, effShort, effLabel,
-  campCap, split30, enrolledCount, poolUsed, canActivate,
+  campCap, split30, enrolledCount, poolUsed, canActivate, boostAlloc,
   YieldChip, CampaignConditions, CampaignCofreCard, CampaignCard, BeneficiosScreen, CampaignPanel, CAMPAIGN_TEMPLATES, buildCampaign
 });

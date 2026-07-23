@@ -646,22 +646,45 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
         <CampaignCofreCard compact caja={caja} cajas={cajas} onActivate={onActivate} />
 
         {/* con objetivo, el rendimiento acompaña en su propia card — en tonos
-            apagados a propósito: informa sin pelearle la atención al progreso */}
-        {caja.goal &&
-        <div style={{ background: LX.layer, borderRadius: 24, padding: 18, boxShadow: 'var(--shadow-card)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <LI name="earn" size={18} color="#818181" />
-            <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
-            <span style={{ font: '400 12px Inter', color: 'var(--c-lime-70)', whiteSpace: 'nowrap' }}>
-              {caja.boosted && campFor(ck) ? `${pctShort(boostTna(campFor(ck)))} TNA` : curOf(caja).label}
-            </span>
-          </div>
-          {/* solo lo YA generado (legales): un único stat a lo ancho */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '12px 14px', marginTop: 14 }}>
-            <div style={{ font: '400 12px Inter', color: '#818181' }}>Generado hasta ahora</div>
-            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)}</div>
-          </div>
-        </div>}
+            apagados a propósito: informa sin pelearle la atención al progreso.
+            Con boost activo muestra cuánto rinde a cada tasa: la campaña tiene
+            topes y la prioridad la tiene el cofre que activó primero. */}
+        {caja.goal && (() => {
+          const camp = caja.boosted ? campFor(ck) : null;
+          const alloc = camp ? boostAlloc(caja, cajas) : null;
+          return (
+            <div style={{ background: LX.layer, borderRadius: 24, padding: 18, boxShadow: 'var(--shadow-card)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <LI name="earn" size={18} color="#818181" />
+                <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
+                {!camp &&
+                <span style={{ font: '400 12px Inter', color: 'var(--c-lime-70)', whiteSpace: 'nowrap' }}>{curOf(caja).label}</span>}
+              </div>
+              <div style={{ background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '0 14px', marginTop: 14 }}>
+                {camp &&
+                <>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 0' }}>
+                    <div style={{ font: '400 12px Inter', color: '#818181' }}>Rinde al <b style={{ fontWeight: 500, color: 'var(--c-lime-70)' }}>{pctShort(boostTna(camp))} TNA</b></div>
+                    <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{fmtC(alloc.hot, ck)}</div>
+                  </div>
+                  {alloc.cold > 0 &&
+                  <>
+                    <Divider />
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 0' }}>
+                      <div style={{ font: '400 12px Inter', color: '#818181' }}>Rinde al {curOf(caja).label} <span style={{ color: '#B4B4B4' }}>· sobre el tope</span></div>
+                      <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{fmtC(alloc.cold, ck)}</div>
+                    </div>
+                  </>}
+                  <Divider />
+                </>}
+                {/* solo lo YA generado (legales) */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: camp ? '11px 0' : '12px 0' }}>
+                  <div style={{ font: '400 12px Inter', color: '#818181' }}>Generado hasta ahora</div>
+                  <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)}</div>
+                </div>
+              </div>
+            </div>);
+        })()}
 
         <NoGastoHint source={cur.source.toLowerCase()} />
 

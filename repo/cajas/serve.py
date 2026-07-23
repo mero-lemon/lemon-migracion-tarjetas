@@ -3,9 +3,11 @@
 # Babel en el navegador y Chrome los cacheaba (http.server no manda
 # Cache-Control), sirviendo versiones viejas tras cada edición.
 import http.server
+import os
 import sys
 
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 4599
+# puerto: argumento CLI > variable PORT (autoPort del preview) > default
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else int(os.environ.get('PORT', 4599))
 
 
 class NoCacheHandler(http.server.SimpleHTTPRequestHandler):
