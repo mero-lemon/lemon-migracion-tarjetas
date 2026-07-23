@@ -296,8 +296,10 @@ const CajaRow = ({ caja, onTap, boostState }) => {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6 }}>
             {caja.name}
+            {/* boost activo = cohete, sin tasa: los topes hacen que la tasa
+                no aplique a todo el monto (el desglose vive en el detalle) */}
             {boostState === 'boosted' && activeCamp() &&
-            <span style={{ background: '#141414', color: 'var(--c-lime-40)', font: '500 10px Inter', padding: '2px 7px', borderRadius: 999, flexShrink: 0 }}>{pctShort(boostTna(activeCamp()))}</span>}
+            <span style={{ fontSize: 13, lineHeight: 1, flexShrink: 0 }}>🚀</span>}
           </span>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', flexShrink: 0 }}>{fmtC(total, ck)}</span>
         </div>

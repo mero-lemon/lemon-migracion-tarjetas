@@ -270,7 +270,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
         {cajas.length === 0 ?
         /* FTE: empty state que invita a conocer las cajas */
         <>
-          <CampaignCard onOpen={onBeneficios} />
+          <CampaignCard cajas={cajas} onOpen={onBeneficios} />
           <button onClick={onSplash} style={{ border: 0, cursor: 'pointer', textAlign: 'center', background: LX.layer, borderRadius: 24, padding: '26px 22px 24px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <CajaHeroArt size={168} animate={false} />
             <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 6, maxWidth: 280 }}>Creá cofres para organizar tus ahorros</div>
@@ -299,7 +299,7 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
           </div>
 
           {/* campaña activa: la puerta a Beneficios (activación por cofre) */}
-          <CampaignCard onOpen={onBeneficios} />
+          <CampaignCard cajas={cajas} onOpen={onBeneficios} />
 
           {cajas.map((c) =>
           <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)}
@@ -623,12 +623,15 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
             </div>
           </div> :
           /* libre: el rendimiento vive junto al saldo — solo lo ya generado
-             (legales); sin historia todavía, la tasa habla por sí sola */
+             (legales); sin historia todavía, la tasa habla por sí sola.
+             Con boost NO va tasa (no aplica a todo el monto): va el cohete. */
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10 }}>
             {caja.earned > 0 ?
             <span style={{ font: '500 13px Inter', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)} <span style={{ fontWeight: 400, color: '#818181' }}>de rendimiento</span></span> :
             <span style={{ font: '400 13px Inter', color: '#818181' }}>Rinde todos los días</span>}
-            <YieldChip ck={ck} boosted={caja.boosted} compact />
+            {caja.boosted && campFor(ck) ?
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'var(--c-lime-10)', color: 'var(--c-lime-70)', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>🚀 Boost activo</span> :
+            <YieldChip ck={ck} compact />}
           </div>}
 
           <div style={{ display: 'flex', gap: 10, marginTop: 18, width: '100%' }}>
@@ -660,18 +663,30 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
                 {!camp &&
                 <span style={{ font: '400 12px Inter', color: 'var(--c-lime-70)', whiteSpace: 'nowrap' }}>{curOf(caja).label}</span>}
               </div>
-              <div style={{ background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '0 14px', marginTop: 14 }}>
+              {/* con dos tasas conviviendo, la proporción se ve antes de leerse:
+                  barra lime (potenciado) vs gris (a tasa base, sobre el tope) */}
+              {camp && alloc.cold > 0 &&
+              <div style={{ display: 'flex', height: 6, borderRadius: 999, overflow: 'hidden', background: 'rgba(8,8,9,0.09)', marginTop: 14 }}>
+                <div style={{ width: `${Math.max(3, alloc.hot / (alloc.hot + alloc.cold) * 100)}%`, background: 'var(--c-lime-40)', borderRadius: 999, boxShadow: 'inset 0 0 0 1px var(--c-lime-50)' }} />
+              </div>}
+              <div style={{ background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '0 14px', marginTop: camp && alloc.cold > 0 ? 10 : 14 }}>
                 {camp &&
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 0' }}>
-                    <div style={{ font: '400 12px Inter', color: '#818181' }}>Rinde al <b style={{ fontWeight: 500, color: 'var(--c-lime-70)' }}>{pctShort(boostTna(camp))} TNA</b></div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '400 12px Inter', color: '#818181' }}>
+                      <span style={{ fontSize: 13, lineHeight: 1 }}>🚀</span>
+                      <span>Al <b style={{ fontWeight: 500, color: 'var(--c-lime-70)' }}>{pctShort(boostTna(camp))} TNA</b></span>
+                    </div>
                     <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{fmtC(alloc.hot, ck)}</div>
                   </div>
                   {alloc.cold > 0 &&
                   <>
                     <Divider />
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, padding: '11px 0' }}>
-                      <div style={{ font: '400 12px Inter', color: '#818181' }}>Rinde al {curOf(caja).label} <span style={{ color: '#B4B4B4' }}>· sobre el tope</span></div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 7, font: '400 12px Inter', color: '#818181' }}>
+                        <span style={{ width: 13, textAlign: 'center' }}><span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: 999, background: 'rgba(8,8,9,0.18)' }} /></span>
+                        <span>Al {curOf(caja).label} <span style={{ color: '#B4B4B4' }}>· sobre el tope</span></span>
+                      </div>
                       <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{fmtC(alloc.cold, ck)}</div>
                     </div>
                   </>}
