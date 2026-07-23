@@ -513,17 +513,10 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
           {/* título genérico a propósito: "¡Tu cofre ya está listo!" nunca
               choca en género/número con el nombre elegido (Vacaciones, etc.) */}
           <div style={{ font: '500 30px Geist', lineHeight: 1.15, letterSpacing: '-0.02em', color: '#141414' }}>¡Tu cofre ya está listo!</div>
-          {empty ?
+          {empty &&
           <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
             Ponele plata cuando quieras: rinde {cur.label} desde el primer peso.
-          </div> :
-          <>
-            <CountUp to={caja.amount} render={(v) =>
-            <div style={{ font: '500 36px Geist', lineHeight: 1.1, letterSpacing: '-0.03em', color: '#141414', fontVariantNumeric: 'tabular-nums', marginTop: 10 }}>{fmtC(v, ck)}</div>} />
-            <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.5 }}>
-              Esta plata queda apartada y la podés retirar cuando quieras, al instante.
-            </div>
-          </>}
+          </div>}
         </div>
 
         <div style={{ width: '100%', background: LX.layer, borderRadius: 22, padding: 18, boxShadow: 'var(--shadow-card)', textAlign: 'left' }}>
@@ -551,6 +544,11 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
             </div>
           </>}
         </div>
+
+        {!empty &&
+        <div style={{ font: '400 14px Inter', color: LX.text2, lineHeight: 1.5, maxWidth: 300 }}>
+          Esta plata queda apartada y la podés retirar cuando quieras, al instante.
+        </div>}
 
         {/* el hook de la campaña: activable acá mismo, o queda esperando
             en el detalle del cofre */}
@@ -640,14 +638,14 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <LI name="earn" size={18} color="#818181" />
             <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
-            <span style={{ font: '400 12px Inter', color: '#818181', whiteSpace: 'nowrap' }}>
+            <span style={{ font: '400 12px Inter', color: 'var(--c-lime-70)', whiteSpace: 'nowrap' }}>
               {caja.boosted && campFor(ck) ? `${pctShort(boostTna(campFor(ck)))} TNA` : curOf(caja).label}
             </span>
           </div>
           {/* solo lo YA generado (legales): un único stat a lo ancho */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '12px 14px', marginTop: 14 }}>
             <div style={{ font: '400 12px Inter', color: '#818181' }}>Generado hasta ahora</div>
-            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lime-70)' }}>+{fmtC2(caja.earned, ck)}</div>
+            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)}</div>
           </div>
         </div>}
 
