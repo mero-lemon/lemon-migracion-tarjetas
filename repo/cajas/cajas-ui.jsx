@@ -17,6 +17,12 @@ const monthlyYield = (n, tna = TNA) => n * tna / 12;
 const dailyYield = (n, tna = TNA) => n * tna / 365;
 const cajaTotal = (c) => c.amount + c.earned; // saldo = aportes + rendimiento
 
+// tipo de cambio del proto (consistente con el Balance total del Portfolio:
+// U$7.741,83 ≈ $9.290.196,45)
+const FX = 1200;
+const arsToUsd = (n) => n / FX;
+const usdToArs = (n) => n * FX;
+
 // formateo es-AR: $1.487.283 / $1.487.283,93 / U$2.234,15
 const fmtP = (n) => '$' + Math.round(n).toLocaleString('es-AR');
 const fmtP2 = (n) => '$' + n.toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -186,7 +192,7 @@ const SPLASH_SLIDES = [
   {
     id: 'seguro', icon: '🛡️', iconBg: 'var(--c-nebula-5)',
     title: 'Tu plata 100% protegida',
-    body: 'Lo que guardás en tus cofres no se gasta: ni la tarjeta ni el QR usan esos fondos. Además, podés blindar tus cofres con un PIN.',
+    body: 'Lo que guardás en tus cofres no se gasta: ni la tarjeta ni el QR usan esos fondos. Además, podés blindar los retiros con un único PIN.',
     chips: [['🛡️', 'Blindaje opcional'], ['💳', 'Invisible para la tarjeta']]
   },
   {
@@ -289,7 +295,7 @@ const CajaRow = ({ caja, onTap, boostState }) => {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'flex', alignItems: 'center', gap: 6 }}>
-            {caja.pin && <LI name="lock" size={13} color="#B4B4B4" />}{caja.name}
+            {caja.name}
             {boostState === 'boosted' && activeCamp() &&
             <span style={{ background: '#141414', color: 'var(--c-lime-40)', font: '500 10px Inter', padding: '2px 7px', borderRadius: 999, flexShrink: 0 }}>{pctShort(boostTna(activeCamp()))}</span>}
           </span>
@@ -519,8 +525,9 @@ const Keypad = ({ onDigit, onBackspace }) => {
 // (define una meta, no mueve plata); hint = leyenda bajo el monto;
 // secondary = { label, onPress } botón fantasma bajo el CTA;
 // quick = etiqueta de acceso rápido que carga el máximo (p.ej. Retirar todo);
+// armorOffer = onPress: invitación a blindar los retiros (solo si no hay PIN);
 // currency define prefijo, tasa y origen de fondos del cofre.
-function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', boosted = false, max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick }) {
+function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', boosted = false, max, cta, onBack, onClose, onConfirm, badge, withdraw, goalMode, hint, secondary, quick, armorOffer }) {
   const [value, setValue] = useStateU(0);
   const cur = CURRENCIES[currency];
   const over = value > max;
@@ -611,6 +618,13 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', boosted 
               {/* acceso rápido: cargar el máximo (Retirar todo / Total disponible) */}
               {quick &&
               <button onClick={() => setValue(max)} style={{ border: `1.5px solid ${LX.border}`, cursor: 'pointer', borderRadius: 999, padding: '8px 18px', background: value === max ? '#141414' : LX.layer, font: '600 13px Inter', color: value === max ? '#fff' : '#141414' }}>{quick}</button>}
+
+              {/* el Blindaje se descubre acá, donde importa: retirando.
+                  Solo aparece si todavía no configuraste el PIN de cofres. */}
+              {withdraw && armorOffer &&
+              <button onClick={armorOffer} style={{ display: 'inline-flex', alignItems: 'center', gap: 7, border: 0, cursor: 'pointer', borderRadius: 999, padding: '8px 16px', background: 'var(--c-nebula-5)', font: '500 12px Inter', color: 'var(--c-nebula-70)' }}>
+                🛡️ Blindá tus retiros con un PIN
+              </button>}
             </>}
           </div>
 
@@ -624,7 +638,7 @@ function AmountScreen({ headerTitle, title, subtitle, currency = 'ARS', boosted 
 }
 
 Object.assign(window, {
-  TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, fmtP, fmtP2, fmtC, fmtC2, fmtY, BigAmount,
+  TNA, TNA_LABEL, CURRENCIES, curOf, monthlyYield, dailyYield, cajaTotal, FX, arsToUsd, usdToArs, fmtP, fmtP2, fmtC, fmtC2, fmtY, BigAmount,
   CAJA_TEMPLATES, getTemplate, CAJA_EMOJIS, IconBadge, CajaBadge, TnaChip, CajaHeroArt, CajaLockArt, CajaYieldArt, CajasSplash, CajaRow,
   NoGastoHint, Keypad, AmountScreen, buildSeries, CajaSparkline, AporteVsRendBar, ProgressRing, CountUp,
   ConfettiBurst, CajaSuccessArt

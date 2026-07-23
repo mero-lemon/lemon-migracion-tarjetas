@@ -169,14 +169,10 @@ function PortfolioHome({ disponible, disponibleUSD, cajas, totalCajas, totalCaja
               {cajas.length === 0 &&
               <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '600 10px Inter', letterSpacing: '0.03em', padding: '2px 7px', borderRadius: 101 }}>NUEVO</span>}
             </div>
-            <div style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414', marginTop: 4 }}>{fmtP2(totalCajas)}</div>
+            {/* total en dólares, como el Balance total — sin chip de tasa:
+                con cofres de pesos y USD conviviendo, una sola tasa mentiría */}
+            <div style={{ font: '500 20px Geist', lineHeight: '26px', letterSpacing: '-0.01em', color: '#141414', marginTop: 4 }}>{fmtC2(totalCajasUSD + arsToUsd(totalCajas), 'USD')}</div>
           </div>
-          {/* el chip dice la verdad de TUS cofres: potenciado solo si activaste
-              el boost en alguno; la difusión de la promo vive en el banner */}
-          {(() => {
-            const arsBoosted = cajas.some((c) => c.boosted && (c.currency || 'ARS') === 'ARS');
-            return <span style={{ background: arsBoosted ? '#141414' : 'var(--c-lime-40)', color: arsBoosted ? 'var(--c-lime-40)' : 'rgba(8,8,8,0.7)', font: '400 12px Inter', letterSpacing: '-0.1px', padding: '3px 8px', borderRadius: 101, flexShrink: 0 }}>{arsBoosted ? effShort('ARS') : CURRENCIES.ARS.short}</span>;
-          })()}
           <LI name="arrow-foward" size={17} color="#B4B4B4" style={{ flexShrink: 0 }} />
         </button>
       </div>
@@ -252,76 +248,58 @@ function PesosScreen({ disponible, hasCajas, onBack, onCajas }) {
 }
 
 // ── SECCIÓN COFRES — solo tus cofres + crear ────────────────────
-function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedUSD, onBack, onCreate, onOpenCaja, onSplash }) {
-  const AddBtn =
-  <button onClick={onCreate} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
-      <LI name="add-more" size={22} color={LX.text1} />
+// El total vive arriba como tenencia: en dólares con la aclaración en pesos
+// (patrón del Balance total del Portfolio). Crear = botón primario abajo a
+// lo ancho; el candado del header lleva al Blindaje (un PIN para todos).
+function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedUSD, pinOn, onBack, onCreate, onOpenCaja, onSplash, onSecurity, onBeneficios }) {
+  const LockBtn =
+  <button onClick={onSecurity} style={{ width: 40, height: 40, borderRadius: 999, border: 0, background: pinOn ? '#141414' : LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+      <LI name="lock" size={19} color={pinOn ? 'var(--c-lime-40)' : LX.text1} />
     </button>;
 
-  return (
-    <Screen bg="#F3F3F3">
-      <BigHeader title="Cofres" onBack={onBack} right={cajas.length > 0 ? AddBtn : <span style={{ width: 40 }} />} />
-      <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+  const totalUSD = totalCajasUSD + arsToUsd(totalCajas);
+  const totalARS = totalCajas + usdToArs(totalCajasUSD);
+  const hasEarned = totalEarned > 0 || totalEarnedUSD > 0;
 
-        {/* campaña activa: el hero de la promo vive arriba de todo */}
-        <CampaignCard />
+  return (
+    <Screen bg="#F3F3F3" footer={cajas.length > 0 &&
+    <Btn variant="primary" leftIcon="add-more" onClick={onCreate}>Nuevo cofre</Btn>}>
+      <BigHeader title="Cofres" onBack={onBack} right={cajas.length > 0 ? LockBtn : <span style={{ width: 40 }} />} />
+      <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
         {cajas.length === 0 ?
         /* FTE: empty state que invita a conocer las cajas */
-        <button onClick={onSplash} style={{ border: 0, cursor: 'pointer', textAlign: 'center', background: LX.layer, borderRadius: 24, padding: '26px 22px 24px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <>
+          <CampaignCard onOpen={onBeneficios} />
+          <button onClick={onSplash} style={{ border: 0, cursor: 'pointer', textAlign: 'center', background: LX.layer, borderRadius: 24, padding: '26px 22px 24px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <CajaHeroArt size={168} animate={false} />
-            <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 6 }}>Ponéle nombre a tu plata</div>
-            <div style={{ font: '400 13px Inter', color: '#818181', lineHeight: 1.45, maxWidth: 270 }}>
-              Guardá plata para lo que se viene: 100% protegida de tus gastos y rindiendo {TNA_LABEL}.
+            <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 6, maxWidth: 280 }}>Creá cofres para organizar tus ahorros</div>
+            <div style={{ font: '400 13px Inter', color: '#818181', lineHeight: 1.45, maxWidth: 270, marginTop: 2 }}>
+              Tu plata queda separada de tus gastos del día a día y rinde en pesos o dólares digitales.
             </div>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#141414', color: '#fff', font: '600 14px Inter', padding: '11px 22px', borderRadius: 999, marginTop: 14 }}>
               Crear mi primer cofre <LI name="arrow-foward" size={15} color="var(--c-lime-40)" />
             </span>
-          </button> :
+          </button>
+        </> :
 
         <>
-          {/* resumen: total apartado + rendimiento — mismo lenguaje que el banner NUEVO */}
-          <div style={{ position: 'relative', overflow: 'hidden', borderRadius: 24, padding: '18px 20px', background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)', boxShadow: '0 12px 26px rgba(120,200,20,0.3)' }}>
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
-            <div style={{ position: 'relative' }}>
-              {(() => {
-                const hasUSD = cajas.some((c) => (c.currency || 'ARS') === 'USD');
-                const hasARS = cajas.some((c) => (c.currency || 'ARS') === 'ARS');
-                const both = hasARS && hasUSD;
-                const single = hasUSD && !hasARS ? 'USD' : 'ARS';
-                return (
-                  <>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <span style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.7)' }}>Apartado en cofres</span>
-                      {!both &&
-                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '500 12px Inter', padding: '2px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{CURRENCIES[single].label}</span>}
-                    </div>
-                    {both ?
-                    /* pesos y dólares, con la misma jerarquía */
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', marginTop: 10 }}>
-                      {[['ARS', totalCajas], ['USD', totalCajasUSD]].map(([k, v], i) =>
-                      <div key={k} style={{ padding: i === 0 ? '0 14px 0 0' : '0 0 0 14px', borderLeft: i === 1 ? '1px solid rgba(11,26,0,0.16)' : 'none' }}>
-                          <div style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.65)' }}>{k === 'ARS' ? 'Pesos' : 'Dólares'} · {CURRENCIES[k].short} TNA</div>
-                          <div style={{ font: '500 26px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 2 }}>{fmtC(v, k)}</div>
-                        </div>)}
-                    </div> :
-                    <div style={{ font: '500 32px Geist', letterSpacing: '-0.03em', color: '#0b1a00', marginTop: 5 }}>{fmtC(single === 'USD' ? totalCajasUSD : totalCajas, single)}</div>}
-                  </>);
-              })()}
-
-              {/* lo que rindieron tus cofres, en total */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'rgba(11,26,0,0.10)', borderRadius: 16, padding: '10px 14px', marginTop: 12 }}>
-                <LI name="earn" size={19} color="#0b1a00" />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.6)' }}>Rendimiento total generado</div>
-                  <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: '#0b1a00', marginTop: 1 }}>
-                    +{fmtP2(totalEarned)}{totalEarnedUSD > 0 && <span style={{ font: '500 14px Geist' }}> + {fmtC2(totalEarnedUSD, 'USD')}</span>}
-                  </div>
-                </div>
-                <span style={{ font: '400 11px Inter', color: 'rgba(11,26,0,0.55)', flexShrink: 0 }}>rinde a diario</span>
-              </div>
-            </div>
+          {/* total en cofres, estilo tenencia total: U$ grande + pesos abajo */}
+          <div style={{ padding: '4px 4px 2px' }}>
+            <div style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Total</div>
+            <div style={{ marginTop: 6 }}><BigAmount value={totalUSD} prefix="U$" /></div>
+            <div style={{ font: '500 14px Inter', letterSpacing: '-0.1px', color: '#818181', marginTop: 8 }}>≈ {fmtP2(totalARS)}</div>
+            {hasEarned &&
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: 'var(--c-lime-10)', borderRadius: 999, padding: '4px 12px', marginTop: 10 }}>
+              <LI name="earn" size={14} color="var(--c-lime-60)" />
+              <span style={{ font: '500 12px Inter', color: 'var(--c-lime-70)' }}>
+                +{fmtP2(totalEarned)}{totalEarnedUSD > 0 && ` + ${fmtC2(totalEarnedUSD, 'USD')}`} generados
+              </span>
+            </div>}
           </div>
+
+          {/* campaña activa: la puerta a Beneficios (activación por cofre) */}
+          <CampaignCard onOpen={onBeneficios} />
 
           {cajas.map((c) =>
           <CajaRow key={c.id} caja={c} onTap={() => onOpenCaja(c.id)}
@@ -347,9 +325,10 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
 
   const headerTitle = isFirst ? 'Tu primer cofre' : 'Nuevo cofre';
   const pick = (t) => { setTpl(t); setName(t.id === 'custom' ? '' : t.name); setEmoji(t.emoji); setPickingEmoji(false); setSheetOpen(true); };
-  // el blindaje no es parte de la creación: se suma después, desde el cofre
+  // el Blindaje no es parte de la creación: es un PIN único para todos los
+  // cofres y se configura desde el candado de la home (o al retirar)
   const finish = (amount) =>
-  onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, armored: false, pin: null, amount });
+  onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount });
 
   // ── 1. el sueño: elegís el objetivo; al elegir, sube el sheet con tu cofre ──
   if (step === 'dream')
@@ -462,8 +441,9 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       onConfirm={finish} />);
 }
 
-// ── Elegir el PIN del cofre blindado (dos fases: elegir + repetir) ──
-function PinSetScreen({ headerTitle, caja, onBack, onSet }) {
+// ── Elegir el PIN de tus cofres (dos fases: elegir + repetir) ───
+// Un único PIN que blinda los retiros de TODOS los cofres.
+function PinSetScreen({ headerTitle = 'Blindaje', onBack, onSet }) {
   const [entered, setEntered] = useStateX('');
   const [first, setFirst] = useStateX(null);
   const [error, setError] = useStateX(false);
@@ -486,15 +466,12 @@ function PinSetScreen({ headerTitle, caja, onBack, onSet }) {
     <Screen bg="#F3F3F3" scroll={false}>
       <StepHeader title={headerTitle} onBack={onBack} />
       <div style={{ height: 'calc(100% - 52px)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '18px 16px 0' }}>
-        <div style={{ position: 'relative' }}>
-          <CajaBadge caja={caja} size={64} />
-          <span style={{ position: 'absolute', right: -6, bottom: -4, fontSize: 22 }}>🛡️</span>
-        </div>
+        <span style={{ width: 64, height: 64, borderRadius: 999, background: 'var(--c-nebula-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, lineHeight: 1 }}>🛡️</span>
         <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 16 }}>
-          {first == null ? 'Elegí el PIN de tu cofre' : 'Repetilo para confirmar'}
+          {first == null ? 'Elegí el PIN de tus cofres' : 'Repetilo para confirmar'}
         </div>
         <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5, textAlign: 'center', maxWidth: 280 }}>
-          {first == null ? 'Te lo vamos a pedir cada vez que lo abras.' : 'Una vez más, así no hay dudas.'}
+          {first == null ? 'Uno solo para todos: te lo vamos a pedir al retirar plata de cualquier cofre.' : 'Una vez más, así no hay dudas.'}
         </div>
 
         <div style={{ display: 'flex', gap: 14, marginTop: 26 }}>
@@ -554,7 +531,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
             <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}{caja.armored && ' · 🛡️ Blindado'}</div>
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}</div>
             </div>
             <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtC(caja.amount, ck)}</div>
           </div>
@@ -586,7 +563,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
 
 // ── DETALLE DE CAJA — dos modos: libre (rendimiento protagonista)
 //    y con objetivo (progreso + cómo el rendimiento te empuja) ───
-function CajaDetail({ caja, cajas, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onArm, onMovs }) {
+function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onMovs }) {
   const [editOpen, setEditOpen] = useStateX(false);
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
@@ -615,9 +592,9 @@ function CajaDetail({ caja, cajas, onActivate, onBack, onAdd, onWithdraw, onSave
         <div style={{ background: LX.layer, borderRadius: 24, padding: '22px 20px 18px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
           <CajaBadge caja={caja} size={56} fill={pct} />
           <div style={{ marginTop: 12 }}><BigAmount value={total} size={38} prefix={cur.prefix} /></div>
-          {caja.pin &&
+          {pinOn &&
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, font: '500 12px Inter', color: '#818181', background: 'rgba(8,8,9,0.05)', padding: '3px 10px', borderRadius: 999, marginTop: 8 }}>
-            <LI name="lock" size={12} color="#818181" /> {caja.armored ? 'Blindado' : 'Protegido'}
+            <LI name="lock" size={12} color="#818181" /> Retiros con PIN
           </span>}
 
           {caja.goal ?
@@ -652,46 +629,29 @@ function CajaDetail({ caja, cajas, onActivate, onBack, onAdd, onWithdraw, onSave
           </div>
         </div>
 
-        {/* el corazón del opt-in: creaste el cofre normal y ACÁ activás el
-            boost aceptando las condiciones; si ya lo activaste, muestra el
-            estado potenciado con las condiciones a un tap */}
-        <CampaignCofreCard caja={caja} cajas={cajas} onActivate={onActivate} />
+        {/* la campaña baja de tono en el detalle: una fila sobria — la
+            difusión fuerte vive en la home de cofres y en Beneficios */}
+        <CampaignCofreCard compact caja={caja} cajas={cajas} onActivate={onActivate} />
 
-        {/* con objetivo, el rendimiento acompaña en su propia card */}
+        {/* con objetivo, el rendimiento acompaña en su propia card — en tonos
+            apagados a propósito: informa sin pelearle la atención al progreso */}
         {caja.goal &&
         <div style={{ background: LX.layer, borderRadius: 24, padding: 18, boxShadow: 'var(--shadow-card)' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <LI name="earn" size={18} color="var(--c-lime-60)" />
+            <LI name="earn" size={18} color="#818181" />
             <span style={{ flex: 1, font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>El rendimiento te empuja</span>
-            <YieldChip ck={ck} boosted={caja.boosted} compact />
+            <span style={{ font: '400 12px Inter', color: '#818181', whiteSpace: 'nowrap' }}>
+              {caja.boosted && campFor(ck) ? `${pctShort(boostTna(campFor(ck)))} TNA` : curOf(caja).label}
+            </span>
           </div>
           {/* solo lo YA generado (legales): un único stat a lo ancho */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10, background: 'rgba(8,8,9,0.04)', borderRadius: 14, padding: '12px 14px', marginTop: 14 }}>
             <div style={{ font: '400 12px Inter', color: '#818181' }}>Generado hasta ahora</div>
-            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lemon-50)' }}>+{fmtC2(caja.earned, ck)}</div>
+            <div style={{ font: '500 17px Geist', letterSpacing: '-0.01em', color: 'var(--c-lime-70)' }}>+{fmtC2(caja.earned, ck)}</div>
           </div>
         </div>}
 
-        {!caja.armored &&
-        <button onClick={onArm} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: '14px 16px', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ width: 40, height: 40, borderRadius: 999, background: 'var(--c-nebula-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, lineHeight: 1, flexShrink: 0 }}>🛡️</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Blindá este cofre</span>
-            <span style={{ display: 'block', font: '400 12px Inter', color: '#818181', marginTop: 2 }}>Configurá un PIN y sumale un nivel extra de seguridad.</span>
-          </span>
-          <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
-        </button>}
-
-        {caja.pendingOut > 0 &&
-        <div style={{ display: 'flex', alignItems: 'center', gap: 11, background: 'var(--c-solar-5)', borderRadius: 18, padding: '13px 16px' }}>
-          <IconBadge icon="alert-time" bg="#FAE4CF" fg="var(--c-solar-50)" size={38} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: '600 13px Inter', color: '#141414' }}>{fmtC(caja.pendingOut, ck)} en camino</div>
-            <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>Llega a tus {cur.source.toLowerCase()} mañana: los cofres blindados retiran en 24 h.</div>
-          </div>
-        </div>}
-
-        <NoGastoHint source={cur.source.toLowerCase()} armored={caja.armored} />
+        <NoGastoHint source={cur.source.toLowerCase()} />
 
         {/* movimientos: acceso a la pantalla con el historial completo */}
         <button onClick={onMovs} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: '14px 16px', boxShadow: 'var(--shadow-card)' }}>
@@ -704,7 +664,7 @@ function CajaDetail({ caja, cajas, onActivate, onBack, onAdd, onWithdraw, onSave
     </Screen>
 
     <EditCajaSheet open={editOpen} caja={caja} onClose={() => setEditOpen(false)}
-      onSave={(patch) => { onSave(patch); setEditOpen(false); }} onDelete={onDelete} onArm={onArm} />
+      onSave={(patch) => { onSave(patch); setEditOpen(false); }} onDelete={onDelete} />
     </div>);
 }
 
@@ -731,8 +691,10 @@ function CajaMovsScreen({ caja, onBack }) {
     </Screen>);
 }
 
-// ── Editar cofre: nombre + emoji + objetivo + blindaje + eliminar ──
-function EditCajaSheet({ open, caja, onClose, onSave, onDelete, onArm }) {
+// ── Editar cofre: nombre + emoji + objetivo + eliminar ──────────
+// (el Blindaje ya no vive acá: es un único PIN para todos los cofres,
+// se configura desde el candado de la home de Cofres)
+function EditCajaSheet({ open, caja, onClose, onSave, onDelete }) {
   const [name, setName] = useStateX(caja.name);
   const [emoji, setEmoji] = useStateX(caja.emoji);
   const [goal, setGoal] = useStateX(caja.goal);
@@ -793,23 +755,6 @@ function EditCajaSheet({ open, caja, onClose, onSave, onDelete, onArm }) {
         {goal ? 'Con objetivo, el detalle te muestra el progreso y cuánto te empuja el rendimiento.' : 'Sin objetivo, el cofre rinde libre y el detalle se enfoca en tus rendimientos.'}
       </div>
 
-      {/* seguridad: blindaje opcional, se suma después de crear */}
-      <div style={{ font: '600 12px Inter', color: LX.text3, letterSpacing: '0.02em', textTransform: 'uppercase', margin: '18px 2px 10px' }}>Seguridad</div>
-      {caja.armored ?
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1px solid ${LX.border}` }}>
-          <span style={{ fontSize: 17, lineHeight: 1 }}>🛡️</span>
-          <span style={{ flex: 1, font: '500 14px Inter', color: '#141414' }}>Blindado · PIN + 24 h para retirar</span>
-          <button onClick={() => onSave({ pin: null })} style={{ border: 0, cursor: 'pointer', background: 'transparent', font: '600 13px Inter', color: 'var(--c-rose-40)' }}>Quitar</button>
-        </div> :
-      <button onClick={() => { onClose(); onArm(); }} style={{ display: 'flex', alignItems: 'center', gap: 10, width: '100%', textAlign: 'left', background: '#fff', borderRadius: 14, padding: '11px 14px', border: `1.5px solid ${LX.border}`, cursor: 'pointer' }}>
-          <span style={{ fontSize: 17, lineHeight: 1 }}>🛡️</span>
-          <span style={{ flex: 1, minWidth: 0 }}>
-            <span style={{ display: 'block', font: '600 14px Inter', color: '#141414' }}>Blindar este cofre</span>
-            <span style={{ display: 'block', font: '400 11px Inter', color: '#818181', marginTop: 1 }}>Configurá un PIN y sumale un nivel extra de seguridad.</span>
-          </span>
-          <LI name="arrow-foward" size={15} color="#818181" />
-        </button>}
-
       <Btn variant="primary" disabled={!name.trim() || (customGoal && !goal)} onClick={() => onSave({ name: name.trim(), emoji, goal })} style={{ marginTop: 18 }}>Guardar cambios</Btn>
 
       {/* eliminar cofre: dos taps, la plata vuelve al saldo */}
@@ -820,11 +765,13 @@ function EditCajaSheet({ open, caja, onClose, onSave, onDelete, onArm }) {
     </Sheet>);
 }
 
-// ── Cofre protegido: pedí el PIN para abrirlo ───────────────────
-function PinGate({ caja, onBack, onUnlock }) {
+// ── Confirmar el retiro con el PIN de tus cofres ────────────────
+// El Blindaje actúa acá, donde importa: autorizando la salida de plata.
+function PinGate({ caja, amount, pin, onBack, onUnlock }) {
   const [entered, setEntered] = useStateX('');
   const [error, setError] = useStateX(false);
   const entRef = React.useRef('');
+  const ck = (caja && caja.currency) || 'ARS';
 
   const sync = (v) => { entRef.current = v; setEntered(v); };
   const digit = (d) => {
@@ -833,7 +780,7 @@ function PinGate({ caja, onBack, onUnlock }) {
     sync(next);
     setError(false);
     if (next.length === 4) {
-      if (next === caja.pin) setTimeout(onUnlock, 180);
+      if (next === pin) setTimeout(onUnlock, 180);
       else { setError(true); setTimeout(() => sync(''), 450); }
     }
   };
@@ -842,9 +789,14 @@ function PinGate({ caja, onBack, onUnlock }) {
     <Screen bg="#F3F3F3" scroll={false}>
       <StepHeader title={caja.name} onBack={onBack} />
       <div style={{ height: 'calc(100% - 52px)', display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '18px 16px 0' }}>
-        <CajaBadge caja={caja} size={64} />
-        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 16 }}>Cofre protegido</div>
-        <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5 }}>Ingresá tu PIN para abrirlo.</div>
+        <div style={{ position: 'relative' }}>
+          <CajaBadge caja={caja} size={64} />
+          <span style={{ position: 'absolute', right: -6, bottom: -4, fontSize: 22 }}>🛡️</span>
+        </div>
+        <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', color: '#141414', marginTop: 16 }}>Confirmá el retiro</div>
+        <div style={{ font: '400 13px Inter', color: '#818181', marginTop: 5, textAlign: 'center', maxWidth: 280 }}>
+          {amount != null ? <>Ingresá el PIN de tus cofres para retirar <b style={{ color: '#141414' }}>{fmtC(amount, ck)}</b>.</> : 'Ingresá el PIN de tus cofres.'}
+        </div>
 
         {/* puntos del PIN */}
         <div style={{ display: 'flex', gap: 14, marginTop: 26 }}>
@@ -861,4 +813,49 @@ function PinGate({ caja, onBack, onUnlock }) {
     </Screen>);
 }
 
-Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, CajaMovsScreen, EditCajaSheet, PinGate, PinSetScreen });
+// ── BLINDAJE — la sección del PIN único (candado de la home) ────
+// Sin PIN: pitch + crear. Con PIN: estado activo + cambiar / quitar.
+function CofresPinScreen({ pinOn, onBack, onSetPin, onRemovePin }) {
+  const [confirmOff, setConfirmOff] = useStateX(false);
+
+  return (
+    <Screen bg="#F3F3F3" footer={!pinOn &&
+    <Btn variant="primary" onClick={onSetPin}>Crear mi PIN</Btn>}>
+      <BigHeader title="Blindaje" onBack={onBack} right={<span style={{ width: 40 }} />} />
+      <div style={{ padding: '4px 16px 28px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+
+        {!pinOn ?
+        /* pitch: un único PIN para todos los cofres */
+        <div style={{ background: LX.layer, borderRadius: 24, padding: '26px 22px 24px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <CajaLockArt size={168} />
+          <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 6 }}>Blindá tus cofres</div>
+          <div style={{ font: '400 13px Inter', color: '#818181', lineHeight: 1.45, maxWidth: 280, marginTop: 4 }}>
+            Un único PIN protege todos tus cofres: te lo pedimos cada vez que retires plata de cualquiera de ellos.
+          </div>
+        </div> :
+
+        <>
+          <div style={{ background: LX.layer, borderRadius: 24, padding: '24px 20px', boxShadow: 'var(--shadow-card)', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+            <span style={{ width: 64, height: 64, borderRadius: 999, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 30, lineHeight: 1 }}>🛡️</span>
+            <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: '#141414', marginTop: 12 }}>Blindaje activado</div>
+            <div style={{ font: '400 13px Inter', color: '#818181', lineHeight: 1.45, maxWidth: 280, marginTop: 4 }}>
+              Todos tus cofres piden tu PIN para retirar plata. Uno solo, para todos.
+            </div>
+          </div>
+
+          <button onClick={onSetPin} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: '14px 16px', boxShadow: 'var(--shadow-card)' }}>
+            <IconBadge icon="lock" bg="#FAFAFA" fg="#141414" size={40} />
+            <span style={{ flex: 1, font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Cambiar PIN</span>
+            <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
+          </button>
+
+          <Btn variant="ghost" style={{ color: 'var(--c-rose-40)' }}
+            onClick={() => confirmOff ? onRemovePin() : setConfirmOff(true)}>
+            {confirmOff ? '¿Seguro? Tus retiros quedan sin PIN' : 'Quitar el blindaje'}
+          </Btn>
+        </>}
+      </div>
+    </Screen>);
+}
+
+Object.assign(window, { TopBar, NavPill, BalanceTabs, InicioHome, PortfolioHome, PesosScreen, CajasHome, CreateCajaFlow, CajaSuccess, CajaDetail, CajaMovsScreen, EditCajaSheet, PinGate, PinSetScreen, CofresPinScreen });

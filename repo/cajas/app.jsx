@@ -10,7 +10,7 @@ const hydrate = (c) => { const t = getTemplate(c.tplId); return { ...c, icon: t.
 
 // ── Experiencia completa ────────────────────────────────────────
 function CajasExperience() {
-  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | movs | add | withdraw | pin
+  const [route, setRoute] = useStateZ('inicio'); // inicio | portfolio | pesos | cajas | create | success | detail | movs | add | withdraw | withdrawpin | security | armpin | beneficios
   const [cajas, setCajas] = useStateZ([]);
   // los disponibles viven en el estado: el rendimiento solo entra cuando lo retirás de un cofre
   const [disponible, setDisponible] = useStateZ(BASE_PESOS);
@@ -21,6 +21,12 @@ function CajasExperience() {
   const [splashSeen, setSplashSeen] = useStateZ(false);
   // el banner de novedad se puede cerrar (X), como en la app real
   const [promoOff, setPromoOff] = useStateZ(false);
+  // Blindaje: UN solo PIN protege los retiros de todos los cofres
+  const [pin, setPin] = useStateZ(null);
+  // a dónde volver después de setear el PIN ('security' | 'withdraw')
+  const [afterPin, setAfterPin] = useStateZ('security');
+  // retiro esperando la confirmación con PIN
+  const [pendingWithdraw, setPendingWithdraw] = useStateZ(null);
 
   const isUSD = (c) => (c.currency || 'ARS') === 'USD';
   const totalCajas = cajas.filter((c) => !isUSD(c)).reduce((a, c) => a + cajaTotal(c), 0);
@@ -43,10 +49,9 @@ function CajasExperience() {
     }
   }, [route]);
 
-  const createCaja = ({ tplId, name, emoji, goal, currency, armored, pin, amount }) => {
+  const createCaja = ({ tplId, name, emoji, goal, currency, amount }) => {
     const nueva = {
       id: 'c' + Date.now(), tplId, name, emoji, goal, currency, amount, earned: 0,
-      armored: !!armored, pin: pin || null, pendingOut: 0,
       ageDays: 0, events: [{ day: 0, amount }],
       movs: [{ icon: 'vault', title: 'Creaste el cofre', date: 'Hoy', amount: fmtC(amount, currency), sign: '+' }]
     };
@@ -68,23 +73,28 @@ function CajasExperience() {
   };
 
   // retira del aporte primero; si no alcanza, el resto sale del rendimiento.
-  // cofre blindado: el retiro queda programado 24 h (no acredita al instante).
+  // siempre al instante; con Blindaje activo, antes pasó por el PIN.
   const withdrawFromCaja = (id, v) => {
     const caja = cajas.find((c) => c.id === id);
-    const armored = caja.armored;
     setCajas((cs) => cs.map((c) => {
       if (c.id !== id) return c;
       const fromAmount = Math.min(c.amount, v);
       const fromEarned = v - fromAmount;
       return {
         ...c, amount: c.amount - fromAmount, earned: c.earned - fromEarned,
-        pendingOut: (c.pendingOut || 0) + (armored ? v : 0),
         events: [...c.events, { day: c.ageDays || 0, amount: -fromAmount }],
-        movs: [{ icon: armored ? 'alert-time' : 'returns', title: armored ? 'Retiro programado' : `Retiraste a ${curOf(c).source}`, date: armored ? 'Llega mañana' : 'Hoy', amount: fmtC(v, c.currency || 'ARS'), sign: '−' }, ...c.movs]
+        movs: [{ icon: 'returns', title: `Retiraste a ${curOf(c).source}`, date: 'Hoy', amount: fmtC(v, c.currency || 'ARS'), sign: '−' }, ...c.movs]
       };
     }));
-    if (!armored) shiftBalance(caja.currency || 'ARS', v);
+    shiftBalance(caja.currency || 'ARS', v);
+    setPendingWithdraw(null);
     setRoute('detail');
+  };
+
+  // con Blindaje activo el retiro pide el PIN antes de ejecutarse
+  const requestWithdraw = (id, v) => {
+    if (pin) { setPendingWithdraw({ id, amount: v }); setRoute('withdrawpin'); }
+    else withdrawFromCaja(id, v);
   };
 
   // opt-in de campaña: el usuario acepta las condiciones y ESE cofre
@@ -99,11 +109,9 @@ function CajasExperience() {
   // el panel de marketing (afuera del teléfono) lee el consumo de acá
   window.__campUsage = { used: poolUsed(cajas), count: enrolledCount(cajas) };
 
-  // Editar: renombrar, cambiar emoji, convertir libre ↔ objetivo, PIN
-  const updateCaja = (id, patch) => {
-    if (patch.pin === null) patch = { ...patch, armored: false };
-    setCajas((cs) => cs.map((c) => c.id === id ? { ...c, ...patch } : c));
-  };
+  // Editar: renombrar, cambiar emoji, convertir libre ↔ objetivo
+  const updateCaja = (id, patch) =>
+  setCajas((cs) => cs.map((c) => c.id === id ? { ...c, ...patch } : c));
 
   // Eliminar: lo que haya en el cofre vuelve al saldo de su moneda
   const deleteCaja = (id) => {
@@ -113,12 +121,8 @@ function CajasExperience() {
     setRoute('cajas');
   };
 
-  // abrir un cofre: si tiene PIN, siempre lo pide primero
-  const openCofre = (id) => {
-    const caja = cajas.find((c) => c.id === id);
-    setOpenId(id);
-    setRoute(caja && caja.pin ? 'pin' : 'detail');
-  };
+  // abrir un cofre va directo al detalle: el PIN protege el retiro, no la vista
+  const openCofre = (id) => { setOpenId(id); setRoute('detail'); };
 
   const goCajas = () => setRoute('cajas');
 
@@ -129,20 +133,34 @@ function CajasExperience() {
   return <CajaSuccess caja={hydrate(cajas.find((c) => c.id === lastCreated))} cajas={cajas} onActivate={() => activateBoost(lastCreated)}
     onGoCaja={() => { setOpenId(lastCreated); setRoute('detail'); }} onGoPesos={() => setRoute('cajas')} />;
 
-  if (route === 'pin' && open)
-  return <PinGate caja={open} onBack={() => setRoute('cajas')} onUnlock={() => setRoute('detail')} />;
-
   if (route === 'movs' && open)
   return <CajaMovsScreen caja={open} onBack={() => setRoute('detail')} />;
 
   if (route === 'detail' && open)
-  return <CajaDetail caja={open} cajas={cajas} onActivate={() => activateBoost(open.id)} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
-    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onArm={() => setRoute('armpin')} onMovs={() => setRoute('movs')} />;
+  return <CajaDetail caja={open} cajas={cajas} pinOn={!!pin} onActivate={() => activateBoost(open.id)} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onMovs={() => setRoute('movs')} />;
 
-  // blindar un cofre existente: elegís el PIN y queda blindado
-  if (route === 'armpin' && open)
-  return <PinSetScreen headerTitle={open.name} caja={open} onBack={() => setRoute('detail')}
-    onSet={(pin) => { updateCaja(open.id, { pin, armored: true }); setRoute('detail'); }} />;
+  // Blindaje: la sección del PIN único (desde el candado de la home)
+  if (route === 'security')
+  return <CofresPinScreen pinOn={!!pin} onBack={() => setRoute('cajas')}
+    onSetPin={() => { setAfterPin('security'); setRoute('armpin'); }}
+    onRemovePin={() => { setPin(null); setRoute('cajas'); }} />;
+
+  // elegir (o cambiar) el PIN de todos los cofres
+  if (route === 'armpin')
+  return <PinSetScreen onBack={() => setRoute(afterPin === 'withdraw' ? 'withdraw' : 'security')}
+    onSet={(p) => { setPin(p); setRoute(afterPin === 'withdraw' ? 'withdraw' : 'security'); }} />;
+
+  // confirmar el retiro con el PIN (solo con Blindaje activo)
+  if (route === 'withdrawpin' && open && pendingWithdraw)
+  return <PinGate caja={open} amount={pendingWithdraw.amount} pin={pin}
+    onBack={() => { setPendingWithdraw(null); setRoute('withdraw'); }}
+    onUnlock={() => withdrawFromCaja(pendingWithdraw.id, pendingWithdraw.amount)} />;
+
+  // Beneficios: activación de la campaña cofre por cofre
+  if (route === 'beneficios')
+  return <BeneficiosScreen cajas={cajas.map(hydrate)} onActivate={activateBoost}
+    onBack={() => setRoute('cajas')} onCreate={() => setRoute('create')} />;
 
   if (route === 'add' && open)
   return (
@@ -171,12 +189,12 @@ function CajasExperience() {
       title="¿Cuánto retirás?"
       subtitle={open.name}
       max={cajaTotal(open)}
-      cta={open.armored ? 'Programar retiro' : 'Retirar al instante'}
-      hint={open.armored ? 'Cofre blindado: tu plata llega en 24 h.' : undefined}
+      cta="Retirar al instante"
       quick="Retirar todo"
+      armorOffer={!pin ? () => { setAfterPin('withdraw'); setRoute('armpin'); } : undefined}
       onBack={() => setRoute('detail')}
       onClose={() => setRoute('detail')}
-      onConfirm={(v) => withdrawFromCaja(open.id, v)} />);
+      onConfirm={(v) => requestWithdraw(open.id, v)} />);
 
   if (route === 'pesos')
   return <PesosScreen disponible={disponible} hasCajas={cajas.length > 0} onBack={() => setRoute('portfolio')} onCajas={goCajas} />;
@@ -195,9 +213,12 @@ function CajasExperience() {
 
       {route === 'cajas' &&
       <CajasHome cajas={cajas.map(hydrate)} totalCajas={totalCajas} totalEarned={totalEarned} totalCajasUSD={totalCajasUSD} totalEarnedUSD={totalEarnedUSD}
+        pinOn={!!pin}
         onBack={() => setRoute('portfolio')} onCreate={() => setRoute('create')}
         onOpenCaja={openCofre}
-        onSplash={() => splashSeen ? setRoute('create') : setSplashOpen(true)} />}
+        onSecurity={() => setRoute('security')}
+        onBeneficios={() => setRoute('beneficios')}
+        onSplash={() => { if (splashSeen) { setSplashOpen(false); setRoute('create'); } else setSplashOpen(true); }} />}
 
       <CajasSplash open={splashOpen} onClose={() => setSplashOpen(false)} onPrimary={() => { setSplashOpen(false); setRoute('create'); }} />
     </div>);
