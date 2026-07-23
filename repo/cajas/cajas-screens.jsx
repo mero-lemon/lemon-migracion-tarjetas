@@ -582,7 +582,11 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
 
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-    <Screen bg="#F3F3F3">
+    <Screen bg="#F3F3F3" footer={
+    onDelete &&
+    <button onClick={() => setConfirmDelete(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', border: 0, cursor: 'pointer', background: 'transparent', padding: '4px 0', font: '500 13px Inter', color: LX.text3 }}>
+        Eliminar cofre
+      </button>}>
       {/* header con Editar */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
         <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
@@ -668,29 +672,20 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
           <span style={{ font: '400 12px Inter', color: '#818181' }}>{caja.movs.length}</span>
           <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
         </button>
-
-        {/* zona de eliminar: al fondo, aparte del resto. Colapsada es un
-            link sobrio; se despliega en una card con la consecuencia clara
-            y un Cancelar real (antes vivía escondido dentro de Editar) */}
-        {onDelete &&
-        <div style={{ marginTop: 6 }}>
-          {!confirmDelete ?
-          <button onClick={() => setConfirmDelete(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, width: '100%', border: 0, cursor: 'pointer', background: 'transparent', padding: '12px 0', font: '600 14px Inter', color: 'var(--c-rose-40)' }}>
-            <LI name="returns" size={15} color="var(--c-rose-40)" /> Eliminar cofre
-          </button> :
-          <div style={{ background: LX.layer, borderRadius: 20, padding: 18, boxShadow: 'var(--shadow-card)', animation: 'lc-pop .3s ease both' }}>
-            <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>¿Eliminar este cofre?</div>
-            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
-              {total > 0 ? `Tus ${fmtC(total, ck)} vuelven a ${cur.source} al instante.` : 'No tiene plata: se elimina y listo.'}
-            </div>
-            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
-              <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: 'rgba(8,8,9,0.07)', color: '#141414', font: '600 14px Inter' }}>Cancelar</button>
-              <button onClick={onDelete} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: 'var(--c-rose-40)', color: '#fff', font: '600 14px Inter' }}>Eliminar</button>
-            </div>
-          </div>}
-        </div>}
       </div>
     </Screen>
+
+    {/* confirmación de borrado en bottom sheet: sube desde abajo con la
+        consecuencia clara y un Cancelar real (el disparador vive discreto
+        en el footer de la pantalla) */}
+    <Sheet open={confirmDelete} onClose={() => setConfirmDelete(false)}>
+      <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 8px' }}>¿Eliminar este cofre?</div>
+      <div style={{ font: '400 14px Inter', color: LX.text2, lineHeight: 1.5, margin: '0 2px 20px' }}>
+        {total > 0 ? `Tus ${fmtC(total, ck)} vuelven a ${cur.source} al instante.` : 'No tiene plata: se elimina y listo.'}
+      </div>
+      <Btn variant="danger" onClick={onDelete}>Eliminar cofre</Btn>
+      <Btn variant="ghost" onClick={() => setConfirmDelete(false)} style={{ marginTop: 4 }}>Cancelar</Btn>
+    </Sheet>
 
     <EditCajaSheet open={editOpen} caja={caja} onClose={() => setEditOpen(false)}
       onSave={(patch) => { onSave(patch); setEditOpen(false); }} />
@@ -741,7 +736,7 @@ function EditCajaSheet({ open, caja, onClose, onSave }) {
   const chips = [[null, 'Sin objetivo'], [500000, '$500.000'], [1000000, '$1.000.000']];
 
   return (
-    <Sheet open={open} onClose={onClose}>
+    <Sheet open={open} onClose={onClose} minHeight="58%">
       <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: LX.text1, margin: '2px 2px 14px' }}>Editar cofre</div>
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 16, padding: '12px 14px', border: `1px solid ${LX.border}` }}>

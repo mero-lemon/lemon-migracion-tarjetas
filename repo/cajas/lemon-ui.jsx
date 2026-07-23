@@ -368,7 +368,7 @@ const PmNote = ({ children }) =>
 
 
 // ── Bottom sheet (within phone) ─────────────────────────────────
-const Sheet = ({ open, children, onClose }) => {
+const Sheet = ({ open, children, onClose, minHeight }) => {
   const [mounted, setMounted] = useState(open);
   useEffect(() => {if (open) setMounted(true);}, [open]);
   if (!mounted && !open) return null;
@@ -377,7 +377,7 @@ const Sheet = ({ open, children, onClose }) => {
       <div onClick={onClose} style={{ position: 'absolute', inset: 0, background: 'var(--overlay)', opacity: open ? 1 : 0, transition: 'opacity .3s' }} />
       <div style={{
         position: 'relative', background: LX.page, borderRadius: '28px 28px 0 0',
-        padding: '12px 20px calc(20px + env(safe-area-inset-bottom))',
+        padding: '12px 20px calc(20px + env(safe-area-inset-bottom))', minHeight,
         transform: open ? 'translateY(0)' : 'translateY(100%)', transition: 'transform .35s cubic-bezier(.2,.8,.2,1)',
         boxShadow: '0 -10px 40px rgba(0,0,0,0.2)'
       }} onTransitionEnd={() => {if (!open) setMounted(false);}}>
