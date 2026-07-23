@@ -459,18 +459,24 @@ const ExpensesRepository = {
     // compararte con vos mismo tranquiliza más que compararte con un mes puntual.
     const samples = [];
     const fullSamples = [];
+    const catSamples = {}; // gasto ARS por categoría en esos mismos tramos
     let cur = p;
     for (let i = 0; i < 3; i++) {
       const prevP = periodInfo(p.unit, cur.prevAnchor);
       if (prevP.start < G_DATA_START) break;
       const end = addDays(prevP.start, Math.min(p.elapsedDays, prevP.totalDays));
-      samples.push(G_ALL.filter((m) => m.date >= prevP.start && m.date < end).reduce((a, m) => a + m.amount, 0));
+      const tramo = G_ALL.filter((m) => m.date >= prevP.start && m.date < end);
+      samples.push(tramo.reduce((a, m) => a + m.amount, 0));
+      tramo.filter(isArs).forEach((m) => { catSamples[m.cat] = (catSamples[m.cat] || 0) + m.amount; });
       // el período anterior completo — la "meta" de la carrera del mes
       fullSamples.push(G_ALL.filter((m) => m.date >= prevP.start && m.date < prevP.end).reduce((a, m) => a + m.amount, 0));
       cur = prevP;
     }
     const usual = samples.length >= 2 ? samples.reduce((a, b) => a + b, 0) / samples.length : null;
     const usualFull = fullSamples.length >= 2 ? fullSamples.reduce((a, b) => a + b, 0) / fullSamples.length : null;
+    // la misma vara, por categoría: promedio a esta altura del período.
+    // Alimenta el modo comparación del diagrama de barras del home.
+    if (samples.length >= 2) byCategory.forEach((c) => { c.avg3 = (catSamples[c.cat.id] || 0) / samples.length; });
 
     // insight: la categoría que más movió la aguja vs. el período anterior
     let insight = null;

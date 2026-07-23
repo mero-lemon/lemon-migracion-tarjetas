@@ -49,6 +49,8 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
   const balance = useMemoS(() => ExpensesRepository.getBalance(info), [dataVersion]);
   const recent = useMemoS(() => ExpensesRepository.getMovements(info).slice(0, 4), [dataVersion]);
   const mes = G_MESES[G_TODAY.getMonth()];
+  // lente opcional del diagrama de barras: tus categorías vs. tu promedio
+  const [cmpAvg, setCmpAvg] = useStateS(false);
 
   const delta = summary.total - summary.prevTotal;
 
@@ -167,16 +169,27 @@ function MisGastosHome({ onBack, onBuscar, onOpenMov, dataVersion = 0, goals = {
             </Surface>
           </GReveal>}
 
-        {/* en qué: diagrama de barras de los grupos más grandes (solo pesos) */}
+        {/* en qué: diagrama de barras de los grupos más grandes (solo pesos).
+            El toggle "vs. promedio" superpone tu vara habitual como marcas
+            punteadas — lente opcional, la foto limpia sigue siendo el default. */}
         <GReveal delay={380}>
           <Surface pad={16}>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tus gastos por categoría</div>
-              {/* la aclaración solo aparece si este mes hay consumos en otras monedas */}
-              {summary.byCurrency.length > 0 &&
-                <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 3 }}>No incluye tus gastos en otras monedas.</div>}
+            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 8 }}>
+              <div style={{ minWidth: 0 }}>
+                <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Tus gastos por categoría</div>
+                {/* la aclaración solo aparece si este mes hay consumos en otras monedas */}
+                {summary.byCurrency.length > 0 &&
+                  <div style={{ font: '400 11px Inter', color: '#B4B4B4', marginTop: 3 }}>No incluye tus gastos en otras monedas.</div>}
+              </div>
+              {summary.byCategory.some((c) => c.avg3 != null) &&
+                <button onClick={() => setCmpAvg(!cmpAvg)} style={{
+                  border: 0, borderRadius: 999, padding: '6px 11px', cursor: 'pointer', flexShrink: 0,
+                  font: '500 11.5px Inter', whiteSpace: 'nowrap',
+                  background: cmpAvg ? '#141414' : 'rgba(8,8,9,0.06)', color: cmpAvg ? '#fff' : '#5E5E5E',
+                  transition: 'background .2s, color .2s'
+                }}>vs. promedio</button>}
             </div>
-            <GBarChart byCategory={summary.byCategory} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
+            <GBarChart byCategory={summary.byCategory} compare={cmpAvg} delay={600} onTap={(c) => onBuscar(c.others ? undefined : { cats: [c.cat.id] })} />
           </Surface>
         </GReveal>
 

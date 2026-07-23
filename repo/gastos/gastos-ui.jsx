@@ -174,33 +174,62 @@ const gBarLabel = (n) => n >= 1000000 ? (n / 1000000).toLocaleString('es-AR', { 
 // ── Diagrama de barras del desglose: columnas redondeadas por grupo ──
 // Top 5 categorías + "Otros". Tap en una columna → buscador con esa
 // categoría precargada.
-const GBarChart = ({ byCategory, onTap, h = 126, delay = 80 }) => {
+// Con `compare` activo, cada columna suma una marca punteada a la altura
+// de tu promedio de los últimos 3 meses (mismos días transcurridos) y el
+// label de monto se vuelve delta vs. esa marca. Lente, no doble barra.
+const GBarChart = ({ byCategory, onTap, h = 126, delay = 80, compare = false }) => {
   const [on, setOn] = useStateG(false);
   useEffectG(() => { const t = setTimeout(() => setOn(true), delay); return () => clearTimeout(t); }, []);
   const top = byCategory.slice(0, 5);
   const rest = byCategory.slice(5);
   const restTotal = rest.reduce((a, c) => a + c.total, 0);
-  const cols = top.map((c) => ({ id: c.cat.id, cat: c.cat, total: c.total }));
-  if (restTotal > 0) cols.push({ id: '_otros', others: true, total: restTotal, n: rest.length });
-  const max = Math.max(...cols.map((c) => c.total)) || 1;
+  const hasAvg = byCategory.some((c) => c.avg3 != null);
+  const cols = top.map((c) => ({ id: c.cat.id, cat: c.cat, total: c.total, avg: c.avg3 }));
+  if (restTotal > 0) cols.push({ id: '_otros', others: true, total: restTotal, n: rest.length, avg: hasAvg ? rest.reduce((a, c) => a + (c.avg3 || 0), 0) : null });
+  const cmp = compare && hasAvg;
+  // con la comparación puesta, la escala también contiene a los promedios,
+  // con un poco de techo para que la marca más alta no toque los labels
+  const max = (Math.max(...cols.map((c) => c.total), ...(cmp ? cols.map((c) => (c.avg || 0) * 1.08) : [])) || 1);
+  const deltaLabel = (c) => {
+    if (c.avg == null || c.avg <= 0) return <span style={{ font: '500 11px Inter', color: '#B4B4B4' }}>nuevo</span>;
+    const d = c.total - c.avg;
+    if (Math.abs(d) < c.avg * 0.03) return <span style={{ font: '500 11px Inter', color: '#B4B4B4' }}>=</span>;
+    const up = d > 0;
+    return <span style={{ font: '500 11px Inter', color: up ? '#C32432' : '#0F7A35' }}>{up ? '▲' : '▼'} {Math.round(Math.abs(d) / c.avg * 100)}%</span>;
+  };
   return (
-    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
-      {cols.map((c, i) =>
-        <button key={c.id} onClick={() => onTap(c)} style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
-          <span style={{ font: '500 11px Geist', letterSpacing: '-0.01em', color: '#5E5E5E', whiteSpace: 'nowrap' }}>{gBarLabel(c.total)}</span>
-          <div style={{ width: '100%', height: h, display: 'flex', alignItems: 'flex-end' }}>
-            <div style={{
-              width: '100%', height: on ? `${Math.max(7, c.total / max * 100)}%` : '7%', borderRadius: 12,
-              background: c.others ? 'linear-gradient(180deg, #D8D8D8, #C4C4C2)' : `linear-gradient(180deg, ${c.cat.color}, ${c.cat.color}B0)`,
-              boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.3)',
-              transition: `height .65s cubic-bezier(.25,.8,.3,1) ${i * 0.07}s`
-            }} />
-          </div>
-          {c.others ?
-            <div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(8,8,9,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 11px Inter', color: '#5E5E5E' }}>+{c.n}</div> :
-            <GCatIcon cat={c.cat} size={30} />}
-          <span style={{ font: '400 10px Inter', color: '#818181', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.others ? 'Otros' : c.cat.short}</span>
-        </button>)}
+    <div>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
+        {cols.map((c, i) =>
+          <button key={c.id} onClick={() => onTap(c)} style={{ flex: 1, minWidth: 0, border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7 }}>
+            {cmp ? deltaLabel(c) :
+              <span style={{ font: '500 11px Geist', letterSpacing: '-0.01em', color: '#5E5E5E', whiteSpace: 'nowrap' }}>{gBarLabel(c.total)}</span>}
+            <div style={{ width: '100%', height: h, display: 'flex', alignItems: 'flex-end', position: 'relative' }}>
+              <div style={{
+                width: '100%', height: on ? `${Math.max(7, c.total / max * 100)}%` : '7%', borderRadius: 12,
+                background: c.others ? 'linear-gradient(180deg, #D8D8D8, #C4C4C2)' : `linear-gradient(180deg, ${c.cat.color}, ${c.cat.color}B0)`,
+                boxShadow: 'inset 0 1.5px 0 rgba(255,255,255,0.3)',
+                transition: `height .65s cubic-bezier(.25,.8,.3,1) ${i * 0.07}s`
+              }} />
+              {/* la marca de tu promedio: siempre montada para que el toggle la funda, no la salte */}
+              {c.avg != null && c.avg > 0 &&
+                <div style={{
+                  position: 'absolute', left: -3, right: -3, bottom: `${Math.min(c.avg / max * 100, 99)}%`,
+                  borderTop: '2px dashed rgba(20,20,20,0.55)', opacity: cmp && on ? 1 : 0,
+                  transition: `opacity .35s ease ${cmp ? 0.15 + i * 0.05 : 0}s, bottom .65s cubic-bezier(.25,.8,.3,1)`
+                }} />}
+            </div>
+            {c.others ?
+              <div style={{ width: 30, height: 30, borderRadius: 999, background: 'rgba(8,8,9,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '600 11px Inter', color: '#5E5E5E' }}>+{c.n}</div> :
+              <GCatIcon cat={c.cat} size={30} />}
+            <span style={{ font: '400 10px Inter', color: '#818181', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.others ? 'Otros' : c.cat.short}</span>
+          </button>)}
+      </div>
+      {cmp &&
+        <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginTop: 12, font: '400 10.5px Inter', color: '#818181' }}>
+          <span style={{ width: 16, borderTop: '2px dashed rgba(20,20,20,0.55)', flexShrink: 0 }} />
+          Tu promedio a esta altura del mes (últimos 3 meses)
+        </div>}
     </div>);
 };
 
