@@ -495,8 +495,17 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
   const empty = caja.amount === 0;
+  const goalPct = caja.goal ? Math.min(1, caja.amount / caja.goal) : 0;
   // recompensa táctil: success haptic al crear el cofre (en nativo = notification success)
   useEffectX(() => { haptic([16, 55, 32]); }, []);
+  // la barrita crece sola: arranca en 0 y, apenas entra la pantalla, sube
+  // hasta el progreso real — la transición del Meter hace el resto. Es el
+  // gesto de "tu plata ya está rindiendo hacia el objetivo".
+  const [meterFill, setMeterFill] = useStateX(0);
+  useEffectX(() => {
+    const t = setTimeout(() => setMeterFill(goalPct), 450);
+    return () => clearTimeout(t);
+  }, []);
   return (
     <Screen bg="#F3F3F3" footer={
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -521,7 +530,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
 
         <div style={{ width: '100%', background: LX.layer, borderRadius: 22, padding: 18, boxShadow: 'var(--shadow-card)', textAlign: 'left' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 13 }}>
-            <CajaBadge caja={caja} size={46} fill={caja.goal ? Math.min(1, caja.amount / caja.goal) : null} />
+            <CajaBadge caja={caja} size={46} fill={caja.goal ? meterFill : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
               <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}</div>
@@ -529,7 +538,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
             <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtC(caja.amount, ck)}</div>
           </div>
           {caja.goal &&
-          <div style={{ marginTop: 14 }}><Meter value={Math.min(1, caja.amount / caja.goal)} color={caja.fg} h={6} /></div>}
+          <div style={{ marginTop: 14 }}><Meter value={meterFill} color={caja.fg} h={6} /></div>}
           {/* sin línea de rendimiento acá: el "habría generado" vive solo en
               la pantalla de monto (decisión 22-jul). El vacío conserva su hint. */}
           {empty &&
@@ -563,6 +572,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
 //    y con objetivo (progreso + cómo el rendimiento te empuja) ───
 function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onMovs }) {
   const [editOpen, setEditOpen] = useStateX(false);
+  const [confirmDelete, setConfirmDelete] = useStateX(false);
   const cur = curOf(caja);
   const ck = caja.currency || 'ARS';
   const total = cajaTotal(caja);
@@ -658,11 +668,32 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
           <span style={{ font: '400 12px Inter', color: '#818181' }}>{caja.movs.length}</span>
           <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
         </button>
+
+        {/* zona de eliminar: al fondo, aparte del resto. Colapsada es un
+            link sobrio; se despliega en una card con la consecuencia clara
+            y un Cancelar real (antes vivía escondido dentro de Editar) */}
+        {onDelete &&
+        <div style={{ marginTop: 6 }}>
+          {!confirmDelete ?
+          <button onClick={() => setConfirmDelete(true)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7, width: '100%', border: 0, cursor: 'pointer', background: 'transparent', padding: '12px 0', font: '600 14px Inter', color: 'var(--c-rose-40)' }}>
+            <LI name="returns" size={15} color="var(--c-rose-40)" /> Eliminar cofre
+          </button> :
+          <div style={{ background: LX.layer, borderRadius: 20, padding: 18, boxShadow: 'var(--shadow-card)', animation: 'lc-pop .3s ease both' }}>
+            <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>¿Eliminar este cofre?</div>
+            <div style={{ font: '400 13px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.45 }}>
+              {total > 0 ? `Tus ${fmtC(total, ck)} vuelven a ${cur.source} al instante.` : 'No tiene plata: se elimina y listo.'}
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+              <button onClick={() => setConfirmDelete(false)} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: 'rgba(8,8,9,0.07)', color: '#141414', font: '600 14px Inter' }}>Cancelar</button>
+              <button onClick={onDelete} style={{ flex: 1, border: 0, cursor: 'pointer', borderRadius: 999, padding: '13px 0', background: 'var(--c-rose-40)', color: '#fff', font: '600 14px Inter' }}>Eliminar</button>
+            </div>
+          </div>}
+        </div>}
       </div>
     </Screen>
 
     <EditCajaSheet open={editOpen} caja={caja} onClose={() => setEditOpen(false)}
-      onSave={(patch) => { onSave(patch); setEditOpen(false); }} onDelete={onDelete} />
+      onSave={(patch) => { onSave(patch); setEditOpen(false); }} />
     </div>);
 }
 
@@ -692,18 +723,16 @@ function CajaMovsScreen({ caja, onBack }) {
 // ── Editar cofre: nombre + emoji + objetivo + eliminar ──────────
 // (el Blindaje ya no vive acá: es un único PIN para todos los cofres,
 // se configura desde el candado de la home de Cofres)
-function EditCajaSheet({ open, caja, onClose, onSave, onDelete }) {
+function EditCajaSheet({ open, caja, onClose, onSave }) {
   const [name, setName] = useStateX(caja.name);
   const [emoji, setEmoji] = useStateX(caja.emoji);
   const [goal, setGoal] = useStateX(caja.goal);
   const [customGoal, setCustomGoal] = useStateX(false);
-  const [confirmDelete, setConfirmDelete] = useStateX(false);
   const [pickingEmoji, setPickingEmoji] = useStateX(false);
   useEffectX(() => {
     if (open) {
       setName(caja.name); setEmoji(caja.emoji); setGoal(caja.goal);
       setCustomGoal(caja.goal != null && ![500000, 1000000].includes(caja.goal));
-      setConfirmDelete(false);
       setPickingEmoji(false);
     }
   }, [open]);
@@ -754,12 +783,8 @@ function EditCajaSheet({ open, caja, onClose, onSave, onDelete }) {
       </div>
 
       <Btn variant="primary" disabled={!name.trim() || (customGoal && !goal)} onClick={() => onSave({ name: name.trim(), emoji, goal })} style={{ marginTop: 18 }}>Guardar cambios</Btn>
-
-      {/* eliminar cofre: dos taps, la plata vuelve al saldo */}
-      {onDelete &&
-      <Btn variant="ghost" onClick={() => confirmDelete ? onDelete() : setConfirmDelete(true)} style={{ marginTop: 4, color: 'var(--c-rose-40)' }}>
-          {confirmDelete ? `¿Seguro? ${cajaTotal(caja) > 0 ? `Tus ${fmtC(cajaTotal(caja), caja.currency || 'ARS')} vuelven a ${cur.source}` : 'Se elimina el cofre'}` : 'Eliminar cofre'}
-        </Btn>}
+      {/* eliminar cofre ya no vive acá: se movió al fondo del detalle,
+          con su propia zona que se despliega para confirmar */}
     </Sheet>);
 }
 
