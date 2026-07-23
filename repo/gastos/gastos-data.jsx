@@ -357,17 +357,21 @@ const bucketize = (p, movs) => {
   if (p.unit === 'year') {
     for (let m = 0; m < 12; m++) {
       const s = new Date(p.start.getFullYear(), m, 1), e = new Date(p.start.getFullYear(), m + 1, 1);
-      buckets.push({ label: 'EFMAMJJASOND'[m], total: movs.filter((x) => inRange(x, s, e)).reduce((a, x) => a + x.amount, 0), future: s > G_TODAY });
+      const mine = movs.filter((x) => inRange(x, s, e));
+      buckets.push({ label: 'EFMAMJJASOND'[m], total: mine.reduce((a, x) => a + x.amount, 0), count: mine.length, future: s > G_TODAY, focus: cap1(G_MESES[m]) });
     }
   } else if (p.unit === 'day') {
     for (let h = 7; h <= 23; h += 2) {
-      buckets.push({ label: h % 4 === 3 ? String(h) : '', total: movs.filter((x) => x.date.getHours() >= h && x.date.getHours() < h + 2).reduce((a, x) => a + x.amount, 0), future: p.isCurrent && h > G_TODAY.getHours() });
+      const mine = movs.filter((x) => x.date.getHours() >= h && x.date.getHours() < h + 2);
+      buckets.push({ label: h % 4 === 3 ? String(h) : '', total: mine.reduce((a, x) => a + x.amount, 0), count: mine.length, future: p.isCurrent && h > G_TODAY.getHours(), focus: `${h} a ${h + 2} h` });
     }
   } else {
     for (let i = 0; i < p.totalDays; i++) {
       const s = addDays(p.start, i), e = addDays(p.start, i + 1);
       const lbl = p.unit === 'week' ? 'LMXJVSD'[i] : (s.getDate() === 1 || s.getDate() % 7 === 0 ? String(s.getDate()) : '');
-      buckets.push({ label: lbl, total: movs.filter((x) => inRange(x, s, e)).reduce((a, x) => a + x.amount, 0), future: s >= addDays(dayStart(G_TODAY), 1), today: sameDay(s, G_TODAY) });
+      const mine = movs.filter((x) => inRange(x, s, e));
+      const focus = sameDay(s, G_TODAY) ? 'Hoy' : sameDay(s, addDays(G_TODAY, -1)) ? 'Ayer' : cap1(`${G_DIAS[s.getDay()]} ${s.getDate()}`);
+      buckets.push({ label: lbl, total: mine.reduce((a, x) => a + x.amount, 0), count: mine.length, future: s >= addDays(dayStart(G_TODAY), 1), today: sameDay(s, G_TODAY), focus });
     }
   }
   return buckets;

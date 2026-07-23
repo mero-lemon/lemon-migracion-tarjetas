@@ -294,8 +294,17 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 
   const hasFilters = cats.length > 0 || methods.length > 0 || curs.length > 0 || text.trim().length > 0;
   const [openSec, setOpenSec] = useStateS(null); // qué filtro está desplegado
   const [showAllMovs, setShowAllMovs] = useStateS(false);
-  // cambiar la búsqueda vuelve a la vista corta de movimientos
-  useEffectS(() => { setShowAllMovs(false); }, [unit, +anchor, cats, methods, curs, text]);
+  const [selBucket, setSelBucket] = useStateS(null); // barra del ritmo enfocada
+  // cambiar la búsqueda vuelve a la vista corta de movimientos y suelta el foco
+  useEffectS(() => { setShowAllMovs(false); setSelBucket(null); }, [unit, +anchor, cats, methods, curs, text]);
+
+  // foco en una barra: la card de arriba pasa a hablar de ese tramo. La lista
+  // de movimientos y el resto quedan sobre todo el período (es un lente, no un filtro).
+  const sel = selBucket != null && buckets[selBucket] ? buckets[selBucket] : null;
+  const headTotal = sel ? sel.total : total;
+  const headCount = sel ? sel.count : movs.length;
+  const headLabel = sel ? sel.focus : info.label;
+  const selDelta = sel ? sel.total - avgBucket : 0;
 
   const toggle = (list, id) => list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
   const Label = ({ children }) =>
@@ -401,14 +410,23 @@ function GastosBuscador({ filters, setFilters, onBack, onOpenMov, dataVersion = 
                 <Surface pad={16}>
                   <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', marginBottom: 12 }}>
                     <div>
-                      <div style={{ font: '400 12px Inter', color: '#818181', marginBottom: 4 }}>{movs.length} {movs.length === 1 ? 'movimiento' : 'movimientos'} · {info.label}</div>
-                      <GCountUp to={total} render={(v) => <GBigAmount value={v} size={28} />} />
+                      <div style={{ font: '400 12px Inter', color: '#818181', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span>{headCount} {headCount === 1 ? 'movimiento' : 'movimientos'} · {headLabel}</span>
+                        {sel &&
+                          <button onClick={() => setSelBucket(null)} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 11px Inter', color: 'var(--c-greent-50)', padding: 0 }}>Ver todo</button>}
+                      </div>
+                      <GCountUp to={headTotal} render={(v) => <GBigAmount value={v} size={28} />} />
                     </div>
-                    <span style={{ font: '400 11.5px Inter', color: '#818181', paddingBottom: 3 }}>
-                      prom. {gFmtCompact(avgBucket)}{unit === 'year' ? '/mes' : unit === 'day' ? '' : '/día'}
-                    </span>
+                    {sel && avgBucket > 0 ?
+                      <span style={{ font: '400 11.5px Inter', color: selDelta > 0 ? '#B4740B' : '#00AA18', paddingBottom: 3, textAlign: 'right' }}>
+                        {selDelta >= 0 ? '+' : '−'}{gFmtCompact(Math.abs(selDelta))}<br />
+                        <span style={{ color: '#818181' }}>vs. tu {unit === 'year' ? 'mes típico' : unit === 'day' ? 'franja típica' : 'día típico'}</span>
+                      </span> :
+                      <span style={{ font: '400 11.5px Inter', color: '#818181', paddingBottom: 3 }}>
+                        prom. {gFmtCompact(avgBucket)}{unit === 'year' ? '/mes' : unit === 'day' ? '' : '/día'}
+                      </span>}
                   </div>
-                  <GRhythmChart buckets={buckets} avgBucket={avgBucket} />
+                  <GRhythmChart buckets={buckets} avgBucket={avgBucket} selected={selBucket} onSelect={(i) => setSelBucket((cur) => cur === i ? null : i)} />
                 </Surface>
 
                 {/* top comercios cuando mirás una sola categoría */}

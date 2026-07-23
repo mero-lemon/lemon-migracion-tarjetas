@@ -230,7 +230,7 @@ const GFilterChip = ({ active, onTap, icon, color, label }) =>
   </button>;
 
 // ── Ritmo de gasto: barras + línea de promedio ──────────────────
-const GRhythmChart = ({ buckets, avgBucket }) => {
+const GRhythmChart = ({ buckets, avgBucket, selected = null, onSelect }) => {
   const W = 320, H = 96, PADB = 4;
   const [on, setOn] = useStateG(false);
   useEffectG(() => { const t = setTimeout(() => setOn(true), 80); return () => clearTimeout(t); }, []);
@@ -239,19 +239,28 @@ const GRhythmChart = ({ buckets, avgBucket }) => {
   const gap = n > 20 ? 2 : 4;
   const bw = (W - gap * (n - 1)) / n;
   const yAvg = H - PADB - (avgBucket / max) * (H - 16);
+  const hasSel = selected != null;
   return (
     <div>
       <svg viewBox={`0 0 ${W} ${H + 14}`} style={{ display: 'block', width: '100%' }}>
         {buckets.map((b, i) => {
           const bh = Math.max(b.total > 0 ? 3 : 0, (b.total / max) * (H - 16));
+          const x = i * (bw + gap);
+          const isSel = selected === i;
+          const tappable = onSelect && !b.future && b.total > 0;
+          // con una barra elegida, el resto se atenúa; la elegida queda a full
+          const dim = hasSel && !isSel;
+          const fill = b.future ? 'rgba(8,8,9,0.05)' : isSel ? 'var(--c-lime-60)' : b.today ? '#141414' : 'var(--c-lime-40)';
           return (
-            <g key={i}>
-              <rect x={i * (bw + gap)} y={H - PADB - (on ? bh : 0)} width={bw} height={on ? bh : 0} rx={Math.min(3, bw / 2.5)}
-                fill={b.future ? 'rgba(8,8,9,0.05)' : b.today ? '#141414' : 'var(--c-lime-40)'}
-                stroke={b.today ? 'none' : b.future ? 'none' : 'var(--c-lime-50)'} strokeWidth="0.6"
-                style={{ transition: `height .5s cubic-bezier(.25,.8,.3,1) ${i * 0.012}s, y .5s cubic-bezier(.25,.8,.3,1) ${i * 0.012}s` }} />
-              {b.future && <rect x={i * (bw + gap)} y={H - PADB - 2} width={bw} height={2} rx={1} fill="rgba(8,8,9,0.12)" />}
-              {b.label && <text x={i * (bw + gap) + bw / 2} y={H + 10} textAnchor="middle" style={{ font: '400 8.5px Inter', fill: '#B4B4B4' }}>{b.label}</text>}
+            <g key={i} onClick={tappable ? () => onSelect(i) : undefined} style={{ cursor: tappable ? 'pointer' : 'default' }}>
+              {/* hit-area invisible de alto completo: las barras finas igual se tocan */}
+              {tappable && <rect x={x - gap / 2} y={0} width={bw + gap} height={H} fill="transparent" />}
+              <rect x={x} y={H - PADB - (on ? bh : 0)} width={bw} height={on ? bh : 0} rx={Math.min(3, bw / 2.5)}
+                fill={fill} opacity={dim ? 0.28 : 1}
+                stroke={b.today || b.future || isSel ? 'none' : 'var(--c-lime-50)'} strokeWidth="0.6"
+                style={{ transition: `height .5s cubic-bezier(.25,.8,.3,1) ${i * 0.012}s, y .5s cubic-bezier(.25,.8,.3,1) ${i * 0.012}s, opacity .25s, fill .2s` }} />
+              {b.future && <rect x={x} y={H - PADB - 2} width={bw} height={2} rx={1} fill="rgba(8,8,9,0.12)" />}
+              {(b.label || isSel) && <text x={x + bw / 2} y={H + 10} textAnchor="middle" style={{ font: `${isSel ? 600 : 400} 8.5px Inter`, fill: isSel ? '#141414' : dim ? '#D0D0D0' : '#B4B4B4', transition: 'fill .2s' }}>{b.label || b.focus}</text>}
             </g>);
         })}
         {avgBucket > 0 &&
