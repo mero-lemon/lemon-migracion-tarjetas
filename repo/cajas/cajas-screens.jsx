@@ -309,16 +309,17 @@ function CajasHome({ cajas, totalCajas, totalEarned, totalCajasUSD, totalEarnedU
     </Screen>);
 }
 
-// ── FLUJO DE CREACIÓN — 3 pantallas ─────────────────────────────
+// ── FLUJO DE CREACIÓN — 2 pantallas ─────────────────────────────
 // 1. soñar: elegí y hacé tuyo el objetivo (nombre + emoji)
-// 2. cuantificar: ponéle un número a ese sueño (o seguí sin objetivo)
-// 3. arrancar: cuánto ponés hoy para empezar
+// 2. arrancar: cuánto ponés hoy para empezar
+// Cuantificar la meta NO es parte de la creación (decisión 24-jul): es la
+// pregunta más cara del funnel y no es un must — el cofre nace libre y la
+// meta se define después, desde el detalle ("Ponéle una meta").
 function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) {
-  const [step, setStep] = useStateX('dream'); // dream | goal | fund
+  const [step, setStep] = useStateX('dream'); // dream | fund
   const [tpl, setTpl] = useStateX(null);
   const [name, setName] = useStateX('');
   const [emoji, setEmoji] = useStateX(null);
-  const [goal, setGoal] = useStateX(null);
   const [currency, setCurrency] = useStateX('ARS');
   const [pickingEmoji, setPickingEmoji] = useStateX(false);
   const [sheetOpen, setSheetOpen] = useStateX(false);
@@ -328,7 +329,7 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
   // el Blindaje no es parte de la creación: es un PIN único para todos los
   // cofres y se configura desde el candado de la home (o al retirar)
   const finish = (amount) =>
-  onDone({ tplId: tpl.id, name: name.trim(), emoji, goal, currency, amount });
+  onDone({ tplId: tpl.id, name: name.trim(), emoji, goal: null, currency, amount });
 
   // ── 1. el sueño: elegís el objetivo; al elegir, sube el sheet con tu cofre ──
   if (step === 'dream')
@@ -399,32 +400,14 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
           </div>
 
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 6, marginTop: 22 }}>
-            <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('goal')}>Confirmar</Btn>
+            <Btn variant="primary" disabled={!name.trim()} onClick={() => setStep('fund')}>Confirmar</Btn>
             <Btn variant="ghost" onClick={() => { setSheetOpen(false); setPickingEmoji(false); }}>Elegir otro objetivo</Btn>
           </div>
         </div>}
       </Sheet>
     </div>);
 
-  // ── 2. cuantificar el sueño: el monto del objetivo ──
-  if (step === 'goal')
-  return (
-    <AmountScreen
-      key={'goal' + currency}
-      goalMode
-      currency={currency}
-      headerTitle={headerTitle}
-      badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
-      title={`¿Cuánto necesitás para ${name.trim()}?`}
-      max={999999999}
-      cta="Definir objetivo"
-      hint="Es tu meta, no un límite: podés ajustarla cuando quieras desde “Editar”."
-      secondary={{ label: 'Prefiero sin objetivo', onPress: () => { setGoal(null); setStep('fund'); } }}
-      onBack={() => { setStep('dream'); setSheetOpen(true); }}
-      onClose={onCancel}
-      onConfirm={(v) => { setGoal(v); setStep('fund'); }} />);
-
-  // ── 3. arrancar: cuánto ponés hoy (o creá el cofre vacío) ──
+  // ── 2. arrancar: cuánto ponés hoy (o creá el cofre vacío) ──
   return (
     <AmountScreen
       key={'fund' + currency}
@@ -432,11 +415,11 @@ function CreateCajaFlow({ available, availableUSD, isFirst, onCancel, onDone }) 
       headerTitle={headerTitle}
       badge={<CajaBadge caja={{ emoji, bg: tpl.bg }} size={46} />}
       title="¿Con cuánto arrancás?"
-      subtitle={goal ? `${name.trim()} · Objetivo ${fmtC(goal, currency)}` : name.trim()}
+      subtitle={name.trim()}
       max={currency === 'USD' ? availableUSD : available}
       cta="Poner a rendir"
       secondary={{ label: 'Crear sin poner plata', onPress: () => finish(0) }}
-      onBack={() => setStep('goal')}
+      onBack={() => { setStep('dream'); setSheetOpen(true); }}
       onClose={onCancel}
       onConfirm={finish} />);
 }
@@ -533,7 +516,9 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
             <CajaBadge caja={caja} size={46} fill={caja.goal ? meterFill : null} />
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{caja.name}</div>
-              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre'}</div>
+              {/* semilla sin pedir nada: la meta se planta acá, se define
+                  después desde el detalle (el success solo celebra) */}
+              <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 2 }}>{caja.goal ? `Objetivo ${fmtC(caja.goal, ck)}` : 'Cofre libre · Ponéle una meta cuando quieras'}</div>
             </div>
             <div style={{ font: '500 16px Geist', color: '#141414' }}>{fmtC(caja.amount, ck)}</div>
           </div>
@@ -570,7 +555,7 @@ function CajaSuccess({ caja, cajas, onActivate, onGoCaja, onGoPesos }) {
 
 // ── DETALLE DE CAJA — dos modos: libre (rendimiento protagonista)
 //    y con objetivo (progreso + cómo el rendimiento te empuja) ───
-function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onMovs }) {
+function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw, onSave, onDelete, onMovs, onSetGoal }) {
   const [editOpen, setEditOpen] = useStateX(false);
   const [confirmDelete, setConfirmDelete] = useStateX(false);
   const cur = curOf(caja);
@@ -647,6 +632,18 @@ function CajaDetail({ caja, cajas, pinOn, onActivate, onBack, onAdd, onWithdraw,
         {/* la campaña baja de tono en el detalle: una fila sobria — la
             difusión fuerte vive en la home de cofres y en Beneficios */}
         <CampaignCofreCard compact caja={caja} cajas={cajas} onActivate={onActivate} />
+
+        {/* la meta se define acá, DESPUÉS de crear (decisión 24-jul): la
+            invitación vive donde vive el cofre, visible pero sin presión */}
+        {!caja.goal &&
+        <button onClick={onSetGoal} style={{ display: 'flex', alignItems: 'center', gap: 12, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', background: LX.layer, borderRadius: 20, padding: '14px 16px', boxShadow: 'var(--shadow-card)' }}>
+          <span style={{ width: 40, height: 40, borderRadius: 999, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 19, lineHeight: 1, flexShrink: 0 }}>🎯</span>
+          <span style={{ flex: 1, minWidth: 0 }}>
+            <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: '#141414' }}>Ponéle una meta</span>
+            <span style={{ display: 'block', font: '400 12px Inter', color: '#818181', marginTop: 2 }}>Seguí tu progreso y mirá cuánto te falta.</span>
+          </span>
+          <LI name="arrow-foward" size={16} color="#B4B4B4" style={{ flexShrink: 0 }} />
+        </button>}
 
         {/* con objetivo, el rendimiento acompaña en su propia card — en tonos
             apagados a propósito: informa sin pelearle la atención al progreso.

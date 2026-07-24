@@ -140,7 +140,25 @@ function CajasExperience() {
 
   if (route === 'detail' && open)
   return <CajaDetail caja={open} cajas={cajas} pinOn={!!pin} onActivate={() => activateBoost(open.id)} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
-    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onMovs={() => setRoute('movs')} />;
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onMovs={() => setRoute('movs')} onSetGoal={() => setRoute('setgoal')} />;
+
+  // ponerle una meta a un cofre libre: la cuantificación vive acá,
+  // después de crear — el detalle se convierte al modo objetivo al toque
+  if (route === 'setgoal' && open)
+  return (
+    <AmountScreen
+      key="setgoal"
+      goalMode
+      currency={open.currency || 'ARS'}
+      headerTitle={open.name}
+      badge={<CajaBadge caja={open} size={46} />}
+      title={`¿Cuánto necesitás para ${open.name}?`}
+      max={999999999}
+      cta="Definir meta"
+      hint="Es tu meta, no un límite: podés ajustarla cuando quieras desde “Editar”."
+      onBack={() => setRoute('detail')}
+      onClose={() => setRoute('detail')}
+      onConfirm={(v) => { updateCaja(open.id, { goal: v }); setRoute('detail'); }} />);
 
   // Blindaje: la sección del PIN único (desde el candado de la home)
   if (route === 'security')
