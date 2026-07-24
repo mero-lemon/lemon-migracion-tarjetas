@@ -25,6 +25,8 @@ function CajasExperience() {
   const [pin, setPin] = useStateZ(null);
   // a dónde volver después de setear el PIN ('security' | 'withdraw')
   const [afterPin, setAfterPin] = useStateZ('security');
+  // a dónde volver después de definir la meta ('detail' | 'success')
+  const [goalReturn, setGoalReturn] = useStateZ('detail');
   // retiro esperando la confirmación con PIN
   const [pendingWithdraw, setPendingWithdraw] = useStateZ(null);
 
@@ -133,6 +135,7 @@ function CajasExperience() {
 
   if (route === 'success' && lastCreated)
   return <CajaSuccess caja={hydrate(cajas.find((c) => c.id === lastCreated))} cajas={cajas} onActivate={() => activateBoost(lastCreated)}
+    onSetGoal={() => { setOpenId(lastCreated); setGoalReturn('success'); setRoute('setgoal'); }}
     onGoCaja={() => { setOpenId(lastCreated); setRoute('detail'); }} onGoPesos={() => setRoute('cajas')} />;
 
   if (route === 'movs' && open)
@@ -140,10 +143,11 @@ function CajasExperience() {
 
   if (route === 'detail' && open)
   return <CajaDetail caja={open} cajas={cajas} pinOn={!!pin} onActivate={() => activateBoost(open.id)} onBack={() => setRoute('cajas')} onAdd={() => setRoute('add')} onWithdraw={() => setRoute('withdraw')}
-    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onMovs={() => setRoute('movs')} onSetGoal={() => setRoute('setgoal')} />;
+    onSave={(patch) => updateCaja(open.id, patch)} onDelete={() => deleteCaja(open.id)} onMovs={() => setRoute('movs')} onSetGoal={() => { setGoalReturn('detail'); setRoute('setgoal'); }} />;
 
-  // ponerle una meta a un cofre libre: la cuantificación vive acá,
-  // después de crear — el detalle se convierte al modo objetivo al toque
+  // ponerle una meta a un cofre libre: la cuantificación vive acá, DESPUÉS
+  // de crear — se entra desde el success (premio inmediato: la card gana el
+  // progreso) o desde el detalle, y se vuelve a donde estabas
   if (route === 'setgoal' && open)
   return (
     <AmountScreen
@@ -156,9 +160,9 @@ function CajasExperience() {
       max={999999999}
       cta="Definir meta"
       hint="Es tu meta, no un límite: podés ajustarla cuando quieras desde “Editar”."
-      onBack={() => setRoute('detail')}
-      onClose={() => setRoute('detail')}
-      onConfirm={(v) => { updateCaja(open.id, { goal: v }); setRoute('detail'); }} />);
+      onBack={() => setRoute(goalReturn)}
+      onClose={() => setRoute(goalReturn)}
+      onConfirm={(v) => { updateCaja(open.id, { goal: v }); setRoute(goalReturn); }} />);
 
   // Blindaje: la sección del PIN único (desde el candado de la home)
   if (route === 'security')
