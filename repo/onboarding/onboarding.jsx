@@ -426,52 +426,85 @@ function ObCostSheet({ kind, onClose }) {
 }
 
 // ── Home de la app en estado "sin tarjetas" ─────────────────────
-// Misma home real (AppHome de cards/), pero la card lime que asoma detrás
-// del balance —donde la tarjeta vive cuando existe— se convierte en la
-// puerta de entrada al onboarding.
-function ObHome({ onExplore, card, transit, onOpenCard }) {
-  const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
-  return (
-    <Screen footer={
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: LX.layer, borderRadius: 999, padding: '12px 14px', boxShadow: 'var(--shadow-card)' }}>
-          {navIcons.map((t, i) => <LI key={i} name={t} size={22} color={i === 0 ? LX.text1 : LX.text3} />)}
-        </div>
-        <div style={{ width: 52, height: 52, borderRadius: 999, background: LX.dark, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
-        </div>
-      </div>
-    }>
-      {/* top bar */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: LX.layer, borderRadius: 999, padding: '6px 14px 6px 6px', boxShadow: 'var(--shadow-card)' }}>
-          <span style={{ width: 30, height: 30, borderRadius: 999, background: 'var(--c-lemon-40)', display: 'flex', alignItems: 'center', justifyContent: 'center', font: '700 16px Inter', color: LX.dark }}>R</span>
-          <span style={{ font: '600 16px Inter', color: LX.text1 }}>$rawww</span>
-        </div>
-        <div style={{ flex: 1 }} />
-        <LI name="search" size={23} color={LX.text1} />
-        <LI name="rewards" size={23} color={LX.text1} />
-        <LI name="view-notification" size={23} color={LX.text1} />
-      </div>
+// Mismo shell que las homes de Cofres (/cajas/) y Tus gastos (/gastos/):
+// bg #F3F3F3, top bar con la hoja en degradé + $rawpower, balance card
+// con tabs clickeables y monto con centavos, nav con pill activa. La
+// card lime que asoma detrás del balance —donde la tarjeta vive cuando
+// existe— es la puerta de entrada al onboarding.
+const ObTopBar = () =>
+<div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px 10px' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 999, padding: '6px 14px 6px 6px', boxShadow: 'var(--shadow-card)' }}>
+      <span style={{ width: 30, height: 30, borderRadius: 999, background: 'linear-gradient(180deg, #00DF1A 0%, #CFFF2E 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Leaf size={18} color="#fff" vein="rgba(0,0,0,0.2)" />
+      </span>
+      <span style={{ font: '500 16px Geist', letterSpacing: '-0.1px', color: '#080808' }}>$rawpower</span>
+    </div>
+    <div style={{ flex: 1 }} />
+    <LI name="search" size={23} color="#141414" />
+    <LI name="rewards" size={23} color="#141414" />
+    <LI name="view-notification" size={23} color="#141414" />
+  </div>;
 
-      <div style={{ padding: '4px 16px 8px' }}>
+const ObNavBar = ({ active = 'home' }) => {
+  const items = [
+  ['home', 'home'], ['portfolio', 'portfolio'], ['market', 'market'],
+  ['activity', 'activity'], ['apps', 'mini-apps']];
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-around', background: '#fff', borderRadius: 999, padding: '12px 14px', boxShadow: '0 10px 28px rgba(0,0,0,0.10)' }}>
+        {items.map(([id, ic]) => {
+          const on = id === active;
+          return (
+            <span key={id} style={{ background: on ? '#FAFAFA' : 'transparent', borderRadius: 999, padding: '6px 10px', display: 'flex' }}>
+              <LI name={`${ic}-${on ? 'on' : 'off'}`} size={22} color={on ? '#080808' : '#818181'} />
+            </span>);
+        })}
+      </div>
+      <div style={{ width: 52, height: 52, borderRadius: 999, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 10px 28px rgba(0,0,0,0.18)' }}>
+        <LI name="QR-Scanner" size={24} color="var(--c-lime-40)" />
+      </div>
+    </div>);
+};
+
+const ObBalanceTabs = () =>
+<div style={{ display: 'flex' }}>
+    <span style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', letterSpacing: '-0.1px', color: '#141414', padding: '14px 0' }}>Inicio</span>
+    <span style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', letterSpacing: '-0.1px', color: '#141414', padding: '14px 0', background: 'var(--c-lime-40)', borderRadius: '0 32px 0 24px', cursor: 'pointer' }}>Portfolio</span>
+  </div>;
+
+const ObBigAmount = ({ value, prefix = '$', size = 44, color = '#141414' }) => {
+  const ent = Math.floor(value);
+  const cents = Math.round((value - ent) * 100);
+  return (
+    <div style={{ display: 'flex', alignItems: 'flex-end' }}>
+      <span style={{ font: `500 ${size}px Geist`, lineHeight: 1.18, letterSpacing: '-0.03em', color }}>
+        {prefix}{ent.toLocaleString('es-AR')}
+      </span>
+      <span style={{ font: `500 ${Math.round(size * 0.545)}px Geist`, lineHeight: 1.5, letterSpacing: '-0.03em', color: '#B4B4B4' }}>
+        ,{String(cents).padStart(2, '0')}
+      </span>
+    </div>);
+
+};
+
+function ObHome({ onExplore, card, transit, onOpenCard }) {
+  return (
+    <Screen bg="#F3F3F3" footer={<ObNavBar active="home" />}>
+      <div style={{ minHeight: '100%', display: 'flex', flexDirection: 'column' }}>
+      <ObTopBar />
+
+      <div style={{ flex: 1, padding: '4px 16px 8px', display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div style={{ position: 'relative' }}>
           {/* balance card */}
-          <div style={{ position: 'relative', zIndex: 2, background: LX.layer, borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
-            <div style={{ display: 'flex' }}>
-              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0' }}>Inicio</div>
-              <div style={{ flex: 1, textAlign: 'center', font: '500 12px Inter', color: '#141414', padding: '14px 0', background: 'var(--c-lime-40)', borderRadius: '0 32px 0 24px' }}>Portfolio</div>
-            </div>
-            <div style={{ padding: '20px 24px 22px' }}>
+          <div style={{ position: 'relative', zIndex: 2, background: '#fff', borderRadius: 32, overflow: 'hidden', boxShadow: 'var(--shadow-card)' }}>
+            <ObBalanceTabs />
+            <div style={{ padding: '20px 24px 24px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ font: '500 16px Inter', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
+                <span style={{ font: '500 16px Geist', color: '#818181', letterSpacing: '-0.1px' }}>Pesos digitales</span>
                 <LI name="view-balance-on" size={18} color="#818181" />
               </div>
-              <div style={{ font: '500 44px Geist', lineHeight: '52px', letterSpacing: '-0.03em', color: '#141414', marginTop: 6 }}>$ 235.412</div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: 'var(--c-lime-40)', color: '#080808', font: '400 12px Inter', padding: '3px 12px', borderRadius: 999, marginTop: 10 }}>
-                Crece 36,2% <LI name="arrow-foward" size={14} color="#080808" />
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 22 }}>
+              <div style={{ marginTop: 6 }}><ObBigAmount value={235412.68} prefix="$" /></div>
+              <div style={{ display: 'flex', justifyContent: 'center', gap: 32, marginTop: 24 }}>
                 {[['deposit', 'Depositar'], ['currency-peso', 'Usar'], ['send-money', 'Enviar']].map(([ic, lb]) =>
                 <div key={lb} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
                     <div style={{ width: 48, height: 48, borderRadius: 60, background: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -531,16 +564,19 @@ function ObHome({ onExplore, card, transit, onOpenCard }) {
 
         {/* pedido en camino (física / crédito) */}
         {transit &&
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: LX.layer, borderRadius: 24, padding: '14px 16px', marginTop: 16, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, background: '#fff', borderRadius: 24, padding: '14px 16px', boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
             <div style={{ width: 40, height: 40, borderRadius: 999, background: 'var(--c-lemon-5)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <LI name="rocket" size={20} color="var(--c-lemon-50)" />
             </div>
             <div>
-              <div style={{ font: '500 13px Geist', color: LX.text1 }}>Tu Lemon Card {transit === 'fisica' ? 'física' : 'de crédito'} está en camino</div>
-              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 2 }}>Llega en 5 a 7 días hábiles. Te avisamos por push.</div>
+              <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>Tu Lemon Card {transit === 'fisica' ? 'física' : 'de crédito'} está en camino</div>
+              <div style={{ font: '400 12px Inter', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2 }}>Llega en 5 a 7 días hábiles. Te avisamos por push.</div>
             </div>
           </div>
         }
+
+        <div style={{ flex: 1 }} />
+      </div>
       </div>
     </Screen>);
 
