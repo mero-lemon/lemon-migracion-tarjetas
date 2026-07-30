@@ -516,50 +516,30 @@ function ObHome({ onExplore, card, transit, onOpenCard }) {
             </div>
           </div>
 
-          {/* card lime asomando detrás: acá vive la tarjeta. Sin tarjeta,
-              es la invitación a conocerlas (entrada al onboarding). */}
-          <button onClick={card ? onOpenCard : onExplore} style={{
+          {/* card lime asomando detrás del balance: SOLO cuando la tarjeta
+              ya existe (mismo patrón que la home real de la app). En estado
+              vacío la balance card queda limpia, como en Cofres/Gastos. */}
+          {card &&
+          <button onClick={onOpenCard} style={{
             position: 'relative', zIndex: 1, width: '100%', textAlign: 'left', border: 0, cursor: 'pointer',
             marginTop: -86, padding: '94px 20px 18px', borderRadius: 32, overflow: 'hidden', background: 'var(--c-lime-40)'
           }}>
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
-            {!card &&
-            <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)', animation: 'lc-shine 3.2s ease-in-out infinite' }} />
-            }
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
-              {card ?
-              <>
-                  <div>
-                    <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
-                      <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
-                      <span style={{ font: '400 12px Inter', color: '#080808' }}>{card.mask.replace('•••• ', '')}</span>
-                      {card.nfc &&
-                    <span style={{ font: '600 10px Inter', background: 'rgba(8,8,8,0.12)', color: '#080808', padding: '2px 8px', borderRadius: 999, marginLeft: 4 }}> Pay</span>
-                    }
-                    </div>
+              <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
+              <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 10 }}>
+                <div>
+                  <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
+                    <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
+                    <span style={{ font: '400 12px Inter', color: '#080808' }}>{card.mask.replace('•••• ', '')}</span>
+                    {card.nfc &&
+                  <span style={{ font: '600 10px Inter', background: 'rgba(8,8,8,0.12)', color: '#080808', padding: '2px 8px', borderRadius: 999, marginLeft: 4 }}> Pay</span>
+                  }
                   </div>
-                  <VisaMark size={22} color="#141414" shadow={false} />
-                </> :
-
-              <>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ font: '600 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tu primera Lemon Card</div>
-                    <div style={{ font: '400 12px Inter', color: 'rgba(8,8,8,0.65)', marginTop: 3 }}>Virtual, física o de crédito · conocelas</div>
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <div style={{ transform: 'rotate(-9deg)', filter: 'drop-shadow(0 5px 9px rgba(0,0,0,0.22))' }}><CardArt design="violeta" width={52} /></div>
-                      <div style={{ transform: 'rotate(7deg)', marginLeft: -30, filter: 'drop-shadow(0 5px 9px rgba(0,0,0,0.22))' }}><CardArt variant="fisica" width={52} /></div>
-                    </div>
-                    <span style={{ width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <LI name="arrow-foward" size={16} color="#0b1a00" />
-                    </span>
-                  </div>
-                </>
-              }
-            </div>
-          </button>
+                </div>
+                <VisaMark size={22} color="#141414" shadow={false} />
+              </div>
+            </button>
+          }
         </div>
 
         {/* pedido en camino (física / crédito) */}
@@ -576,6 +556,29 @@ function ObHome({ onExplore, card, transit, onOpenCard }) {
         }
 
         <div style={{ flex: 1 }} />
+
+        {/* la novedad: tu primera Lemon Card — misma anatomía que los
+            banners de Cofres y Tus gastos (card blanca 84px, borde lime,
+            brillo, arte 60, título Geist + pill NUEVO, bajada de una línea).
+            Es la entrada al onboarding; vive abajo, sobre el nav. */}
+        {!card &&
+        <div style={{ position: 'relative', animation: 'screenIn .5s cubic-bezier(.25,.85,.3,1) .35s both' }}>
+            <button onClick={onExplore} style={{ position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, width: '100%', minHeight: 84, textAlign: 'left', cursor: 'pointer', background: '#fff', border: '1.5px solid rgba(207,255,46,0.9)', borderRadius: 24, padding: '12px 34px 12px 12px', boxShadow: '0 8px 20px rgba(160,220,20,0.22), 0 4px 8px rgba(43,42,40,0.04)' }}>
+              <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '30%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(207,255,46,0.4), transparent)', animation: 'lc-shine 3.2s ease-in-out 1s infinite' }} />
+              <div style={{ position: 'relative', width: 60, height: 60, flexShrink: 0, borderRadius: 16, background: 'var(--c-lime-10)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
+                <div style={{ transform: 'rotate(-10deg) translateX(3px)', filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))' }}><CardArt design="violeta" width={38} /></div>
+                <div style={{ transform: 'rotate(8deg) translateX(-1px)', marginLeft: -24, filter: 'drop-shadow(0 3px 6px rgba(0,0,0,0.25))' }}><CardArt variant="fisica" width={38} /></div>
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: '#1C1C1C' }}>Tu primera Lemon Card</span>
+                  <span style={{ background: 'var(--c-lime-40)', color: '#080808', font: '700 9px Inter', letterSpacing: '0.06em', padding: '2px 7px', borderRadius: 999 }}>NUEVO</span>
+                </div>
+                <div style={{ font: '400 12px Inter', lineHeight: '18px', letterSpacing: '-0.1px', color: '#5E5E5E', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Virtual, física o de crédito — pedila en minutos.</div>
+              </div>
+            </button>
+          </div>
+        }
       </div>
       </div>
     </Screen>);
