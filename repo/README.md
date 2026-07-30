@@ -1,4 +1,4 @@
-# Prototipos Lemon · tarjetas + cajas + gastos
+# Prototipos Lemon · tarjetas + cajas + gastos + onboarding
 
 Prototipos interactivos (alta fidelidad) construidos con el **Lemon Mobile Design System**.
 Es un sitio **100% estático** — no tiene paso de build: HTML + React/Babel cargados desde
@@ -7,6 +7,7 @@ CDN + componentes JSX locales.
 - `/` → **Migración de tarjetas** (flujos GP → Pomelo, NFC/Apple Pay)
 - `/cajas/` → **Cofres** (FTE: pesos apartados que rinden, dentro de Portfolio; la tarjeta/QR no los ven)
 - `/gastos/` → **Tus gastos** (home de un vistazo + buscador con filtros — ver `gastos/README.md`)
+- `/onboarding/` → **Onboarding sin tarjetas** (home vacía → pager horizontal virtual/física/crédito → flujos de alta)
 
 ## Estructura
 
@@ -28,6 +29,11 @@ cajas/            → 100% autocontenida (deployable sola, Root Directory: repo/
   cajas-screens.jsx → Inicio, Portfolio, wallet Pesos, sección Cajas, crear, detalle
   cajas-ui.jsx    → splash FTE, keypad de monto, fila de caja, arte SVG, plantillas
   lemon-ui.jsx / ios-frame.jsx / screens-shared.jsx / fonts/ → copia del DS de cards/
+onboarding/       → 100% autocontenida (deployable sola, Root Directory: repo/onboarding)
+  index.html      → punto de entrada del onboarding sin tarjetas
+  app.jsx         → stage + modal iOS (home ↔ onboarding) + wiring a los flujos de cards/
+  onboarding.jsx  → pager de 3 pantallas (peek + dots + nudge), home vacía, sheet de costos
+  lemon-ui.jsx / card-experience.jsx / flows.jsx / assets/ / fonts/ → copia del DS de cards/
 ```
 
 ## Cómo correrlo localmente
