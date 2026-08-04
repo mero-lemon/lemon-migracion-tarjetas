@@ -4,6 +4,10 @@ const { useState: useStateA, useEffect: useEffectA, useRef: useRefA } = React;
 // ── Menu (initial chooser, lives inside the phone) ──────────────
 function MenuScreen({ onPick }) {
   const sections = [
+  { label: 'Migración virtual GP → Pomelo · test A/B', items: [
+    { id: 'migA', icon: 'alert-time', bg: 'var(--c-orange-10)', fg: '#854600', t: 'Camino A · Débitos al frente', s: 'El aviso de débitos es un paso del flujo · la vieja se apaga en 10 días.' },
+    { id: 'migB', icon: 'swap', bg: 'var(--c-greent-5)', fg: 'var(--c-greent-60)', t: 'Camino B · Convivencia tranquila', s: 'El aviso es un banner post-creación · la vieja convive 30 días.' }]
+  },
   { label: 'Sin tarjetas', items: [
     { id: 'f5', icon: 'card-on', bg: 'var(--c-nebula-5)', fg: 'var(--c-nebula-50)', t: 'No tengo ninguna', s: 'Onboarding: elegir mi primera tarjeta.' }]
   },
@@ -77,7 +81,7 @@ function Phone({ scale, children }) {
 // ── App home (home real de la app) ──────────────────────────────
 // Entrada de los usuarios "Todavía en GP": ven su home con el banner de la
 // nueva virtual + Apple Pay; al tocarlo entran al flujo de tarjetas.
-function AppHome({ onCards, bannerVariant = 'applepay' }) {
+function AppHome({ onCards, bannerVariant = 'applepay', banner }) {
   const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
   const expiring = bannerVariant === 'expiring';
   return (
@@ -150,8 +154,11 @@ function AppHome({ onCards, bannerVariant = 'applepay' }) {
           </div>
         </div>
 
+        {/* Banner custom (ej: migración GP → Pomelo) — pisa a los default. */}
+        {banner}
+
         {/* Vencimiento de la física: banner neutro (aviso). */}
-        {expiring &&
+        {!banner && expiring &&
         <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: LX.layer, borderRadius: 24, padding: '12px 16px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
             <div style={{ display: 'flex', flexShrink: 0 }}>
               <div style={{ transform: 'rotate(-6deg)' }}><CardArt variant="fisica" width={56} faded /></div>
@@ -166,7 +173,7 @@ function AppHome({ onCards, bannerVariant = 'applepay' }) {
           </button>}
 
         {/* ¡Llegó tu virtual! Banner Apple Pay — pieza destacada, lime con sweep animado. */}
-        {!expiring &&
+        {!banner && !expiring &&
         <button onClick={onCards} style={{
           position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
           borderRadius: 26, marginTop: 16, minHeight: 104, padding: '16px 52px 16px 122px',
@@ -272,6 +279,8 @@ function Stage() {
       <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '24px 24px 28px', gap: 28, flexWrap: 'wrap' }}>
         <Phone scale={scale}>
           {view === 'menu' && <MenuScreen onPick={setView} />}
+          {view === 'migA' && <FlowMigracion variant="A" onMenu={toMenu} />}
+          {view === 'migB' && <FlowMigracion variant="B" onMenu={toMenu} />}
           {view === 'f1' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} startStep="replace" standalone />} />}
           {view === 'f1b' && <GpHomeEntry flow={(toHome) => <Flow1 onMenu={toHome} replace={false} />} />}
           {view === 'pedirFisica' && <Flow5 pomelo onMenu={toMenu} meets={meets} onMeet={() => setMeets(true)} />}
