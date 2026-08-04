@@ -1,6 +1,7 @@
 // ════════════════════════════════════════════════════════════════
 // Migración de la virtual GP → Pomelo · experimento A/B
-//   Camino A — "explícito": aviso de débitos como paso del flujo,
+//   Camino A — "explícito": aviso de débitos en el banner lime de la
+//              comparativa (pantalla "Ingreso datos extras" del diseño),
 //              la vieja se apaga en 10 días (urgencia).
 //   Camino B — "tranquilo": aviso de débitos como banner post-creación,
 //              la vieja convive 30 días (sin fricción).
@@ -25,12 +26,12 @@ const DEBITOS = [
   { icon: 'celphone', name: 'iCloud+', detail: 'Se debita los 15 de cada mes', amount: '$ 1.999' }];
 
 
-// ── Splash de entrada (full-bleed verde ácido, diseño oficial) ──
-// "Empezá a pagar con tu celular" + posnet/celu. Igual en A y B.
+// ── Splash de entrada (full-bleed, asset oficial del diseño) ────
+// "Empezá a pagar con tu celular" — el fondo acceso.png ya trae el
+// verde ácido + posnet/celu compuestos. Igual en A y B.
 function MigSplash({ onClose, onPrimary, onLater }) {
-  const BG = 'radial-gradient(58% 30% at 74% 6%, rgba(255,255,120,0.85), transparent 70%), radial-gradient(46% 26% at 12% 44%, rgba(244,255,94,0.6), transparent 70%), radial-gradient(64% 34% at 62% 92%, rgba(246,255,88,0.75), transparent 72%), linear-gradient(168deg, #74F62A 0%, #46E512 34%, #7DFF2E 62%, #C9FF37 100%)';
   return (
-    <Screen scroll={false} bg={BG}>
+    <Screen scroll={false} bg="#7DFF2E url(assets/acceso.png) center top / cover no-repeat">
       <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0 16px 26px' }}>
         <div style={{ height: 52, display: 'flex', alignItems: 'center' }}>
           <button onClick={onClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40, marginLeft: -8 }}>
@@ -38,17 +39,8 @@ function MigSplash({ onClose, onPrimary, onLater }) {
           </button>
         </div>
 
-        {/* posnet + celu */}
-        <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <image-slot
-            id="mig-splash-hero"
-            shape="rect"
-            fit="contain"
-            src="assets/nfc-splash-hero.png"
-            placeholder="Posnet + celu (render 3D)"
-            style={{ width: 310, height: 270, filter: 'drop-shadow(0 22px 30px rgba(20,60,0,0.30))' }}>
-          </image-slot>
-        </div>
+        {/* el posnet + celu vienen en el asset de fondo */}
+        <div style={{ flex: 1, minHeight: 0 }} />
 
         <div style={{ padding: '4px 4px 0' }}>
           <div style={{ font: '500 31px Geist', lineHeight: 1.12, letterSpacing: '-0.015em', color: '#0b1a00' }}>
@@ -151,9 +143,7 @@ function MigCompare({ variant, design, onBack, onClose, onContinue }) {
 
   return (
     <Screen footer={
-      <Btn variant="primary" disabled={!ack} onClick={onContinue}>
-        {variant === 'A' ? 'Continuar' : 'Crear mi nueva tarjeta'}
-      </Btn>
+      <Btn variant="primary" disabled={!ack} onClick={onContinue}>Crear mi nueva tarjeta</Btn>
     }>
       <StepHeader title="Cambiar tu tarjeta" onBack={onBack} onClose={onClose} />
       <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -197,45 +187,6 @@ function MigCompare({ variant, design, onBack, onClose, onContinue }) {
             Entiendo que mi tarjeta {OLD_MASK} deja de funcionar el {cfg.offDate}.
           </span>
         </button>
-      </div>
-    </Screen>);
-}
-
-// ── Paso débitos (solo Camino A: el mensaje interrumpe el flujo) ─
-// La app no puede mostrar cuáles son: solo avisa que llega un mail.
-function MigDebitos({ variant, onBack, onClose, onVerMail, onContinue }) {
-  const cfg = MIG[variant];
-  return (
-    <Screen footer={<Btn variant="primary" onClick={onContinue}>Entendido, crear mi tarjeta</Btn>}>
-      <StepHeader title="Débitos automáticos" onBack={onBack} onClose={onClose} />
-      <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0 2px' }}>
-          <div style={{ width: 96, height: 96, borderRadius: 999, background: '#CFFF2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <LI name="mail" size={44} color="#080808" />
-          </div>
-        </div>
-
-        <div style={{ textAlign: 'center', padding: '0 8px' }}>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.25 }}>¿Tenés débitos automáticos?</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.55 }}>
-            Si hay pagos que se debitan automáticamente de tu tarjeta {OLD_MASK}, te mandamos un mail con el detalle para que los pases a tu nueva tarjeta antes del <b style={{ color: LX.text1 }}>{cfg.offDate}</b>.
-          </div>
-        </div>
-
-        <Surface pad={0} style={{ overflow: 'hidden' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
-            <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <LI name="view-notification" size={20} color={LX.text1} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ font: '600 14px Inter', color: LX.text1 }}>Te llega a mica@gmail.com</div>
-              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Apenas crees tu nueva tarjeta.</div>
-            </div>
-            <button onClick={onVerMail} style={{ border: 0, cursor: 'pointer', borderRadius: 999, padding: '8px 14px', background: LX.dark, color: '#fff', font: '600 12px Inter', flexShrink: 0 }}>
-              Ver el mail
-            </button>
-          </div>
-        </Surface>
       </div>
     </Screen>);
 }
@@ -489,15 +440,7 @@ function FlowMigracion({ variant, onMenu }) {
       <Anim k="mig-compare">
         <MigCompare variant={variant} design={design}
           onBack={() => setStep('design')} onClose={() => setStep('home')}
-          onContinue={() => setStep(variant === 'A' ? 'debitos' : 'morph')} />
-      </Anim>);
-
-  if (step === 'debitos')
-    return (
-      <Anim k="mig-debitos">
-        <MigDebitos variant={variant}
-          onBack={() => setStep('compare')} onClose={() => setStep('home')}
-          onVerMail={() => openMail('debitos')} onContinue={() => setStep('morph')} />
+          onContinue={() => setStep('morph')} />
       </Anim>);
 
   if (step === 'morph')
@@ -545,4 +488,4 @@ function FlowMigracion({ variant, onMenu }) {
   return null;
 }
 
-Object.assign(window, { FlowMigracion, MigSplash, MigPicker, MigCompare, MigDebitos, MigEmail, MigHub, MigOldCard, MIG });
+Object.assign(window, { FlowMigracion, MigSplash, MigPicker, MigCompare, MigEmail, MigHub, MigOldCard, MIG });

@@ -124,7 +124,8 @@ function CardArt({ variant = 'virtual', design, width = 320, portrait = false, f
     <div style={{
       width, height: h, borderRadius: r, position: 'relative', overflow: 'hidden',
       background: s.bg, color: chrome, flexShrink: 0,
-      border: isTetris ? `${Math.max(4, Math.round(width * 0.022))}px solid #121212` : 'none',
+      // el borde negro de la Tetrish ya viene en assets/tetris.png
+      border: 'none',
       boxShadow: glow ?
       `0 18px 40px rgba(${glowRGB},0.45), inset 0 1px 0 rgba(255,255,255,0.18)` :
       'inset 0 1px 0 rgba(255,255,255,0.16), 0 6px 16px rgba(0,0,0,0.18)',
@@ -132,16 +133,11 @@ function CardArt({ variant = 'virtual', design, width = 320, portrait = false, f
       transition: 'opacity .3s, filter .3s, background .6s ease', ...style
     }}>
       {isTetris ?
-      // green LEMN-blocks design (the "Tetrish")
-      <svg viewBox="0 0 100 63" preserveAspectRatio="none" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-          <g fill="#121212">
-            <rect x="20" y="10" width="4" height="20" /><rect x="30" y="10" width="4" height="26" />
-            <rect x="40" y="22" width="14" height="4" /><rect x="44" y="10" width="4" height="14" />
-            <rect x="14" y="40" width="20" height="4" /><rect x="18" y="44" width="4" height="9" />
-            <path d="M40 38 L52 50 L46 52 Z" /><rect x="60" y="10" width="4" height="26" />
-            <rect x="70" y="22" width="14" height="4" /><rect x="74" y="38" width="4" height="14" />
-          </g>
-        </svg> :
+      // Tetrish real (assets/tetris.png, arte vertical): directa en portrait,
+      // rotada 90° para los usos horizontales.
+      <img src="assets/tetris.png" alt="" style={portrait ?
+        { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' } :
+        { position: 'absolute', left: '50%', top: '50%', width: h, height: width, transform: 'translate(-50%,-50%) rotate(90deg)', objectFit: 'cover' }} /> :
       isTetris === false &&
       // center isotipo ring
       <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
