@@ -1,0 +1,221 @@
+/* ============================================================
+   Lemon Cash Design System — colors_and_type.css
+   Source: ds-lemoncash-app (React Native package
+   @lemonatio/ds-lemoncash-app) tokens & themes.
+   ============================================================ */
+
+/* ---------- Fonts ---------- */
+@font-face { font-family: "Geist"; src: url("fonts/Geist-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-Medium.ttf") format("truetype"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Inter"; src: url("fonts/Inter-SemiBold.ttf") format("truetype"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "LemonCitrus"; src: url("fonts/LemonCitrus-Regular.ttf") format("truetype"); font-weight: 400; font-style: normal; font-display: swap; }
+
+:root {
+  /* ===== Base palette (lemonColors) ===== */
+  --c-white-100: #FFFFFF;   --c-white-90: #FFFFFFE5; --c-white-80: #FFFFFFCC; --c-white-70: #FFFFFFB2;
+  --c-white-60: #FFFFFF99;  --c-white-50: #FFFFFF80; --c-white-40: #FFFFFF66; --c-white-30: #FFFFFF4D;
+  --c-white-20: #FFFFFF33;  --c-white-10: #FFFFFF1A; --c-white-5:  #FFFFFF0D;
+  --c-black-100: #121212;   --c-black-90: #121212E5; --c-black-80: #121212CC; --c-black-70: #121212B2;
+  --c-black-60: #12121299;  --c-black-50: #12121280; --c-black-40: #12121266; --c-black-30: #1212124D;
+  --c-black-20: #12121233;  --c-black-10: #1212121A; --c-black-5:  #1212120D;
+
+  --c-gray-5: #FAFAFA;  --c-gray-10: #F5F5F5; --c-gray-20: #ECECEC; --c-gray-30: #D8D8D8;
+  --c-gray-40: #C0C0C0; --c-gray-50: #A3A3A3; --c-gray-60: #808080; --c-gray-70: #5E5E5E;
+  --c-gray-80: #424242; --c-gray-90: #292929; --c-gray-95: #1C1C1C;
+
+  /* Brand families */
+  --c-lemon-5:  #E8FDEB; --c-lemon-10: #CFFAD7; --c-lemon-20: #A3F5B0; --c-lemon-30: #5AED78;
+  --c-lemon-40: #00DF1A; --c-lemon-50: #00AA18; --c-lemon-60: #007A13; --c-lemon-70: #00530D;
+  --c-lemon-80: #003508; --c-lemon-90: #001B03;
+
+  --c-greent-5:  #E6FEF0; --c-greent-10: #C2FBDB; --c-greent-20: #82F8B5; --c-greent-30: #3FF48D;
+  --c-greent-40: #00F068; --c-greent-50: #00CA57; --c-greent-60: #00A347; --c-greent-70: #007D36;
+  --c-greent-80: #005625; --c-greent-90: #003015;
+
+  --c-lime-5:  #F9FFEC; --c-lime-10: #F4FFD9; --c-lime-20: #EAFFB2; --c-lime-30: #DEFF7B;
+  --c-lime-40: #CFFF2E; --c-lime-50: #96C400; --c-lime-60: #5E7D00; --c-lime-70: #3D5200;
+  --c-lime-80: #263300; --c-lime-90: #131A00;
+
+  --c-bitcoin-5:  #FFE4D1; --c-bitcoin-10: #FFD0B3; --c-bitcoin-20: #FFA573; --c-bitcoin-30: #FF7933;
+  --c-bitcoin-40: #FF5805; --c-bitcoin-50: #C73200; --c-bitcoin-60: #A32100; --c-bitcoin-70: #7F1700;
+  --c-bitcoin-80: #560F00; --c-bitcoin-90: #2E0900;
+
+  --c-nebula-5:  #F4EFFD; --c-nebula-10: #E5D8FB; --c-nebula-20: #C9AFF7; --c-nebula-30: #AD85F2;
+  --c-nebula-40: #925DEE; --c-nebula-50: #7B4EC8; --c-nebula-60: #633FA2; --c-nebula-70: #4C307C;
+  --c-nebula-80: #352156; --c-nebula-90: #1D1330;
+
+  --c-solar-5:  #FFF3E6; --c-solar-10: #ffe2c2; --c-solar-20: #ffc482; --c-solar-30: #ffa53f;
+  --c-solar-40: #ff8700; --c-solar-50: #d67100; --c-solar-60: #ad5c00; --c-solar-70: #854600;
+  --c-solar-80: #5c3100; --c-solar-90: #331b00;
+
+  --c-magenta-40: #FF007A; --c-magenta-50: #D60066;
+  --c-rose-40: #EA2B3C;    --c-rose-50: #C32432;
+  --c-red-40: #F01D00;     --c-red-50: #CA1800;
+  --c-orange-10: #FAE4CF;  --c-orange-30: #F2B046; --c-orange-40: #F0A20B; --c-orange-50: #DF9608;
+  --c-yellow-40: #FFEB37;
+  --c-green-10: #C9EED6;   --c-green-30: #54C97E; --c-green-40: #1CB854; --c-green-50: #189B47;
+  --c-teal-40:  #06A192;
+  --c-cyan-40:  #08C7E0;
+  --c-sky-40:   #3B83F7;
+  --c-blue-40:  #274BBE;
+  --c-stone-40: #62688F;
+
+  --c-warm-neutral-5: #FAFAFA; --c-warm-neutral-10: #F5F4F1; --c-warm-neutral-20: #F1F1F1;
+  --c-warm-neutral-30: #EDEDED; --c-warm-neutral-50: #C8C7C4; --c-warm-neutral-80: #595856;
+  --c-warm-black-70: #323230;  --c-warm-black-80: #2B2A28;   --c-warm-black-90: #1C1C1A;
+
+  /* ===== Semantic — Light theme (default) ===== */
+  --bg-00:        var(--c-gray-20);
+  --bg-layer-01:  var(--c-white-100);
+  --bg-layer-02:  var(--c-gray-5);
+  --bg-layer-03:  var(--c-gray-10);
+  --bg-inverse:   var(--c-gray-95);
+  --bg-disabled:  var(--c-black-5);
+  --bg-brand-solid:  var(--c-lemon-50);
+  --bg-brand-subtle: var(--c-lime-40);
+  --bg-action-button: var(--c-warm-black-70);
+  --bg-muted:        var(--c-warm-neutral-20);
+  --bg-positive-01:  var(--c-green-10);
+  --bg-warning-01:   var(--c-orange-10);
+  --bg-negative-01:  #FBD9D9;
+
+  --text-primary:     var(--c-gray-95);
+  --text-secondary:   var(--c-gray-70);
+  --text-tertiary:    var(--c-gray-40);
+  --text-inverse:     var(--c-white-100);
+  --text-placeholder: var(--c-gray-40);
+  --text-disabled:    var(--c-black-20);
+  --text-brand:       var(--c-lemon-50);
+  --text-positive:    var(--c-lemon-50);
+  --text-warning:     var(--c-orange-40);
+  --text-negative:    var(--c-rose-40);
+
+  --icon-primary:   var(--c-gray-95);
+  --icon-secondary: var(--c-gray-60);
+  --icon-tertiary:  var(--c-gray-40);
+  --icon-inverse:   var(--c-gray-10);
+  --icon-brand:     var(--c-lemon-50);
+
+  --border-00:        var(--c-gray-10);
+  --border-subtle-01: var(--c-gray-5);
+  --border-subtle-02: var(--c-gray-10);
+  --border-strong-01: var(--c-gray-10);
+  --border-strong-02: var(--c-gray-30);
+  --border-brand:     var(--c-lemon-50);
+  --border-card:      #EDEDED;
+
+  --input-01: var(--c-gray-5);
+  --input-02: var(--c-gray-10);
+
+  --button-primary:           var(--c-gray-90);
+  --button-primary-pressed:   var(--c-gray-80);
+  --button-secondary:         var(--c-black-10);
+  --button-secondary-pressed: var(--c-black-20);
+  --button-destructive:       var(--c-rose-50);
+  --button-brand:             var(--c-lime-40);
+  --button-brand-pressed:     var(--c-lime-50);
+  --button-disabled:          var(--c-black-5);
+
+  --overlay: var(--c-black-50);
+
+  /* Spacing */
+  --s-4: 4px; --s-8: 8px; --s-12: 12px; --s-16: 16px; --s-20: 20px;
+  --s-24: 24px; --s-32: 32px; --s-40: 40px; --s-64: 64px;
+
+  /* Radius */
+  --r-none: 0; --r-xs: 4px; --r-s: 8px; --r-m: 12px; --r-l: 16px;
+  --r-xl: 24px; --r-xxl: 32px; --r-full: 9999px;
+
+  /* Shadows — soft, low elevation. The native app uses border-card +
+     subtle layered surfaces rather than heavy shadows. */
+  --shadow-card: 0 1px 2px rgba(18,18,18,0.04), 0 0 0 1px rgba(18,18,18,0.04);
+  --shadow-pop:  0 6px 20px rgba(18,18,18,0.08), 0 0 0 1px rgba(18,18,18,0.04);
+  --shadow-press: inset 0 1px 0 rgba(255,255,255,0.10);
+}
+
+/* ===== Dark theme ===== */
+[data-theme="dark"], .theme-dark {
+  --bg-00:        var(--c-black-100);
+  --bg-layer-01:  var(--c-gray-95);
+  --bg-layer-02:  var(--c-gray-90);
+  --bg-layer-03:  var(--c-gray-80);
+  --bg-inverse:   var(--c-gray-10);
+  --bg-disabled:  var(--c-white-5);
+  --bg-brand-solid:  var(--c-greent-40);
+  --bg-brand-subtle: var(--c-lime-80);
+  --bg-action-button: var(--c-warm-neutral-50);
+  --bg-muted:         var(--c-warm-black-70);
+
+  --text-primary:     var(--c-white-100);
+  --text-secondary:   var(--c-gray-40);
+  --text-tertiary:    var(--c-gray-50);
+  --text-inverse:     var(--c-black-100);
+  --text-placeholder: var(--c-gray-60);
+  --text-disabled:    var(--c-white-30);
+  --text-brand:       var(--c-greent-40);
+  --text-positive:    var(--c-green-40);
+
+  --icon-primary:   var(--c-white-100);
+  --icon-secondary: var(--c-gray-40);
+  --icon-tertiary:  var(--c-gray-50);
+  --icon-inverse:   var(--c-gray-95);
+  --icon-brand:     var(--c-greent-40);
+
+  --border-00:        var(--c-gray-95);
+  --border-subtle-01: var(--c-gray-90);
+  --border-subtle-02: var(--c-gray-80);
+  --border-strong-01: var(--c-gray-80);
+  --border-strong-02: var(--c-gray-70);
+  --border-brand:     var(--c-greent-40);
+  --border-card:      #3E3E3C;
+
+  --input-01: var(--c-gray-90);
+  --input-02: var(--c-gray-80);
+
+  --button-primary:           var(--c-gray-5);
+  --button-primary-pressed:   var(--c-gray-30);
+  --button-secondary:         var(--c-white-10);
+  --button-brand:             var(--c-greent-40);
+  --button-brand-pressed:     var(--c-greent-50);
+}
+
+/* ===== Type role mixins =====
+   Geist Medium = numbers / titles, Inter = body / labels / buttons,
+   LemonCitrus = branding display. */
+
+.t-display-xl    { font-family: "LemonCitrus", "Bagel Fat One", serif; font-weight: 400; font-size: 64px; line-height: 64px; letter-spacing: 0; }
+.t-display-l     { font-family: "LemonCitrus", "Bagel Fat One", serif; font-weight: 400; font-size: 56px; line-height: 64px; letter-spacing: 0; }
+
+.t-balance-xl    { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 56px; line-height: 64px; letter-spacing: -0.03em; }
+.t-balance-l     { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 44px; line-height: 52px; letter-spacing: -0.03em; }
+.t-balance-m     { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 32px; line-height: 40px; letter-spacing: -0.03em; }
+.t-cent-xl       { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 24px; line-height: 30px; letter-spacing: -0.03em; }
+.t-cent-m        { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 16px; line-height: 22px; letter-spacing: -0.03em; }
+
+.t-title-xl      { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 32px; line-height: 38px; letter-spacing: -0.01em; }
+.t-title-l       { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 24px; line-height: 30px; letter-spacing: -0.01em; }
+.t-title-m       { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 20px; line-height: 26px; letter-spacing: -0.01em; }
+.t-title-s       { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 16px; line-height: 22px; letter-spacing: -0.01em; }
+.t-title-xs      { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; letter-spacing: -0.01em; }
+.t-title-xxs     { font-family: "Geist", "Inter", system-ui, sans-serif; font-weight: 500; font-size: 12px; line-height: 18px; letter-spacing: -0.01em; }
+
+.t-paragraph-l   { font-family: "Inter", system-ui, sans-serif; font-weight: 400; font-size: 18px; line-height: 24px; }
+.t-paragraph-m   { font-family: "Inter", system-ui, sans-serif; font-weight: 400; font-size: 16px; line-height: 22px; }
+.t-paragraph-s   { font-family: "Inter", system-ui, sans-serif; font-weight: 400; font-size: 14px; line-height: 20px; }
+.t-paragraph-xs  { font-family: "Inter", system-ui, sans-serif; font-weight: 400; font-size: 12px; line-height: 18px; }
+.t-paragraph-xxs { font-family: "Inter", system-ui, sans-serif; font-weight: 400; font-size: 10px; line-height: 14px; }
+
+.t-label-l       { font-family: "Inter", system-ui, sans-serif; font-weight: 500; font-size: 18px; line-height: 24px; }
+.t-label-m       { font-family: "Inter", system-ui, sans-serif; font-weight: 500; font-size: 16px; line-height: 24px; }
+.t-label-s       { font-family: "Inter", system-ui, sans-serif; font-weight: 500; font-size: 14px; line-height: 20px; }
+.t-label-xs      { font-family: "Inter", system-ui, sans-serif; font-weight: 500; font-size: 12px; line-height: 18px; }
+
+.t-button-xl     { font-family: "Inter", system-ui, sans-serif; font-weight: 600; font-size: 20px; line-height: 26px; }
+.t-button-l      { font-family: "Inter", system-ui, sans-serif; font-weight: 600; font-size: 18px; line-height: 24px; }
+.t-button-m      { font-family: "Inter", system-ui, sans-serif; font-weight: 600; font-size: 16px; line-height: 22px; }
+.t-button-s      { font-family: "Inter", system-ui, sans-serif; font-weight: 600; font-size: 14px; line-height: 20px; }
+.t-button-xs     { font-family: "Inter", system-ui, sans-serif; font-weight: 600; font-size: 12px; line-height: 18px; }
+
+/* Semantic element defaults — apply when system is in scope */
+.ds h1, .ds .h1 { @apply: .t-title-xl; }

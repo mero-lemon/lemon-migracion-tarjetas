@@ -1,0 +1,2704 @@
+{
+  "IcoMoonType": "selection",
+  "icons": [
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "Id"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 0,
+        "id": 0,
+        "name": "Id",
+        "prevSize": 32,
+        "code": 59783
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "QR-Scanner"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 1,
+        "id": 1,
+        "name": "QR-Scanner",
+        "prevSize": 32,
+        "code": 59715
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "activity-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 2,
+        "id": 2,
+        "name": "activity-off",
+        "prevSize": 32,
+        "code": 59813
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "activity-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 3,
+        "id": 3,
+        "name": "activity-on",
+        "prevSize": 32,
+        "code": 59814
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "add-friend-outlined"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 4,
+        "id": 4,
+        "name": "add-friend-outlined",
+        "prevSize": 32,
+        "code": 59773
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "add-friend"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 5,
+        "id": 5,
+        "name": "add-friend",
+        "prevSize": 32,
+        "code": 59775
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "add-more"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 6,
+        "id": 6,
+        "name": "add-more",
+        "prevSize": 32,
+        "code": 59662
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "alert-time"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 7,
+        "id": 7,
+        "name": "alert-time",
+        "prevSize": 32,
+        "code": 59722
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-back"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 8,
+        "id": 8,
+        "name": "arrow-back",
+        "prevSize": 32,
+        "code": 59701
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-expand-less"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 9,
+        "id": 9,
+        "name": "arrow-expand-less",
+        "prevSize": 32,
+        "code": 59687
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-expand-more"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 10,
+        "id": 10,
+        "name": "arrow-expand-more",
+        "prevSize": 32,
+        "code": 59688
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-foward"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 11,
+        "id": 11,
+        "name": "arrow-foward",
+        "prevSize": 32,
+        "code": 59702
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-left"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 12,
+        "id": 12,
+        "name": "arrow-left",
+        "prevSize": 32,
+        "code": 59685
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "arrow-right"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 13,
+        "id": 13,
+        "name": "arrow-right",
+        "prevSize": 32,
+        "code": 59686
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "auto-complete-magic"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 14,
+        "id": 14,
+        "name": "auto-complete-magic",
+        "prevSize": 32,
+        "code": 59765
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "backspace"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 15,
+        "id": 15,
+        "name": "backspace",
+        "prevSize": 32,
+        "code": 59706
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "bank-way"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 16,
+        "id": 16,
+        "name": "bank-way",
+        "prevSize": 32,
+        "code": 59667
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "block"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 17,
+        "id": 17,
+        "name": "block",
+        "prevSize": 32,
+        "code": 59753
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "blockchain-way"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 18,
+        "id": 18,
+        "name": "blockchain-way",
+        "prevSize": 32,
+        "code": 59670
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "bulb"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 19,
+        "id": 19,
+        "name": "bulb",
+        "prevSize": 32,
+        "code": 59726
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "bus"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 20,
+        "id": 20,
+        "name": "bus",
+        "prevSize": 32,
+        "code": 59727
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "business"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 21,
+        "id": 21,
+        "name": "business",
+        "prevSize": 32,
+        "code": 59797
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "buy-and-sell"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 22,
+        "id": 22,
+        "name": "buy-and-sell",
+        "prevSize": 32,
+        "code": 59695
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "camera"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 23,
+        "id": 23,
+        "name": "camera",
+        "prevSize": 32,
+        "code": 59782
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "cancel"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 24,
+        "id": 24,
+        "name": "cancel",
+        "prevSize": 32,
+        "code": 59704
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "car"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 25,
+        "id": 25,
+        "name": "car",
+        "prevSize": 32,
+        "code": 59728
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "card-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 26,
+        "id": 26,
+        "name": "card-off",
+        "prevSize": 32,
+        "code": 59678
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "card-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 27,
+        "id": 27,
+        "name": "card-on",
+        "prevSize": 32,
+        "code": 59677
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "celphone"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 28,
+        "id": 28,
+        "name": "celphone",
+        "prevSize": 32,
+        "code": 59653
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "chair"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 29,
+        "id": 29,
+        "name": "chair",
+        "prevSize": 32,
+        "code": 59729
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "chat-message"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 30,
+        "id": 30,
+        "name": "chat-message",
+        "prevSize": 32,
+        "code": 59719
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "chat-message1"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 31,
+        "id": 31,
+        "name": "chat-message1",
+        "prevSize": 32,
+        "code": 59656
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "click-to-pay"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 32,
+        "id": 32,
+        "name": "click-to-pay",
+        "prevSize": 32,
+        "code": 59796
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "close"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 33,
+        "id": 33,
+        "name": "close",
+        "prevSize": 32,
+        "code": 59703
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "clothes"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 34,
+        "id": 34,
+        "name": "clothes",
+        "prevSize": 32,
+        "code": 59730
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "comment-outlined"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 35,
+        "id": 35,
+        "name": "comment-outlined",
+        "prevSize": 32,
+        "code": 59776
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "comment"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 36,
+        "id": 36,
+        "name": "comment",
+        "prevSize": 32,
+        "code": 59774
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "contacts"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 37,
+        "id": 37,
+        "name": "contacts",
+        "prevSize": 32,
+        "code": 59654
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "copy"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 38,
+        "id": 38,
+        "name": "copy",
+        "prevSize": 32,
+        "code": 59689
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-bitcoin"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 39,
+        "id": 39,
+        "name": "currency-bitcoin",
+        "prevSize": 32,
+        "code": 59749
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-crypto"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 40,
+        "id": 40,
+        "name": "currency-crypto",
+        "prevSize": 32,
+        "code": 59803
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-dollar"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 41,
+        "id": 41,
+        "name": "currency-dollar",
+        "prevSize": 32,
+        "code": 59804
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-peso"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 42,
+        "id": 42,
+        "name": "currency-peso",
+        "prevSize": 32,
+        "code": 59805
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-real"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 43,
+        "id": 43,
+        "name": "currency-real",
+        "prevSize": 32,
+        "code": 59806
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "currency-sol"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 44,
+        "id": 44,
+        "name": "currency-sol",
+        "prevSize": 32,
+        "code": 59807
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "decimal-enter"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 45,
+        "id": 45,
+        "name": "decimal-enter",
+        "prevSize": 32,
+        "code": 59683
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "delete-less"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 46,
+        "id": 46,
+        "name": "delete-less",
+        "prevSize": 32,
+        "code": 59661
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "delete"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 47,
+        "id": 47,
+        "name": "delete",
+        "prevSize": 32,
+        "code": 59707
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "deposit-money"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 48,
+        "id": 48,
+        "name": "deposit-money",
+        "prevSize": 32,
+        "code": 59697
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "deposit"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 49,
+        "id": 49,
+        "name": "deposit",
+        "prevSize": 32,
+        "code": 59808
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "discord"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 50,
+        "id": 50,
+        "name": "discord",
+        "prevSize": 32,
+        "code": 59746
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "dot"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 51,
+        "id": 51,
+        "name": "dot",
+        "prevSize": 32,
+        "code": 59777
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "download"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 52,
+        "id": 52,
+        "name": "download",
+        "prevSize": 32,
+        "code": 59708
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "earn"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 53,
+        "id": 53,
+        "name": "earn",
+        "prevSize": 32,
+        "code": 59720
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "edit"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 54,
+        "id": 54,
+        "name": "edit",
+        "prevSize": 32,
+        "code": 59684
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "education"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 55,
+        "id": 55,
+        "name": "education",
+        "prevSize": 32,
+        "code": 59731
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "entertainment"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 56,
+        "id": 56,
+        "name": "entertainment",
+        "prevSize": 32,
+        "code": 59732
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "face-ID"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 57,
+        "id": 57,
+        "name": "face-ID",
+        "prevSize": 32,
+        "code": 59692
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "faq"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 58,
+        "id": 58,
+        "name": "faq",
+        "prevSize": 32,
+        "code": 59764
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "fav-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 59,
+        "id": 59,
+        "name": "fav-off",
+        "prevSize": 32,
+        "code": 59671
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "fav-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 60,
+        "id": 60,
+        "name": "fav-on",
+        "prevSize": 32,
+        "code": 59672
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "feedback-negative"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 61,
+        "id": 61,
+        "name": "feedback-negative",
+        "prevSize": 32,
+        "code": 59665
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "feedback-positive"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 62,
+        "id": 62,
+        "name": "feedback-positive",
+        "prevSize": 32,
+        "code": 59664
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "feedback-warning"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 63,
+        "id": 63,
+        "name": "feedback-warning",
+        "prevSize": 32,
+        "code": 59663
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "filter"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 64,
+        "id": 64,
+        "name": "filter",
+        "prevSize": 32,
+        "code": 59751
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "finger-ID"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 65,
+        "id": 65,
+        "name": "finger-ID",
+        "prevSize": 32,
+        "code": 59693
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "flashlight"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 66,
+        "id": 66,
+        "name": "flashlight",
+        "prevSize": 32,
+        "code": 59781
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "flip-swap-camara"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 67,
+        "id": 67,
+        "name": "flip-swap-camara",
+        "prevSize": 32,
+        "code": 59691
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "food"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 68,
+        "id": 68,
+        "name": "food",
+        "prevSize": 32,
+        "code": 59733
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "friends"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 69,
+        "id": 69,
+        "name": "friends",
+        "prevSize": 32,
+        "code": 59778
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "gaming"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 70,
+        "id": 70,
+        "name": "gaming",
+        "prevSize": 32,
+        "code": 59734
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "github"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 71,
+        "id": 71,
+        "name": "github",
+        "prevSize": 32,
+        "code": 59788
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "handle"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 72,
+        "id": 72,
+        "name": "handle",
+        "prevSize": 32,
+        "code": 59717
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "hash"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 73,
+        "id": 73,
+        "name": "hash",
+        "prevSize": 32,
+        "code": 59779
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "health"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 74,
+        "id": 74,
+        "name": "health",
+        "prevSize": 32,
+        "code": 59735
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "help-variant"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 75,
+        "id": 75,
+        "name": "help-variant",
+        "prevSize": 32,
+        "code": 59714
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "home-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 76,
+        "id": 76,
+        "name": "home-off",
+        "prevSize": 32,
+        "code": 59681
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "home-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 77,
+        "id": 77,
+        "name": "home-on",
+        "prevSize": 32,
+        "code": 59682
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "instagram"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 78,
+        "id": 78,
+        "name": "instagram",
+        "prevSize": 32,
+        "code": 59648
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "key"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 79,
+        "id": 79,
+        "name": "key",
+        "prevSize": 32,
+        "code": 59755
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "kleros"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 80,
+        "id": 80,
+        "name": "kleros",
+        "prevSize": 32,
+        "code": 59763
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "lemon-add"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 81,
+        "id": 81,
+        "name": "lemon-add",
+        "prevSize": 32,
+        "code": 59785
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "lemoners-way"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 82,
+        "id": 82,
+        "name": "lemoners-way",
+        "prevSize": 32,
+        "code": 59668
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "light-sun"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 83,
+        "id": 83,
+        "name": "light-sun",
+        "prevSize": 32,
+        "code": 59754
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "light"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 84,
+        "id": 84,
+        "name": "light",
+        "prevSize": 32,
+        "code": 59721
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "limits"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 85,
+        "id": 85,
+        "name": "limits",
+        "prevSize": 32,
+        "code": 59760
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "live"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 86,
+        "id": 86,
+        "name": "live",
+        "prevSize": 32,
+        "code": 59716
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "lock"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 87,
+        "id": 87,
+        "name": "lock",
+        "prevSize": 32,
+        "code": 59650
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "log-out"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 88,
+        "id": 88,
+        "name": "log-out",
+        "prevSize": 32,
+        "code": 59712
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "mail"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 89,
+        "id": 89,
+        "name": "mail",
+        "prevSize": 32,
+        "code": 59752
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "market-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 90,
+        "id": 90,
+        "name": "market-off",
+        "prevSize": 32,
+        "code": 59679
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "market-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 91,
+        "id": 91,
+        "name": "market-on",
+        "prevSize": 32,
+        "code": 59680
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "mini-apps-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 92,
+        "id": 92,
+        "name": "mini-apps-off",
+        "prevSize": 32,
+        "code": 59786
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "mini-apps-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 93,
+        "id": 93,
+        "name": "mini-apps-on",
+        "prevSize": 32,
+        "code": 59787
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "money-market"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 94,
+        "id": 94,
+        "name": "money-market",
+        "prevSize": 32,
+        "code": 59768
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "money-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 95,
+        "id": 95,
+        "name": "money-off",
+        "prevSize": 32,
+        "code": 59750
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "money"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 96,
+        "id": 96,
+        "name": "money",
+        "prevSize": 32,
+        "code": 59669
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "motorcycle"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 97,
+        "id": 97,
+        "name": "motorcycle",
+        "prevSize": 32,
+        "code": 59736
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "name-edit"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 98,
+        "id": 98,
+        "name": "name-edit",
+        "prevSize": 32,
+        "code": 59759
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "new-swap-coins"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 99,
+        "id": 99,
+        "name": "new-swap-coins",
+        "prevSize": 32,
+        "code": 59725
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "open-finance"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 100,
+        "id": 100,
+        "name": "open-finance",
+        "prevSize": 32,
+        "code": 59793
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "open-in-web"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 101,
+        "id": 101,
+        "name": "open-in-web",
+        "prevSize": 32,
+        "code": 59711
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "pallete-color"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 102,
+        "id": 102,
+        "name": "pallete-color",
+        "prevSize": 32,
+        "code": 59758
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "party"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 103,
+        "id": 103,
+        "name": "party",
+        "prevSize": 32,
+        "code": 59771
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "paste"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 104,
+        "id": 104,
+        "name": "paste",
+        "prevSize": 32,
+        "code": 59815
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "pause"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 105,
+        "id": 105,
+        "name": "pause",
+        "prevSize": 32,
+        "code": 59690
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "percent"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 106,
+        "id": 106,
+        "name": "percent",
+        "prevSize": 32,
+        "code": 59723
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "personal-care"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 107,
+        "id": 107,
+        "name": "personal-care",
+        "prevSize": 32,
+        "code": 59737
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "phone"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 108,
+        "id": 108,
+        "name": "phone",
+        "prevSize": 32,
+        "code": 59652
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "photo-camera"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 109,
+        "id": 109,
+        "name": "photo-camera",
+        "prevSize": 32,
+        "code": 59655
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "pix-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 110,
+        "id": 110,
+        "name": "pix-off",
+        "prevSize": 32,
+        "code": 59676
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "pix-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 111,
+        "id": 111,
+        "name": "pix-on",
+        "prevSize": 32,
+        "code": 59675
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "play-arrow"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 112,
+        "id": 112,
+        "name": "play-arrow",
+        "prevSize": 32,
+        "code": 59762
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "portfolio-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 113,
+        "id": 113,
+        "name": "portfolio-off",
+        "prevSize": 32,
+        "code": 59811
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "portfolio-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 114,
+        "id": 114,
+        "name": "portfolio-on",
+        "prevSize": 32,
+        "code": 59812
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "positive-location"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 115,
+        "id": 115,
+        "name": "positive-location",
+        "prevSize": 32,
+        "code": 59659
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "programed-tx"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 116,
+        "id": 116,
+        "name": "programed-tx",
+        "prevSize": 32,
+        "code": 59798
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "promotion"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 117,
+        "id": 117,
+        "name": "promotion",
+        "prevSize": 32,
+        "code": 59780
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "receipt"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 118,
+        "id": 118,
+        "name": "receipt",
+        "prevSize": 32,
+        "code": 59738
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "return-money"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 119,
+        "id": 119,
+        "name": "return-money",
+        "prevSize": 32,
+        "code": 59761
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "returns"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 120,
+        "id": 120,
+        "name": "returns",
+        "prevSize": 32,
+        "code": 59784
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "rewards"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 121,
+        "id": 121,
+        "name": "rewards",
+        "prevSize": 32,
+        "code": 59794
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "rocket"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 122,
+        "id": 122,
+        "name": "rocket",
+        "prevSize": 32,
+        "code": 59772
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "search-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 123,
+        "id": 123,
+        "name": "search-off",
+        "prevSize": 32,
+        "code": 59748
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "search"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 124,
+        "id": 124,
+        "name": "search",
+        "prevSize": 32,
+        "code": 59710
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "selected"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 125,
+        "id": 125,
+        "name": "selected",
+        "prevSize": 32,
+        "code": 59660
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "send-money"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 126,
+        "id": 126,
+        "name": "send-money",
+        "prevSize": 32,
+        "code": 59696
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "send"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 127,
+        "id": 127,
+        "name": "send",
+        "prevSize": 32,
+        "code": 59809
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "settings"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 128,
+        "id": 128,
+        "name": "settings",
+        "prevSize": 32,
+        "code": 59747
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "share"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 129,
+        "id": 129,
+        "name": "share",
+        "prevSize": 32,
+        "code": 59709
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "shield-alt"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 130,
+        "id": 130,
+        "name": "shield-alt",
+        "prevSize": 32,
+        "code": 59769
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "shopping-cart"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 131,
+        "id": 131,
+        "name": "shopping-cart",
+        "prevSize": 32,
+        "code": 59739
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "spend"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 132,
+        "id": 132,
+        "name": "spend",
+        "prevSize": 32,
+        "code": 59810
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "stocks"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 133,
+        "id": 133,
+        "name": "stocks",
+        "prevSize": 32,
+        "code": 59802
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "streaming"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 134,
+        "id": 134,
+        "name": "streaming",
+        "prevSize": 32,
+        "code": 59740
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "summary"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 135,
+        "id": 135,
+        "name": "summary",
+        "prevSize": 32,
+        "code": 59770
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "support"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 136,
+        "id": 136,
+        "name": "support",
+        "prevSize": 32,
+        "code": 59724
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "swap-coins"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 137,
+        "id": 137,
+        "name": "swap-coins",
+        "prevSize": 32,
+        "code": 59698
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "swap"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 138,
+        "id": 138,
+        "name": "swap",
+        "prevSize": 32,
+        "code": 59694
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "tax"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 139,
+        "id": 139,
+        "name": "tax",
+        "prevSize": 32,
+        "code": 59741
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "tech"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 140,
+        "id": 140,
+        "name": "tech",
+        "prevSize": 32,
+        "code": 59742
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "telegram"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 141,
+        "id": 141,
+        "name": "telegram",
+        "prevSize": 32,
+        "code": 59745
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "terms"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 142,
+        "id": 142,
+        "name": "terms",
+        "prevSize": 32,
+        "code": 59766
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "tiktok"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 143,
+        "id": 143,
+        "name": "tiktok",
+        "prevSize": 32,
+        "code": 59789
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "travel"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 144,
+        "id": 144,
+        "name": "travel",
+        "prevSize": 32,
+        "code": 59743
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "tree"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 145,
+        "id": 145,
+        "name": "tree",
+        "prevSize": 32,
+        "code": 59756
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "trusted-icon-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 146,
+        "id": 146,
+        "name": "trusted-icon-off",
+        "prevSize": 32,
+        "code": 59801
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "trusted-icon"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 147,
+        "id": 147,
+        "name": "trusted-icon",
+        "prevSize": 32,
+        "code": 59800
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "twitter"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 148,
+        "id": 148,
+        "name": "twitter",
+        "prevSize": 32,
+        "code": 59649
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "upload-image"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 149,
+        "id": 149,
+        "name": "upload-image",
+        "prevSize": 32,
+        "code": 59795
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "user"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 150,
+        "id": 150,
+        "name": "user",
+        "prevSize": 32,
+        "code": 59666
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "vault"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 151,
+        "id": 151,
+        "name": "vault",
+        "prevSize": 32,
+        "code": 59767
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "video-camera"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 152,
+        "id": 152,
+        "name": "video-camera",
+        "prevSize": 32,
+        "code": 59657
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-balance-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 153,
+        "id": 153,
+        "name": "view-balance-off",
+        "prevSize": 32,
+        "code": 59673
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-balance-on"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 154,
+        "id": 154,
+        "name": "view-balance-on",
+        "prevSize": 32,
+        "code": 59674
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-gift"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 155,
+        "id": 155,
+        "name": "view-gift",
+        "prevSize": 32,
+        "code": 59705
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-help"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 156,
+        "id": 156,
+        "name": "view-help",
+        "prevSize": 32,
+        "code": 59713
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-more"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 157,
+        "id": 157,
+        "name": "view-more",
+        "prevSize": 32,
+        "code": 59700
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "view-notification"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 158,
+        "id": 158,
+        "name": "view-notification",
+        "prevSize": 32,
+        "code": 59699
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "wallet"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 159,
+        "id": 159,
+        "name": "wallet",
+        "prevSize": 32,
+        "code": 59744
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "warning-location"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 160,
+        "id": 160,
+        "name": "warning-location",
+        "prevSize": 32,
+        "code": 59658
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "web"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 161,
+        "id": 161,
+        "name": "web",
+        "prevSize": 32,
+        "code": 59790
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "widgets"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 162,
+        "id": 162,
+        "name": "widgets",
+        "prevSize": 32,
+        "code": 59757
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "wifi-off"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 163,
+        "id": 163,
+        "name": "wifi-off",
+        "prevSize": 32,
+        "code": 59651
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "world"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 164,
+        "id": 164,
+        "name": "world",
+        "prevSize": 32,
+        "code": 59718
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "x"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 165,
+        "id": 165,
+        "name": "x",
+        "prevSize": 32,
+        "code": 59791
+      }
+    },
+    {
+      "icon": {
+        "paths": [],
+        "tags": [
+          "youtube"
+        ],
+        "grid": 0
+      },
+      "properties": {
+        "order": 166,
+        "id": 166,
+        "name": "youtube",
+        "prevSize": 32,
+        "code": 59792
+      }
+    }
+  ],
+  "height": 1024,
+  "metadata": {
+    "name": "Lemon-Icons"
+  },
+  "preferences": {
+    "showGlyphs": true,
+    "showQuickUse": true,
+    "showQuickUse2": true,
+    "showSVGs": true,
+    "fontPref": {
+      "prefix": "icon-",
+      "metadata": {
+        "fontFamily": "Lemon-Icons",
+        "majorVersion": 1,
+        "minorVersion": 0
+      },
+      "metrics": {
+        "emSize": 1024,
+        "baseline": 6.25,
+        "whitespace": 50
+      },
+      "embed": false
+    },
+    "historySize": 50,
+    "showCodes": true,
+    "gridSize": 16
+  }
+}

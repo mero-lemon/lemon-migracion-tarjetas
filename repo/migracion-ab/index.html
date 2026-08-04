@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Migración de tarjetas · Lemon</title>
-<link rel="stylesheet" href="cards/colors_and_type.css" />
-<link rel="stylesheet" href="cards/fonts/lemon-icons.css" />
+<title>Migración virtual GP → Pomelo · Test A/B</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<link rel="stylesheet" href="fonts/lemon-icons.css" />
 <style>
   * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
   html, body { margin: 0; padding: 0; background: #E6E5E1; }
@@ -21,9 +21,10 @@
 <template id="__bundler_thumbnail">
   <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <rect width="100" height="100" rx="22" fill="#121212"/>
-    <rect x="30" y="22" width="40" height="56" rx="8" fill="#6a3fb0"/>
-    <circle cx="50" cy="50" r="11" fill="#160a2c"/>
-    <path d="M55 44c-7 .3-11 5-10 12 7-.3 11-5 10-12Z" fill="#cfa0ff"/>
+    <rect x="14" y="30" width="34" height="52" rx="7" fill="#6a3fb0" opacity="0.45"/>
+    <rect x="50" y="20" width="38" height="58" rx="8" fill="#2BE76B"/>
+    <path d="M30 52h40" stroke="#CFFF2E" stroke-width="6" stroke-linecap="round"/>
+    <path d="M62 44l10 8-10 8" stroke="#121212" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   </svg>
 </template>
 </head>
@@ -34,12 +35,12 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
 
-<script src="cards/image-slot.js"></script>
-<script type="text/babel" src="cards/ios-frame.jsx"></script>
-<script type="text/babel" src="cards/lemon-ui.jsx"></script>
-<script type="text/babel" src="cards/screens-shared.jsx"></script>
-<script type="text/babel" src="cards/card-experience.jsx"></script>
-<script type="text/babel" src="cards/flows.jsx"></script>
-<script type="text/babel" src="cards/app.jsx"></script>
+<script src="image-slot.js"></script>
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="lemon-ui.jsx"></script>
+<script type="text/babel" src="screens-shared.jsx"></script>
+<script type="text/babel" src="card-experience.jsx"></script>
+<script type="text/babel" src="migracion.jsx"></script>
+<script type="text/babel" src="app.jsx"></script>
 </body>
 </html>
