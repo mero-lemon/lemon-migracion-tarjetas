@@ -74,9 +74,13 @@ function Phone({ scale, children }) {
 }
 
 // ── App home (home real de la app) ──────────────────────────────
-// Punto de entrada del test: la home con el banner de migración (A o B).
-function AppHome({ onCards, banner }) {
+// Punto de entrada del test, fiel al diseño: strip holográfico
+// "Tenemos algo · Nuevo" asomando bajo el balance + banner blanco
+// descartable ("splash_" del Figma). El copy del banner varía por camino.
+function AppHome({ onCards, variant = 'B' }) {
   const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
+  const [bannerVisible, setBannerVisible] = useStateA(true);
+  const urgente = MIG[variant].urgente;
   return (
     <Screen footer={
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -131,24 +135,46 @@ function AppHome({ onCards, banner }) {
             </div>
           </div>
 
-          {/* card lime asomando por detrás (Tarjeta virtual) */}
-          <div style={{ position: 'relative', zIndex: 1, marginTop: -86, padding: '94px 20px 18px', borderRadius: 32, overflow: 'hidden', background: 'var(--c-lime-40)' }}>
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
-                  <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
-                  <span style={{ font: '400 12px Inter', color: '#080808' }}>4543</span>
-                </div>
+          {/* strip holográfico asomando por detrás: "Tenemos algo · Nuevo" */}
+          <button onClick={onCards} style={{
+            position: 'relative', zIndex: 1, width: '100%', border: 0, cursor: 'pointer', textAlign: 'left',
+            marginTop: -86, padding: '96px 20px 16px', borderRadius: 32, overflow: 'hidden',
+            background: 'linear-gradient(95deg, #FFD9EC 0%, #D9E4FF 22%, #CFF6FF 45%, #D9FFE3 62%, #FFF6C4 82%, #FFD9EC 100%)'
+          }}>
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.55, background: 'radial-gradient(60% 90% at 18% 120%, rgba(255,255,255,0.9) 0%, transparent 60%), radial-gradient(50% 90% at 86% 120%, rgba(255,255,255,0.8) 0%, transparent 55%)' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 14px Inter', color: '#000', letterSpacing: '-0.1px' }}>Tenemos algo</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', background: '#CFFF2E', color: '#080808', font: '600 14px Inter', padding: '2px 8px', borderRadius: 100, letterSpacing: '-0.1px' }}>Nuevo</span>
               </div>
-              <VisaMark size={22} color="#141414" shadow={false} />
+              <VisaMark size={20} color="#080808" shadow={false} />
             </div>
-          </div>
+          </button>
         </div>
 
-        {/* banner de migración (lo trae el flujo: urgente en A, novedad en B) */}
-        {banner}
+        {/* banner blanco descartable (pieza "splash_" del diseño) */}
+        {bannerVisible &&
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: '#FFFFFF', borderRadius: 24, padding: '12px 32px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
+            <image-slot
+            id="mig-home-banner-img"
+            shape="rect"
+            fit="contain"
+            src="assets/lemmy-a.png"
+            placeholder="Render 3D"
+            style={{ width: 60, height: 60, borderRadius: 16, flexShrink: 0 }}>
+            </image-slot>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.5, letterSpacing: '-0.01em' }}>
+                {urgente ? 'Cambiá tu tarjeta virtual hoy y agregala a Apple Wallet.' : 'Empezá a pagar tu celular, cambia tu tarjeta y agregala a Apple Wallet.'}
+              </div>
+              <div style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.5, letterSpacing: '-0.1px' }}>
+                {urgente ? `Tu tarjeta actual se apaga el ${MIG[variant].offDate}.` : 'Es gratis, hacelo desde acá.'}
+              </div>
+            </div>
+            <span onClick={(e) => { e.stopPropagation(); setBannerVisible(false); }} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LI name="close" size={16} color="#141414" />
+            </span>
+          </button>}
       </div>
     </Screen>);
 

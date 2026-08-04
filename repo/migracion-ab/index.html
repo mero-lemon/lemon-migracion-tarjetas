@@ -37,7 +37,7 @@
 
 <script src="image-slot.js"></script>
 <script type="text/babel">
-// ── ios-frame.jsx (inline para que funcione con file://) ──
+// ── ios-frame.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // @ds-adherence-ignore -- omelette starter scaffold (raw elements/hex/px by design)
 
 /* BEGIN USAGE */
@@ -390,7 +390,7 @@ Object.assign(window, {
 
 </script>
 <script type="text/babel">
-// ── lemon-ui.jsx (inline para que funcione con file://) ──
+// ── lemon-ui.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // Lemon Cash UI primitives + CSS card art — for the cards-migration prototype.
 // Tokens come from colors_and_type.css (var(--*)); icons from lemon-icons.css (.li.li-*)
 const { useState, useEffect, useRef } = React;
@@ -788,7 +788,7 @@ Object.assign(window, {
 });
 </script>
 <script type="text/babel">
-// ── screens-shared.jsx (inline para que funcione con file://) ──
+// ── screens-shared.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // Shared screens: Screen wrapper, Tarjetas hub (entry), Address, Confirmation.
 const { useState: useStateSh } = React;
 
@@ -1526,7 +1526,7 @@ const Step = ({ n, t, sub, done, last }) =>
 Object.assign(window, { Screen, StatCards, MoveRow, CardsModule, CardTabs, BoutiqueHero, NfcHero, CtaCard, ExteriorBanner, TransitBanner, TarjetasHub, AddressScreen, OrderConfirmation, AddCardScreen, PagarFisica, CambiaBanner, RenovarBanner, FisicaValueProp, AddressSearch, NfcPayArt, NfcSplash });
 </script>
 <script type="text/babel">
-// ── card-experience.jsx (inline para que funcione con file://) ──
+// ── card-experience.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // ════════════════════════════════════════════════════════════════
 // Card experience — design picker, create/morph, virtual ready,
 // card home (2 actions + Configurar), flip-to-reveal sensitive data.
@@ -2101,15 +2101,17 @@ Object.assign(window, { DesignPicker, MorphCreate, VirtualReady, CardHome, CardC
 
 </script>
 <script type="text/babel">
-// ── migracion.jsx (inline para que funcione con file://) ──
+// ── migracion.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // ════════════════════════════════════════════════════════════════
 // Migración de la virtual GP → Pomelo · experimento A/B
-//   Camino A — "explícito": débitos automáticos como paso del flujo,
+//   Camino A — "explícito": aviso de débitos como paso del flujo,
 //              la vieja se apaga en 10 días (urgencia).
-//   Camino B — "tranquilo": débitos como banner post-creación,
+//   Camino B — "tranquilo": aviso de débitos como banner post-creación,
 //              la vieja convive 30 días (sin fricción).
-// Ambos comparten picker/morph/success de cards/; lo que cambia es
-// la prominencia del mensaje de débitos y el plazo/copy del apagado.
+// REGLA DE NEGOCIO: la app NO puede mostrar información de los débitos
+// automáticos (ni cuáles, ni cuántos, ni montos). Lo único que puede
+// hacer es avisar que, si existen, llega un MAIL con el detalle.
+// El detalle vive solo dentro del mail (MigEmail es su vista previa).
 // ════════════════════════════════════════════════════════════════
 const { useState: useStateM, useEffect: useEffectM } = React;
 
@@ -2120,109 +2122,123 @@ const MIG = {
 };
 const OLD_MASK = '•••• 4543';
 const NEW_MASK = '•••• 2291';
+// SOLO para el contenido del mail (nunca se muestra en la app)
 const DEBITOS = [
   { icon: 'play-arrow', name: 'Netflix', detail: 'Se debita los 4 de cada mes', amount: '$ 12.999' },
   { icon: 'rewards', name: 'Spotify', detail: 'Se debita los 9 de cada mes', amount: '$ 6.499' },
   { icon: 'celphone', name: 'iCloud+', detail: 'Se debita los 15 de cada mes', amount: '$ 1.999' }];
 
 
-// ── Banner de la home (punto de entrada) ────────────────────────
-// A: urgente con countdown · B: novedad, mismo tono que el banner Apple Pay.
-const MigHomeBanner = ({ variant, onClick }) => {
-  const cfg = MIG[variant];
-  if (cfg.urgente)
-    return (
-      <button onClick={onClick} style={{
-        position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
-        borderRadius: 26, marginTop: 16, minHeight: 104, padding: '16px 52px 16px 122px',
-        background: 'radial-gradient(120% 150% at 88% 8%, #3a3a44 0%, rgba(58,58,68,0) 46%), linear-gradient(100deg, #141414 0%, #23232a 55%, #2e2e36 100%)',
-        boxShadow: '0 12px 26px rgba(10,10,14,0.36)'
-      }}>
-        <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', left: -24, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
-          <div style={{ transform: 'rotate(-11deg)', filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.4))' }}><CardArt design="violeta" width={74} faded /></div>
-          <div style={{ transform: 'rotate(9deg)', marginLeft: -42, filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.4))' }}><CardArt design="tetrish" width={74} /></div>
-        </div>
-        <div style={{ position: 'relative' }}>
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: '#CFFF2E', color: '#0b1a00', font: '700 10px Inter', letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 999 }}>
-            <LI name="alert-time" size={11} color="#0b1a00" /> SE APAGA EN {cfg.days} DÍAS
-          </span>
-          <div style={{ font: '800 18px Inter', color: '#fff', lineHeight: 1.12, marginTop: 8 }}>Cambiá tu tarjeta virtual hoy</div>
-          <div style={{ font: '500 13px Inter', color: 'rgba(255,255,255,0.72)', marginTop: 3, lineHeight: 1.3 }}>Tu tarjeta actual deja de funcionar el {cfg.offDate}.</div>
-        </div>
-        <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(255,255,255,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <LI name="arrow-foward" size={16} color="#fff" />
-        </span>
-      </button>);
-
+// ── Splash de entrada (full-bleed verde ácido, diseño oficial) ──
+// "Empezá a pagar con tu celular" + posnet/celu. Igual en A y B.
+function MigSplash({ onClose, onPrimary, onLater }) {
+  const BG = 'radial-gradient(58% 30% at 74% 6%, rgba(255,255,120,0.85), transparent 70%), radial-gradient(46% 26% at 12% 44%, rgba(244,255,94,0.6), transparent 70%), radial-gradient(64% 34% at 62% 92%, rgba(246,255,88,0.75), transparent 72%), linear-gradient(168deg, #74F62A 0%, #46E512 34%, #7DFF2E 62%, #C9FF37 100%)';
   return (
-    <button onClick={onClick} style={{
-      position: 'relative', overflow: 'hidden', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0,
-      borderRadius: 26, marginTop: 16, minHeight: 104, padding: '16px 52px 16px 122px',
-      background: 'radial-gradient(120% 150% at 88% 8%, #EEFF7A 0%, rgba(238,255,122,0) 46%), linear-gradient(100deg, #5AC005 0%, #8CE617 50%, #B7F53A 100%)',
-      boxShadow: '0 12px 26px rgba(120,200,20,0.36)'
-    }}>
-      <div style={{ position: 'absolute', top: 0, bottom: 0, left: 0, width: '26%', pointerEvents: 'none', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent)', animation: 'lc-shine 3s ease-in-out infinite' }} />
-      <div style={{ position: 'absolute', left: -24, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
-        <div style={{ transform: 'rotate(-11deg)', filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.26))' }}><CardArt design="tetrish" width={74} /></div>
-        <div style={{ transform: 'rotate(9deg)', marginLeft: -42, filter: 'drop-shadow(0 7px 11px rgba(0,0,0,0.26))' }}><CardArt design="green" width={74} /></div>
-      </div>
-      <div style={{ position: 'relative' }}>
-        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: 'rgba(8,20,0,0.16)', color: '#0b1a00', font: '700 10px Inter', letterSpacing: '0.05em', padding: '3px 9px', borderRadius: 999 }}>
-          <LI name="lemon-add" size={11} color="#0b1a00" /> NUEVA LEMON CARD
-        </span>
-        <div style={{ font: '800 18px Inter', color: '#0b1a00', lineHeight: 1.12, marginTop: 8 }}>Llegó tu nueva tarjeta virtual</div>
-        <div style={{ font: '500 13px Inter', color: 'rgba(11,26,0,0.78)', marginTop: 3, lineHeight: 1.3 }}>Cambiala gratis, con el diseño que quieras.</div>
-      </div>
-      <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,20,0,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <LI name="arrow-foward" size={16} color="#0b1a00" />
-      </span>
-    </button>);
-};
-
-// ── Intro (primera pantalla del flujo) ──────────────────────────
-function MigIntro({ variant, onBack, onPrimary, onLater }) {
-  const cfg = MIG[variant];
-  const [up, setUp] = useStateM(false);
-  useEffectM(() => { const t = setTimeout(() => setUp(true), 80); return () => clearTimeout(t); }, []);
-  return (
-    <Screen bg="#FFFFFF" footer={
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, opacity: up ? 1 : 0, transition: 'opacity .5s .45s' }}>
-        <Btn variant="primary" onClick={onPrimary}>Cambiar mi tarjeta</Btn>
-        <Btn variant="light" onClick={onLater}>Ahora no</Btn>
-      </div>
-    }>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
-        <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
-          <LI name="close" size={22} color="#141414" />
-        </button>
-      </div>
-      <div style={{ padding: '4px 24px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-        <div style={{ transform: up ? 'translateY(0) scale(1)' : 'translateY(60px) scale(0.9)', opacity: up ? 1 : 0, transition: `transform .8s ${SPRING}, opacity .5s` }}>
-          <div style={{ animation: 'lc-float 3.8s ease-in-out infinite' }}><CardArt design="tetrish" width={250} glow /></div>
+    <Screen scroll={false} bg={BG}>
+      <div style={{ height: '100%', display: 'flex', flexDirection: 'column', padding: '0 16px 26px' }}>
+        <div style={{ height: 52, display: 'flex', alignItems: 'center' }}>
+          <button onClick={onClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40, marginLeft: -8 }}>
+            <LI name="close" size={24} color="#0b1a00" />
+          </button>
         </div>
-        <div style={{ textAlign: 'left', width: '100%', marginTop: 26, opacity: up ? 1 : 0, transform: up ? 'none' : 'translateY(14px)', transition: 'opacity .5s .2s, transform .6s .2s' }}>
-          <div style={{ font: '500 30px Geist', letterSpacing: '-0.015em', lineHeight: 1.15, color: '#080808' }}>
-            {cfg.urgente ? 'Es hora de cambiar tu tarjeta virtual' : 'Llegó tu nueva tarjeta virtual'}
+
+        {/* posnet + celu */}
+        <div style={{ flex: 1, minHeight: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <image-slot
+            id="mig-splash-hero"
+            shape="rect"
+            fit="contain"
+            src="assets/nfc-splash-hero.png"
+            placeholder="Posnet + celu (render 3D)"
+            style={{ width: 310, height: 270, filter: 'drop-shadow(0 22px 30px rgba(20,60,0,0.30))' }}>
+          </image-slot>
+        </div>
+
+        <div style={{ padding: '4px 4px 0' }}>
+          <div style={{ font: '500 31px Geist', lineHeight: 1.12, letterSpacing: '-0.015em', color: '#0b1a00' }}>
+            Empezá a pagar con tu celular, cambiá tu tarjeta virtual
           </div>
-          <div style={{ font: '400 14px Inter', color: 'rgba(8,8,8,0.6)', marginTop: 12, lineHeight: 1.55 }}>
-            {cfg.urgente ?
-              <>Mejoramos la tecnología detrás de tu Lemon Card. Creá la nueva hoy: tu tarjeta actual <b style={{ color: '#080808' }}>deja de funcionar el {cfg.offDate}</b> — quedan {cfg.days} días.</> :
-              <>Mejoramos la tecnología detrás de tu Lemon Card. Cambiala cuando quieras: tu tarjeta actual sigue funcionando como siempre hasta el <b style={{ color: '#080808' }}>{cfg.offDate}</b>.</>}
+          <div style={{ font: '400 14px Inter', lineHeight: 1.5, color: 'rgba(11,26,0,0.72)', marginTop: 12 }}>
+            Olvidate de salir con tu billetera, cambiá tu tarjeta y agregala a tu Apple Wallet.
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 22 }}>
-            <SplashFeature icon="pallete-color" title="Elegís el diseño" tag="Nuevo" sub="Tu tarjeta, con la piel que quieras." />
-            <SplashFeature icon="click-to-pay" title="Compatible con Apple Pay" sub="Pagá apoyando el celu en cualquier posnet." />
-            <SplashFeature icon="currency-bitcoin" title="Mismo cashback de siempre" sub="Seguís ganando cripto en cada compra." />
-          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: 22 }}>
+          <button onClick={onPrimary} style={{ height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: '#141414', color: '#FFFFFF', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Cambiar mi tarjeta virtual</button>
+          <button onClick={onLater} style={{ height: 48, border: 0, borderRadius: 16, cursor: 'pointer', background: 'rgba(255,255,255,0.34)', color: '#0b1a00', font: '600 16px Inter', letterSpacing: '-0.1px' }}>Ahora no</button>
         </div>
       </div>
     </Screen>);
 }
 
+// ── Picker de diseño (tarjetas VERTICALES, carrusel ↔ grilla) ───
+// Diseño oficial: carrusel con la siguiente asomando a la derecha,
+// toggle a grilla de 3 columnas con el ícono del header. CTA fija.
+const PICKER_DESIGNS = ['tetrish', 'sticker', 'violeta', 'green', 'blue', 'acid'].map(getDesign);
+
+const AvatarStack = ({ users }) =>
+  <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+    <span style={{ display: 'flex' }}>
+      {['#FFB35C', '#7B4EC8', '#2BE76B'].map((c, i) =>
+        <span key={i} style={{ width: 16, height: 16, borderRadius: 999, background: c, border: '2px solid #fff', marginLeft: i ? -6 : 0 }} />)}
+    </span>
+    <span style={{ font: '500 13px Inter', color: '#818181' }}>{users}</span>
+  </div>;
+
+function MigPicker({ onBack, onClose, onChoose }) {
+  const [idx, setIdx] = useStateM(0);
+  const [grid, setGrid] = useStateM(false);
+  const N = PICKER_DESIGNS.length;
+  const d = PICKER_DESIGNS[idx];
+  const next = PICKER_DESIGNS[(idx + 1) % N];
+
+  return (
+    <Screen bg="#FFFFFF" footer={<Btn variant="primary" onClick={() => onChoose(d)}>Elegir y continuar</Btn>}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
+        <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
+          <LI name="arrow-back" size={22} color="#141414" />
+        </button>
+        <div style={{ flex: 1, textAlign: 'center', font: '500 14px Inter', color: '#141414' }}>Elegí el diseño</div>
+        <button onClick={() => setGrid((g) => !g)} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
+          <LI name={grid ? 'card-on' : 'mini-apps-on'} size={22} color="#141414" />
+        </button>
+      </div>
+
+      {grid ?
+        // ── GRILLA (3 columnas, verticales, la elegida con borde lime) ──
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px 10px', padding: '14px 16px 8px' }}>
+          {PICKER_DESIGNS.map((dd, i) =>
+            <button key={dd.id} onClick={() => { setIdx(i); setGrid(false); }} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
+              <span style={{ display: 'block', padding: 3, borderRadius: 14, border: `3px solid ${idx === i ? 'var(--c-lime-40)' : 'transparent'}` }}>
+                <CardArt design={dd.id} width={86} portrait />
+              </span>
+              <span style={{ font: '500 12px Geist', color: idx === i ? '#141414' : '#818181' }}>{dd.name}</span>
+            </button>)}
+        </div> :
+
+        // ── CARRUSEL (una grande centrada + la siguiente asomando) ──
+        <>
+          <div style={{ position: 'relative', overflow: 'hidden', marginTop: 10, height: 374 }}>
+            <div key={d.id} style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', animation: 'screenIn .35s ease' }}>
+              <CardArt design={d.id} width={230} portrait glow />
+            </div>
+            {/* tap en la que asoma → pasa a la siguiente */}
+            <button onClick={() => setIdx((idx + 1) % N)} style={{ position: 'absolute', right: -180, top: 14, border: 0, background: 'transparent', cursor: 'pointer', padding: 0, opacity: 0.55 }}>
+              <CardArt design={next.id} width={214} portrait />
+            </button>
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 16 }}>
+            <div style={{ font: '500 24px Geist', letterSpacing: '-0.01em', color: '#141414' }}>{d.name}</div>
+            <div style={{ marginTop: 8 }}><AvatarStack users={d.users} /></div>
+          </div>
+        </>}
+    </Screen>);
+}
+
 // ── Comparativa vieja → nueva (pre-creación) ────────────────────
 // Diseño "Ingreso datos extras": dos tiles con flecha. En A suma el banner
-// lime de débitos + plazo (el mensaje va AL FRENTE); en B es una nota suave.
+// lime con plazo + referencia al mail de débitos (el mensaje va AL FRENTE);
+// en B es una nota suave sin débitos.
 function MigCompare({ variant, design, onBack, onClose, onContinue }) {
   const cfg = MIG[variant];
   const [ack, setAck] = useStateM(false);
@@ -2262,12 +2278,12 @@ function MigCompare({ variant, design, onBack, onClose, onContinue }) {
         </div>
 
         {variant === 'A' ?
-          // A · débitos AL FRENTE: banner lime del diseño, con plazo + mail.
+          // A · débitos AL FRENTE: banner lime del diseño — solo referencia al mail.
           <div style={{ background: '#CFFF2E', borderRadius: 24, padding: 16 }}>
             <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
               <LI name="alert-time" size={19} color="#080808" style={{ flexShrink: 0, marginTop: 1 }} />
               <div style={{ font: '400 14px Inter', color: '#080808', lineHeight: 1.55 }}>
-                Tu tarjeta {OLD_MASK} <b>se apaga el {cfg.offDate}</b> — quedan {cfg.days} días. Si tenés débitos automáticos asociados, van a dejar de funcionar: en el próximo paso te mostramos cuáles son.
+                Tu tarjeta {OLD_MASK} <b>se apaga el {cfg.offDate}</b> — quedan {cfg.days} días. Si tenés débitos automáticos asociados, te mandamos un mail con el detalle para que los pases a la nueva.
               </div>
             </div>
           </div> :
@@ -2290,53 +2306,45 @@ function MigCompare({ variant, design, onBack, onClose, onContinue }) {
 }
 
 // ── Paso débitos (solo Camino A: el mensaje interrumpe el flujo) ─
+// La app no puede mostrar cuáles son: solo avisa que llega un mail.
 function MigDebitos({ variant, onBack, onClose, onVerMail, onContinue }) {
   const cfg = MIG[variant];
   return (
     <Screen footer={<Btn variant="primary" onClick={onContinue}>Entendido, crear mi tarjeta</Btn>}>
       <StepHeader title="Débitos automáticos" onBack={onBack} onClose={onClose} />
       <div style={{ padding: '6px 16px 8px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-        <div>
-          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.25 }}>Tenés {DEBITOS.length} débitos asociados a tu tarjeta actual</div>
-          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 6, lineHeight: 1.5 }}>
-            Cuando la {OLD_MASK} se apague el <b style={{ color: LX.text1 }}>{cfg.offDate}</b>, estos pagos van a dejar de procesarse. Cargá los datos de tu nueva tarjeta en cada servicio.
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px 0 2px' }}>
+          <div style={{ width: 96, height: 96, borderRadius: 999, background: '#CFFF2E', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <LI name="mail" size={44} color="#080808" />
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', padding: '0 8px' }}>
+          <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: LX.text1, lineHeight: 1.25 }}>¿Tenés débitos automáticos?</div>
+          <div style={{ font: '400 14px Inter', color: LX.text2, marginTop: 8, lineHeight: 1.55 }}>
+            Si hay pagos que se debitan automáticamente de tu tarjeta {OLD_MASK}, te mandamos un mail con el detalle para que los pases a tu nueva tarjeta antes del <b style={{ color: LX.text1 }}>{cfg.offDate}</b>.
           </div>
         </div>
 
         <Surface pad={0} style={{ overflow: 'hidden' }}>
-          {DEBITOS.map((d, i) =>
-            <React.Fragment key={d.name}>
-              {i > 0 && <Divider style={{ margin: '0 16px' }} />}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '13px 16px' }}>
-                <div style={{ width: 36, height: 36, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <LI name={d.icon} size={18} color={LX.text1} />
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ font: '600 14px Inter', color: LX.text1 }}>{d.name}</div>
-                  <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>{d.detail}</div>
-                </div>
-                <span style={{ font: '500 14px Geist', color: LX.text1 }}>{d.amount}</span>
-              </div>
-            </React.Fragment>)}
-        </Surface>
-
-        <div style={{ display: 'flex', gap: 11, alignItems: 'flex-start', background: LX.layer3, borderRadius: 14, padding: '13px 14px' }}>
-          <LI name="view-notification" size={18} color={LX.text2} style={{ flexShrink: 0, marginTop: 1 }} />
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ font: '600 13px Inter', color: LX.text1 }}>Te mandamos esta lista por mail</div>
-            <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 2, lineHeight: 1.4 }}>
-              Apenas crees tu nueva tarjeta te llega un mail con el detalle y los datos nuevos, para tenerlo a mano.
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px' }}>
+            <div style={{ width: 40, height: 40, borderRadius: 999, background: LX.layer3, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <LI name="view-notification" size={20} color={LX.text1} />
             </div>
-            <button onClick={onVerMail} style={{ marginTop: 8, border: 0, cursor: 'pointer', borderRadius: 999, padding: '7px 13px', background: LX.dark, color: '#fff', font: '600 12px Inter' }}>
-              Ver el mail que te llega
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '600 14px Inter', color: LX.text1 }}>Te llega a mica@gmail.com</div>
+              <div style={{ font: '400 12px Inter', color: LX.text2, marginTop: 1 }}>Apenas crees tu nueva tarjeta.</div>
+            </div>
+            <button onClick={onVerMail} style={{ border: 0, cursor: 'pointer', borderRadius: 999, padding: '8px 14px', background: LX.dark, color: '#fff', font: '600 12px Inter', flexShrink: 0 }}>
+              Ver el mail
             </button>
           </div>
-        </div>
+        </Surface>
       </div>
     </Screen>);
 }
 
-// ── Mail de débitos (preview) ───────────────────────────────────
+// ── Mail de débitos (vista previa — el detalle vive SOLO acá) ───
 function MigEmail({ variant, onBack }) {
   const cfg = MIG[variant];
   return (
@@ -2365,7 +2373,6 @@ function MigEmail({ variant, onBack }) {
 
       {/* cuerpo del mail */}
       <div style={{ padding: '18px 16px 28px' }}>
-        {/* header verde de la pieza */}
         <div style={{ height: 64, borderRadius: 14, overflow: 'hidden', position: 'relative', background: 'linear-gradient(100deg, #5AC005 0%, #8CE617 55%, #B7F53A 100%)' }}>
           <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
             <Leaf size={22} color="#0b1a00" vein="rgba(255,255,255,0.35)" />
@@ -2493,8 +2500,8 @@ function MigHub({ variant, design, onBack, onOldTap, onNewTap, onVerMail }) {
 }
 
 // ── Detalle de la vieja (apagándose) ────────────────────────────
-// Diseño lote 2: tarjeta al 30%, Pausar/Ver datos deshabilitados,
-// banner amarillo con el plazo, movimientos de siempre.
+// Diseño: tarjeta al 30%, Pausar/Ver datos deshabilitados, banner
+// amarillo con el plazo, movimientos (sin info de débitos).
 function MigOldCard({ variant, onBack, onClose, onGoNew, onVerMail }) {
   const cfg = MIG[variant];
   const DisabledAction = ({ icon, label }) =>
@@ -2532,8 +2539,8 @@ function MigOldCard({ variant, onBack, onClose, onGoNew, onVerMail }) {
           </div>
           <div style={{ font: '400 12px Inter', color: '#080808', marginTop: 4, lineHeight: 1.5 }}>
             {cfg.urgente ?
-              <>Seguís pudiendo pagar con ella hasta ese día, pero ya no podés ver sus datos. Si tenés débitos automáticos, pasalos ya a tu nueva tarjeta.</> :
-              <>Seguís pudiendo pagar con ella hasta ese día, pero ya no podés ver sus datos. Cuando quieras, pasá tus débitos automáticos a la nueva.</>}
+              <>Seguís pudiendo pagar con ella hasta ese día, pero ya no podés ver sus datos. Si tenés débitos automáticos, revisá el mail que te mandamos y pasalos ya.</> :
+              <>Seguís pudiendo pagar con ella hasta ese día, pero ya no podés ver sus datos. Cuando quieras, revisá el mail que te mandamos para pasar tus débitos automáticos.</>}
           </div>
           <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
             <button onClick={onGoNew} style={{ border: 0, cursor: 'pointer', borderRadius: 100, padding: '8px 14px', background: 'rgba(8,8,8,0.1)', color: '#080808', font: '600 12px Inter' }}>Usar mi nueva tarjeta</button>
@@ -2547,9 +2554,9 @@ function MigOldCard({ variant, onBack, onClose, onGoNew, onVerMail }) {
             <LI name="arrow-foward" size={16} color="#141414" />
           </div>
           <div style={{ padding: '0 16px 8px' }}>
-            <MoveRow icon="card-on" coin="btc" title="Netflix · débito automático" date="4 de agosto" amount="$ 12.999" />
-            <MoveRow icon="card-on" title="Pago con tarjeta" date="2 de agosto" amount="$ 8.150" />
-            <MoveRow icon="card-on" title="Spotify · débito automático" date="9 de julio" amount="$ 6.499" />
+            <MoveRow icon="card-on" coin="btc" title="Pago con tarjeta" date="2 de agosto" amount="$ 8.150" />
+            <MoveRow icon="card-on" title="Pago con tarjeta" date="28 de julio" amount="$ 3.020" />
+            <MoveRow icon="deposit" title="Transferencia recibida" date="15 de julio" amount="$ 300,45" sign="+" />
           </div>
         </Surface>
       </div>
@@ -2573,16 +2580,13 @@ function FlowMigracion({ variant, onMenu }) {
   }, [step]);
 
   if (step === 'home')
-    return (
-      <Anim k="mig-home">
-        <AppHome onCards={() => setStep('intro')} banner={<MigHomeBanner variant={variant} onClick={() => setStep('intro')} />} />
-      </Anim>);
+    return <Anim k="mig-home"><AppHome variant={variant} onCards={() => setStep('intro')} /></Anim>;
 
   if (step === 'intro')
-    return <Anim k="mig-intro"><MigIntro variant={variant} onBack={() => setStep('home')} onPrimary={() => setStep('design')} onLater={() => setStep('home')} /></Anim>;
+    return <Anim k="mig-intro"><MigSplash onClose={() => setStep('home')} onPrimary={() => setStep('design')} onLater={() => setStep('home')} /></Anim>;
 
   if (step === 'design')
-    return <Anim k="mig-design"><DesignPicker headline="Elegí el diseño" onBack={() => setStep('intro')} onClose={() => setStep('home')} onChoose={(d) => { setDesign(d.id); setStep('compare'); }} /></Anim>;
+    return <Anim k="mig-design"><MigPicker onBack={() => setStep('intro')} onClose={() => setStep('home')} onChoose={(d) => { setDesign(d.id); setStep('compare'); }} /></Anim>;
 
   if (step === 'compare')
     return (
@@ -2645,11 +2649,11 @@ function FlowMigracion({ variant, onMenu }) {
   return null;
 }
 
-Object.assign(window, { FlowMigracion, MigHomeBanner, MigIntro, MigCompare, MigDebitos, MigEmail, MigHub, MigOldCard, MIG });
+Object.assign(window, { FlowMigracion, MigSplash, MigPicker, MigCompare, MigDebitos, MigEmail, MigHub, MigOldCard, MIG });
 
 </script>
 <script type="text/babel">
-// ── app.jsx (inline para que funcione con file://) ──
+// ── app.jsx (inline generado por build.py — editar el .jsx, no esto) ──
 // Shell del prototipo "Migración virtual GP → Pomelo · Test A/B".
 // Solo dos entradas: Camino A (débitos al frente · 10 días) y
 // Camino B (convivencia tranquila · 30 días). Los flujos viven en migracion.jsx.
@@ -2726,9 +2730,13 @@ function Phone({ scale, children }) {
 }
 
 // ── App home (home real de la app) ──────────────────────────────
-// Punto de entrada del test: la home con el banner de migración (A o B).
-function AppHome({ onCards, banner }) {
+// Punto de entrada del test, fiel al diseño: strip holográfico
+// "Tenemos algo · Nuevo" asomando bajo el balance + banner blanco
+// descartable ("splash_" del Figma). El copy del banner varía por camino.
+function AppHome({ onCards, variant = 'B' }) {
   const navIcons = ['home-on', 'portfolio-off', 'market-off', 'activity-off', 'mini-apps-off'];
+  const [bannerVisible, setBannerVisible] = useStateA(true);
+  const urgente = MIG[variant].urgente;
   return (
     <Screen footer={
     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -2783,24 +2791,46 @@ function AppHome({ onCards, banner }) {
             </div>
           </div>
 
-          {/* card lime asomando por detrás (Tarjeta virtual) */}
-          <div style={{ position: 'relative', zIndex: 1, marginTop: -86, padding: '94px 20px 18px', borderRadius: 32, overflow: 'hidden', background: 'var(--c-lime-40)' }}>
-            <div style={{ position: 'absolute', inset: 0, opacity: 0.4, mixBlendMode: 'multiply', background: 'radial-gradient(80% 120% at 12% 130%, #9be01f 0%, transparent 55%), radial-gradient(70% 120% at 95% 130%, #e6ff8a 0%, transparent 52%)' }} />
-            <div style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between' }}>
-              <div>
-                <div style={{ font: '500 14px Inter', color: '#080808', letterSpacing: '-0.1px' }}>Tarjeta virtual</div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 3 }}>
-                  <span style={{ display: 'flex', gap: 2 }}><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /><span style={{ width: 4, height: 4, borderRadius: 999, background: '#080808' }} /></span>
-                  <span style={{ font: '400 12px Inter', color: '#080808' }}>4543</span>
-                </div>
+          {/* strip holográfico asomando por detrás: "Tenemos algo · Nuevo" */}
+          <button onClick={onCards} style={{
+            position: 'relative', zIndex: 1, width: '100%', border: 0, cursor: 'pointer', textAlign: 'left',
+            marginTop: -86, padding: '96px 20px 16px', borderRadius: 32, overflow: 'hidden',
+            background: 'linear-gradient(95deg, #FFD9EC 0%, #D9E4FF 22%, #CFF6FF 45%, #D9FFE3 62%, #FFF6C4 82%, #FFD9EC 100%)'
+          }}>
+            <div style={{ position: 'absolute', inset: 0, opacity: 0.55, background: 'radial-gradient(60% 90% at 18% 120%, rgba(255,255,255,0.9) 0%, transparent 60%), radial-gradient(50% 90% at 86% 120%, rgba(255,255,255,0.8) 0%, transparent 55%)' }} />
+            <div style={{ position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ font: '500 14px Inter', color: '#000', letterSpacing: '-0.1px' }}>Tenemos algo</span>
+                <span style={{ display: 'inline-flex', alignItems: 'center', background: '#CFFF2E', color: '#080808', font: '600 14px Inter', padding: '2px 8px', borderRadius: 100, letterSpacing: '-0.1px' }}>Nuevo</span>
               </div>
-              <VisaMark size={22} color="#141414" shadow={false} />
+              <VisaMark size={20} color="#080808" shadow={false} />
             </div>
-          </div>
+          </button>
         </div>
 
-        {/* banner de migración (lo trae el flujo: urgente en A, novedad en B) */}
-        {banner}
+        {/* banner blanco descartable (pieza "splash_" del diseño) */}
+        {bannerVisible &&
+        <button onClick={onCards} style={{ position: 'relative', width: '100%', textAlign: 'left', cursor: 'pointer', border: 0, background: '#FFFFFF', borderRadius: 24, padding: '12px 32px 12px 12px', marginTop: 16, display: 'flex', alignItems: 'center', gap: 8, boxShadow: '0 4px 8px rgba(8,8,9,0.05)' }}>
+            <image-slot
+            id="mig-home-banner-img"
+            shape="rect"
+            fit="contain"
+            src="assets/lemmy-a.png"
+            placeholder="Render 3D"
+            style={{ width: 60, height: 60, borderRadius: 16, flexShrink: 0 }}>
+            </image-slot>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ font: '500 12px Geist', color: '#141414', lineHeight: 1.5, letterSpacing: '-0.01em' }}>
+                {urgente ? 'Cambiá tu tarjeta virtual hoy y agregala a Apple Wallet.' : 'Empezá a pagar tu celular, cambia tu tarjeta y agregala a Apple Wallet.'}
+              </div>
+              <div style={{ font: '400 12px Inter', color: '#818181', lineHeight: 1.5, letterSpacing: '-0.1px' }}>
+                {urgente ? `Tu tarjeta actual se apaga el ${MIG[variant].offDate}.` : 'Es gratis, hacelo desde acá.'}
+              </div>
+            </div>
+            <span onClick={(e) => { e.stopPropagation(); setBannerVisible(false); }} style={{ position: 'absolute', top: 12, right: 12, width: 16, height: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <LI name="close" size={16} color="#141414" />
+            </span>
+          </button>}
       </div>
     </Screen>);
 
