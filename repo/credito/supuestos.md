@@ -1,0 +1,66 @@
+# Supuestos y preguntas abiertas · Lemon Card Crédito
+
+Todo lo que asumí porque no estaba en el brief ni en los insumos, y lo que directamente no sé. Si una regla no
+está, es una pregunta: no la rellené.
+
+## Supuestos que tomé (revisables)
+
+| # | Supuesto | Dónde impacta | Si es falso |
+|---|---|---|---|
+| S1 | **El respaldo es mayor que el límite: el límite es aprox. el 80% del respaldo** (respaldo = límite × 1,25), igual para dólar digital y Bitcoin. Cerrado por Jero el 21/09 (el brief decía "65% del límite"; los insumos, LTV 65% ≈ 154%). Queda abierto si Bitcoin pide más colchón. | Elegí tu respaldo, Tu tarjeta, Límite y respaldo, Flujo 3 (editar límite) | Se mueven los sliders del panel dev (llegan a 160%) o `ASSETS[id].ratio` en `credito-model.js`. Ninguna pantalla cambia. |
+| S2 | Los tres límites prefijados son **$500.000 / $1.000.000 / $5.000.000** (pedido de Jero, 19/09; el brief decía $2M como tercero). Una opción está activa si alcanza con dólar digital **o** con Bitcoin. | Elegí el límite de tu tarjeta, Flujo 3 (editar límite) | `LIMIT_PRESETS` en el modelo. |
+| S3 | **No hay monto personalizado**: se elige uno de los tres. Con los saldos mock, $5.000.000 no alcanza con ningún activo y queda apagado con *Cargar saldo*. | Elegí el límite de tu tarjeta | Volver a un campo «Otro monto» (`LIMIT_MIN/MAX/STEP` siguen en el modelo). |
+| S4 | **Vencimiento = cierre + 10 días**, al siguiente día hábil si cae sábado, domingo o feriado (lista de feriados AR 2026 **parcial**: 12/10, 23/11, 8/12, 25/12, 1/1); congela +1; liquida +7 con aviso el día del vencimiento. | 2.1, landing, resumen | Constantes en `cycleDates` y `FERIADOS`. |
+| S5 | Los grupos cierran los días **1 · 8 · 15 · 22** (todo ≤ 28, restricción de Pomelo). | 2.1 | `CIERRE_GROUPS`. |
+| S6 | **Cerrado por Jero (21/09):** el usuario elige el grupo y lo cambia **las veces que quiera**, igual que el límite. Mientras lo elige, cierre y vencimiento se muestran **aproximados (≈)**: recién quedan fijos cuando la tarjeta se crea. | Elegí cuándo cierra, pedido, activada, home | `DateTimeline approx` y el copy `cierre.*`. |
+| S7 | **Mantenimiento $6.500/mes**, bonificado 3 meses (la app lo muestra así; la doc dice $7.500). | 1.4, Saber más, resumen | `FEES.mantenimiento`. |
+| S8 | Pago mínimo mock = **10% del total**. En la base el mínimo pagado promedia ~28%. | resumen, congelada | `FEES.minimoPct`. |
+| S9 | Autopay: **tres modalidades: mínimo (default) · total en pesos y dólares (cada moneda paga lo suyo, sin el 30%) · total en pesos**, el día del vencimiento. Si en una moneda falta se completa con la otra, nunca otra moneda (Jero, 21/09). Si no alcanza, debita lo que hay y a las 48 h toma del respaldo. Se puede **no activar** («Prefiero pagarlo yo cada mes», arriba del CTA); la tarjeta queda *Desactivado · pagás a mano cada mes*. Se elige **antes** de crear la tarjeta. | Alta (paso 4), pedido, activada | Helper «¿De dónde sale la plata?» en `credito-copy.js`; `setAutopay(skip)` en `app.jsx`. |
+| S10 | **Pagar el mínimo descongela** la tarjeta, **cuando impacta el pago** (Jero, 21/09: puede demorar). Por eso el copy no promete el instante. | landing congelada, pagar | `pay()` en `app.jsx` y `estados.congelada_body`. |
+| S11 | Con la tarjeta **pausada se muestran límite, disponible y respaldo** tal cual. | landing | — (es la corrección del bug, no un supuesto negociable). |
+| S12 | El **retiro del respaldo** está disponible siempre, también congelada; con deuda, se paga con el respaldo y vuelve el resto en **hasta 48 h hábiles**. El TyC (Anexo 2.5) dice "al menos 48 h hábiles" porque hoy el cálculo es manual; la propuesta compromete un máximo porque pasa a ser automático. | Límite y respaldo, avisos | Copy en `LimiteRespaldoScreen` y `EstadoAviso`. |
+| S13 | El respaldo es **solo dólar digital o Bitcoin** (pedido de Jero, 19/09: los pesos no respaldan, quedan para pagar), **todo en un activo** (no se mezcla), y "dólar digital" agrupa USDC/USDT/DAI. | Elegí tu respaldo | `RESPALDO_ASSETS` en el modelo; el resto recalcula solo. |
+| S14 | **Cerrado por Jero (21/09): la tarjeta existe de verdad al crearla** y se tokeniza en Apple Pay al toque, con la condición de haber configurado antes **grupo de cierre y débito automático**. Por eso el alta es límite → respaldo → cierre → débito → *Crear mi Credit Card* → *Ya es tuya* → *Sumar a Apple Pay*, y **no hay flujo de activación**: la tarjeta nace `activa`, con `nfc:false` hasta que se suma al celu y `fisica:'camino'` hasta que llega el plástico. | Todo el Flujo 1, home | `placeOrder()` en `app.jsx`. |
+| S15 | Los consumos en USD del resumen se muestran **convertidos al BNA** del día de pago (TyC 13.1). | resumen | Cambia el sub de la fila. |
+| S16 | Ratio, saldos y cotizaciones son **globales del prototipo** (panel dev), no por usuario. El ratio con el que se constituyó el respaldo queda guardado en la tarjeta (`card.ratio`): si se mueve el slider después, la tarjeta sigue diciendo el suyo y editar el límite recalcula contra el respaldo real. | todo | — |
+| S17 | **No hay tolerancia por encima del límite.** Hoy existe ~10%; Pomelo descuenta además la percepción del 30% del disponible. No se modela ninguna de las dos. | landing, Flujo 3 (editar límite) | `FEES.tolerancia` y la barra de la landing. |
+| S18 | **La liquidación se muestra a vencimiento + 7 días sin otra condición.** La estrategia vigente (06/2026) solo liquida si además la cobertura es < 120% y el usuario no está exento; el brief describe el calendario de hoy como incondicional. El copy dice "usamos parte de tu respaldo para cubrir la deuda", nunca "liquidamos". | aviso congelada, 2.2 | Sumar la condición de cobertura al copy del aviso. |
+| S19 | **La comisión 0% en cripto no se muestra** (Jero la sacó de «Tu pedido» el 19/09). El copy de la app de hoy (captura 04) prometía 0% "en todas tus compras, ventas y swaps cripto dentro de Lemon" y el PRD v1 monetizaba un spread del 2%: mejor no prometerlo hasta definirlo. `M.FEES.comisionCripto` queda en el modelo sin uso en UI. | Tu pedido | Volver a una fila o banner con el alcance real del beneficio. |
+| S20 | **El disponible descuenta el resumen cerrado sin pagar** (límite − consumido este período − saldo impago), como dicen los insumos: el límite no se libera hasta pagar. Pagar libera límite al instante. | landing, Flujo 3 (editar límite) (piso para bajar) | `tresNumeros` en `credito-model.js`. |
+| S21 | **Sustituido por S9 (21/09):** no hay pantalla de origen; la modalidad «total en pesos y dólares» es la que paga cada moneda con la suya. El "recuperás la percepción del 30%" depende de que Pomelo confirme la devolución cuando el pago se informa en dólares. | 2.2 | Volver a mostrar el selector de origen. |
+| S22 | **Cerrado por Jero (21/09):** los montos de dólar digital se escriben **US$ 379,31**, no «379,31 USDC». Bitcoin conserva su unidad. | Elegí tu respaldo, pedido, Límite y respaldo, actividad | `ASSETS.USDC.prefix` y `fmtUnits` en el modelo: ninguna pantalla escribe la unidad a mano. |
+| S23 | **Sin onboarding**: *Quiero mi Credit Card* abre directo «Elegí el límite de tu tarjeta». El promo de la home (render real + **«Ahora vos controlás todo.»**, bandera elegida por Jero el 21/09) es la única presentación del producto. | Home sin tarjeta, Flujo 1 | Volver a un pager antes del límite (el de `/onboarding/`). |
+| S24 | El **respaldo no se muestra en la home**: vive en **Límite y respaldo** (se abre tocando la card row o *Límite disponible*), con el medidor semicircular de la app de hoy. | Landing | Volver a la card de respaldo en la home. |
+| S25 | Los lineamientos de la app de hoy se toman **en estructura y jerarquía** (hero + título centrado, filas label/valor, secciones planas con flecha, card row, medidor), **no en paleta ni notación**: el proto sigue en el DS nuevo (tema claro, Geist + Inter, «$» prefijo). Los únicos bloques oscuros son el promo y el escenario de «Elegí el límite» (S30). | Toda la UI | Si Chelo quiere el tema oscuro de la app, los tokens dark ya existen en `colors_and_type.css` (`[data-theme="dark"]`), pero las pantallas usan varios colores fijos: hay que tokenizarlas. |
+| S26 | El mensaje sobre NFC es siempre «sumala a Apple Pay y pagá con el celu», nunca «tenemos NFC» (regla del proto de cards). **Google Pay no se nombra en ningún lado** (Jero, 21/09). | Pagá con el celu desde hoy, home en camino | Sumar un segundo botón «Agregar a Google Pay» cuando el DS lo tenga. |
+| S27 | **Toda la experiencia sigue la narrativa de `narrativa.md`** (tu mejor amiga + tu superpoder, bajo la bandera del control) y **todos los textos viven en `credito-copy.js`**. | Toda la UI | Editar `credito-copy.js`; las pantallas no tienen texto propio. |
+| S28 | **El límite fluctúa con el valor del respaldo en pesos** (Jero, 21/09), para los dos activos y mucho más con Bitcoin. El prototipo lo dice en el helper del respaldo y deja `M.limiteHoy()` en el modelo, pero **no simula la revisión**: el límite de la tarjeta queda fijo en la demo. | Helper del respaldo, Límite y respaldo | Cuando se defina cada cuánto se revisa, la landing suma el aviso «tu límite pasa a $X el DD/MM». |
+| S29 | **Los avisos previos al uso del respaldo son varios** («te avisamos varias veces»), sin decir canal ni días porque no están definidos. Que el respaldo se use es el peor resultado para las dos partes. | Helper del respaldo, helper del débito | Si hay regla (canal + N días), se pone el número. |
+| S30 | La pantalla **«Elegí el límite» usa un escenario oscuro** con el monto grande y la tarjeta (pedido de Jero, 21/09: la versión sobria quedaba «apagada»). Es el segundo y último bloque negro del prototipo, junto al promo. | Elegí el límite, Editar límite | `LimitStage` en `credito-limite.jsx`. |
+
+## Preguntas abiertas (no asumí nada)
+
+**Respaldo y límite**
+1. ¿El parámetro real es "respaldo = X% del límite" o "límite = X% del respaldo" (LTV)? Cambia si el producto sigue sobre-colateralizado o pasa a estar parcialmente financiado. Impacta S1 y el mensaje de «Elegí tu respaldo». **Owner: Jero / Riesgo.**
+2. ¿Puede el usuario **sumar respaldo sin subir el límite** (para tener margen ante la volatilidad de BTC)? Hoy no existe. Impacta Tu respaldo.
+3. ¿El límite máximo pedible tiene tope regulatorio o de negocio ($5.000.000 es un supuesto)?
+4. **Respondida a medias (Jero, 21/09):** el límite fluctúa con el valor del respaldo en pesos, para los dos activos. Falta **cada cuánto se revisa** (¿continuo? ¿en cada cierre? PRD v1: ajuste si la variación es ≥ 10%) y si eso genera un aviso «tu límite pasa a $X el DD/MM». Impacta S28.
+
+**Cierre y pago**
+5. ~~¿El grupo de cierre se elige o se asigna? ¿Se puede cambiar, cuántas veces?~~ **Respondida (Jero, 21/09):** lo elige el usuario y lo cambia infinitas veces; las fechas son ≈ hasta que la tarjeta se crea. Ver S6.
+6. ¿Qué pasa con las ~1.226 líneas que hoy cierran el 1 al migrar: se les asigna un grupo o eligen?
+7. Autopay: ¿debita de la Cuenta de Pago, del respaldo, o de la cuenta y después del respaldo? ¿Con qué aviso? (TyC 7.4 habilita el débito del respaldo a las 48 h.) Impacta el bloque "si no alcanza" de *¿De dónde se paga?*.
+8. ¿Existe hoy el débito automático del resumen? Cambia si la v1 lo construye desde cero.
+9. ~~¿El pago del mínimo descongela?~~ **Respondida (Jero, 21/09):** sí, al impactar el pago, con demora posible. Queda abierto **cuánto demora**: si fueran minutos, el copy podría decirlo. Ver S10.
+10. ¿Se paga la deuda en USD con dólar digital 1:1 (requiere cambio de TyC 13.1)? Impacta la modalidad 3 del autopay.
+
+**Costos**
+11. ¿Se cobra mantenimiento hoy, cuánto ($7.500 / $7.200 / $6.500), y desde cuándo? Impacta *Tu pedido* y el resumen.
+12. ¿Qué tasa compensatoria y punitoria rige? No se muestra ninguna en el prototipo hasta tener el número.
+
+**Pantallas y dependencias**
+12b. ~~¿Cuántas veces por mes se puede cambiar el límite?~~ **Respondida (Jero, 21/09):** sin tope, las veces que quiera. El copy lo promete en «Elegí el límite» y en la pantalla de activada.
+13. ~~¿La tokenización en Apple Pay antes del plástico es viable desde el día uno?~~ **Respondida (Jero, 21/09):** sí, apenas se deja el respaldo y se configuran cierre y débito. Ver S14.
+13b. **Avisos:** ¿por qué canal y con cuántos días de anticipación se avisa antes de usar el respaldo y cuando el débito no alcanza? El copy promete «varias veces» sin números. Impacta S29.
+14. ¿El resumen se muestra in-app como pantalla (esta propuesta) o sigue siendo un PDF? Impacta Flujo 3.
+15. ¿Qué eventos in-app puede disparar Lemon (vence en X días, congelada, liquidación en X días) sin depender de Braze? Impacta los avisos de la landing.

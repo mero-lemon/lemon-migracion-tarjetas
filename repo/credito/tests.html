@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es-AR"><head><meta charset="UTF-8" /><title>Tests · credito-model</title>
+<style>body{font:14px/1.5 -apple-system,Inter,system-ui;padding:24px;background:#F6F6F4;color:#1c1c1a} .ok{color:#00AA18} .bad{color:#C32432;font-weight:600} pre{margin:0}</style>
+</head><body>
+<h2>credito-model.js · tests</h2>
+<pre id="out">corriendo…</pre>
+<script src="credito-model.js"></script>
+<script src="credito-model.test.js"></script>
+<script>
+const r = window.__creditoTests; const bad = r.filter(x => !x.ok);
+document.getElementById('out').innerHTML = r.map(x => `<span class="${x.ok ? 'ok' : 'bad'}">${x.ok ? '✓' : '✗'} ${x.name}${x.ok ? '' : ' → got ' + JSON.stringify(x.got) + ' want ' + JSON.stringify(x.want)}</span>`).join('\n') + `\n\n<b>${r.length - bad.length}/${r.length} ok</b>`;
+</script></body></html>
