@@ -307,6 +307,8 @@ function FlipCard({ tone, note }) {
 const NarrativaBody = ({ note, accent }) =>
 <>
     <div style={{ font: '500 15.5px Inter', lineHeight: 1.45, letterSpacing: '-0.012em', color: NOTE_INK, margin: '13px 0 0', paddingLeft: 12, borderLeft: `2px solid ${accent}`, textWrap: 'pretty' }}>{note.lead}</div>
+    {note.parrafo &&
+    <p style={{ font: '400 13.5px Inter', lineHeight: 1.65, color: NOTE_INK2, margin: '14px 0 0', textWrap: 'pretty' }}>{note.parrafo}</p>}
     {note.narrativa && note.narrativa.length > 0 &&
     <div style={{ marginTop: 14 }}><NoteUl gap={10}>{note.narrativa.map((p, i) => <NoteLi key={i} color={accent}>{p}</NoteLi>)}</NoteUl></div>}
   </>;

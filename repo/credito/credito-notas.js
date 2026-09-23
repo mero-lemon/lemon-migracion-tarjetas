@@ -2,8 +2,9 @@
 // tarjetas dadas vuelta que se giran al hacer clic.
 //
 //   NARRATIVA · qué le queremos contar al usuario en esta pantalla: la idea en
-//               una frase (lead) y lo que se le suma. NO dice cómo resolverlo:
-//               esa es la conversación que queremos abrir con diseño.
+//               una frase (lead), un párrafo cuando hace falta desarrollarla
+//               (parrafo) y lo que se le suma (narrativa). NO dice cómo
+//               resolverlo: esa es la conversación que abrimos con diseño.
 //   CONTEXTO  · la evidencia, con su fuente. Cada ítem es {n, t, f}.
 //
 // Reglas de edición, para que esto siga sirviendo para pitchear:
@@ -32,10 +33,8 @@
     'home-vacia': {
       paso: 'Descubrir', titulo: 'La tarjeta, antes de pedirla',
       lead: 'El que manda sos vos: ponés tu límite y tus ahorros se quedan donde están.',
-      narrativa: [
-        'La bandera es el control. Los hechos —sin vender nada, sin pedir permiso— son la prueba.',
-        'No prometemos beneficios que no existen: no hay cashback, ni millas, ni puntos.'
-      ],
+      parrafo: 'Esta tarjeta no compite con otra tarjeta: compite con ese momento en que tuviste que elegir entre vender lo que ahorraste o no comprar. Por eso la posicionamos como la herramienta con la que manejás tu día a día —el súper, la nafta, el viaje, el celu nuevo— sin tocar lo que venís construyendo. Nadie te evalúa, nada se vende, y el techo lo ponés vos. Sin vender nada, sin pedir permiso: ahora vos controlás todo.',
+      narrativa: [],
       contexto: [
         { n: '193.946', t: 'usuarios llegaron a «no tenés respaldo suficiente» en 12 meses.', f: HOY + ' · flujo de alta, 12 meses' },
         { n: '108.558', t: 'de ellos avanzaron hasta comprar crypto para poder entrar.', f: HOY + ' · flujo de alta, 12 meses' },
@@ -52,9 +51,8 @@
         'Lo que no te alcanza no te reprocha: te dice por qué y cómo llegar.'
       ],
       contexto: [
-        { n: '23%', t: 'de las tarjetas que se usan tuvo un consumo rechazado por límite: $28,9 M en un mes.', f: HOY + ' · base, agosto 2026' },
-        { n: '1 de 4', t: 'intentos de uso termina rechazado, y el límite es el motivo número uno.', f: HOY + ' · rechazos, agosto 2026' },
-        { n: '40%', t: 'de quienes tienen tarjeta de crédito en otro banco está disconforme con su límite; el 47% de ellos, por límites bajos.', f: 'Discovery previo a la V1 · encuesta, 865 respuestas' },
+        { n: '23%', t: 'de las tarjetas que se usan tuvo un consumo rechazado por límite —$28,9 M en un mes—, y el límite es el motivo de rechazo número uno.', f: HOY + ' · base, agosto 2026' },
+        { n: '40%', t: 'de quienes tienen tarjeta de crédito en otro banco está disconforme con su límite.', f: 'Discovery previo a la V1 · encuesta, 865 respuestas' },
         { n: '$2,5-3 M', t: 'era el rango de límite sugerido internamente. La V1 salió con $1.000.000.', f: 'Definición interna, previa al lanzamiento' }
       ]
     },
@@ -153,7 +151,7 @@
       ],
       contexto: [
         { n: '169 → 475', t: 'cuentas con consumo por mes, de enero a agosto de 2026: el uso crece solo.', f: HOY + ' · cuentas con consumo, 2026' },
-        { n: '730', t: 'rechazos por cuenta inhibida sobre 90 tarjetas: el segundo motivo de rechazo, después del límite.', f: HOY + ' · rechazos, agosto 2026' }
+        { n: '1 de 4', t: 'intentos de uso termina rechazado. Después del límite, el segundo motivo es cuenta inhibida: 730 rechazos sobre 90 tarjetas.', f: HOY + ' · rechazos, agosto 2026' }
       ]
     },
     'home-congelada': {
