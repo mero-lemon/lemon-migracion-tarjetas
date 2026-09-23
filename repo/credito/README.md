@@ -2,32 +2,49 @@
 
 Prototipo navegable (alta fidelidad) de la **Lemon Credit Card**, la nueva tarjeta de crédito respaldada de Lemon.
 El usuario **elige uno de tres límites** ($5.000.000 · $1.000.000 · $500.000, activados o no según su saldo),
-**elige con qué respaldarlo** (dólar digital o Bitcoin: el límite es el 80% del respaldo), **elige cuándo cierra su
-resumen y cuánto se paga solo**, y recién ahí **crea la tarjeta**: nace activa y se suma a Apple Pay en el acto. La
-landing **Lemon Card · Crédito** separa **límite · disponible · saldo**, y el respaldo vive en su propia pantalla
-**Límite y respaldo**, como en la app de hoy.
+**elige con qué respaldarlo** (dólar digital o Bitcoin: el límite es el 80% del respaldo) y **crea la tarjeta ahí
+mismo**: cae en la home de crédito, que le ofrece dos cosas separadas —**empezar a usarla ya** (cierre → débito →
+Apple Pay) y **seguir el envío del plástico**—. La landing **Lemon Card · Crédito** separa **límite · disponible ·
+saldo**, y el respaldo vive en su propia pantalla **Límite y respaldo**, como en la app de hoy.
 
 **Toda la experiencia está ordenada por una narrativa de producto** —tu mejor amiga y tu superpoder, bajo la bandera
 del control: *Ahora vos controlás todo*— que vive en [`narrativa.md`](narrativa.md). **Todos los textos de pantalla
 salen de [`credito-copy.js`](credito-copy.js)**: para cambiar una frase se toca ese archivo, no las pantallas.
 
-> **Versión 21/09 (tarde): las ocho definiciones de Jero ya están aplicadas** (narrativa.md §10). En una línea: la
-> bandera pasa a ser el control; la tarjeta existe de verdad al crearla, así que **cierre y débito automático se
-> eligen antes** y desaparece el flujo de «activación»; los montos de dólar digital se escriben **US$ 862**; el
-> límite **fluctúa** con el valor del respaldo; los avisos se prometen **varias veces**; descongelar pasa **cuando
-> impacta el pago**; cierre y límite se cambian **infinitas veces**; y hasta que la tarjeta existe, cierre y
-> vencimiento van los dos con **≈**. Además, «Elegí el límite» estrena un **escenario oscuro** con el monto grande.
+> **Este es el prototipo para pitchear, no el final.** Al lado del teléfono, cada pantalla trae **dos tarjetas dadas
+> vuelta que se giran al hacer clic**. **Narrativa**: qué le queremos contar al usuario en esa pantalla —la idea en
+> una frase y lo que se le suma—. **Contexto**: la evidencia, con el número a la izquierda, el hecho al lado y su
+> fuente debajo. Sirven para contar primero y respaldar después, sin leer de un papel.
+>
+> **Las notas no dicen cómo resolverlo.** La experiencia tiene que explicarse sola, y el «cómo» es justo lo que el
+> equipo de diseño tiene que poder proponer cuando se le presenta la narrativa. Cómo está resuelto hoy se lee acá y
+> en [`narrativa.md`](narrativa.md) §7: eso es documentación de implementación, no material de pitch.
+>
+> Cada dato vive en **una sola pantalla**, la que justifica: límite variable → el límite · respaldo en dólar digital →
+> el respaldo · débito automático y dólares con dólares → «cuánto se paga solo» y el resumen · cuatro grupos → el
+> cierre · NFC → Apple Pay. El caso general (*194.000 golpearon la puerta y entraron 684*) abre en la primera
+> pantalla. El contenido vive en [`credito-notas.js`](credito-notas.js), con sus reglas de edición escritas arriba del
+> archivo; `?ux=0` las esconde.
+>
+> **Versión 21/09 (tarde): las ocho definiciones de Jero están aplicadas** (narrativa.md §10). En una línea: la
+> bandera pasa a ser el control; los montos de dólar digital se escriben **US$ 862**; el límite **fluctúa** con el
+> valor del respaldo; los avisos se prometen **varias veces**; descongelar pasa **cuando impacta el pago**; cierre y
+> límite se cambian **infinitas veces**; y mientras se elige el grupo de cierre, cierre y vencimiento van los dos con
+> **≈**. Además, «Elegí el límite» estrena un **escenario oscuro** con el monto grande.
+>
+> **El flujo es el que corrigió Jero:** la tarjeta **se crea al terminar «Elegí tu respaldo»** y lleva **directo a la
+> home**; el cierre y el débito automático se piden **recién cuando toca activarla**.
 
 Construido con el **Lemon Mobile Design System** real (tokens de `@lemonatio/ds-lemoncash-app`), sin paso de
 build: HTML + React/Babel desde CDN + JSX locales. Mismo patrón que `/cards/`, `/cajas/`, `/onboarding/` y
 `/pagos-automaticos/`. Destinatario: **Chelo**. Es una propuesta de producto sobre la ventana que abre la
 migración GP → Pomelo, no un MVP.
 
-> **Principio de esta versión: lo mínimo que hace falta para decidir, y nada más.** Seis pantallas para tener la
-> tarjeta y una séptima, opcional, para sumarla al celu. Cada pantalla hace una sola pregunta y la responde con lo
-> justo: el límite son tres montos y un escenario que muestra el elegido con su frase de poder; el respaldo, dos
-> activos con una sola línea (*«Dejás US$ 862,07»*) y un helper tocable que explica cómo te cuida; lo que no alcanza
-> se apaga con un candado, el motivo y la salida (*Comprar*).
+> **Principio de esta versión: lo mínimo que hace falta para decidir, y nada más.** Tres pantallas para tener la
+> tarjeta y tres más, cuando el usuario quiera, para activarla. Cada pantalla hace una sola pregunta y la responde
+> con lo justo: el límite son tres montos y un escenario que muestra el elegido con su frase de poder; el respaldo,
+> dos activos con una sola línea (*«Dejás US$ 862,07»*) y un helper tocable que explica cómo te cuida; lo que no
+> alcanza se apaga con un candado, el motivo y la salida (*Comprar*).
 >
 > **Y respeta los lineamientos de la app de hoy** (capturas en `capturas-actual/`): hero con el render real de la
 > tarjeta + título centrado, filas label/valor, secciones planas con flecha (*Consumos del período → Límite
@@ -55,13 +72,16 @@ En **desktop** se ve dentro de un marco de iPhone con el control strip arriba (s
 
 ## Cómo moverse para presentar
 
+La barra de arriba tiene **solo lo que se usa al presentar**: el nombre de la pantalla, *Mapa* y *Reiniciar*. El
+selector de pantallas, el panel dev y el botón de las notas salieron para que no haya nada que distraiga.
+
 - **Mapa** (botón arriba, o `?mapa=1`): todas las pantallas renderizadas en vivo, en grilla, agrupadas por flujo.
-  Un clic salta a cualquiera con su estado ya armado, sin recorrer el flujo.
-- **Selector** arriba a la derecha: lo mismo, en un desplegable.
-- **Panel dev**: saldos del usuario (pesos / dólar digital / Bitcoin), cotizaciones, **el % de respaldo exigido
-  por activo**, estado de la tarjeta (activa / pausada / congelada), consumido del período, estado del resumen y
-  las notas «A confirmar». Todo se refleja en vivo en el teléfono. *«Le sobra ($5M)»* deja saldo para el límite
-  más alto; *«No le alcanza nada»* apaga los tres.
+  Un clic salta a cualquiera con su estado ya armado, sin recorrer el flujo. Es la navegación del prototipo.
+- **Las dos tarjetas** de la derecha —*Narrativa* y *Contexto*— están siempre; se giran con un clic. `?ux=0` las
+  esconde para mostrar la app sola.
+- **Reiniciar**: vuelve la pantalla actual a su estado inicial.
+- El **panel dev** (saldos, cotizaciones, ratios, estado de la tarjeta) sigue en el código —`DevPanel` en
+  [`app.jsx`](app.jsx)— pero no se monta. Para volver a tenerlo alcanza con renderizarlo.
 - **Por URL**, para abrir directo en una pantalla:
 
 | Parámetro | Valores | Qué hace |
@@ -69,6 +89,7 @@ En **desktop** se ve dentro de un marco de iPhone con el control strip arriba (s
 | `p` | `home-vacia` `limit` `respaldo-pick` `cierre` `autopay-cuanto` `summary` `confirm` `wallet` `activated` `home-nueva` `home-activa` `home-pausada` `home-congelada` `limite` `statement` `pay` `edit-limit` `edit-limit-low` | Arranca en esa pantalla con su estado |
 | `mapa` | `1` | Abre en la vista de mapa |
 | `notas` | `0` | Oculta las notas «A confirmar» (para la presentación limpia) |
+| `ux` | `0` | Oculta las notas de UX de al lado del teléfono |
 | `presel` | `0` | En «Elegí el límite de tu tarjeta» no preselecciona ningún monto (para testear comprensión) |
 
 ---
@@ -116,33 +137,44 @@ cambiable en la misma pantalla. Jero la vio **muy cargada** y pidió ir por el e
    orden de miedo: sigue siendo tuyo · el límite es el 80% de lo que dejás (con el número) · **tu límite sigue el
    valor de tu respaldo en pesos, y con Bitcoin se mueve mucho más** · solo se usa si no pagás, avisándote varias
    veces antes. Mismo estado seleccionado negro que el límite.
-4. **El cierre es un acordeón, y todavía sin fechas exactas.** *Elegí cuándo cierra tu resumen*: cada opción dice
+4. **Tu Lemon Credit Card cierra el alta con una sola cosa nueva.** Ni límite ni respaldo: los acaba de elegir, y
+   volver a listarlos convierte el momento en una factura. Lo único que se suma es el costo, dicho completo:
+   *«Se empieza a cobrar recién cuando actives la tarjeta, y los primeros 3 meses van bonificados»*, con el precio
+   tachado y el tag *3 meses gratis*. CTA **Crear mi Credit Card** → y de ahí, **directo a la home**.
+5. **La home recién creada tiene dos contenedores, y no se mezclan.** Arriba, *Empezá a usar tu tarjeta*: **«Ya es
+   tuya. Activala y pagá con el celu»**, con el botón que abre la activación. Abajo, *Tu tarjeta física*: **En
+   camino**, con el rango de fechas (*«Llega entre el 23 y el 25 de septiembre»*), los cuatro pasos del envío
+   (Pedida · En preparación · Despachada · Entregada) y la línea que saca la ansiedad: *«No hace falta esperarla: con
+   el celu ya pagás»*. Separarlos evita la lectura de «tengo que esperar cinco días», que es lo contrario de lo que
+   pasa. La pill de la tarjeta dice **Sin activar**, no «En camino»: el envío ya tiene su caja.
+6. **El cierre es un acordeón, y todavía sin fechas exactas.** *Elegí cuándo cierra tu resumen*: cada opción dice
    *«Cierra alrededor del 15 · Vence alrededor del 25»*; al desplegar, la línea de tiempo muestra **las dos fechas
-   con ≈** (*≈ 15 oct · ≈ 26 oct*). El pie dice lo único que importa ahí: **quedan fijas cuando creás la tarjeta**.
+   con ≈** (*≈ 15 oct · ≈ 26 oct*). El pie dice lo único que importa ahí: **quedan fijas cuando activás la tarjeta**.
    Solo cierre y vencimiento: el «se congela» no va acá.
-5. **El débito automático es una sola pregunta con tres respuestas.** *Elegí cuánto se paga solo*: **solo el
+7. **El débito automático es una sola pregunta con tres respuestas.** *Elegí cuánto se paga solo*: **solo el
    mínimo** · **el total, en pesos y dólares** (los dólares con tu dólar digital: te ahorrás el 30%) · **el total, en
    pesos**. Arriba del CTA, siempre la salida sin culpa: **«Prefiero pagarlo yo cada mes»**. **No hay pantalla «¿De
    dónde se paga?»**: un helper (*«¿De dónde sale la plata?»*) explica qué moneda paga qué, que si en una no alcanza
-   se completa con la otra y que nunca se toca otra moneda.
-6. **Tu Lemon Credit Card** es el último paso antes de que exista: la tarjeta quieta, el título y **todo lo que
-   eligió** (límite · respaldo · cierre con sus fechas ≈ · débito automático · mantenimiento bonificado). CTA *Crear
-   mi Credit Card*. **Ya es tuya** es la bienvenida: la tarjeta flotando con brillo, el título, una línea (*«Desde hoy
-   el control es tuyo. Sumala a Apple Pay y pagá con el celu, sin esperar la física.»*) y un botón grande, **Sumar a
-   Apple Pay**. Después, *Pagá con el celu desde hoy* (el render del celu en el POS + *Agregar a Apple Wallet* /
-   *Ahora no*) y **Ya podés pagar con el celu**, con límite, cierre —ya con **fecha fija**— y cómo se paga.
-7. **La home es «Lemon Card», solapas «Prepaga» y «Crédito», y sigue la landing de hoy.** Card row (*Credit Card*,
+   se completa con la otra y que nunca se toca otra moneda. Cierra en *Pagá con el celu desde hoy* (Apple Wallet) y
+   **Ya podés pagar con el celu**, con límite, cierre —ya con **fecha fija**— y cómo se paga.
+8. **La home es «Lemon Card», solapas «Prepaga» y «Crédito», y sigue la landing de hoy.** Card row (*Credit Card*,
    miniatura vertical · últimos 4 · estado · pausar · flecha) → aviso según estado → secciones planas *Consumos del
    período* (con cierre y vencimiento, ya fijos) → *Límite disponible* (verde, con *Límite total* debajo) → *Resumen*
-   (tarjeta violeta con *Pagar*) → *Actividad*. **Desde el primer día la tarjeta está activa y la home es la de
-   siempre**: si todavía no la sumó al celu aparece arriba una tarjeta blanca (*Pagá con el celu desde hoy*), y si el
-   plástico está viajando, un aviso tranquilo lo dice. Tocar la card row o *Límite disponible* abre **Límite y
-   respaldo**: el medidor semicircular, usado · sin pagar · límite total, *Editar límite*, y abajo *Tu respaldo*
-   (*«Dejaste US$ 862,07 · ≈ $1.250.000 hoy · sigue siendo tuyo»*) con *Retirar* / *Saber más* (los mismos cuatro
-   hechos del alta). El respaldo no vuelve a la home.
-8. **La misma pantalla de límite edita después** (Flujo 3): el escenario muestra el límite nuevo y qué implica
+   (tarjeta violeta con *Pagar*) → *Actividad*. Mientras no esté en el celu aparece la tarjeta blanca *Pagá con el
+   celu desde hoy*; mientras el plástico viaja, sigue el seguimiento. Tocar la card row o *Límite disponible* abre
+   **Límite y respaldo**: el medidor semicircular, usado · sin pagar · límite total, *Editar límite*, y abajo *Tu
+   respaldo* (*«Dejaste US$ 862,07 · ≈ $1.250.000 hoy · sigue siendo tuyo»*) con *Retirar* / *Saber más* (los mismos
+   cuatro hechos del alta). El respaldo no vuelve a la home.
+9. **La misma pantalla de límite edita después** (Flujo 4): el escenario muestra el límite nuevo y qué implica
    (*«Dejás US$ 345 más»* / *«Vuelven US$ 345 a tu saldo»*), la actual queda marcada, y bajar por debajo de lo
    comprometido se bloquea con el porqué.
+10. **Cada pantalla se explica sola, al lado, y cada una es una mejora del caso.** Dos tarjetas dadas vuelta:
+   **Narrativa** (lo que el usuario se tiene que llevar) y **Contexto** (la data, con su fuente). Se giran de a una
+   con un clic: se cuenta la pantalla, se gira la narrativa y recién después se respalda con los números. Ninguna
+   dice cómo resolverlo —eso se conversa con diseño—. El reparto sigue las seis mejoras: 1 · límite variable
+   (límite) · 2 · respaldo en dólar digital (respaldo) · 3 · dólares con dólares, sin el 30% (débito y resumen) ·
+   4 · débito automático (débito) · 5 · cuatro grupos de cierre (cierre) · 6 · NFC (Apple Pay). La primera pantalla
+   abre con el caso completo: la puerta (193.946 / 108.558 / 684) y el diagnóstico (75% / 41%).
 
 ## Los tres números, en la landing
 
@@ -236,28 +268,32 @@ funciones por el backend, sin tocar pantallas.
 
 ## Las pantallas
 
-**Flujo 1 · Alta** (8 pantallas, de la home vacía a «Ya podés pagar») — 1 *Elegí el límite de tu tarjeta*: tres
-montos de mayor a menor, activados según el saldo, el elegido en el escenario negro con su frase de poder, el que no
-alcanza abre *Comprar* · 2 *Elegí tu respaldo*: dólar digital o Bitcoin, *«Dejás US$ 862,07»*, helper *¿Cómo funciona
-el respaldo?* · 3 *Elegí cuándo cierra tu resumen*: acordeón de cuatro cierres, **las dos fechas con ≈** · 4 *Elegí
-cuánto se paga solo*: mínimo o total + **«Prefiero pagarlo yo cada mes»** + helper *¿De dónde sale la plata?* ·
-5 *Tu Lemon Credit Card*: límite, respaldo, cierre, débito y mantenimiento $6.500 bonificado × 3 · 6 *Ya es tuya*: la
-bienvenida y **Sumar a Apple Pay** · 7 *Pagá con el celu desde hoy* · 8 *Ya podés pagar con el celu*, con las fechas
-ya fijas.
+**Flujo 1 · Alta** (3 pantallas + la home) — 1 *Elegí el límite de tu tarjeta*: tres montos de mayor a menor,
+activados según el saldo, el elegido en el escenario negro con su frase de poder, el que no alcanza abre *Comprar* ·
+2 *Elegí tu respaldo*: dólar digital o Bitcoin, *«Dejás US$ 862,07»*, helper *¿Cómo funciona el respaldo?* ·
+3 *Tu Lemon Credit Card*: la tarjeta y el mantenimiento explicado (se cobra al activar; 3 meses bonificados) ·
+**Crear mi Credit Card** → la **home**, con los dos contenedores: *empezá a usar tu tarjeta* y *tu tarjeta física ·
+en camino* (cuatro pasos + rango de fechas). *Ya es tuya* queda en el mapa como pantalla suelta, por si se quiere
+recuperar ese momento.
 
-**Flujo 2 · Landing** — Lemon Card · solapa Crédito, con la estructura de la app de hoy: card row (*Credit Card*),
-aviso in-app según estado, la invitación a sumarla al celu si falta, el aviso del plástico en camino si corresponde,
+**Flujo 2 · Activación** (3 pantallas, header *Activar tarjeta*) — 1 *Elegí cuándo cierra tu resumen*: acordeón de
+cuatro cierres con **las dos fechas en ≈** · 2 *Elegí cuánto se paga solo*: mínimo o total + **«Prefiero pagarlo yo
+cada mes»** + helper *¿De dónde sale la plata?* · 3 *Pagá con el celu desde hoy* → *Ya podés pagar con el celu*, con
+las fechas ya fijas.
+
+**Flujo 3 · Landing** — Lemon Card · solapa Crédito, con la estructura de la app de hoy: card row (*Credit Card*),
+aviso in-app según estado, la invitación a sumarla al celu si falta, el seguimiento del plástico si corresponde,
 *Consumos del período* (con cierre y vencimiento del grupo), *Límite disponible* (+ límite total), *Resumen*
 (violeta, con *Pagar*), *Actividad*. Sub-pantallas:
 **Límite y respaldo** (medidor de disponible, usado · sin pagar · límite total, *Editar límite*, respaldo con
 *Retirar* —también congelada, con el cálculo de cuánto vuelve— y *Saber más*), *Resumen* (detalle con **deuda del
 período anterior**, mínimo, pagar total / mínimo / otro monto), *Consumos del período*.
 
-**Flujo 3 · Editar el límite** — la misma pantalla de límite en modo edición: subir pide más, bajar libera, y bajar
+**Flujo 4 · Editar el límite** — la misma pantalla de límite en modo edición: subir pide más, bajar libera, y bajar
 por debajo de lo comprometido se explica.
 
-**Estados de la landing:** sin tarjeta · recién creada (activa, sin celu, plástico en camino) · activa con resumen a
-pagar · pausada (límite visible) · congelada (aviso con fecha de liquidación, pagar el mínimo y cancelar con el
+**Estados de la landing:** sin tarjeta · recién creada (sin activar, con los dos contenedores) · activa sin celu ·
+activa con resumen a pagar · pausada (límite visible) · congelada (aviso con fecha de liquidación, pagar el mínimo y cancelar con el
 respaldo) · retiro en curso.
 
 ## Decisiones que tomé y no estaban en el brief
@@ -330,11 +366,12 @@ credito/
   credito-model.test.js → 48 tests · tests.html los corre en el navegador
   narrativa.md          → la narrativa de producto que ordena la experiencia (promesa, posicionamiento, tono, vocabulario, momentos, las 8 definiciones de Jero y lo que sigue abierto)
   credito-copy.js       → TODOS los textos de pantalla, por momento (única fuente de verdad del copy; tpl() para {variables})
+  credito-notas.js      → las notas de UX que se muestran al lado del teléfono (qué le contamos al usuario en cada pantalla, por qué, y el dato que lo respalda)
   credito-ui.jsx        → primitivas propias: AssetIcon, BigAmount, OptionCard, SelCheck, SectionHead, HeroPill, HelperLink, HelperSheet, CreditoHeroPromo, Gauge, Notice, DateTimeline, SegTabs…
   credito-limite.jsx    → «Elegí el límite de tu tarjeta»: el escenario negro (LimitStage) + los tres montos, y su modo edición; sheets Comprar y «¿Puedo cambiarlo después?»
   credito-screens.jsx   → respaldo, cierre (acordeón), débito automático (+ helper), tu tarjeta, bienvenida, Apple Pay, ya podés pagar, landing, Límite y respaldo, resumen, pagar, consumos
   assets/               → credito-hero.png (render de la tarjeta, del proto de onboarding) · nfc-hero.png (celu en el POS, del proto de cards)
-  app.jsx               → estado + router + presets (mapa) + panel dev + escenario por URL
+  app.jsx               → estado + router + presets (mapa) + panel dev + notas de UX (UxNote) + escenario por URL
   supuestos.md          → supuestos revisables y preguntas abiertas para producto
   capturas-actual/      → las 5 capturas de la experiencia de hoy
   lemon-ui.jsx / screens-shared.jsx / ios-frame.jsx / colors_and_type.css / fonts/ → copia del DS de cards/
@@ -342,8 +379,26 @@ credito/
 
 ## Números para acompañar la presentación (fuente: `nuevas-credito/`)
 
-193.946 usuarios de Argentina llegaron a "no tenés respaldo suficiente" en 12 meses y 108.558 fueron a comprar crypto
-· parque activo 684 líneas, 475 consumen por mes · el 23% de las tarjetas que se usan tuvo un rechazo por límite
-en agosto ($28,9M en un mes) · sumar dólar digital lleva el universo elegible de 3.040 a 8.932 (×2,9) · el 52%
-preferiría respaldo en pesos y solo el 14% en Bitcoin · ~24 liquidaciones por mes (3,5%), 162 históricas · la mitad
-de los contactos de Ops son "me bajaste el límite cuando bajó Bitcoin".
+**La puerta.** 193.946 usuarios de Argentina llegaron a *"no tenés respaldo suficiente"* en 12 meses y 108.558
+avanzaron hasta comprar crypto. El parque activo es de **684 líneas**, con ~100 altas por mes sin comunicación.
+
+**El límite.** 23% de las tarjetas que se usan tuvo un consumo rechazado por límite en agosto (**$28,9 M** en el
+mes); uno de cada cuatro intentos de uso termina rechazado y el límite es el motivo número uno. 40% de quienes
+tienen tarjeta en otro banco está disconforme con su límite. 9,9% del soporte de la tarjeta es sobre límites, con 11
+pedidos explícitos de aumento en 90 días. 24% se mostró interesado en que el límite se ajuste solo. El rango
+sugerido internamente era **$2,5-3 M**: la V1 salió con $1.000.000.
+
+**El respaldo.** Sumar dólar digital lleva el universo elegible de **3.040 a 8.932** (+5.892, casi ×3) sin tocar el
+modelo de riesgo. Hoy el colateral vigente es **8,73 BTC**, todo en Bitcoin. 52% preferiría dejar el respaldo en
+pesos y solo 14% elegiría BTC; 7 de 12 entrevistados nombran a las stables como su resguardo. 45% considera alto el
+mínimo para acceder.
+
+**El uso y el pago.** 69% de las líneas activas consume todos los meses. 37% de las tarjetas registra consumo
+internacional. 17% de las cuentas paga el resumen con crypto (**19% del volumen**) y 7,1% del soporte pide pagar los
+consumos en dólares con los dólares que ya tiene; en la prepaga, el consumo en USDC **se duplicó** al sacarle el
+impuesto del 30%. 3,5% del parque se liquida todos los meses por no llegar al mínimo (162 líneas históricas, el 12%
+de todas las que existieron); de las 648 líneas cerradas, **486 fueron retiro voluntario del colateral**.
+
+**El diagnóstico de fondo.** 75% de quienes ahorran en crypto tuvo que vender sus ahorros ante una necesidad —esa es
+la propuesta de valor— y 41% de quienes no tienen tarjeta dice que **nunca se la ofrecieron**: el mercado no son los
+rechazados, son los no alcanzados.

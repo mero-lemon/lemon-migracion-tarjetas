@@ -52,24 +52,39 @@
     },
     pedido: {
       h1: 'Tu Lemon Credit Card',
-      sub: 'Ya elegiste todo. Al crearla queda lista para pagar con el celu.',
-      row_limite: 'Límite',
-      row_respaldo: 'Respaldo',
-      row_respaldo_sub: '≈ {ars} en {activo} · sigue siendo tuyo',
-      row_cierre: 'Cierre',
-      row_cierre_sub: 'Vence ≈ el {vto} · las fechas quedan fijas al crearla',
-      row_autopay: 'Débito automático',
-      row_autopay_off: 'Desactivado',
+      sub: 'Al crearla ya es tuya. Cuándo cierra y cuánto se paga solo lo elegís cuando la actives.',
       row_mantenimiento: 'Mantenimiento',
-      tag_bonificado: 'Bonificado {n} meses',
+      mantenimiento_valor: '{ars}/mes',
+      mantenimiento_sub: 'Se empieza a cobrar recién cuando actives la tarjeta, y los primeros {n} meses van bonificados.',
+      tag_bonificado: '{n} meses gratis',
       cta: 'Crear mi Credit Card'
     },
     confirm: {
       eyebrow_opcional: 'Tarjeta creada',
       h1: 'Ya es tuya',
-      sub: 'Desde hoy el control es tuyo. Sumala a Apple Pay y pagá con el celu, sin esperar la física.',
-      cta: 'Sumar a Apple Pay',
+      sub: 'Desde hoy el control es tuyo. Activala y pagá con el celu, sin esperar la física.',
+      cta: 'Empezar a usar ahora',
       cta2: 'Ir a Lemon Card'
+    },
+    // Contenedor 1 de la home recién creada: usarla ya, sin esperar nada
+    home_usar: {
+      eyebrow: 'Empezá a usar tu tarjeta',
+      title: 'Ya es tuya. Activala y pagá con el celu.',
+      body: 'Elegí cuándo cierra tu resumen y cuánto se paga solo. Son dos pantallas, y después la sumás a Apple Pay.',
+      cta: 'Empezar a usar ahora'
+    },
+    // Contenedor 2: el plástico, que viaja aparte y no frena nada
+    home_envio: {
+      eyebrow: 'Tu tarjeta física',
+      title: 'En camino',
+      sub: 'Llega entre el {desde} y el {hasta}',
+      body: 'No hace falta esperarla: con el celu ya pagás.',
+      paso_pedida: 'Pedida',
+      paso_preparando: 'En preparación',
+      paso_despachada: 'Despachada',
+      paso_entregada: 'Entregada',
+      entregada_title: 'Entregada',
+      entregada_sub: 'Activala desde la app cuando quieras usarla en el local.'
     },
     home_wallet: {
       title: 'Pagá con el celu desde hoy',
@@ -78,20 +93,20 @@
     },
     home_fisica: {
       title: 'Tu tarjeta física está en camino',
-      body: 'Llega en 5 a 7 días hábiles. Mientras tanto usás la tarjeta con el celu.'
+      body: 'Llega en 5 a 7 días hábiles. No hace falta esperarla: con el celu ya pagás.'
     },
     cierre: {
-      header: '',
+      header: 'Activar tarjeta',
       h1: 'Elegí cuándo cierra tu resumen',
       sub: 'Pensalo según cuándo cobrás: vence unos 10 días después del cierre.',
       option_title: 'Cierra alrededor del {dia}',
       option_sub: 'Vence alrededor del {dia_vto_aprox}',
       expanded_line: 'Tu primer resumen cerraría ≈ el {fecha_cierre} y vencería ≈ el {fecha_vto}.',
-      footnote: 'Son fechas aproximadas: quedan fijas cuando creás la tarjeta y las ves en la app.',
+      footnote: 'Son fechas aproximadas: quedan fijas cuando activás la tarjeta y las ves en la app.',
       cta: 'Continuar'
     },
     autopay: {
-      header: '',
+      header: 'Activar tarjeta',
       h1: 'Elegí cuánto se paga solo',
       sub: 'El día del vencimiento, sin que tengas que acordarte.',
       min_title: 'Solo el mínimo',
@@ -107,7 +122,7 @@
       skip: 'Prefiero pagarlo yo cada mes'
     },
     wallet: {
-      header: '',
+      header: 'Activar tarjeta',
       h1: 'Pagá con el celu desde hoy',
       sub: 'Sumala a Apple Pay y pagá apoyando el celu, sin esperar la física.',
       cta: 'Agregar a Apple Wallet',

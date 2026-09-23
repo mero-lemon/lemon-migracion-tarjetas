@@ -3,9 +3,10 @@
 // un estado prearmado. El selector de límite vive en credito-limite.jsx y
 // TODOS los textos en credito-copy.js (ordenados por narrativa.md).
 //
-// Alta (Jero, 21/09) = límite → respaldo → cierre → débito automático →
-// tu tarjeta → ya es tuya → Apple Pay. La tarjeta nace configurada y activa:
-// no hay «activación» aparte, solo sumarla al celu cuando el usuario quiera.
+// Alta (Jero, 21/09) = límite → respaldo → tu tarjeta → **se crea** → ya es tuya.
+// Activación (cuando el usuario toca «Empezar a usar ahora») = cierre → débito
+// automático → Apple Pay → ya podés pagar. La tarjeta existe desde el respaldo;
+// lo que se configura al activarla es el ritmo del resumen, no la tarjeta.
 const { useState: useStateS, useEffect: useEffectS, useRef: useRefS } = React;
 
 const T = () => window.CreditoCopy;
@@ -77,32 +78,28 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
     </div>);
 }
 
-// ── Tu Lemon Credit Card: la tarjeta quieta, el título y lo que elegiste ─
-// Último paso antes de que la tarjeta exista: acá ya están el cierre y el
-// débito automático, porque se eligen antes de crearla. Las dos fechas van
-// con ≈: quedan fijas recién cuando la tarjeta nace.
+// ── Tu Lemon Credit Card: la tarjeta y lo único que falta decir ─
+// Ni límite ni respaldo: los acaba de elegir y repetirlos convierte un
+// momento en una factura (Jero, 21/09). Lo único nuevo es el costo, y se
+// dice completo: cuándo empieza a correr y qué parte está bonificada.
 function OrderSummary({ S, onBack, onContinue }) {
   const t = T().pedido;
-  const { asset, limit } = S.order;
-  const chk = M.check(limit, asset, S.balances, S.prices, S.ratios);
-  const a = M.ASSETS[asset];
-  const d = S.draftCierre ? M.cycleDates(S.draftCierre, S.hoy) : null;
-  const ap = S.draftAutopay && S.draftAutopay.on ? S.draftAutopay : null;
   return (
     <Screen bg={CR.page} footer={<Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>}>
       <StepHeader title="" onBack={onBack} />
-      <div style={{ padding: '4px 16px 16px' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0 14px' }}>
-          <CardArt variant="credito" width={178} style={{ boxShadow: '0 22px 44px -14px rgba(20,20,20,0.35)' }} />
+      <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 22px' }}>
+          <CardArt variant="credito" width={236} glow style={{ boxShadow: '0 24px 48px -12px rgba(20,20,20,0.35)' }} />
         </div>
         <div style={{ ...H1, textAlign: 'center' }}>{t.h1}</div>
         <div style={{ ...SUB, textAlign: 'center' }}>{t.sub}</div>
-        <Surface pad={16} style={{ marginTop: 18 }}>
-          <InfoRow label={t.row_limite} value={M.fmtArs(limit)} />
-          <InfoRow label={t.row_respaldo} value={M.fmtUnits(chk.needUnits, asset)} sub={T().tpl(t.row_respaldo_sub, { ars: M.fmtArs(chk.needArs), activo: a.name.toLowerCase() })} />
-          {d && <InfoRow label={t.row_cierre} value={`≈ ${M.fmtDate(d.cierre)}`} sub={T().tpl(t.row_cierre_sub, { vto: M.fmtDate(d.vencimiento) })} />}
-          <InfoRow label={t.row_autopay} value={ap ? autopayTitle(ap.mode) : t.row_autopay_off} sub={ap ? autopaySub(ap.mode) : T().activated.autopay_off_sub} />
-          <InfoRow label={t.row_mantenimiento} value={`${M.fmtArs(M.FEES.mantenimiento)}/mes`} strike tag={<Tag tone="positive">{T().tpl(t.tag_bonificado, { n: M.FEES.bonifMeses })}</Tag>} last />
+        <Surface pad={16} style={{ marginTop: 22 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ font: '400 14px Inter', color: CR.ink2, flex: 1 }}>{t.row_mantenimiento}</span>
+            <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: CR.ink3, textDecoration: 'line-through' }}>{T().tpl(t.mantenimiento_valor, { ars: M.fmtArs(M.FEES.mantenimiento) })}</span>
+            <span style={{ whiteSpace: 'nowrap' }}><Tag tone="positive">{T().tpl(t.tag_bonificado, { n: M.FEES.bonifMeses })}</Tag></span>
+          </div>
+          <div style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink2, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${CR.hair}` }}>{T().tpl(t.mantenimiento_sub, { n: M.FEES.bonifMeses })}</div>
         </Surface>
       </div>
     </Screen>);
@@ -387,14 +384,69 @@ function EstadoAviso({ S, onPagar, onReactivar, onRetiro }) {
   return null;
 }
 
+// ── Seguimiento del plástico: el segundo contenedor de la home ──────
+// El envío es una preocupación aparte de usar la tarjeta, así que tiene su
+// propia caja y su propio ritmo: cuatro pasos, el rango de fechas y nada más.
+function EnvioCard({ S, onSimDelivery }) {
+  const t = T().home_envio;
+  const c = S.card;
+  const desde = M.addDays(S.hoy, 5), hasta = M.addDays(S.hoy, 7);
+  const rango = desde.getMonth() === hasta.getMonth()
+    ? `${desde.getDate()} y el ${M.fmtDate(hasta)}`
+    : `${M.fmtDate(desde)} y el ${M.fmtDate(hasta)}`;
+  const entregada = c.fisica === 'entregada';
+  const pasos = [
+    { k: 'pedida', label: t.paso_pedida, done: true },
+    { k: 'preparando', label: t.paso_preparando, done: entregada, now: !entregada },
+    { k: 'despachada', label: t.paso_despachada, done: entregada },
+    { k: 'entregada', label: t.paso_entregada, done: entregada, now: entregada }];
+  return (
+    <Surface pad={18} style={{ marginTop: 12 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={EYEBROW}>{t.eyebrow}</div>
+          <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: CR.ink, marginTop: 6 }}>{entregada ? t.entregada_title : t.title}</div>
+          <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 4 }}>
+            {entregada ? t.entregada_sub : T().tpl(t.sub, { desde: rango.split(' y el ')[0], hasta: rango.split(' y el ')[1] })}
+          </div>
+        </div>
+        <CardThumb variant="credito" w={44} portrait />
+      </div>
+
+      {/* los cuatro pasos, en línea: hecho · en curso · pendiente */}
+      <div style={{ display: 'flex', alignItems: 'flex-start', marginTop: 16 }}>
+        {pasos.map((p, i) => {
+          const on = p.done || p.now;
+          return (
+            <div key={p.k} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, position: 'relative' }}>
+              {i > 0 && <span style={{ position: 'absolute', right: '50%', left: '-50%', top: 7, height: 2, background: p.done || p.now ? CR.ink : CR.hair }} />}
+              <span style={{ position: 'relative', width: 16, height: 16, borderRadius: 999, background: p.done ? CR.ink : '#fff', border: `2px solid ${on ? CR.ink : CR.hair}`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {p.done && <LI name="selected" size={9} color="#fff" />}
+                {p.now && !p.done && <span style={{ width: 6, height: 6, borderRadius: 999, background: CR.ink }} />}
+              </span>
+              <span style={{ font: `${on ? 500 : 400} 11px Inter`, color: on ? CR.ink : CR.ink3, textAlign: 'center', lineHeight: 1.25 }}>{p.label}</span>
+            </div>);
+        })}
+      </div>
+
+      {!entregada &&
+      <>
+        <div style={{ font: '400 12px Inter', color: CR.ink3, lineHeight: 1.45, marginTop: 14, textAlign: 'center' }}>{t.body}</div>
+        <button onClick={onSimDelivery} style={{ marginTop: 10, width: '100%', border: '1px dashed #C9C9C4', background: 'transparent', cursor: 'pointer', borderRadius: 14, padding: '9px', font: '500 12px Inter', color: CR.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+          <LI name="rocket" size={13} color={CR.ink3} /> Prototipo: simular que ya me llegó el plástico
+        </button>
+      </>}
+    </Surface>);
+}
+
 // La landing «Lemon Card · Crédito», con la estructura de la app de hoy:
 // header · solapas · card row · aviso · Consumos · Límite disponible ·
 // Resumen · Actividad. Sin tarjeta: solo el promo con el render real.
 function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos, onTogglePause, onSimDelivery, onActivate, onRetiro, onTab }) {
-  const th = T().home, tw = T().home_wallet, tf = T().home_fisica;
+  const th = T().home, tu = T().home_usar, tw = T().home_wallet;
   const c = S.card;
   const n = c ? M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: M.saldoImpago(S.statement) }) : null;
-  const aviso = c ? EstadoAviso({ S, onPagar, onReactivar: onTogglePause, onRetiro }) : null;
+  const aviso = c && c.status !== 'camino' ? EstadoAviso({ S, onPagar, onReactivar: onTogglePause, onRetiro }) : null;
   const chip = { background: '#fff', boxShadow: 'var(--shadow-card)' };
   return (
     <Screen bg={CR.page}>
@@ -428,33 +480,41 @@ function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos,
             </div>
           </Surface>
 
+          {/* Contenedor 1 · recién creada: usarla ya. La tarjeta existe, solo
+              falta elegir el ritmo del resumen y sumarla al celu. */}
+          {c.status === 'camino' &&
+          <Surface pad={20} style={{ marginTop: 12 }}>
+            <div style={EYEBROW}>{tu.eyebrow}</div>
+            <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: CR.ink, marginTop: 6 }}>{tu.title}</div>
+            <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 8 }}>{tu.body}</div>
+            <div style={{ marginTop: 16 }}><Btn variant="primary" onClick={() => onActivate('nfc')} style={{ padding: '16px 20px' }}>{tu.cta}</Btn></div>
+          </Surface>}
+
           {aviso && <div style={{ marginTop: 12 }}>{aviso}</div>}
 
-          {/* la tarjeta ya nace activa: lo único pendiente es el celu */}
-          {!c.nfc && c.status !== 'retiro' &&
+          {/* ya activa: lo único pendiente es el celu */}
+          {!c.nfc && c.status !== 'camino' && c.status !== 'retiro' &&
           <Surface pad={20} style={{ marginTop: 12, textAlign: 'center' }}>
             <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink }}>{tw.title}</div>
             <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 8 }}>{tw.body}</div>
             <div style={{ marginTop: 16 }}><Btn variant="primary" onClick={() => onActivate('nfc')} style={{ padding: '16px 20px' }}>{tw.cta}</Btn></div>
           </Surface>}
 
-          {c.fisica === 'camino' &&
-          <>
-            <Notice tone="info" icon="card-on" title={tf.title} body={tf.body} style={{ marginTop: 12 }} />
-            <button onClick={onSimDelivery} style={{ marginTop: 10, width: '100%', border: '1px dashed #C9C9C4', background: 'transparent', cursor: 'pointer', borderRadius: 14, padding: '10px', font: '500 12px Inter', color: CR.ink3, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-              <LI name="rocket" size={13} color={CR.ink3} /> Prototipo: simular que ya me llegó el plástico
-            </button>
-          </>}
+          {/* Contenedor 2 · el plástico, con su propio seguimiento */}
+          {c.fisica === 'camino' && c.status !== 'retiro' && <EnvioCard S={S} onSimDelivery={onSimDelivery} />}
 
-          <TresNumeros S={S} n={n} onLimite={onLimite} onVerResumen={onVerResumen} onPagar={onPagar} onConsumos={onConsumos} />
-          <div style={{ marginTop: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'center', padding: '0 2px 4px' }}>
-              <span style={EYEBROW}>{th.sec_actividad}</span>
-              <span style={{ flex: 1 }} />
-              <LI name="arrow-foward" size={16} color={CR.ink3} />
+          {c.status !== 'camino' &&
+          <>
+            <TresNumeros S={S} n={n} onLimite={onLimite} onVerResumen={onVerResumen} onPagar={onPagar} onConsumos={onConsumos} />
+            <div style={{ marginTop: 28 }}>
+              <div style={{ display: 'flex', alignItems: 'center', padding: '0 2px 4px' }}>
+                <span style={EYEBROW}>{th.sec_actividad}</span>
+                <span style={{ flex: 1 }} />
+                <LI name="arrow-foward" size={16} color={CR.ink3} />
+              </div>
+              {S.period.movs.slice(0, 4).map((m, i) => <MoveRow key={i} icon={m.icon} coin={m.coin} title={m.title} date={m.date} amount={m.amount} sign={m.sign} />)}
             </div>
-            {S.period.movs.slice(0, 4).map((m, i) => <MoveRow key={i} icon={m.icon} coin={m.coin} title={m.title} date={m.date} amount={m.amount} sign={m.sign} />)}
-          </div>
+          </>}
         </>}
       </div>
     </Screen>);

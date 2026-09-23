@@ -118,7 +118,7 @@ const CardStatusPill = ({ status }) => {
     activa: ['#E6FEF0', '#1CB854', 'Activa'],
     pausada: ['var(--c-gray-20)', 'var(--c-gray-70)', 'Pausada'],
     congelada: ['#E8F1FF', '#274BBE', 'Congelada'],
-    camino: ['#FDF4ED', '#F0A20B', 'En camino'],
+    camino: ['#FDF4ED', '#F0A20B', 'Sin activar'],
     pedida: ['#FDF4ED', '#F0A20B', 'Pedido en curso'],
     retiro: ['var(--c-gray-20)', 'var(--c-gray-70)', 'Retiro en curso']
   }[status] || ['#E6FEF0', '#1CB854', status];
