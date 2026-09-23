@@ -13,8 +13,9 @@ salen de [`credito-copy.js`](credito-copy.js)**: para cambiar una frase se toca 
 
 > **Este es el prototipo para pitchear, no el final.** Al lado del teléfono, cada pantalla trae **dos tarjetas dadas
 > vuelta que se giran al hacer clic**. **Narrativa**: qué le queremos contar al usuario en esa pantalla —la idea en
-> una frase y lo que se le suma—. **Contexto**: la evidencia, con el número a la izquierda, el hecho al lado y su
-> fuente debajo. Sirven para contar primero y respaldar después, sin leer de un papel.
+> una frase y un párrafo en voz de campaña que la desarrolla: posiciona, nombra la tensión y cierra—. **Contexto**:
+> la evidencia, con el número a la izquierda, el hecho al lado y su fuente debajo. Sirven para contar primero y
+> respaldar después, sin leer de un papel.
 >
 > **Las notas no dicen cómo resolverlo.** La experiencia tiene que explicarse sola, y el «cómo» es justo lo que el
 > equipo de diseño tiene que poder proponer cuando se le presenta la narrativa. Cómo está resuelto hoy se lee acá y
