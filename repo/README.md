@@ -9,8 +9,21 @@ CDN + componentes JSX locales.
 - `/gastos/` → **Tus gastos** (home de un vistazo + buscador con filtros — ver `gastos/README.md`)
 - `/onboarding/` → **Onboarding sin tarjetas** (home vacía → pager horizontal virtual/física/crédito → flujos de alta)
 - `/pagos-automaticos/` → **Tus pagos automáticos** (mini app: qué débitos automáticos tenés, cuáles se rebotan y en qué tarjeta; 4 variantes para testear — ver `pagos-automaticos/README.md`)
-- `/credito/` → **Lemon Credit Card · nueva experiencia** (ordenada por una narrativa de producto —tu mejor amiga y tu superpoder— en `credito/narrativa.md`: elegí el límite de tu tarjeta entre tres montos activados según tu saldo, elegí el respaldo en dólar digital o Bitcoin (el límite es el 80% del respaldo), bienvenida con «Empezar a usar ahora», cierre aproximado en acordeón, débito automático en una pregunta, Apple Pay como cierre de la activación, landing Lemon Card · Crédito con límite · disponible · saldo; vista de mapa para presentar — ver `credito/README.md`)
+- `/credito/` → **Nueva Lemon Credit Card** (el prototipo con el que se pitchea la propuesta, ordenado por la narrativa de `credito/narrativa.md`: elegí el límite entre tres montos activados según tu saldo → elegí el respaldo en dólar digital o Bitcoin (el límite es el 80% del respaldo) → se crea la tarjeta y caés en la home, que separa «empezá a usar tu tarjeta» del seguimiento del envío; el cierre y el débito automático se eligen al activarla, y termina en Apple Pay. Al lado de cada pantalla hay dos tarjetas dadas vuelta —**Narrativa** y **Contexto**— que se giran con un clic: qué le contamos al usuario y la data que lo respalda, con su fuente. Vista de mapa para presentar — ver `credito/README.md`)
 - `/alta-tarjetas/` → **Alta de tarjetas · spec** (documento, sin prototipo: virtual NFC gratis como centro + física paga con fricción honesta; árbol de entrada, flujos por camino, matriz de casos, copy, variantes de checkout — ver `alta-tarjetas/README.md`)
+
+## Deploy (Vercel)
+
+El sitio es estático y no tiene build. Dos formas, según qué quieras publicar:
+
+- **Todo junto, sin tocar settings.** Importás el repo con la configuración por defecto: el `vercel.json` de la raíz
+  reescribe `/` → `/repo/`, así `/credito/`, `/cards/`, `/cajas/` y el resto quedan en la URL corta.
+- **Un prototipo solo.** Importás el repo y ponés **Root Directory = `repo/credito`** (o `repo/cajas`, etc.),
+  Framework *Other*, sin build command. Cada carpeta es autocontenida. Con Root Directory apuntando a una subcarpeta,
+  el `vercel.json` de la raíz no se usa: no hay conflicto entre las dos formas.
+
+Ojo con una dependencia: las pantallas compilan JSX en el navegador con **React y Babel desde unpkg**. Anda igual en
+Vercel, pero la primera carga baja ~1 MB de CDN y, si unpkg está caído, el prototipo no levanta.
 
 ## Estructura
 

@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "rewrites": [
+    { "source": "/", "destination": "/repo/index.html" },
+    { "source": "/:proto(credito|cards|cajas|gastos|onboarding|migracion-ab)", "destination": "/repo/:proto/index.html" },
+    { "source": "/:proto(credito|cards|cajas|gastos|onboarding|migracion-ab)/", "destination": "/repo/:proto/index.html" },
+    { "source": "/(.*)", "destination": "/repo/$1" }
+  ]
+}
