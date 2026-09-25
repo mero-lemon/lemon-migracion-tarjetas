@@ -61,10 +61,10 @@
       lead: 'Ahora vos controlás todo.',
       parrafo: 'Es la herramienta para manejar tu día a día: el súper, la nafta, el viaje, el celu nuevo. Definís el límite que te sirve, sin que nadie te evalúe. Gastás sin vender lo que ahorraste: tu dólar digital y tu Bitcoin se quedan donde están. Pagás cuando te queda cómodo, o dejás que se pague solo. Ves en qué se te va, y lo que gastaste en dólares lo pagás con dólares, sin la percepción del 30%.',
       contexto: [
-        { n: '193.946', t: 'El interés ya existe, y nunca lo comunicamos.',
+        { n: '193.946', t: 'Existe un interés, y no hicimos ninguna campaña.',
           d: '193.946 usuarios llegaron a «no tenés respaldo suficiente» en 12 meses, y 108.558 avanzaron hasta comprar crypto para poder entrar.', f: HOY + ' · flujo de alta, 12 meses' },
-        { n: '~100', t: 'El experimento validó la demanda: entran solos.',
-          d: '~100 altas por mes, estables, sin una sola comunicación ni inversión asociada. Todo el parque son 684 líneas activas.', f: HOY + ' · altas mensuales, 2026' },
+        { n: '~100', t: 'El experimento validó la demanda: entran solos, todos los meses.',
+          d: '~100 altas por mes, estables, sin inversión asociada. Todo el parque son 684 líneas activas.', f: HOY + ' · altas mensuales, 2026' },
         { n: '75%', t: 'Hoy, ahorrar en crypto termina en venderla.',
           d: '75% de quienes ahorran en crypto tuvo que vender sus ahorros ante una necesidad. Esa es la propuesta de valor.', f: 'Discovery previo a la V1 · +1.500 respuestas' },
         { n: '41%', t: 'Hay una porción de la sociedad a la que nunca le ofrecieron una tarjeta de crédito.',
