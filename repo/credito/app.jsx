@@ -231,10 +231,13 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     </div>);
 }
 
-// ── Notas de UX: dos tarjetas dadas vuelta, que se giran al hacer clic ─
-// Material de pitch, no parte de la app: primero se muestra la pantalla, se
-// da vuelta NARRATIVA (qué le contamos al usuario) y, si hay que respaldarlo,
-// CONTEXTO (la data que ya aprendimos). El contenido vive en credito-notas.js.
+// ── Notas del pitch: tarjetas dadas vuelta, que se giran al hacer clic ─
+// Material de pitch, no parte de la app: primero se muestra la pantalla, se da
+// vuelta NARRATIVA (qué le contamos al usuario) y, donde hay evidencia de
+// verdad, CONTEXTO (el dato medido, con su fuente). NARRATIVA está en todas las
+// pantallas; CONTEXTO solo en las que una medición justifica —el criterio y el
+// contenido viven arriba de credito-notas.js—, así que una pantalla puede
+// mostrar una sola tarjeta y eso es lo esperado.
 const noteKey = (route, card) => {
   if (route !== 'home') return route;
   if (!card) return 'home-vacia';
@@ -242,7 +245,7 @@ const noteKey = (route, card) => {
 };
 const NOTE_TONE = {
   narrativa: { label: 'Narrativa', hint: 'Qué le queremos contar al usuario', bg: '#141414', fg: '#fff', dim: 'rgba(255,255,255,0.62)', accent: 'var(--c-lime-40)' },
-  contexto: { label: 'Contexto', hint: 'La data que respalda la propuesta', bg: '#2C3A47', fg: '#fff', dim: 'rgba(255,255,255,0.6)', accent: '#E0925A' }
+  contexto: { label: 'Contexto', hint: 'Lo que ya medimos, y qué prueba', bg: '#2C3A47', fg: '#fff', dim: 'rgba(255,255,255,0.6)', accent: '#E0925A' }
 };
 
 // Una tarjeta con dos caras: el dorso (cerrada) y el contenido (abierta).
@@ -250,13 +253,6 @@ const NOTE_TONE = {
 const CLOSED_H = 138; // alto del dorso: al girar, la tarjeta crece hasta su contenido
 const NOTE_INK = '#1c1c1a', NOTE_INK2 = '#4a4a46', NOTE_INK3 = '#8a8985', NOTE_HAIR = '#ECEBE6';
 
-const NoteLi = ({ children, color }) =>
-<li style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
-    <span style={{ width: 5, height: 5, borderRadius: 999, background: color, flexShrink: 0, marginTop: 8 }} />
-    <span style={{ font: '400 13.5px Inter', lineHeight: 1.55, color: NOTE_INK2 }}>{children}</span>
-  </li>;
-const NoteUl = ({ children, gap = 9 }) =>
-<ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap }}>{children}</ul>;
 const NoteLabel = ({ color, children }) =>
 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
     <span style={{ width: 6, height: 6, borderRadius: 999, background: color }} />
@@ -301,30 +297,32 @@ function FlipCard({ tone, note }) {
     </div>);
 }
 
-// Narrativa: la idea en una frase y lo que se le suma. Nada de «cómo lo
-// resolvimos» (Jero, 23/09): la experiencia tiene que explicarse sola, y el
-// cómo es lo que el equipo de diseño tiene que poder proponer.
+// Narrativa: la afirmación en una frase (lead) y el párrafo que la desarrolla
+// con lo que hace el usuario. Nada de «cómo lo resolvimos» (Jero, 23/09): la
+// experiencia tiene que explicarse sola, y el cómo es lo que el equipo de
+// diseño tiene que poder proponer.
 const NarrativaBody = ({ note, accent }) =>
 <>
     <div style={{ font: '500 15.5px Inter', lineHeight: 1.45, letterSpacing: '-0.012em', color: NOTE_INK, margin: '13px 0 0', paddingLeft: 12, borderLeft: `2px solid ${accent}`, textWrap: 'pretty' }}>{note.lead}</div>
     {note.parrafo &&
     <p style={{ font: '400 13.5px Inter', lineHeight: 1.65, color: NOTE_INK2, margin: '14px 0 0', textWrap: 'pretty' }}>{note.parrafo}</p>}
-    {note.narrativa && note.narrativa.length > 0 &&
-    <div style={{ marginTop: 14 }}><NoteUl gap={10}>{note.narrativa.map((p, i) => <NoteLi key={i} color={accent}>{p}</NoteLi>)}</NoteUl></div>}
   </>;
 
-// Contexto: el número a la izquierda, alineado; el hecho al lado.
+// Contexto: el número a la izquierda, alineado; al lado, la conclusión que ese
+// número permite afirmar (t), el dato completo que la sostiene (d) y la fuente
+// (f). Un número suelto no afirma nada: el título es lo que se lee primero.
 const ContextoBody = ({ items, accent }) =>
 <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column' }}>
     {(items || []).map((it, i) => {
       const item = typeof it === 'string' ? { t: it } : it;
       return (
-        <div key={i} style={{ display: 'grid', gridTemplateColumns: item.n ? 'minmax(58px, auto) 1fr' : '1fr', gap: 12, alignItems: 'baseline', padding: '9px 0', borderTop: i === 0 ? 'none' : `1px solid ${NOTE_HAIR}` }}>
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: item.n ? 'minmax(58px, auto) 1fr' : '1fr', gap: 12, alignItems: 'baseline', padding: '11px 0', borderTop: i === 0 ? 'none' : `1px solid ${NOTE_HAIR}` }}>
           {item.n &&
           <b style={{ font: '600 13.5px Inter', letterSpacing: '-0.015em', color: accent, textAlign: 'right', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{item.n}</b>}
           <span>
-            <span style={{ display: 'block', font: '400 13px Inter', lineHeight: 1.55, color: NOTE_INK2, textWrap: 'pretty' }}>{item.t}</span>
-            {item.f && <span style={{ display: 'block', font: '500 9.5px Inter', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#B4B3AE', marginTop: 5 }}>{item.f}</span>}
+            <span style={{ display: 'block', font: '500 13px Inter', lineHeight: 1.5, letterSpacing: '-0.008em', color: NOTE_INK, textWrap: 'pretty' }}>{item.t}</span>
+            {item.d && <span style={{ display: 'block', font: '400 12.5px Inter', lineHeight: 1.55, color: NOTE_INK2, marginTop: 4, textWrap: 'pretty' }}>{item.d}</span>}
+            {item.f && <span style={{ display: 'block', font: '500 9.5px Inter', letterSpacing: '0.07em', textTransform: 'uppercase', color: '#B4B3AE', marginTop: 6 }}>{item.f}</span>}
           </span>
         </div>);
     })}
