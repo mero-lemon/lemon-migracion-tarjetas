@@ -17,10 +17,14 @@
 //   · NO va donde lo único que podemos escribir es una opinión de diseño
 //     («si las dos comparten el mismo espacio, el plástico marca el ritmo»).
 //     Eso es «cómo lo contamos» con otro nombre, y se sacó a propósito.
-//   · Por eso hoy son 10 pantallas con las dos tarjetas y 7 con narrativa sola
-//     (summary · home-camino · wallet · activated · home-pausada · consumos ·
-//     confirm). Una tarjeta sola no es una pantalla incompleta: es una pantalla
-//     donde la evidencia ya la dimos antes.
+//   · Tampoco va donde el dato es cierto pero habla del producto en general y
+//     no de la decisión que muestra esa pantalla (Jero, 25/09, sobre la home
+//     activa): si el número se puede contar igual de bien en otra pantalla, es
+//     de esa otra pantalla.
+//   · Por eso hoy son 9 pantallas con las dos tarjetas y 8 con narrativa sola
+//     (summary · home-camino · wallet · activated · home-activa · home-pausada
+//     · consumos · confirm). Una tarjeta sola no es una pantalla incompleta: es
+//     una pantalla donde la evidencia ya la dimos antes.
 //
 // Reglas de edición, para que esto siga sirviendo para pitchear:
 //   · Un dato vive en UNA sola pantalla, la que justifica. No se repite.
@@ -65,8 +69,8 @@
           d: '75% de quienes ahorran en crypto tuvo que vender sus ahorros ante una necesidad. Esa es la propuesta de valor.', f: 'Discovery previo a la V1 · +1.500 respuestas' },
         { n: '41%', t: 'Hay una porción de la sociedad a la que nunca le ofrecieron una tarjeta de crédito.',
           d: 'Lo dice el 41% de quienes no tienen ninguna: no son rechazados, son no alcanzados.', f: 'Discovery previo a la V1' },
-        { n: '69%', t: 'Y el que entra, usa.',
-          d: '69% de las líneas activas consume todos los meses.', f: HOY + ' · líneas con respaldo activo' }
+        { n: '69%', t: 'Y el que entra, usa: el consumo crece solo.',
+          d: '69% de las líneas activas consume todos los meses, y las cuentas con consumo pasaron de 169 a 475 entre enero y agosto de 2026.', f: HOY + ' · líneas activas y cuentas con consumo, 2026' }
       ]
     },
     limit: {
@@ -119,24 +123,15 @@
           d: 'En la prepaga, el consumo en USDC se multiplicó por dos en los tres meses posteriores a sacarle el impuesto.', f: 'Tarjeta prepaga AR · otro producto, sirve de precedente' }
       ]
     },
-    'home-activa': {
-      paso: 'Vivir con ella', titulo: 'Lemon Card · Crédito',
-      lead: 'Tres números y ninguna explicación.',
-      parrafo: 'Cuánto gastaste, cuánto te queda y cuánto tenés que pagar: las tres cosas a la vista, sin tocar nada. Lo que todavía no pagaste sigue ocupando tu límite y te lo decimos acá, porque enterarte en una compra rechazada es mucho peor. El respaldo, que se entiende una sola vez, queda a un toque de distancia.',
-      contexto: [
-        { n: '169 → 475', t: 'El uso crece solo, mes a mes.',
-          d: 'Cuentas con consumo por mes, de enero a agosto de 2026.', f: HOY + ' · cuentas con consumo, 2026' },
-        { n: '730', t: 'Después del límite, el segundo motivo de rechazo es la cuenta inhibida.',
-          d: '730 rechazos sobre 90 tarjetas en un solo mes.', f: HOY + ' · rechazos, agosto 2026' }
-      ]
-    },
     'home-congelada': {
       paso: 'Estados difíciles', titulo: 'Congelada hasta pagar el mínimo',
       lead: 'El problema, la salida y la fecha. En ese orden.',
       parrafo: 'Te decimos qué pasó, cómo se sale y hasta cuándo tenés, con los números adelante y sin reproche. Nunca «mora» ni «liquidamos»: si llegamos ahí usamos parte de tu respaldo, avisándote varias veces antes. Siempre hay dos puertas abiertas —pagar el mínimo o cancelar con lo que ya dejaste— y se descongela en cuanto impacta el pago.',
       contexto: [
         { n: '12%', t: 'Una de cada ocho líneas que existieron terminó liquidada.',
-          d: '162 de 1.338. El débito automático existe para que esta pantalla no aparezca.', f: HOY + ' · histórico de líneas' }
+          d: '162 de 1.338. El débito automático existe para que esta pantalla no aparezca.', f: HOY + ' · histórico de líneas' },
+        { n: '730', t: 'Y mientras tanto, la tarjeta congelada rebota en la caja.',
+          d: 'Después del límite, el segundo motivo de rechazo es la cuenta inhibida: 730 rechazos sobre 90 tarjetas en un solo mes.', f: HOY + ' · rechazos, agosto 2026' }
       ]
     },
     limite: {
@@ -172,6 +167,11 @@
     },
 
     // ── Narrativa sola: la evidencia ya la dimos antes ──────────────
+    'home-activa': {
+      paso: 'Vivir con ella', titulo: 'Lemon Card · Crédito',
+      lead: 'Tres números y ninguna explicación.',
+      parrafo: 'Cuánto gastaste, cuánto te queda y cuánto tenés que pagar: las tres cosas a la vista, sin tocar nada. Lo que todavía no pagaste sigue ocupando tu límite y te lo decimos acá, porque enterarte en una compra rechazada es mucho peor. El respaldo, que se entiende una sola vez, queda a un toque de distancia.'
+    },
     summary: {
       paso: 'Alta · 3 de 3', titulo: 'Tu Lemon Credit Card',
       lead: 'Al tocar el botón, la tarjeta ya es tuya.',

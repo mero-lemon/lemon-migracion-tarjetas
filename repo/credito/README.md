@@ -20,9 +20,11 @@ salen de [`credito-copy.js`](credito-copy.js)**: para cambiar una frase se toca 
 > **No todas las pantallas llevan las dos.** Narrativa va en las 17: siempre hay algo que queremos que el usuario se
 > lleve. Contexto va solo donde hay **evidencia de verdad** —un número medido, con fuente, que justifica esa decisión
 > de producto—, que en general son las pantallas que resuelven una de las seis mejoras del caso. Donde lo único que
-> podíamos escribir era una opinión de diseño, no va: eso es «cómo lo contamos» con otro nombre. Hoy son **10
-> pantallas con las dos tarjetas y 7 con narrativa sola** (el pedido, la home recién creada, Apple Pay, el cierre del
-> alta, pausada, consumos y la pantalla suelta de festejo).
+> podíamos escribir era una opinión de diseño, no va: eso es «cómo lo contamos» con otro nombre. Tampoco va donde el
+> dato es cierto pero habla del producto en general y no de la decisión que muestra esa pantalla: si el número se
+> cuenta igual de bien en otra, es de esa otra. Hoy son **9 pantallas con las dos tarjetas y 8 con narrativa sola**
+> (el pedido, la home recién creada, Apple Pay, el cierre del alta, la home activa, pausada, consumos y la pantalla
+> suelta de festejo).
 >
 > **Las notas no dicen cómo resolverlo.** La experiencia tiene que explicarse sola, y el «cómo» es justo lo que el
 > equipo de diseño tiene que poder proponer cuando se le presenta la narrativa. Cómo está resuelto hoy se lee acá y
@@ -178,7 +180,7 @@ cambiable en la misma pantalla. Jero la vio **muy cargada** y pidió ir por el e
    comprometido se bloquea con el porqué.
 10. **Cada pantalla se explica sola, al lado, y cada una es una mejora del caso.** Tarjetas dadas vuelta:
    **Narrativa** (lo que el usuario se tiene que llevar, en las 17) y **Contexto** (la conclusión que un dato medido
-   permite afirmar, con su fuente, solo en las 10 que tienen evidencia). Se giran de a una con un clic: se cuenta la
+   permite afirmar, con su fuente, solo en las 9 que tienen evidencia propia). Se giran de a una con un clic: se cuenta la
    pantalla, se gira la narrativa y recién después se respalda con los números. Ninguna
    dice cómo resolverlo —eso se conversa con diseño—. El reparto sigue las seis mejoras: 1 · límite variable
    (límite) · 2 · respaldo en dólar digital (respaldo) · 3 · dólares con dólares, sin el 30% (débito y resumen) ·
