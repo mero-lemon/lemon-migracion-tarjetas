@@ -327,13 +327,11 @@ function ActivadaSheet({ S, onAddWallet, onClose }) {
   const add = () => { setAdding(true); setTimeout(() => { setAdding(false); onAddWallet(); }, 1400); };
   return (
     <div style={{ padding: '2px 2px 2px', textAlign: 'center', position: 'relative' }}>
-      {/* La foto del pago con el celu, recortada (Jero, 29/09). Si todavía no
-          está el recorte, cae en la que ya teníamos, que es la misma escena
-          con fondo: así la pantalla nunca queda vacía. */}
-      <div style={{ padding: '2px 0 0', display: 'flex', justifyContent: 'center', animation: `ob-up .5s ${EASE}` }}>
-        <img src="assets/nfc-pos.png" alt=""
-          onError={(e) => { if (!e.target.dataset.fb) { e.target.dataset.fb = '1'; e.target.src = 'assets/nfc-hero.png'; e.target.style.borderRadius = '18px'; e.target.style.objectFit = 'cover'; e.target.style.objectPosition = '50% 38%'; } }}
-          style={{ display: 'block', width: '100%', maxWidth: 300, height: 176, objectFit: 'contain', objectPosition: 'center' }} />
+      {/* La terminal con el celu apoyado, recortada y sin fondo (Jero, 29/09).
+          Va sin marco ni card: el PNG tiene alpha, así que flota sobre la hoja
+          y el gesto —apoyar el celu— es lo primero que se ve. */}
+      <div style={{ padding: '4px 0 0', display: 'flex', justifyContent: 'center', animation: `ob-up .5s ${EASE}` }}>
+        <img src="assets/posnet.png" alt="" style={{ display: 'block', width: '100%', maxWidth: 304, aspectRatio: '554 / 362', objectFit: 'contain' }} />
       </div>
       <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink, marginTop: 16, textWrap: 'balance' }}>{c.nfc ? t.h1 : t.h1_sin_wallet}</div>
       <div style={{ font: '400 14px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 8, textWrap: 'pretty' }}>{c.nfc ? t.sub : t.sub_sin_wallet}</div>
