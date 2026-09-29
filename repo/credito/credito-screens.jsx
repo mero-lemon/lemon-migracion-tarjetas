@@ -129,11 +129,25 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
 function OrderSummary({ S, onBack, onContinue }) {
   const t = T().pedido;
   const [help, setHelp] = useStateS(false);
+  const [tyc, setTyc] = useStateS(false);
+  const [verTyc, setVerTyc] = useStateS(false);
   return (
     <div style={{ height: '100%', position: 'relative' }}>
     <Screen bg={CR.page} footer={
     <FooterHelper label={t.helper_label} onClick={() => setHelp(true)}>
-        <Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>
+        {/* Aceptar los términos es lo último antes de crear la tarjeta, y va
+            sin tildar: si lo dejáramos marcado, el usuario no estaría
+            aceptando nada. El botón espera hasta que lo haga. */}
+        <div onClick={() => setTyc((v) => !v)} role="checkbox" aria-checked={tyc}
+          style={{ display: 'flex', alignItems: 'center', gap: 11, cursor: 'pointer', padding: '4px 2px 12px' }}>
+          <CheckBox on={tyc} size={21} />
+          <span style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink2 }}>
+            {t.tyc_pre}
+            <button onClick={(e) => { e.stopPropagation(); setVerTyc(true); }}
+              style={{ border: 0, background: 'transparent', padding: 0, cursor: 'pointer', font: '600 13px Inter', color: CR.ink, textDecoration: 'underline', textUnderlineOffset: 3 }}>{t.tyc_link}</button>
+          </span>
+        </div>
+        <Btn variant="primary" disabled={!tyc} onClick={onContinue}>{t.cta}</Btn>
       </FooterHelper>}>
       <StepHeader title="" onBack={onBack} />
       <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -147,6 +161,13 @@ function OrderSummary({ S, onBack, onContinue }) {
     <Sheet open={help} onClose={() => setHelp(false)}>
       <HelperSheet title={t.helper_title} close={t.helper_close} onClose={() => setHelp(false)}
         items={[['card-on', t.helper_b1], ['earn', t.helper_b2], ['percent', T().tpl(t.helper_b3, { tna: M.fmtTna(M.FEES.tnaFinanciacion) })]]} />
+    </Sheet>
+    <Sheet open={verTyc} onClose={() => setVerTyc(false)}>
+      <div style={{ padding: '6px 2px 2px' }}>
+        <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.tyc_sheet_title}</div>
+        <div style={{ font: '400 14px Inter', color: CR.ink2, lineHeight: 1.5, marginTop: 10 }}>{t.tyc_sheet_body}</div>
+        <div style={{ marginTop: 16 }}><Btn variant="light" onClick={() => setVerTyc(false)}>{t.tyc_sheet_close}</Btn></div>
+      </div>
     </Sheet>
     </div>);
 }

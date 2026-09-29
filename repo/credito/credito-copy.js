@@ -84,6 +84,14 @@
       helper_b2: 'Tu respaldo no es un costo: es tuyo, rinde mientras respalda y vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta.',
       helper_b3: 'Lo único que se cobra es financiar: si pagás solo el mínimo, lo que quede para el próximo resumen paga {tna} anual. Pagando el total, no pagás intereses.',
       helper_close: 'Entendido',
+      // La aceptación de términos vive al lado del botón que crea la tarjeta,
+      // sin tildar de entrada: es el único momento del alta en el que el
+      // usuario acepta algo, y tiene que verse que lo acepta él.
+      tyc_pre: 'Leí y acepto los ',
+      tyc_link: 'Términos y Condiciones',
+      tyc_sheet_title: 'Términos y Condiciones',
+      tyc_sheet_body: 'En el producto final acá se abren los Términos y Condiciones de la Lemon Credit Card. En este prototipo no están escritos: lo que queremos mostrar es dónde y cuándo se aceptan.',
+      tyc_sheet_close: 'Volver',
       cta: 'Crear mi Credit Card'
     },
     confirm: {

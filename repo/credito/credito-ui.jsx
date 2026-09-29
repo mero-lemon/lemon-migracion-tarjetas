@@ -56,6 +56,12 @@ const Radio = ({ on, color = CR.ink, size = 22 }) =>
     <span style={{ width: size - 10, height: size - 10, borderRadius: 999, background: color, transform: on ? 'scale(1)' : 'scale(0)', transition: `transform .25s ${EASE}` }} />
   </span>;
 
+// Casillero cuadrado: se usa para aceptar, no para elegir. La forma distinta
+// del Check redondo importa —aceptar términos no es seleccionar una opción—.
+const CheckBox = ({ on, size = 22 }) =>
+<span style={{ width: size, height: size, borderRadius: 7, background: on ? CR.ink : 'transparent', border: `2px solid ${on ? CR.ink : '#C9C9C4'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .2s' }}>
+    {on && <LI name="selected" size={size - 8} color="#fff" />}
+  </span>;
 const Check = ({ on, size = 22 }) =>
 <span style={{ width: size, height: size, borderRadius: 999, background: on ? CR.ink : 'transparent', border: `2px solid ${on ? CR.ink : '#C9C9C4'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .2s' }}>
     {on && <LI name="selected" size={size - 8} color="#fff" />}
@@ -280,6 +286,6 @@ const StripBtn = ({ children, onClick, active, icon }) =>
   </button>;
 
 Object.assign(window, {
-  CR, EASE, AssetIcon, BigAmount, AssetAmount, Radio, Check, SelCheck, SectionHead, HeroPill, HelperLink, FooterHelper, HelperSheet, CreditoHeroPromo, Toggle, OptionCard, CardStatusPill, VolPill,
+  CR, EASE, AssetIcon, BigAmount, AssetAmount, Radio, Check, CheckBox, SelCheck, SectionHead, HeroPill, HelperLink, FooterHelper, HelperSheet, CreditoHeroPromo, Toggle, OptionCard, CardStatusPill, VolPill,
   InfoRow, Notice, MiniBtn, Flag, DateTimeline, SegTabs, Gauge, useStageScale, PhoneCr, StripBtn
 });

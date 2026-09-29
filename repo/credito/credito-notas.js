@@ -172,7 +172,7 @@
     summary: {
       paso: 'Alta · 3 de 3', titulo: 'Tu Lemon Credit Card',
       lead: 'Al tocar el botón, la tarjeta ya es tuya.',
-      parrafo: 'Es la única pantalla del alta que no pide nada: ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar. Queda la tarjeta y una frase que dice para qué es. Lo que cuesta —nada— está a un toque, en el helper: no es un argumento de venta, es la respuesta para el que pregunta. Poner el cero en la cara de la pantalla lo convertía en el tema, y el tema es la tarjeta.',
+      parrafo: 'Ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar: queda la tarjeta y una frase que dice para qué es. Lo que cuesta —nada— está a un toque, en el helper: no es un argumento de venta, es la respuesta para el que pregunta. Y lo único que te pedimos acá es lo único que hay que pedir: que aceptes los términos, sin tildar de entrada y con el botón esperándote hasta que lo hagas.',
       contexto: [
         { n: '$6.500', t: 'Hoy la tarjeta cobra mantenimiento. La propuesta es dejar de cobrarlo.',
           d: 'Pedir respaldo ya es fricción suficiente; cobrar por encima de eso no es estratégico para un producto que todavía tiene que probar que convierte.', f: HOY + ' · mantenimiento mensual' }
