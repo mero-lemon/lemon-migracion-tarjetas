@@ -18,6 +18,14 @@ const EYEBROW = { font: '600 12px Inter', letterSpacing: '0.06em', color: CR.ink
 const AUTOPAY_SHORT = { minimo: 'el mínimo', total: 'el total, pesos y dólares', total_pesos: 'el total en pesos' };
 const autopayTitle = (mode) => ({ minimo: T().autopay.min_title, total: T().autopay.total_title, total_pesos: T().autopay.totalpesos_title })[mode];
 const autopaySub = (mode) => ({ minimo: T().activated.autopay_min_sub, total: T().activated.autopay_total_sub, total_pesos: T().activated.autopay_totalpesos_sub })[mode];
+// El helper del respaldo dice qué parte del respaldo es tu límite. Desde el
+// 29/09 no es el mismo número para los tres activos —pesos 85%, el resto 80%—,
+// así que el porcentaje y el ejemplo salen del activo elegido, no del copy.
+const ejemploRespaldo = (assetId, limit, ratios) => ({
+  pct: M.fmtPct(M.limitShare(M.ratioOf(assetId, ratios))),
+  limite: M.fmtArs(limit || 1000000),
+  respaldo: M.fmtArs(M.respaldoArs(limit || 1000000, assetId, ratios))
+});
 const NOTE_BOX = { marginTop: 10, font: '400 12px Inter', color: CR.ink2, lineHeight: 1.45, background: '#F5F5F5', borderRadius: 12, padding: '8px 10px' };
 // La misma card negra de «Elegí el límite» para la opción elegida
 const invStyle = (inv, ok) => ({ background: inv ? CR.ink : ok ? '#fff' : 'var(--bg-layer-02)', boxShadow: inv ? '0 10px 28px rgba(20,20,20,0.18)' : ok ? 'var(--shadow-card)' : 'none', opacity: 1 });
@@ -91,7 +99,7 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
       </Screen>
       <Sheet open={sheet === 'help'} onClose={() => setSheet(null)}>
         <HelperSheet title={t.helper_title} close={t.helper_close} onClose={() => setSheet(null)}
-          items={[['limits', t.helper_b1], ['earn', t.helper_b_rinde], ['return-money', t.helper_b2], ['stocks', t.helper_b3], ['shield-alt', t.helper_b4]]} />
+          items={[['limits', t.helper_b1], ['earn', t.helper_b_rinde], ['return-money', T().tpl(t.helper_b2, ejemploRespaldo(value || M.RESPALDO_ASSETS[0], limit, S.ratios))], ['stocks', t.helper_b3], ['shield-alt', t.helper_b4]]} />
       </Sheet>
       <Sheet open={!!sheet && sheet !== 'help'} onClose={() => setSheet(null)}>
         {sheet && sheet !== 'help' && <DepositoSheet asset={sheet} limite={limit} S={S} bal={S.balances} onClose={() => setSheet(null)}
@@ -220,7 +228,7 @@ function AutopayCuanto({ S, value, onChange, onBack, onContinue, onSkip }) {
                 <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                   <div style={{ flex: 1 }}>
                     <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{m.title}</div>
-                    <div style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink3, marginTop: 4 }}>{m.body}</div>
+                    <div style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink3, marginTop: 4 }}>{T().tpl(m.body, { tna: M.fmtTna(M.FEES.tnaFinanciacion) })}</div>
                   </div>
                   <Radio on={v.mode === m.id} />
                 </div>
@@ -303,7 +311,7 @@ function ActivatedScreen({ S, onGo, onAddWallet, onAutopay }) {
         <Surface pad={16} style={{ width: '100%', textAlign: 'left', animation: `ob-up .5s .24s ${EASE} backwards` }}>
           <InfoRow label={t.row_limite} value={M.fmtArs(c.limit)} />
           <InfoRow label={t.row_cierre} value={M.fmtDate(d.cierre)} sub={T().tpl(t.row_cierre_sub, { vto: M.fmtDate(d.vencimiento) })} />
-          <InfoRow label={t.row_autopay} value={ap ? autopayTitle(ap.mode) : t.autopay_off} sub={ap ? autopaySub(ap.mode) : t.autopay_off_sub} last
+          <InfoRow label={t.row_autopay} value={ap ? autopayTitle(ap.mode) : t.autopay_off} sub={ap ? T().tpl(autopaySub(ap.mode), { tna: M.fmtTna(M.FEES.tnaFinanciacion) }) : t.autopay_off_sub} last
             onClick={!ap && onAutopay ? onAutopay : undefined} />
         </Surface>
       </div>
@@ -436,7 +444,7 @@ function EstadoAviso({ S, onPagar, onReactivar, onRetiro }) {
     const dias = M.daysBetween(S.hoy, st.vencimiento);
     const ap = c.autopay && c.autopay.on ? c.autopay : null;
     if (dias <= 7 && dias >= 0 && !ap)
-    return <Notice tone="warn" icon="alert-time" title={T().tpl(te.vence_title, { cuando: dias === 0 ? 'hoy' : `en ${dias} días` })} body={T().tpl(te.vence_body, { minimo: M.fmtArs(st.minimo), fecha: M.fmtDate(st.vencimiento) })} actions={<MiniBtn onClick={() => onPagar('total')} tone="dark">Pagar ahora</MiniBtn>} />;
+    return <Notice tone="warn" icon="alert-time" title={T().tpl(te.vence_title, { cuando: dias === 0 ? 'hoy' : `en ${dias} días` })} body={T().tpl(te.vence_body, { minimo: M.fmtArs(st.minimo), fecha: M.fmtDate(st.vencimiento), tna: M.fmtTna(M.FEES.tnaFinanciacion) })} actions={<MiniBtn onClick={() => onPagar('total')} tone="dark">Pagar ahora</MiniBtn>} />;
     if (dias <= 7 && dias >= 0 && ap) {
       // «pesos y dólares»: cada moneda paga lo suyo y se completa con la otra → cuentan pesos + dólar digital.
       // «mínimo» y «en pesos»: solo los pesos.
@@ -672,7 +680,7 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
       </Sheet>
       <Sheet open={sheet === 'saber'} onClose={() => setSheet(null)}>
         <HelperSheet title={t.saber_title} close={t.saber_close} onClose={() => setSheet(null)}
-          items={[['limits', t.saber_b1], ['earn', t.saber_b_rinde], ['return-money', t.saber_b2], ['stocks', t.saber_b3], ['shield-alt', t.saber_b4]]} />
+          items={[['limits', t.saber_b1], ['earn', t.saber_b_rinde], ['return-money', T().tpl(t.saber_b2, ejemploRespaldo(c.asset, c.limit, S.ratios))], ['stocks', t.saber_b3], ['shield-alt', t.saber_b4]]} />
       </Sheet>
     </div>);
 }

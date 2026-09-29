@@ -102,6 +102,13 @@ const conAjusteAbajo = () => {
   const s = withActiveCard(baseState(), { asset: 'BTC', limit: 800000, consumido: 120000, pagado: true });
   return { ...s, card: { ...s.card, respaldoUnits: 0.00666667, ajuste: { dir: 'down', posible: 800000, desde: 1000000, piso: false } } };
 };
+// El borde (Jero, 29/09): «el límite nunca puede ser menor del máximo que el
+// user tenga consumido». Bitcoin se derrumbó y el respaldo daría para $350.000,
+// pero hay $600.000 en uso: el límite se planta ahí y lo dice.
+const conAjustePiso = () => {
+  const s = withActiveCard(baseState(), { asset: 'BTC', limit: 600000, consumido: 600000, pagado: true });
+  return { ...s, card: { ...s.card, respaldoUnits: 0.0029, ajuste: { dir: 'down', posible: 600000, desde: 1000000, piso: true } } };
+};
 const PRESETS = [
 { group: 'Flujo 1 · Alta', id: 'home-vacia', name: 'Tarjetas sin crédito', route: 'home', make: baseState },
 { group: 'Flujo 1 · Alta', id: 'limit', name: '1 · Elegí el límite', route: 'limit', make: () => ({ ...baseState(), order: { asset: null, limit: 1000000 } }) },
@@ -124,6 +131,7 @@ const PRESETS = [
 { group: 'Flujo 3 · Landing', id: 'pay', name: 'Pagar el resumen', route: 'home', make: () => ({ ...withActiveCard(baseState()), sheet: 'pagar-total' }) },
 { group: 'Flujo 4 · Editar límite', id: 'ajuste-arriba', name: 'El límite subió solo', route: 'home', make: conAjusteArriba },
 { group: 'Flujo 4 · Editar límite', id: 'ajuste-abajo', name: 'El límite bajó solo', route: 'home', make: conAjusteAbajo },
+{ group: 'Flujo 4 · Editar límite', id: 'ajuste-piso', name: 'Bajó, pero no de lo usado', route: 'home', make: conAjustePiso },
 { group: 'Flujo 4 · Editar límite', id: 'limite-ajuste', name: 'Límite y respaldo · la regla', route: 'limite', make: conAjusteArriba },
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit', name: 'Editar el límite', route: 'edit-limit', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit-low', name: 'Bajar por debajo de lo usado', route: 'edit-limit', make: () => withActiveCard(baseState(), { consumido: 640000, pagado: true }) }];

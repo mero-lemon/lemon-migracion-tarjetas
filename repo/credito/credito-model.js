@@ -10,22 +10,23 @@
   const HOY = new Date(2026, 8, 18); // jueves 18/09/2026
 
   // ── Activos de respaldo ─────────────────────────────────────────
-  // ratio = qué porcentaje del límite hay que dejar inmovilizado.
-  // Regla vigente (Jero, 21/09): el respaldo es MAYOR que el límite —
-  // «el límite va a representar aprox. el 80% del respaldo» → respaldo =
-  // límite × 1,25, igual para los tres activos (a confirmar si BTC pide más
-  // colchón). Editable desde el panel dev: es un parámetro de producto, no
-  // de diseño.
+  // ratio = cuánto respaldo pide cada peso de límite. El respaldo es MAYOR que
+  // el límite: el límite es `limitShare(ratio)` de lo que dejás.
+  //  · dólar digital y Bitcoin: 80% → ratio 1,25 (Jero, 21/09)
+  //  · pesos: 85% → ratio 1/0,85 (Jero, 29/09). Piden menos colchón porque no
+  //    fluctúan contra la deuda: son la misma moneda.
+  // Editable desde el panel dev: es un parámetro de producto, no de diseño.
   //
   // `rinde` / `tna` (Jero, 29/09): el respaldo NO es plata quieta, genera
   // intereses **a la tasa de Earn**, y esos intereses **se quedan dentro del
   // respaldo** —no van a la wallet—. Rinden los pesos (≈20%) y el dólar digital
   // (≈4,5%); con Bitcoin la propuesta es el precio, no el rendimiento.
+  // Es money market: **capitaliza todos los días**.
   //
   // El respaldo crece, y el límite lo acompaña solo: ver `ajusteLimite` y
   // AJUSTE_UMBRAL. Los intereses no se retiran, se acumulan como respaldo.
   const ASSETS = {
-    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, rinde: true, tna: 0.20, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
+    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1 / 0.85, decimals: 0, volatil: false, rinde: true, tna: 0.20, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
       why: 'Es la misma moneda que tu deuda: tu límite no se mueve.' },
     // Unidad de los montos (Jero, 21/09): el dólar digital se muestra como
     // «US$ 862», no «862 USDC» — la voz dice «dólar digital» en todas las
@@ -156,6 +157,7 @@
   // límite se planta ahí (`piso: true`) y no se convierte en una deuda que ya
   // no entra en su propio techo.
   const AJUSTE_UMBRAL = 0.10;
+  const AJUSTE_FRECUENCIA = 'diaria'; // se mira una vez por día (Jero, 29/09)
   const ajusteLimite = (card, prices, ratios, comprometido = 0) => {
     if (!card) return { posible: 0, delta: 0, pct: 0, ajusta: false, dir: 'same', piso: false };
     const r = card.ratio != null ? card.ratio : ratioOf(card.asset, ratios);
@@ -270,7 +272,9 @@
   // suficiente, y cobrar por encima de eso no es estratégico. El número viejo
   // queda como `mantenimientoHoy` porque es el punto de comparación.
   // tolerancia: hoy hay ~10% por encima del límite; en la nueva TC no la modelamos (supuestos S17)
-  const FEES = { mantenimiento: 0, mantenimientoHoy: 6500, bonifMeses: 3, comisionCripto: 0, minimoPct: 0.10, tolerancia: 0 };
+  // `tnaFinanciacion`: lo que cuesta pagar solo el mínimo y arrastrar el resto
+  // al próximo resumen (Jero, 29/09). Es el único número que el producto cobra.
+  const FEES = { mantenimiento: 0, mantenimientoHoy: 6500, bonifMeses: 3, comisionCripto: 0, minimoPct: 0.10, tolerancia: 0, tnaFinanciacion: 0.50 };
 
   // ── Formateo ────────────────────────────────────────────────────
   const roundTo = (n, dec) => { const f = Math.pow(10, dec); return Math.round(n * f) / f; };
@@ -307,7 +311,7 @@
 
   const CreditoModel = {
     HOY, PRODUCT, ASSETS, ASSET_ORDER, RESPALDO_ASSETS, PRICES_DEFAULT, BALANCES_DEFAULT, LIMIT_PRESETS, LIMIT_MIN, LIMIT_MAX, LIMIT_STEP, limitShare,
-    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, AJUSTE_UMBRAL, ajusteLimite, tresNumeros, saldoImpago,
+    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, AJUSTE_UMBRAL, AJUSTE_FRECUENCIA, ajusteLimite, tresNumeros, saldoImpago,
     CIERRE_GROUPS, FERIADOS, isFeriado, nextBusinessDay, nextClose, cycleDates, previousCycleDates, addDays, sameDay, daysBetween,
     AUTOPAY_MODES, AUTOPAY_SOURCES, AUTOPAY_DEFAULT, FEES,
     roundTo, fmtInt, fmtArs, fmtUnits, fmtPct, fmtTna, fmtDate, fmtDateShort, fmtDateDow, MESES, MESES_CORTO

@@ -91,7 +91,7 @@
     'respaldo-pick': {
       paso: 'Alta · 2 de 3', titulo: 'Elegí tu respaldo',
       lead: 'Tu plata te respalda, sigue siendo tuya y sigue rindiendo.',
-      parrafo: 'Respaldás con lo que tengas: pesos, dólar digital o Bitcoin. No se venden ni se mueven, quedan cubriéndote las espaldas, y vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Y no queda quieto: rinde a la misma tasa que en Earn —los pesos cerca del 20% anual, el dólar digital cerca del 4,5%— y los intereses se suman a tu respaldo. Tu límite lo acompaña solo, para arriba y para abajo, y te avisamos cada vez.',
+      parrafo: 'Respaldás con lo que tengas: pesos, dólar digital o Bitcoin. No se venden ni se mueven, quedan cubriéndote las espaldas, y vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Y no queda quieto: rinde todos los días a la misma tasa que en Earn —los pesos cerca del 20% anual, el dólar digital cerca del 4,5%— y los intereses se suman a tu respaldo. Tu límite lo acompaña solo, para arriba y para abajo, y te avisamos cada vez. Con pesos, además, dejás menos: el límite es el 85% de lo que dejás en vez del 80%.',
       contexto: [
         { n: '+5.892', t: 'Aceptar dólar digital casi triplica el universo elegible.',
           d: 'El universo pasa de 3.040 a 8.932 usuarios, sin tocar el modelo de riesgo. Con pesos crece todavía más.', f: 'Base de usuarios · saldos al 10/09/2026' },
@@ -117,7 +117,7 @@
     'autopay-cuanto': {
       paso: 'Después de activar', titulo: 'Elegí cuánto se paga solo',
       lead: 'Delegás el pago sin perder el control, cuando ya tenés algo que pagar.',
-      parrafo: 'No te lo preguntamos al activar la tarjeta, porque ahí todavía no gastaste nada y la decisión es abstracta. Te lo ofrecemos cuando el resumen existe. Elegís cuánto se debita el día del vencimiento: el mínimo te cubre para que nada se congele, el total te deja sin intereses, y tus dólares pagan lo que gastaste en dólares, sin la percepción del 30%. Si preferís pagarlo vos cada mes, también está bien.',
+      parrafo: 'No te lo preguntamos al activar la tarjeta, porque ahí todavía no gastaste nada y la decisión es abstracta. Te lo ofrecemos cuando el resumen existe. Elegís cuánto se debita el día del vencimiento: el mínimo te cubre para que nada se congele pero lo que quede financiado paga 50% anual, y el total te deja sin intereses. Tus dólares pagan lo que gastaste en dólares, sin la percepción del 30%. Y si preferís pagarlo vos cada mes, también está bien.',
       contexto: [
         { n: '3,5%', t: 'Olvidarse de pagar es el motivo número uno por el que hoy se pierde una línea.',
           d: '3,5% del parque activo se liquida todos los meses por no llegar al pago mínimo.', f: HOY + ' · liquidaciones mensuales' },

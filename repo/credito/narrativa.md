@@ -43,7 +43,7 @@ No le hablamos como a alguien que no sabe. Le hablamos como a alguien que sabe c
 ## 4. Qué la hace única
 
 1. **El límite lo elegís vos.** Sin historial crediticio, sin evaluaciones, sin esperar. Tres montos sugeridos y **«Otro»** para escribir el tuyo: el techo lo pone tu saldo, no nuestra lista. Lo que no te alcanza dice cuánto falta y te deja conseguirlo ahí mismo.
-2. **Tu plata te respalda, sigue siendo tuya y sigue rindiendo.** Respaldás con pesos, dólar digital o Bitcoin. Dejás un poco más de lo que vas a poder gastar: el límite es el 80% de lo que dejás. Ese margen es tu colchón, no un costo. No se vende ni se mueve. Vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta. Y los pesos y el dólar digital **siguen generando intereses mientras respaldan**, a la misma tasa que en Earn (≈20% y ≈4,5% anual); los intereses se quedan adentro del respaldo. **El límite no sube solo**: cuando tu respaldo alcanza para uno más alto te avisamos, y lo subís vos. Un límite que se mueve sin tu permiso vuelve a ser el límite de un banco.
+2. **Tu plata te respalda, sigue siendo tuya y sigue rindiendo.** Respaldás con pesos, dólar digital o Bitcoin. Dejás un poco más de lo que vas a poder gastar: el límite es el **80% de lo que dejás**, y el **85% si respaldás con pesos** —piden menos colchón porque no fluctúan contra la deuda—. Ese margen es tu colchón, no un costo. No se vende ni se mueve. Vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta. Y los pesos y el dólar digital **siguen generando intereses mientras respaldan**, a la misma tasa que en Earn (≈20% y ≈4,5% anual); los intereses se quedan adentro del respaldo. **El límite no sube solo**: cuando tu respaldo alcanza para uno más alto te avisamos, y lo subís vos. Un límite que se mueve sin tu permiso vuelve a ser el límite de un banco.
 3. **El límite acompaña a tu respaldo.** El límite es el 80% de lo que vale tu respaldo en pesos: si sube, sube; si baja, baja. Con dólar digital casi no se mueve; con Bitcoin se mueve todos los días. Se dice así, sin dramatizar y sin esconderlo.
 4. **Solo se usa si vos no pagás, y te avisamos varias veces antes.** Siete días después del vencimiento. Nada pasa de golpe, y tocar tu respaldo es lo último que queremos: por eso avisamos más de una vez.
 5. **Existe al instante.** Elegís límite, respaldo, cierre y débito, la creás y la sumás a Apple Pay en el mismo momento. La física llega en 5 a 7 días hábiles, pero no hay nada que esperar.
@@ -70,7 +70,7 @@ Lo que **no** decimos porque no existe: cashback, millas, seguros, lounge, cuota
 | respaldo · tu respaldo · tu plata te respalda · tu colchón | colateral · garantía prendaria · LTV · ratio · cobertura |
 | dejás / dejaste {monto} | inmovilizás · bloqueás · depositás en garantía |
 | sigue siendo tuyo · vuelve a tu saldo · se libera | queda retenido · se desbloquea · se devuelve |
-| tu límite es el 80% de lo que dejás | apalancamiento · sobrecolateralizado |
+| tu límite es el 80% de lo que dejás (85% con pesos) | apalancamiento · sobrecolateralizado |
 | sin historial crediticio · nadie te lo asigna | scoring · calificación · sujeto a aprobación |
 | usamos parte de tu respaldo para cubrir el resumen · te avisamos antes | liquidamos · ejecutamos · te liquidan |
 | límite · resumen · cierre · vencimiento | línea de crédito · cupo · extracto · fecha de corte |
@@ -127,7 +127,7 @@ El orden del alta (Jero, 21/09): **la tarjeta se crea apenas queda elegido el re
 - El producto es **Lemon Credit Card**. En la fila, **Credit Card**. La home es **Lemon Card**, con solapas **Prepaga** y **Crédito**. Nunca «Lemon Card Crédito».
 - Nunca: colateral, LTV, ratio, scoring, inmovilizado, liquidar, mora, bloqueo, NFC, contactless, world class, «la mejor del mundo».
 - Nunca inventar beneficios ni prometer tasas. «Sin intereses» siempre atado a pagar el total.
-- El respaldo se dice con «dejás», «sigue siendo tuyo», «vuelve a tu saldo». Se dice **cuánto dejás**, no qué porcentaje; el 80% vive en el helper, una sola vez, con ejemplo numérico.
+- El respaldo se dice con «dejás», «sigue siendo tuyo», «vuelve a tu saldo». Se dice **cuánto dejás**, no qué porcentaje; el porcentaje vive en el helper, una sola vez, con ejemplo numérico, y **sale del activo elegido** (80% o 85%): ningún copy lo escribe a mano.
 - El dólar digital se escribe **US$ 862**; Bitcoin, **0,004333 BTC**. Nunca «USDC» en una pantalla.
 - Nunca prometer «siempre alcanza», «nunca se congela» ni «vuelve entero»: Bitcoin puede bajar más que el margen, el débito del mínimo puede fallar, y el retiro primero paga lo que debías.
 - **El ≈ tiene un momento.** Antes de crear la tarjeta, cierre y vencimiento van los dos con ≈ («alrededor del», «≈ 15 oct»). Después de crearla, las dos fechas se escriben fijas y sin signo. Nunca al revés.
@@ -160,7 +160,7 @@ Once propuestas del equipo de Jero. Siete se implementaron tal cual; cuatro las 
 
 1. **Respaldo en pesos: sí.** Los tres activos respaldan. El orden de la pantalla es el de la recomendación (dólar digital · pesos · Bitcoin), no el del saldo. Con pesos el límite no se mueve nunca, porque es la misma moneda que la deuda.
 2. **El respaldo rinde, y el rendimiento se queda adentro.** Pesos y dólar digital generan intereses mientras respaldan, **a la tasa de Earn: ≈20% anual en pesos y ≈4,5% en dólar digital**, y esos intereses **no van a la wallet: se suman al respaldo**. Es la respuesta a «dejo más de lo que voy a gastar». Las tasas se escriben con **≈** porque se mueven.
-3. **El límite acompaña al respaldo, solo y en las dos direcciones.** Si el valor del respaldo se mueve **más de un 10%** (`AJUSTE_UMBRAL`), el límite se ajusta sin que el usuario haga nada, y **cada ajuste se avisa: in-app y por push**. El umbral existe para que el límite no tiemble todos los días por un movimiento de precio. Hacerlo simétrico fue la definición de Jero: pedir permiso para subir y bajar sin pedirlo era una asimetría que no se podía defender. **El único borde: nunca baja por debajo de lo que ya usaste** —misma regla que en «Editar límite»—; si el respaldo cae más que eso, el límite se planta ahí. Esto responde al 24% que pedía ajuste automático. Editar el límite a mano sigue existiendo, y es la puerta para lo que el ajuste no hace: **poner más respaldo** para tener más límite.
+3. **El límite acompaña al respaldo, solo y en las dos direcciones.** El valor se mira **una vez por día** y, si se movió **más de un 10%** (`AJUSTE_UMBRAL`), el límite se ajusta sin que el usuario haga nada, y **cada ajuste se avisa: in-app y por push**. El umbral existe para que el límite no tiemble todos los días por un movimiento de precio. Hacerlo simétrico fue la definición de Jero: pedir permiso para subir y bajar sin pedirlo era una asimetría que no se podía defender. **El único borde: nunca baja por debajo de lo que ya usaste** —misma regla que en «Editar límite»—; si el respaldo cae más que eso, el límite se planta ahí. Esto responde al 24% que pedía ajuste automático. Editar el límite a mano sigue existiendo, y es la puerta para lo que el ajuste no hace: **poner más respaldo** para tener más límite.
 4. **Límite con monto libre.** Tres montos sugeridos y «Otro». Mínimo $200.000, máximo lo que tu saldo respalde en **una** moneda: no se combinan monedas, eso es otro producto.
 5. **Comprar lo que falta, adentro del flujo.** La opción que no alcanza dice cuánto falta y ofrece conseguirlo. Los pesos se **cargan**, el resto se **compra**: el verbo lo decide el activo.
 6. **El monto del respaldo es el protagonista** de cada opción, y el **equivalente en pesos va en segundo plano**. Suma a la transparencia, pero «dejás $1.250.000 para gastar $1.000.000» es una resta que el usuario puede hacer solo y que nosotros no le servimos. Misma regla que el 80%, que vive en el helper (§8).
@@ -169,11 +169,14 @@ Once propuestas del equipo de Jero. Siete se implementaron tal cual; cuatro las 
 9. **Apple Pay vive en la confirmación de la activación**, no en una pantalla aparte: así «ya es tuya» y «ya podés pagar» son el mismo momento.
 10. **Retirar el respaldo muestra la cuenta y deja elegir con qué saldarla:** con el saldo de tu wallet —y el respaldo vuelve entero— o con parte del propio respaldo. Si la deuda supera al respaldo, la segunda opción se apaga. Retirar da de baja la tarjeta; el retiro parcial se llama «bajar el límite» y ya existía.
 11. **Consumos del período suma los pagos que hiciste**, aparte y sin sumarlos al número grande —no suman a lo que vas a deber: lo bajan—, y **los períodos anteriores** se leen adentro de la app.
+12. **Los pesos piden menos colchón: el límite es el 85% de lo que dejás**, contra el 80% de dólar digital y Bitcoin. Es coherente con por qué entraron: no fluctúan contra la deuda. El porcentaje y el ejemplo del helper salen del activo elegido, nunca escritos a mano.
+13. **El rendimiento capitaliza todos los días**: es money market, la misma mecánica que Earn.
+14. **Financiar el resumen cuesta 50% anual.** Es lo único que la tarjeta cobra, y se dice donde se genera: en «solo el mínimo», en el aviso de vencimiento y en la fila del débito automático. Nunca como letra chica.
 
 ## 11. Lo que sigue abierto
 
-- **Con qué frecuencia se mira el valor del respaldo** para disparar el ajuste (¿continuo? ¿una vez por día? ¿en cada cierre?). El umbral ya está definido —10%—, la frecuencia no. Y si Bitcoin pide más colchón que el dólar digital o los pesos (hoy el prototipo usa 125% para los tres, editable en el panel dev).
+- **Si Bitcoin pide más colchón que el dólar digital.** Hoy los dos van al 80% y los pesos al 85%, editable en el panel dev. La frecuencia del ajuste ya está: se mira una vez por día, con umbral del 10%.
 - **Canal y anticipación de los avisos del respaldo y del débito insuficiente** (push, mail, in-app; cuántos días antes): el copy promete «varias veces» sin dar números. El aviso del **ajuste de límite** sí está definido: in-app y push.
 - **Cuánto demora el descongelamiento** una vez impactado el pago: si es minutos, se puede decir; si no, queda como está.
-- **Intereses del pago mínimo**: hoy se dice «con interés», sin tasa.
-- **Cada cuánto capitaliza el rendimiento del respaldo**, y si Bitcoin también rinde (el prototipo asume que no). La tasa ya está: la de Earn, ≈20% en pesos y ≈4,5% en dólar digital, escrita con ≈ porque se mueve.
+- **Si el 50% de la financiación es TNA o TEA**, y si cambia por tramo. El prototipo lo escribe como «50% anual».
+- **Si Bitcoin también rinde** (el prototipo asume que no). Las tasas y la capitalización ya están: la de Earn, ≈20% en pesos y ≈4,5% en dólar digital, capitalizando todos los días, escritas con ≈ porque se mueven.

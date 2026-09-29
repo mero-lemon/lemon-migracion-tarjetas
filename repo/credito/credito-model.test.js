@@ -15,7 +15,7 @@
   // unidades del activo
   close('USDC units $1M', M.respaldoUnits(1000000, 'USDC'), 862.07, 0.01);
   close('BTC units $1M', M.respaldoUnits(1000000, 'BTC'), 0.00833333, 1e-8);
-  eq('ARS units enteras', M.respaldoUnits(500000, 'ARS'), 625000);
+  eq('ARS units enteras (85%)', M.respaldoUnits(500000, 'ARS'), 588235);
 
   // check con los saldos mock: $500k alcanza con los dos, $1M solo con USDC, $5M con ninguno
   eq('USDC $500k ok', M.check(500000, 'USDC').ok, true);
@@ -32,14 +32,22 @@
   eq('Bitcoin no rinde: ahí la propuesta es el precio', !!M.ASSETS.BTC.rinde, false);
   eq('ARS $500k ok ($720.000 respalda hasta $576.000)', M.check(500000, 'ARS').ok, true);
   eq('ARS $1M no', M.check(1000000, 'ARS').ok, false);
-  eq('máximo exacto ARS = $550.000', M.maxAffordableLimit('ARS'), 550000);
+  eq('máximo exacto ARS = $600.000 ($720.000 al 85%)', M.maxAffordableLimit('ARS'), 600000);
 
   // el respaldo rinde a la tasa de Earn (Jero, 29/09)
   eq('pesos ≈20% anual', M.ASSETS.ARS.tna, 0.20);
+  // Jero, 29/09: con pesos el límite es el 85% del respaldo, no el 80%
+  eq('pesos: el límite es el 85% del respaldo', M.fmtPct(M.limitShare(M.ASSETS.ARS.ratio)), '85%');
+  eq('dólar digital y Bitcoin siguen en 80%', [M.fmtPct(M.limitShare(M.ASSETS.USDC.ratio)), M.fmtPct(M.limitShare(M.ASSETS.BTC.ratio))], ['80%', '80%']);
+  eq('para $1.000.000 en pesos dejás $1.176.471', M.respaldoArs(1000000, 'ARS'), 1176471);
+  eq('y en dólar digital, $1.250.000', M.respaldoArs(1000000, 'USDC'), 1250000);
+  eq('la financiación es 50% anual', M.FEES.tnaFinanciacion, 0.50);
+  eq('el valor del respaldo se mira una vez por día', M.AJUSTE_FRECUENCIA, 'diaria');
   eq('dólar digital ≈4,5% anual', M.ASSETS.USDC.tna, 0.045);
   eq('Bitcoin no lleva tasa', M.ASSETS.BTC.tna, undefined);
 
   // el límite acompaña al respaldo, en las dos direcciones, desde el 10%
+  // ratio explícito: estos casos prueban el ajuste, no el ratio de cada activo
   const card = (limit, rU) => ({ limit, respaldoUnits: rU, asset: 'ARS', ratio: 1.25 });
   eq('el umbral es 10%', M.AJUSTE_UMBRAL, 0.10);
   eq('con el respaldo justo no se mueve', M.ajusteLimite(card(500000, 625000)).ajusta, false);

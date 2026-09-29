@@ -46,7 +46,7 @@
       helper_b1: 'Sí: lo subís o lo bajás cuando quieras, las veces que quieras, desde la app.',
       helper_b2: 'Subirlo pide un poco más de respaldo. Bajarlo devuelve la diferencia a tu saldo.',
       helper_b3: 'Lo único que no podés es bajarlo por debajo de lo que ya usaste en el período.',
-      helper_b4: 'Y se mueve solo con tu respaldo: si su valor cambia más de un 10%, tu límite lo acompaña y te avisamos. Nunca baja de lo que ya usaste.',
+      helper_b4: 'Y se mueve solo con tu respaldo: miramos su valor una vez por día y, si cambió más de un 10%, tu límite lo acompaña y te avisamos. Nunca baja de lo que ya usaste.',
       helper_close: 'Entendido',
       cta: 'Continuar'
     },
@@ -59,14 +59,14 @@
       // transparencia suma, pero «dejás $1.250.000 para gastar $1.000.000» es
       // una resta que el usuario puede hacer y que nosotros no le servimos.
       option_ars: '≈ {ars} de tu saldo',
-      option_rinde: 'Rinde {tna} anual mientras respalda',
+      option_rinde: 'Rinde {tna} anual, todos los días',
       locked_line: 'Te faltan {faltante}',
       helper_label: '¿Cómo funciona el respaldo?',
       helper_title: 'Así te cuida tu respaldo',
       helper_b1: 'Sigue siendo tuyo. No se vende ni se mueve, y vuelve a tu saldo si bajás el límite o das de baja la tarjeta.',
-      helper_b_rinde: 'No queda quieto: mientras respalda sigue rindiendo a la misma tasa que en Earn —los pesos ≈20% anual, el dólar digital ≈4,5%— y los intereses se suman a tu respaldo. Tu límite no cambia solo: cuando tu respaldo alcanza para uno más alto, te avisamos y lo subís vos.',
-      helper_b2: 'Dejás un poco más que tu límite: el límite es el 80% de lo que dejás (para $1.000.000, dejás $1.250.000). Ese margen es tu colchón, y lo que te habilita la tarjeta sin historial crediticio.',
-      helper_b3: 'Tu límite sigue el valor de tu respaldo en pesos: si sube, sube; si baja, baja. Con Bitcoin se mueve mucho más que con dólar digital.',
+      helper_b_rinde: 'No queda quieto: mientras respalda sigue rindiendo a la misma tasa que en Earn —los pesos ≈20% anual, el dólar digital ≈4,5%— y capitaliza todos los días. Los intereses se suman a tu respaldo, así que tu límite también sube con ellos.',
+      helper_b2: 'Dejás un poco más que tu límite: el límite es el {pct} de lo que dejás (para un límite de {limite}, dejás {respaldo}). Ese margen es tu colchón, y lo que te habilita la tarjeta sin historial crediticio.',
+      helper_b3: 'Tu límite sigue el valor de tu respaldo en pesos: lo miramos una vez por día y, si cambió más de un 10%, tu límite se ajusta y te avisamos. Con pesos no se mueve nunca —es la misma moneda que tu deuda—; con Bitcoin se mueve mucho más que con dólar digital.',
       helper_b4: 'Solo lo usamos si no pagás el resumen, 7 días después del vencimiento. Antes te avisamos varias veces: que haya que tocar tu respaldo es lo último que queremos.',
       helper_close: 'Entendido',
       cta: 'Continuar'
@@ -135,7 +135,7 @@
       h1: 'Elegí cuánto se paga solo',
       sub: 'El día del vencimiento, sin que tengas que acordarte.',
       min_title: 'Solo el mínimo',
-      min_body: 'Te cubre para que no se congele. El resto pasa al próximo resumen, con interés.',
+      min_body: 'Te cubre para que no se congele. El resto pasa al próximo resumen, con una tasa del {tna} anual.',
       total_title: 'El total, en pesos y dólares',
       total_body: 'Los dólares con tu dólar digital, así te ahorrás el 30%. Todo el resumen, sin intereses.',
       totalpesos_title: 'El total, en pesos',
@@ -165,7 +165,7 @@
       row_limite: 'Límite',
       row_cierre: 'Cierre',
       row_autopay: 'Débito automático',
-      autopay_min_sub: 'Se debita el día del vencimiento. El resto pasa al próximo resumen.',
+      autopay_min_sub: 'Se debita el día del vencimiento. El resto pasa al próximo resumen, al {tna} anual.',
       autopay_total_sub: 'Se debita el día del vencimiento. Pesos con pesos, dólares con dólar digital.',
       autopay_totalpesos_sub: 'Se debita el día del vencimiento, todo desde tus pesos.',
       autopay_off: 'Sin configurar',
@@ -229,9 +229,9 @@
       apartaste_label: 'Dejaste',
       apartaste_sub: '≈ {ars} hoy · sigue siendo tuyo',
       apartaste_sub_ars: 'Sigue siendo tuyo', // con pesos no hay equivalente que mostrar
-      rinde_row: 'Rinde {tna} anual, como en Earn',
+      rinde_row: 'Rinde {tna} anual, todos los días',
       ajuste_title: 'Tu límite sigue a tu respaldo',
-      ajuste_body: 'Cuando tu respaldo cambia de valor más de un 10%, tu límite se ajusta solo y te avisamos. Podés cambiarlo vos cuando quieras.',
+      ajuste_body: 'Miramos el valor de tu respaldo una vez por día. Si cambió más de un 10%, tu límite se ajusta solo y te avisamos. Nunca baja de lo que ya usaste, y podés cambiarlo vos cuando quieras.',
       retirar_cta: 'Retirar respaldo',
       // Retirar da de baja la tarjeta. Antes hay que saldar lo que debés, y con
       // qué lo saldás es una elección (equipo, 29/09).
@@ -255,9 +255,9 @@
       saber_title: 'Así te cuida tu respaldo',
       saber_b1: 'Sigue siendo tuyo. No se vende ni se mueve, y vuelve a tu saldo si bajás el límite o das de baja la tarjeta.',
       // El mismo bullet que en el alta: si se toca uno, se toca el otro (narrativa.md §9)
-      saber_b_rinde: 'No queda quieto: mientras respalda sigue rindiendo a la misma tasa que en Earn —los pesos ≈20% anual, el dólar digital ≈4,5%— y los intereses se suman a tu respaldo. Tu límite no cambia solo: cuando tu respaldo alcanza para uno más alto, te avisamos y lo subís vos.',
-      saber_b2: 'Dejás un poco más que tu límite: el límite es el 80% de lo que dejás (para $1.000.000, dejás $1.250.000). Ese margen es tu colchón, y lo que te habilita la tarjeta sin historial crediticio.',
-      saber_b3: 'Tu límite sigue el valor de tu respaldo en pesos: si sube, sube; si baja, baja. Con Bitcoin se mueve mucho más que con dólar digital.',
+      saber_b_rinde: 'No queda quieto: mientras respalda sigue rindiendo a la misma tasa que en Earn —los pesos ≈20% anual, el dólar digital ≈4,5%— y capitaliza todos los días. Los intereses se suman a tu respaldo, así que tu límite también sube con ellos.',
+      saber_b2: 'Dejás un poco más que tu límite: el límite es el {pct} de lo que dejás (para un límite de {limite}, dejás {respaldo}). Ese margen es tu colchón, y lo que te habilita la tarjeta sin historial crediticio.',
+      saber_b3: 'Tu límite sigue el valor de tu respaldo en pesos: lo miramos una vez por día y, si cambió más de un 10%, tu límite se ajusta y te avisamos. Con pesos no se mueve nunca —es la misma moneda que tu deuda—; con Bitcoin se mueve mucho más que con dólar digital.',
       saber_b4: 'Solo lo usamos si no pagás el resumen, 7 días después del vencimiento. Antes te avisamos varias veces: que haya que tocar tu respaldo es lo último que queremos.',
       saber_close: 'Entendido'
     },
@@ -268,7 +268,7 @@
       congelada_title: 'Congelada hasta pagar el mínimo',
       congelada_body: 'No pasan compras. Pagá el mínimo ({minimo}) y se descongela en cuanto impacta el pago.',
       vence_title: 'Tu resumen vence {cuando}',
-      vence_body: 'Con el mínimo ({minimo}) antes del {fecha} alcanza para que no se congele. Si podés, pagá el total y no generás intereses.',
+      vence_body: 'Con el mínimo ({minimo}) antes del {fecha} alcanza para que no se congele. Si podés, pagá el total: lo que quede financiado paga {tna} anual.',
       retiro_title: 'Tu respaldo está volviendo',
       retiro_body: 'Si debías algo, se paga con el respaldo; el resto vuelve a tu saldo en hasta 48 h hábiles. La tarjeta queda dada de baja.'
     },
