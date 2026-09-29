@@ -36,7 +36,11 @@ salen de [`credito-copy.js`](credito-copy.js)**: para cambiar una frase se toca 
 > pantalla. El contenido vive en [`credito-notas.js`](credito-notas.js), con sus reglas de edición escritas arriba del
 > archivo; `?ux=0` las esconde.
 >
-> **Versión 21/09 (tarde): las ocho definiciones de Jero están aplicadas** (narrativa.md §10). En una línea: la
+> **Versión 29/09: el feedback del equipo está aplicado** (narrativa.md §12). En una línea: respaldan las tres
+> monedas y el respaldo **rinde** —los intereses se quedan adentro, así que el límite crece solo—, el límite acepta
+> **monto libre**, la tarjeta **no cobra mantenimiento**, activar es **una sola pantalla** (el débito automático se
+> ofrece después, ya con la tarjeta andando) y **Apple Pay vive en la confirmación**. Antes, las ocho definiciones
+> de Jero del 21/09 (narrativa.md §10). En una línea: la
 > bandera pasa a ser el control; los montos de dólar digital se escriben **US$ 862**; el límite **fluctúa** con el
 > valor del respaldo; los avisos se prometen **varias veces**; descongelar pasa **cuando impacta el pago**; cierre y
 > límite se cambian **infinitas veces**; y mientras se elige el grupo de cierre, cierre y vencimiento van los dos con

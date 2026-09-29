@@ -13,19 +13,25 @@
   // ratio = qué porcentaje del límite hay que dejar inmovilizado.
   // Regla vigente (Jero, 21/09): el respaldo es MAYOR que el límite —
   // «el límite va a representar aprox. el 80% del respaldo» → respaldo =
-  // límite × 1,25, igual para dólar digital y Bitcoin (a confirmar si BTC
-  // pide más colchón). Editable desde el panel dev: es un parámetro de
-  // producto, no de diseño. Los pesos quedan en la tabla solo como origen
-  // del pago del resumen (no respaldan).
+  // límite × 1,25, igual para los tres activos (a confirmar si BTC pide más
+  // colchón). Editable desde el panel dev: es un parámetro de producto, no
+  // de diseño.
+  //
+  // `rinde` (Jero, 29/09): el respaldo NO es plata quieta, genera intereses,
+  // y esos intereses **se quedan dentro del respaldo** —no van a la wallet—.
+  // Consecuencia de producto, no de copy: si el respaldo crece, el límite
+  // crece con él, porque el límite es el 80% del respaldo. Rinden los pesos y
+  // el dólar digital; con Bitcoin la propuesta es el precio, no el rendimiento
+  // (supuesto S32: falta la tasa, así que ninguna pantalla promete un número).
   const ASSETS = {
-    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
-      why: 'Sin volatilidad: es la misma moneda que la deuda.' },
+    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, rinde: true, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
+      why: 'Es la misma moneda que tu deuda: tu límite no se mueve.' },
     // Unidad de los montos (Jero, 21/09): el dólar digital se muestra como
     // «US$ 862», no «862 USDC» — la voz dice «dólar digital» en todas las
     // pantallas y el ticker la contradecía. Bitcoin sí lleva su unidad.
-    USDC: { id: 'USDC', name: 'Dólar digital', long: 'Dólar digital', symbol: 'US$', prefix: 'US$ ', unit: 'USDC', ratio: 1.25, decimals: 2, volatil: false, icon: 'currency-dollar', color: 'var(--c-sky-40)', soft: '#EAF1FE',
+    USDC: { id: 'USDC', name: 'Dólar digital', long: 'Dólar digital', symbol: 'US$', prefix: 'US$ ', unit: 'USDC', ratio: 1.25, decimals: 2, volatil: false, rinde: true, icon: 'currency-dollar', color: 'var(--c-sky-40)', soft: '#EAF1FE',
       why: 'Sigue al dólar: tu límite se mueve mucho menos que con Bitcoin.' },
-    BTC: { id: 'BTC', name: 'Bitcoin', long: 'Bitcoin', symbol: '', unit: 'BTC', ratio: 1.25, decimals: 8, volatil: true, icon: 'currency-bitcoin', color: 'var(--c-bitcoin-40)', soft: 'var(--c-bitcoin-5)',
+    BTC: { id: 'BTC', name: 'Bitcoin', long: 'Bitcoin', symbol: '', unit: 'BTC', ratio: 1.25, decimals: 8, volatil: true, rinde: false, icon: 'currency-bitcoin', color: 'var(--c-bitcoin-40)', soft: 'var(--c-bitcoin-5)',
       why: 'Su precio cambia todos los días: tu límite se mueve con él.' }
   };
   // Nombre del producto (Jero, 21/09): la tarjeta es «Lemon Credit Card»; la
@@ -43,11 +49,17 @@
   // los tres estados de una opción se ven sin tocar nada.
   const BALANCES_DEFAULT = { ARS: 720000, USDC: 900, BTC: 0.0045 };
 
-  // Los tres límites prefijados (no hay monto personalizado: decisión de Jero, 19/09)
+  // Tres montos sugeridos + «Otro» (equipo, 29/09): tres opciones fijas siguen
+  // siendo el menú de otro, y es lo último del alta que contradice la bandera.
+  // El techo lo pone el saldo (maxAffordableLimit), no una decisión nuestra.
   const LIMIT_PRESETS = [500000, 1000000, 5000000];
   const LIMIT_MIN = 200000, LIMIT_MAX = 5000000, LIMIT_STEP = 50000;
-  // El respaldo es solo dólar digital o Bitcoin. Los pesos quedan para pagar el resumen.
-  const RESPALDO_ASSETS = ['USDC', 'BTC'];
+  // Los tres activos respaldan (Jero, 29/09: entran los pesos). El orden es el
+  // de la recomendación, no el del saldo: el dólar digital primero porque es la
+  // mejora del caso y no se devalúa, los pesos después —no mueven nada el
+  // límite—, Bitcoin al final. Una tarjeta, un respaldo: no se combinan
+  // monedas; eso es otro producto, no otra pantalla.
+  const RESPALDO_ASSETS = ['USDC', 'ARS', 'BTC'];
 
   // ── Cálculo respaldo ↔ límite ───────────────────────────────────
   // respaldo en pesos = límite × ratio del activo
@@ -105,6 +117,33 @@
     const raw = haveArs / ratioOf(assetId, ratios);
     return Math.max(0, Math.floor(raw / LIMIT_STEP) * LIMIT_STEP);
   };
+
+  // ── Retirar el respaldo ─────────────────────────────────────────
+  // Retirar el respaldo da de baja la tarjeta (el retiro parcial se llama
+  // «bajar el límite» y ya existe). Antes de confirmar hay que saldar lo que
+  // debés, y el equipo pidió que eso sea una elección (29/09): pagarlo con el
+  // saldo de tu wallet —y el respaldo vuelve entero— o con parte del propio
+  // respaldo. Si la deuda es más grande que el respaldo, la segunda no existe:
+  // no se puede saldar con algo que no alcanza.
+  const retiroPlan = ({ respaldoUnits: rU, asset, deudaArs = 0, walletArs = 0, prices }) => {
+    const px = (prices || PRICES_DEFAULT)[asset] || 1;
+    const dec = ASSETS[asset].decimals;
+    const respArs = unitsToArs(rU, asset, prices);
+    const deudaUnits = roundTo(deudaArs / px, dec);
+    const conRespaldo = deudaArs <= respArs;
+    return {
+      deudaArs, deudaUnits, respaldoArs: respArs, walletArs,
+      conWallet: deudaArs === 0 || walletArs >= deudaArs,
+      conRespaldo: deudaArs === 0 || conRespaldo,
+      // lo que vuelve a tu saldo según con qué lo pagues
+      vuelveConWallet: rU,
+      vuelveConRespaldo: conRespaldo ? roundTo(rU - deudaUnits, dec) : 0,
+      faltaWalletArs: Math.max(0, deudaArs - walletArs)
+    };
+  };
+
+  // El verbo para conseguir lo que falta: los pesos se cargan, lo demás se compra
+  const verboFaltante = (assetId) => assetId === 'ARS' ? 'Cargar saldo' : 'Comprar';
 
   // Editar el límite: diferencia de respaldo entre el actual y el nuevo
   const limitChange = (fromLimit, toLimit, assetId, prices, ratios) => {
@@ -201,9 +240,12 @@
   const AUTOPAY_DEFAULT = { on: true, mode: 'minimo' };
 
   // ── Costos ──────────────────────────────────────────────────────
-  // Mantenimiento: la doc dice $7.500 y la app muestra $6.500 → usamos $6.500 (dato a confirmar)
+  // Mantenimiento: la tarjeta de hoy cobra $6.500/mes. La propuesta (Jero,
+  // 29/09) es que la nueva NO lo cobre: pedir respaldo ya es fricción
+  // suficiente, y cobrar por encima de eso no es estratégico. El número viejo
+  // queda como `mantenimientoHoy` porque es el punto de comparación.
   // tolerancia: hoy hay ~10% por encima del límite; en la nueva TC no la modelamos (supuestos S17)
-  const FEES = { mantenimiento: 6500, bonifMeses: 3, comisionCripto: 0, minimoPct: 0.10, tolerancia: 0 };
+  const FEES = { mantenimiento: 0, mantenimientoHoy: 6500, bonifMeses: 3, comisionCripto: 0, minimoPct: 0.10, tolerancia: 0 };
 
   // ── Formateo ────────────────────────────────────────────────────
   const roundTo = (n, dec) => { const f = Math.pow(10, dec); return Math.round(n * f) / f; };
@@ -235,7 +277,7 @@
 
   const CreditoModel = {
     HOY, PRODUCT, ASSETS, ASSET_ORDER, RESPALDO_ASSETS, PRICES_DEFAULT, BALANCES_DEFAULT, LIMIT_PRESETS, LIMIT_MIN, LIMIT_MAX, LIMIT_STEP, limitShare,
-    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, tresNumeros, saldoImpago,
+    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, tresNumeros, saldoImpago,
     CIERRE_GROUPS, FERIADOS, isFeriado, nextBusinessDay, nextClose, cycleDates, previousCycleDates, addDays, sameDay, daysBetween,
     AUTOPAY_MODES, AUTOPAY_SOURCES, AUTOPAY_DEFAULT, FEES,
     roundTo, fmtInt, fmtArs, fmtUnits, fmtPct, fmtDate, fmtDateShort, fmtDateDow, MESES, MESES_CORTO

@@ -84,7 +84,9 @@ const justCreated = ({ status = 'camino', nfc = false, cierre = null, autopay = 
     card: { status, asset: 'USDC', limit: 1000000, ratio: M.ratioOf('USDC'), respaldoUnits: rU, mask: '4324', nfc, fisica: 'camino', cierre, autopay, desde: 'Hoy' },
     period: { consumidoArs: 0, consumidoUsd: 0, movs: [respaldoMov(rU, 'USDC', '−')] } };
 };
-const activada = (nfc) => justCreated({ status: 'activa', nfc, cierre: 3, autopay: { ...M.AUTOPAY_DEFAULT } });
+// `autopay` va aparte porque desde el 29/09 activar NO lo configura: una
+// tarjeta activa sin débito automático es el estado normal, no un caso raro.
+const activada = (nfc, autopay = { ...M.AUTOPAY_DEFAULT }) => justCreated({ status: 'activa', nfc, cierre: 3, autopay });
 const PRESETS = [
 { group: 'Flujo 1 · Alta', id: 'home-vacia', name: 'Tarjetas sin crédito', route: 'home', make: baseState },
 { group: 'Flujo 1 · Alta', id: 'limit', name: '1 · Elegí el límite', route: 'limit', make: () => ({ ...baseState(), order: { asset: null, limit: 1000000 } }) },
@@ -92,10 +94,12 @@ const PRESETS = [
 { group: 'Flujo 1 · Alta', id: 'summary', name: '3 · Tu Lemon Credit Card', route: 'summary', make: () => ({ ...baseState(), order: { asset: 'USDC', limit: 1000000 } }) },
 { group: 'Flujo 1 · Alta', id: 'home-camino', name: '4 · La home, ya con tarjeta', route: 'home', make: () => justCreated() },
 { group: 'Flujo 1 · Alta', id: 'confirm', name: 'Alt · Ya es tuya (suelta)', route: 'confirm', make: () => justCreated() },
-{ group: 'Flujo 2 · Activación', id: 'cierre', name: '1 · Cuándo cierra', route: 'cierre', make: () => ({ ...justCreated(), draftCierre: 3, draftAutopay: { ...M.AUTOPAY_DEFAULT } }) },
-{ group: 'Flujo 2 · Activación', id: 'autopay-cuanto', name: '2 · Débito automático', route: 'autopay-cuanto', make: () => ({ ...justCreated(), draftCierre: 3, draftAutopay: { ...M.AUTOPAY_DEFAULT } }) },
-{ group: 'Flujo 2 · Activación', id: 'wallet', name: '3 · Pagá con el celu', route: 'wallet', make: () => activada(false) },
-{ group: 'Flujo 2 · Activación', id: 'activated', name: '4 · Ya podés pagar', route: 'activated', make: () => activada(true) },
+{ group: 'Flujo 2 · Activación', id: 'cierre', name: '1 · Cuándo cierra', route: 'cierre', make: () => ({ ...justCreated(), draftCierre: 3 }) },
+{ group: 'Flujo 2 · Activación', id: 'activated', name: '2 · Activa + Apple Pay', route: 'activated', make: () => activada(false, null) },
+{ group: 'Flujo 2 · Activación', id: 'activated-nfc', name: 'Alt · Ya está en el celu', route: 'activated', make: () => activada(true) },
+{ group: 'Flujo 2 · Activación', id: 'wallet', name: 'Alt · Apple Pay (suelta)', route: 'wallet', make: () => activada(false) },
+{ group: 'Flujo 3 · Landing', id: 'home-sin-autopay', name: 'Activa · sin débito', route: 'home', make: () => activada(true, null) },
+{ group: 'Flujo 3 · Landing', id: 'autopay-cuanto', name: 'Débito automático (después)', route: 'autopay-cuanto', make: () => ({ ...activada(true, null), draftAutopay: { ...M.AUTOPAY_DEFAULT } }) },
 { group: 'Flujo 3 · Landing', id: 'home-nueva', name: 'Activa · sin celu', route: 'home', make: () => activada(false) },
 { group: 'Flujo 3 · Landing', id: 'home-activa', name: 'Activa · resumen a pagar', route: 'home', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 3 · Landing', id: 'home-pausada', name: 'Pausada · límite visible', route: 'home', make: () => withActiveCard(baseState(), { status: 'pausada' }) },
@@ -150,15 +154,23 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     // ya y seguir el envío—, que es lo que el usuario necesita decidir ahora.
     go('home');
   };
-  // Activar = elegir cuándo cierra y cuánto se paga solo, y terminar en el celu
-  const startActivate = (via) => { patch({ activateVia: via, draftCierre: null, draftAutopay: { ...M.AUTOPAY_DEFAULT } }); go('cierre'); };
-  // skip = «Prefiero pagarlo yo cada mes»: la tarjeta queda activa sin débito
-  const finishActivate = (skip) => {
-    patch((s) => ({ card: { ...s.card, status: 'activa', cierre: s.draftCierre, autopay: skip ? { on: false, mode: 'minimo' } : (s.draftAutopay || { ...M.AUTOPAY_DEFAULT }) } }));
-    go('wallet');
+  // Activar = elegir cuándo cierra, y listo (equipo, 29/09). El débito
+  // automático salió de acá: activar no puede costar decisiones que todavía no
+  // son concretas —no gastaste nada— y el 3,5% que se liquida por mes se ataca
+  // mejor cuando el resumen ya existe. Queda `autopay: null` = sin configurar.
+  const startActivate = (via) => { patch({ activateVia: via, draftCierre: null }); go('cierre'); };
+  const finishActivate = () => {
+    patch((s) => ({ card: { ...s.card, status: 'activa', cierre: s.draftCierre } }));
+    go('activated'); // Apple Pay vive en esa misma pantalla
+  };
+  // El débito, después: desde el banner de la home o desde «Ya podés pagar»
+  const startAutopay = () => { patch((s) => ({ draftAutopay: s.card.autopay && s.card.autopay.on ? s.card.autopay : { ...M.AUTOPAY_DEFAULT } })); go('autopay-cuanto'); };
+  const finishAutopay = (skip) => {
+    patch((s) => ({ card: { ...s.card, autopay: skip ? { on: false, mode: 'minimo' } : (s.draftAutopay || { ...M.AUTOPAY_DEFAULT }) } }));
+    go('home');
   };
   const gotPlastico = () => patch((s) => ({ card: { ...s.card, fisica: 'entregada' } }));
-  const addWallet = () => { patch((s) => ({ card: { ...s.card, nfc: true } })); go('activated'); };
+  const addWallet = () => { patch((s) => ({ card: { ...s.card, nfc: true } })); if (route !== 'activated') go('activated'); };
   const togglePause = () => patch((s) => ({ card: { ...s.card, status: s.card.status === 'activa' ? 'pausada' : 'activa' } }));
   const pay = (amount) => {
     adjBalance('ARS', -amount);
@@ -181,7 +193,15 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     patch((s) => ({ card: { ...s.card, limit: newLimit, ratio: M.ratioOf(c.asset, dev.ratios), respaldoUnits: toU }, period: { ...s.period, movs: [respaldoMov(Math.abs(deltaUnits), c.asset, deltaUnits > 0 ? '−' : '+'), ...s.period.movs] } }));
     go('limite'); // se editó desde «Límite y respaldo»: volvemos ahí a ver el medidor nuevo
   };
-  const retiro = () => { patch((s) => ({ card: { ...s.card, status: 'retiro' }, openRetiro: false })); go('home'); };
+  // `pago` = 'wallet' | 'respaldo': con qué se salda lo que debías (equipo, 29/09)
+  const retiro = (pago) => {
+    patch((s) => {
+      const deuda = M.tresNumeros({ limit: s.card.limit, consumido: s.period.consumidoArs, saldoImpago: M.saldoImpago(s.statement) }).comprometido;
+      if (pago === 'wallet' && deuda > 0) adjBalance('ARS', -deuda);
+      return { card: { ...s.card, status: 'retiro', retiroPago: pago || 'wallet' }, openRetiro: false };
+    });
+    go('home');
+  };
 
   const setOrder = (p) => patch((s) => ({ order: { ...s.order, ...p } }));
 
@@ -191,21 +211,22 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
   else if (route === 'respaldo-pick') over = <RespaldoPicker S={SS} limit={S.order.limit} value={S.order.asset} onChange={(asset) => setOrder({ asset })} onBack={() => go('limit')} onContinue={() => go('summary')} onAddFunds={adjBalance} />;
   else if (route === 'summary') over = <OrderSummary S={SS} onBack={() => go('respaldo-pick')} onContinue={placeOrder} />;
   else if (route === 'confirm') over = <OrderConfirm S={SS} onHome={() => go('home')} onActivateNow={() => startActivate('nfc')} />;
-  else if (route === 'cierre') over = <CierrePicker S={SS} value={S.draftCierre} onChange={(v) => patch({ draftCierre: v })} onBack={() => go('home')} onContinue={() => go('autopay-cuanto')} />;
-  else if (route === 'autopay-cuanto') over = <AutopayCuanto S={SS} value={S.draftAutopay} onChange={(v) => patch({ draftAutopay: v })} onBack={() => go('cierre')} onSkip={() => finishActivate(true)} onContinue={() => finishActivate(false)} />;
-  else if (route === 'wallet') over = <WalletScreen S={SS} onBack={() => go('home')} onAdd={addWallet} onSkip={() => go('activated')} />;
-  else if (route === 'activated') over = <ActivatedScreen S={SS} onGo={() => go('home')} />;
+  else if (route === 'cierre') over = <CierrePicker S={SS} value={S.draftCierre} onChange={(v) => patch({ draftCierre: v })} onBack={() => go('home')} onContinue={finishActivate} />;
+  else if (route === 'autopay-cuanto') over = <AutopayCuanto S={SS} value={S.draftAutopay} onChange={(v) => patch({ draftAutopay: v })} onBack={() => go('home')} onSkip={() => finishAutopay(true)} onContinue={() => finishAutopay(false)} />;
+  else if (route === 'wallet') over = <WalletScreen S={SS} onBack={() => go('home')} onAdd={addWallet} onSkip={() => go('home')} />;
+  else if (route === 'activated') over = <ActivatedScreen S={SS} onGo={() => go('home')} onAddWallet={addWallet} onAutopay={startAutopay} />;
   else if (route === 'edit-limit') over = <LimitPicker S={SS} mode="edit" asset={S.card.asset} value={S.card.limit} onBack={() => go('limite')} onConfirm={applyLimit} onAddFunds={adjBalance} />;
   else if (route === 'statement') over = <StatementScreen S={SS} onBack={() => go('home')} onPagar={(k) => patch({ sheet: 'pagar-' + k })} />;
   else if (route === 'limite') over = <LimiteRespaldoScreen S={SS} openRetiro={!!S.openRetiro} onBack={() => go('home')} onRetiro={retiro} onEditLimit={() => go('edit-limit')} />;
-  else if (route === 'consumos') over = <ConsumosScreen S={SS} onBack={() => go('home')} />;
+  else if (route === 'consumos') over = <ConsumosScreen S={SS} onBack={() => go('home')} onVerResumen={() => go('statement')} />;
 
   const home =
   <TarjetasHome S={SS}
     onPedir={() => go('limit')}
     onLimite={() => { patch({ openRetiro: false }); go('limite'); }} onVerResumen={() => go('statement')} onPagar={(k) => patch({ sheet: 'pagar-' + k })}
     onConsumos={() => go('consumos')} onTogglePause={togglePause}
-    onSimDelivery={gotPlastico} onActivate={(via) => (S.card && S.card.status === 'camino' ? startActivate(via) : go('wallet'))} onRetiro={() => { patch({ openRetiro: true }); go('limite'); }} onTab={() => patch({ sheet: 'prepaga' })} />;
+    onSimDelivery={gotPlastico} onActivate={(via) => (S.card && S.card.status === 'camino' ? startActivate(via) : go('wallet'))} onRetiro={() => { patch({ openRetiro: true }); go('limite'); }} onTab={() => patch({ sheet: 'prepaga' })}
+    onAutopay={startAutopay} />;
 
   return (
     <div style={{ height: '100%', position: 'relative', overflow: 'hidden', background: '#0a0a0a', pointerEvents: inert ? 'none' : 'auto' }}>

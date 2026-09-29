@@ -65,3 +65,12 @@ está, es una pregunta: no la rellené.
 13b. **Avisos:** ¿por qué canal y con cuántos días de anticipación se avisa antes de usar el respaldo y cuando el débito no alcanza? El copy promete «varias veces» sin números. Impacta S29.
 14. ¿El resumen se muestra in-app como pantalla (esta propuesta) o sigue siendo un PDF? Impacta Flujo 3.
 15. ¿Qué eventos in-app puede disparar Lemon (vence en X días, congelada, liquidación en X días) sin depender de Braze? Impacta los avisos de la landing.
+
+## Feedback del equipo (29/09)
+
+- **S32 · Cuánto rinde el respaldo.** Jero definió que los pesos y el dólar digital **generan intereses mientras respaldan** y que esos intereses **se quedan dentro del respaldo**, no van a la wallet. No hay tasa, no sabemos si es la misma que Earn ni cada cuánto capitaliza, así que **ninguna pantalla promete un número**: se dice «sigue rindiendo» y «tu límite crece solo». Si Bitcoin también rinde, tampoco está definido: el prototipo asume que **no** (`ASSETS.BTC.rinde = false`), porque ahí la propuesta es el precio.
+- **S33 · Respaldo en pesos y riesgo.** Los pesos entran como activo de respaldo con el mismo ratio 1,25 que los otros dos. Que el colchón deba ser distinto para una moneda que no fluctúa contra la deuda es una decisión de riesgo que no está tomada.
+- **S34 · Sin mantenimiento.** La tarjeta nueva no cobra mantenimiento (`FEES.mantenimiento = 0`). La de hoy cobra $6.500/mes, que queda en el modelo como `mantenimientoHoy` porque es el punto de comparación. Finance pidió el cargo en su momento: sacarlo es una propuesta del producto, no una decisión cerrada con ellos.
+- **S35 · Monto libre del límite.** Mínimo $200.000 y máximo lo que el saldo respalde en **una** moneda. No se combinan monedas para respaldar una misma tarjeta. Si hay un tope regulatorio o de riesgo por encima de eso, no lo conocemos: el prototipo usa $5.000.000 (`LIMIT_MAX`).
+- **S36 · Retiro del respaldo.** Retirar da de baja la tarjeta y hay que saldar la deuda antes, con el saldo de la wallet o con parte del respaldo. El prototipo no modela plazos distintos según la forma de pago: usa 48 h hábiles para los dos.
+- **S37 · Períodos anteriores.** El historial del prototipo muestra el ciclo cerrado más dos meses inventados hacia atrás, solo para que la sección tenga forma. No hay definición de cuántos períodos se guardan.

@@ -1,6 +1,6 @@
 # Lemon Credit Card · Narrativa de producto
 
-*Versión de síntesis · 21/09/2026, con las ocho definiciones de Jero ya incorporadas (§10). Este documento ordena toda la experiencia del prototipo `/credito/`. Si un copy, una pantalla o una decisión de UI contradice lo que dice acá, se corrige el copy, no la narrativa. Quien lo lea tiene que poder escribir una pantalla nueva en la misma voz sin preguntar.*
+*Versión de síntesis · 29/09/2026, con las ocho definiciones de Jero (§10) y el feedback del equipo (§12) ya incorporados. Este documento ordena toda la experiencia del prototipo `/credito/`. Si un copy, una pantalla o una decisión de UI contradice lo que dice acá, se corrige el copy, no la narrativa. Quien lo lea tiene que poder escribir una pantalla nueva en la misma voz sin preguntar.*
 
 ---
 
@@ -42,12 +42,13 @@ No le hablamos como a alguien que no sabe. Le hablamos como a alguien que sabe c
 
 ## 4. Qué la hace única
 
-1. **El límite lo elegís vos.** Sin historial crediticio, sin evaluaciones, sin esperar. Tres montos; se prende el que tu saldo alcanza a respaldar.
-2. **Tu plata te respalda, y sigue siendo tuya.** Dejás un poco más de lo que vas a poder gastar: el límite es el 80% de lo que dejás. Ese margen es tu colchón, no un costo. No se vende ni se mueve. Vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta.
+1. **El límite lo elegís vos.** Sin historial crediticio, sin evaluaciones, sin esperar. Tres montos sugeridos y **«Otro»** para escribir el tuyo: el techo lo pone tu saldo, no nuestra lista. Lo que no te alcanza dice cuánto falta y te deja conseguirlo ahí mismo.
+2. **Tu plata te respalda, sigue siendo tuya y sigue rindiendo.** Respaldás con pesos, dólar digital o Bitcoin. Dejás un poco más de lo que vas a poder gastar: el límite es el 80% de lo que dejás. Ese margen es tu colchón, no un costo. No se vende ni se mueve. Vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta. Y los pesos y el dólar digital **siguen generando intereses mientras respaldan**; los intereses se quedan adentro del respaldo, así que **el límite crece solo**.
 3. **El límite acompaña a tu respaldo.** El límite es el 80% de lo que vale tu respaldo en pesos: si sube, sube; si baja, baja. Con dólar digital casi no se mueve; con Bitcoin se mueve todos los días. Se dice así, sin dramatizar y sin esconderlo.
 4. **Solo se usa si vos no pagás, y te avisamos varias veces antes.** Siete días después del vencimiento. Nada pasa de golpe, y tocar tu respaldo es lo último que queremos: por eso avisamos más de una vez.
 5. **Existe al instante.** Elegís límite, respaldo, cierre y débito, la creás y la sumás a Apple Pay en el mismo momento. La física llega en 5 a 7 días hábiles, pero no hay nada que esperar.
 6. **Cada moneda paga lo suyo.** Los consumos en dólares se pagan con dólar digital, sin la percepción del 30%.
+7. **No cuesta nada tenerla.** Sin costo de mantenimiento, ni al crearla ni después. Lo único que dejás es tu respaldo.
 
 Lo que **no** decimos porque no existe: cashback, millas, seguros, lounge, cuotas, puntos, tasas. Tampoco «NFC» ni «contactless»: el celu es el gesto, no la tecnología.
 
@@ -153,9 +154,25 @@ Placeholders que espera `credito-copy.js`: `pedido.row_respaldo_sub` {ars}/{acti
 7. **Descongelar no es instantáneo:** pasa cuando impacta el pago, y puede demorar.
 8. **Cierre y límite se cambian infinitas veces.** Y mientras el usuario elige el grupo de cierre no podemos dar fechas exactas: las dos van con ≈ hasta que la tarjeta se crea.
 
+## 12. Feedback del equipo (29/09) — cerrado
+
+Once propuestas del equipo de Jero. Siete se implementaron tal cual; cuatro las definió él:
+
+1. **Respaldo en pesos: sí.** Los tres activos respaldan. El orden de la pantalla es el de la recomendación (dólar digital · pesos · Bitcoin), no el del saldo. Con pesos el límite no se mueve nunca, porque es la misma moneda que la deuda.
+2. **El respaldo rinde, y el rendimiento se queda adentro.** Pesos y dólar digital generan intereses mientras respaldan, y esos intereses **no van a la wallet: se suman al respaldo**. Consecuencia que hay que contar siempre junta: si el respaldo crece, el límite crece, porque el límite es el 80% del respaldo. Es la respuesta a «dejo más de lo que voy a gastar» y también al 24% que pedía que el límite se ajustara solo. **No hay tasa definida**, así que ninguna pantalla promete un número (supuesto S32).
+3. **Límite con monto libre.** Tres montos sugeridos y «Otro». Mínimo $200.000, máximo lo que tu saldo respalde en **una** moneda: no se combinan monedas, eso es otro producto.
+4. **Comprar lo que falta, adentro del flujo.** La opción que no alcanza dice cuánto falta y ofrece conseguirlo. Los pesos se **cargan**, el resto se **compra**: el verbo lo decide el activo.
+5. **El monto del respaldo es el protagonista** de cada opción, y el **equivalente en pesos va en segundo plano**. Suma a la transparencia, pero «dejás $1.250.000 para gastar $1.000.000» es una resta que el usuario puede hacer solo y que nosotros no le servimos. Misma regla que el 80%, que vive en el helper (§8).
+6. **Sin costo de mantenimiento.** La tarjeta de hoy cobra $6.500/mes; la nueva no cobra nada. Pedir respaldo ya es fricción suficiente. La pantalla del pedido sobrevive: el cero deja de ser letra chica y pasa a ser lo que tiene para decir.
+7. **El débito automático sale de la activación.** Activar es **una sola pantalla**: elegís cuándo cierra y listo. El débito se ofrece después, desde un banner en la home y desde la fila de «Ya podés pagar», que es cuando el resumen deja de ser abstracto. Se puede ignorar para siempre sin que pase nada.
+8. **Apple Pay vive en la confirmación de la activación**, no en una pantalla aparte: así «ya es tuya» y «ya podés pagar» son el mismo momento.
+9. **Retirar el respaldo muestra la cuenta y deja elegir con qué saldarla:** con el saldo de tu wallet —y el respaldo vuelve entero— o con parte del propio respaldo. Si la deuda supera al respaldo, la segunda opción se apaga. Retirar da de baja la tarjeta; el retiro parcial se llama «bajar el límite» y ya existía.
+10. **Consumos del período suma los pagos que hiciste**, aparte y sin sumarlos al número grande —no suman a lo que vas a deber: lo bajan—, y **los períodos anteriores** se leen adentro de la app.
+
 ## 11. Lo que sigue abierto
 
 - **Cada cuánto se revisa el límite por precio** (¿en cada cierre? ¿continuo?) y si Bitcoin pide más colchón que el dólar digital (hoy el prototipo usa 125% para los dos, editable en el panel dev).
 - **Canal y anticipación de los avisos** (push, mail, in-app; cuántos días antes): el copy promete «varias veces» sin dar números, y el día que haya regla se agregan.
 - **Cuánto demora el descongelamiento** una vez impactado el pago: si es minutos, se puede decir; si no, queda como está.
 - **Intereses del pago mínimo**: hoy se dice «con interés», sin tasa.
+- **Cuánto rinde el respaldo** (tasa, si es la misma que Earn, cada cuánto capitaliza y si Bitcoin también rinde): el copy dice «sigue rindiendo» y «el límite crece solo», sin número. El día que haya tasa, se agrega.

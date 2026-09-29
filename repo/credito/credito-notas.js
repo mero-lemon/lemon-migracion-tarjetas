@@ -21,9 +21,9 @@
 //     no de la decisión que muestra esa pantalla (Jero, 25/09, sobre la home
 //     activa): si el número se puede contar igual de bien en otra pantalla, es
 //     de esa otra pantalla.
-//   · Por eso hoy son 9 pantallas con las dos tarjetas y 8 con narrativa sola
-//     (summary · home-camino · wallet · activated · home-activa · home-pausada
-//     · consumos · confirm). Una tarjeta sola no es una pantalla incompleta: es
+//   · Por eso hoy son 10 pantallas con las dos tarjetas y 7 con narrativa sola
+//     (home-camino · wallet · activated · home-activa · home-pausada ·
+//     consumos · confirm). Una tarjeta sola no es una pantalla incompleta: es
 //     una pantalla donde la evidencia ya la dimos antes.
 //
 // Reglas de edición, para que esto siga sirviendo para pitchear:
@@ -62,7 +62,7 @@
       parrafo: 'Es la herramienta para manejar tu día a día: el súper, la nafta, el viaje, el celu nuevo. Definís el límite que te sirve, sin que nadie te evalúe. Gastás sin vender lo que ahorraste: tu dólar digital y tu Bitcoin se quedan donde están. Pagás cuando te queda cómodo, o dejás que se pague solo. Ves en qué se te va, y lo que gastaste en dólares lo pagás con dólares, sin la percepción del 30%.',
       contexto: [
         { n: '193.946', t: 'Existe un interés, y no hicimos ninguna campaña.',
-          d: '193.946 usuarios llegaron a «no tenés respaldo suficiente» en 12 meses, y 108.558 avanzaron hasta comprar crypto para poder entrar.', f: HOY + ' · flujo de alta, 12 meses' },
+          d: '193.946 usuarios llegaron a «no tenés respaldo suficiente» en 12 meses. Nadie los invitó: entraron al flujo por su cuenta.', f: HOY + ' · flujo de alta, 12 meses' },
         { n: '~100', t: 'El experimento validó la demanda: entran solos, todos los meses.',
           d: '~100 altas por mes, estables, sin inversión asociada. Todo el parque son 684 líneas activas.', f: HOY + ' · altas mensuales, 2026' },
         { n: '75%', t: 'Hoy, ahorrar en crypto termina en venderla.',
@@ -76,44 +76,48 @@
     limit: {
       paso: 'Alta · 1 de 3', titulo: 'Elegí el límite de tu tarjeta',
       lead: 'Ahora el límite lo elegís vos, y lo cambiás cuando quieras.',
-      parrafo: 'Tu límite acá no lo define nadie: es lo primero que hacés, y se decide en una pantalla. El monto que elegís es lo que vas a poder hacer —el viaje, la mudanza, el celu nuevo—, y si hoy te queda grande lo bajás, si mañana te queda chico lo subís, las veces que quieras. Lo que no te alcanza no te reprocha: te dice por qué y cómo llegar.',
+      parrafo: 'Tu límite acá no lo define nadie: es lo primero que hacés, y se decide en una pantalla. Tres montos sugeridos y, si ninguno es el tuyo, escribís el que quieras: el techo lo pone tu saldo, no nuestra lista. El monto que elegís es lo que vas a poder hacer —el viaje, la mudanza, el celu nuevo—, y lo subís o lo bajás las veces que quieras. Y si te falta respaldo, te decimos cuánto y lo conseguís ahí mismo.',
       contexto: [
         { n: '23%', t: 'Casi 1 de cada 4 tarjetas ya chocó contra su propio límite.',
           d: '$28,9 M rechazados en un mes. El límite es el motivo de rechazo número uno.', f: HOY + ' · base, agosto 2026' },
         { n: '40%', t: 'Cuando el límite lo asigna otro, la disconformidad es la norma.',
           d: '40% de quienes tienen tarjeta de crédito en otro banco está disconforme con su límite.', f: 'Discovery previo a la V1 · encuesta, 865 respuestas' },
-        { n: '$2,5-3 M', t: 'Nuestro propio límite salió corto contra lo que ya sabíamos.',
-          d: 'El rango sugerido internamente era de $2,5 a 3 M. La V1 salió con $1.000.000.', f: 'Definición interna, previa al lanzamiento' }
+        { n: '$2,5-3 M', t: 'Con montos fijos, el error lo cometemos nosotros.',
+          d: 'El rango sugerido internamente era de $2,5 a 3 M y la V1 salió con $1.000.000. Con monto libre, ese error no se puede repetir.', f: 'Definición interna, previa al lanzamiento' },
+        { n: '108.558', t: 'Ya compran crypto a mano para poder entrar.',
+          d: 'De los que chocaron con «no tenés respaldo suficiente», 108.558 fueron a comprar por su cuenta. Poner esa compra adentro del flujo es sacar un paso que ya están dando afuera.', f: HOY + ' · flujo de alta, 12 meses' }
       ]
     },
     'respaldo-pick': {
       paso: 'Alta · 2 de 3', titulo: 'Elegí tu respaldo',
-      lead: 'Tu plata te respalda, y sigue siendo tuya.',
-      parrafo: 'Tu dólar digital o tu Bitcoin no se venden ni se mueven: quedan cubriéndote las espaldas. Vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Elegís con cuál respaldarte: con dólar digital tu límite casi no se mueve, con Bitcoin sigue al precio todos los días.',
+      lead: 'Tu plata te respalda, sigue siendo tuya y sigue rindiendo.',
+      parrafo: 'Respaldás con lo que tengas: pesos, dólar digital o Bitcoin. No se venden ni se mueven, quedan cubriéndote las espaldas, y vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Y no queda quieto: tus pesos y tus dólares siguen generando intereses mientras respaldan, los intereses se suman al respaldo, y como tu límite es el 80% de lo que dejás, tu límite crece solo.',
       contexto: [
         { n: '+5.892', t: 'Aceptar dólar digital casi triplica el universo elegible.',
-          d: 'El universo pasa de 3.040 a 8.932 usuarios, sin tocar el modelo de riesgo.', f: 'Base de usuarios · saldos al 10/09/2026' },
+          d: 'El universo pasa de 3.040 a 8.932 usuarios, sin tocar el modelo de riesgo. Con pesos crece todavía más.', f: 'Base de usuarios · saldos al 10/09/2026' },
         { n: '8,73 BTC', t: 'Hoy el respaldo es solo Bitcoin, y el límite se mueve con él.',
           d: '8,73 BTC es todo el respaldo vigente: ni una línea respaldada con otra moneda.', f: HOY + ' · líneas con respaldo activo' },
-        { n: '52 / 14%', t: 'Casi nadie elegiría Bitcoin para respaldar.',
-          d: '52% preferiría dejar el respaldo en pesos y solo 14% elegiría Bitcoin. El dólar digital es lo más cerca de esa preferencia que el riesgo permite.', f: 'Encuesta COPS · posterior a la V1' },
+        { n: '52 / 14%', t: 'La gente pide pesos, y los pesos ahora se pueden.',
+          d: '52% preferiría dejar el respaldo en pesos y solo 14% elegiría Bitcoin. Con pesos el límite no se mueve nunca: es la misma moneda que la deuda.', f: 'Encuesta COPS · posterior a la V1' },
         { n: '7 de 12', t: 'Las stables ya son el resguardo de valor de nuestros usuarios.',
-          d: '7 de 12 entrevistados las nombran así; a Bitcoin lo mencionan 3.', f: 'Discovery previo a la V1 · entrevistas' }
+          d: '7 de 12 entrevistados las nombran así; a Bitcoin lo mencionan 3.', f: 'Discovery previo a la V1 · entrevistas' },
+        { n: '24%', t: 'Y pedían que el límite se ajustara solo. Rindiendo, se ajusta solo.',
+          d: '24% se mostró interesado en que su límite se ajuste automáticamente. Si los intereses se quedan en el respaldo, el límite sube sin que el usuario haga nada.', f: 'Encuesta COPS · posterior a la V1' }
       ]
     },
     cierre: {
       paso: 'Activación · 1 de 3', titulo: 'Elegí cuándo cierra tu resumen',
-      lead: 'Vos elegís cuándo cierra, y con eso cuándo pagás.',
-      parrafo: 'Elegís el grupo que te sirve según cuándo cobrás, no según el día en que te diste de alta. Vence unos diez días después del cierre, así que con esa sola decisión acomodás la tarjeta a tu sueldo. Mientras no la actives las fechas van en aproximado: preferimos eso antes que prometerte un día que se puede correr. Cuando la activás, quedan fijas.',
+      lead: 'Activar tu tarjeta es una sola decisión: cuándo cierra.',
+      parrafo: 'Elegís el grupo que te sirve según cuándo cobrás, no según el día en que te diste de alta. Vence unos diez días después del cierre, así que con esa sola decisión acomodás la tarjeta a tu sueldo. Y es la única que te pedimos: todo lo demás se configura después, con la tarjeta andando. Mientras no la actives las fechas van en aproximado; cuando la activás, quedan fijas.',
       contexto: [
         { n: '1 → 4', t: 'Hoy todo el parque cierra el mismo día: el que le convino al sistema.',
           d: 'Pomelo habilita cuatro grupos de cierre. Que lo elija el usuario, y no su fecha de alta, es la propuesta.', f: HOY + ' · ciclo de facturación' }
       ]
     },
     'autopay-cuanto': {
-      paso: 'Activación · 2 de 3', titulo: 'Elegí cuánto se paga solo',
-      lead: 'Delegás el pago sin perder el control.',
-      parrafo: 'Elegís cuánto se paga solo el día del vencimiento: el mínimo te cubre para que nada se congele, el total te deja sin intereses. Tus dólares pagan lo que gastaste en dólares, sin la percepción del 30%. Y si preferís pagarlo vos cada mes, también está bien: la opción está a la vista, no escondida.',
+      paso: 'Después de activar', titulo: 'Elegí cuánto se paga solo',
+      lead: 'Delegás el pago sin perder el control, cuando ya tenés algo que pagar.',
+      parrafo: 'No te lo preguntamos al activar la tarjeta, porque ahí todavía no gastaste nada y la decisión es abstracta. Te lo ofrecemos cuando el resumen existe. Elegís cuánto se debita el día del vencimiento: el mínimo te cubre para que nada se congele, el total te deja sin intereses, y tus dólares pagan lo que gastaste en dólares, sin la percepción del 30%. Si preferís pagarlo vos cada mes, también está bien.',
       contexto: [
         { n: '3,5%', t: 'Olvidarse de pagar es el motivo número uno por el que hoy se pierde una línea.',
           d: '3,5% del parque activo se liquida todos los meses por no llegar al pago mínimo.', f: HOY + ' · liquidaciones mensuales' },
@@ -137,7 +141,7 @@
     limite: {
       paso: 'Límite y respaldo', titulo: 'El medidor, y tu respaldo',
       lead: 'Cuánto podés gastar y qué dejaste para respaldarlo.',
-      parrafo: 'El medidor muestra lo que te queda, y abajo está lo que dejaste con su valor de hoy. Tu respaldo es tuyo y te lo podés llevar cuando quieras, con la cuenta a la vista: cuánto cubre lo que debés y cuánto vuelve a tu saldo. Que la salida esté siempre a mano es lo que hace que no la necesites.',
+      parrafo: 'El medidor muestra lo que te queda, y abajo está lo que dejaste con su valor de hoy. Tu respaldo es tuyo y te lo podés llevar cuando quieras: te mostramos la cuenta completa y elegís con qué saldás lo que debés, con el saldo de tu wallet —y vuelve entero— o con parte del propio respaldo. Que la salida esté siempre a mano, y con la cuenta hecha, es lo que hace que no la necesites.',
       contexto: [
         { n: '486', t: 'La gente se lleva su plata, no se le va.',
           d: '486 de las 648 líneas cerradas fueron por retiro voluntario del respaldo.', f: HOY + ' · histórico de líneas' }
@@ -149,9 +153,16 @@
       parrafo: 'Cambiar el límite es la misma decisión del primer día, con la misma pantalla. Antes de confirmar ves qué implica en tu plata: cuánto más dejás si subís, cuánto vuelve a tu saldo si bajás. Lo hacés las veces que quieras, y el único borde es no bajarlo por debajo de lo que ya usaste.',
       contexto: [
         { n: '9,9%', t: 'Hoy, pedir más límite es una conversación con Ops.',
-          d: '9,9% del soporte de la tarjeta es sobre límites, con 11 pedidos explícitos de aumento.', f: 'COPS · 820 conversaciones, 90 días' },
-        { n: '24%', t: 'Y uno de cada cuatro quiere que se ajuste solo.',
-          d: '24% se mostró interesado en que su límite se ajuste automáticamente.', f: 'Encuesta COPS · posterior a la V1' }
+          d: '9,9% del soporte de la tarjeta es sobre límites, con 11 pedidos explícitos de aumento.', f: 'COPS · 820 conversaciones, 90 días' }
+      ]
+    },
+    summary: {
+      paso: 'Alta · 3 de 3', titulo: 'Tu Lemon Credit Card',
+      lead: 'Al tocar el botón, la tarjeta ya es tuya. Y no te cuesta nada.',
+      parrafo: 'Ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar. Lo único que sumamos acá es lo que todavía no sabés: cuánto cuesta tenerla. No cuesta nada, ni ahora ni cuando la actives. Lo único que dejás es tu respaldo, y sigue siendo tuyo.',
+      contexto: [
+        { n: '$6.500', t: 'Hoy la tarjeta cobra mantenimiento. La propuesta es dejar de cobrarlo.',
+          d: 'Pedir respaldo ya es fricción suficiente; cobrar por encima de eso no es estratégico para un producto que todavía tiene que probar que convierte.', f: HOY + ' · mantenimiento mensual' }
       ]
     },
     statement: {
@@ -172,15 +183,10 @@
       lead: 'Tres números y ninguna explicación.',
       parrafo: 'Cuánto gastaste, cuánto te queda y cuánto tenés que pagar: las tres cosas a la vista, sin tocar nada. Lo que todavía no pagaste sigue ocupando tu límite y te lo decimos acá, porque enterarte en una compra rechazada es mucho peor. El respaldo, que se entiende una sola vez, queda a un toque de distancia.'
     },
-    summary: {
-      paso: 'Alta · 3 de 3', titulo: 'Tu Lemon Credit Card',
-      lead: 'Al tocar el botón, la tarjeta ya es tuya.',
-      parrafo: 'Ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar. Lo único que sumamos acá es lo que todavía no sabés: cuánto cuesta. El mantenimiento empieza a correr recién cuando actives la tarjeta, y los primeros tres meses van bonificados. Sin letra chica y sin sorpresas en el primer resumen.'
-    },
     'home-camino': {
       paso: 'Recién creada', titulo: 'La home, con la tarjeta ya tuya',
       lead: 'Ya tenés tarjeta: podés estar comprando hoy.',
-      parrafo: 'El plástico tarda cinco días; tu tarjeta, cero. Por eso la home separa las dos cosas: de un lado empezás a usarla ahora, con el celu, en dos pantallas; del otro seguís el viaje del envío, que va por su cuenta. Nada de lo que viene por correo puede frenar lo que ya tenés en la mano.'
+      parrafo: 'El plástico tarda cinco días; tu tarjeta, cero. Por eso la home separa las dos cosas: de un lado empezás a usarla ahora —una pantalla y ya está en el celu—; del otro seguís el viaje del envío, que va por su cuenta. Nada de lo que viene por correo puede frenar lo que ya tenés en la mano.'
     },
     wallet: {
       paso: 'Activación · 3 de 3', titulo: 'Pagá con el celu desde hoy',
@@ -189,8 +195,8 @@
     },
     activated: {
       paso: 'Activación · listo', titulo: 'Ya podés pagar con el celu',
-      lead: 'Está activa, y todo lo que elegiste lo podés cambiar.',
-      parrafo: 'Las fechas ya son fijas, el límite es el que pusiste y el débito hace exactamente lo que le pediste. Si no quisiste débito automático, lo pagás vos cada mes y nadie te lo reprocha. El límite, el cierre y cuánto se paga solo los cambiás desde la app, cuando quieras y las veces que quieras.'
+      lead: 'Está activa y ya la podés poner en el celu, acá mismo.',
+      parrafo: 'Sumarla a Apple Pay no es un paso más: es el botón de esta pantalla, así «ya es tuya» y «ya podés pagar» son el mismo momento. Las fechas quedaron fijas y el límite es el que pusiste. El débito automático todavía no está configurado y no pasa nada: lo activás desde acá o desde la home, cuando tengas ganas. Nada de lo que decidiste hoy queda cerrado.'
     },
     'home-pausada': {
       paso: 'Estados difíciles', titulo: 'La pausaste vos',
@@ -199,8 +205,8 @@
     },
     consumos: {
       paso: 'Vivir con ella', titulo: 'Consumos del período',
-      lead: 'Cuánto llevás gastado en este ciclo, sin calcular nada.',
-      parrafo: 'El período se nombra por su cierre y su vencimiento, así que sabés hasta cuándo suma lo que gastes hoy. Es la pregunta más frecuente del mes y la más fácil de responder mal.'
+      lead: 'Cuánto llevás gastado, qué pagaste y qué pasó antes.',
+      parrafo: 'El período se nombra por su cierre y su vencimiento, así que sabés hasta cuándo suma lo que gastes hoy. Los pagos que hiciste se ven aparte: no suman a lo que vas a deber, lo bajan, y mezclarlos rompería el único número que importa. Y los períodos que ya cerraron quedan acá adentro, no en un mail que hay que buscar.'
     },
     confirm: {
       paso: 'Alternativa', titulo: 'Ya es tuya (pantalla suelta)',

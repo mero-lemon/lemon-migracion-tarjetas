@@ -1,11 +1,15 @@
 // «Elegí el límite de tu tarjeta» — la pantalla del superpoder (21/09).
-// Tres montos y nada más, pero con escenario: el límite elegido vive en un
+// Tres montos sugeridos y «Otro», con escenario: el límite elegido vive en un
 // bloque negro con la tarjeta adentro, para que la decisión se vea tan
 // grande como es («me parece medio apagada», Jero). Las opciones de abajo
 // solo cambian de monto; el que no alcanza se apaga con el motivo y la salida.
+// «Otro» (equipo, 29/09) es lo que hace literal la bandera: tres montos fijos
+// siguen siendo el menú de otro, y acá el techo lo pone tu saldo. El que no
+// alcanza ofrece comprar lo que falta, que es lo que 108.558 personas ya
+// hicieron a mano después de chocar con «no tenés respaldo suficiente».
 // El mismo componente edita el límite después (Flujo 4): subir pide más
 // respaldo, bajar lo libera, y no se puede bajar por debajo de lo comprometido.
-const { useState: useStateCr, useEffect: useEffectCr } = React;
+const { useState: useStateCr, useEffect: useEffectCr, useRef: useRefCr } = React;
 
 const CR_PRESEL = new URLSearchParams(location.search).get('presel') !== '0';
 const TL = () => window.CreditoCopy;
@@ -60,6 +64,41 @@ function LimitOption({ limite, selected, disabled, current, reason, action, sub,
     </OptionCard>);
 }
 
+// ── «Otro monto»: el techo lo pone tu saldo, no nuestra lista ───
+// Se abre al tocarla y el input queda listo. Mientras está abierta manda ella:
+// el escenario de arriba muestra lo que vas escribiendo.
+function OtroMonto({ open, value, max, onOpen, onChange }) {
+  const T = TL();
+  const ref = useRefCr(null);
+  useEffectCr(() => { if (open && ref.current) ref.current.focus(); }, [open]);
+  const digits = (str) => str.replace(/\D/g, '').slice(0, 9);
+  const shown = value != null && value > 0 ? M.fmtInt(value) : '';
+  const tooLow = value != null && value > 0 && value < M.LIMIT_MIN;
+  const tooHigh = value != null && value > max;
+  return (
+    <OptionCard selected={open} onClick={open ? undefined : onOpen} pad="16px 18px" style={{ background: '#fff' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {open ?
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
+            <span style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: shown ? CR.ink : CR.ink3 }}>$</span>
+            <input ref={ref} inputMode="numeric" value={shown} placeholder={T.limite.otro_placeholder}
+              onChange={(e) => onChange(Number(digits(e.target.value)) || 0)}
+              style={{ flex: 1, minWidth: 0, width: '100%', border: 0, outline: 'none', background: 'transparent', padding: 0, font: '500 26px Geist', letterSpacing: '-0.02em', color: CR.ink }} />
+          </div> :
+          <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T.limite.otro_label}</div>}
+          <div style={{ font: '400 13px Inter', color: tooLow || tooHigh ? '#854600' : CR.ink3, marginTop: 5, lineHeight: 1.4 }}>
+            {tooLow ? T.tpl(T.limite.otro_min, { min: M.fmtArs(M.LIMIT_MIN) })
+            : tooHigh ? T.tpl(T.limite.otro_max, { max: M.fmtArs(max) })
+            : max > 0 ? T.tpl(T.limite.otro_sub, { max: M.fmtArs(max) })
+            : T.limite.otro_sub_vacio}
+          </div>
+        </div>
+        {open ? <Check on={!tooLow && !tooHigh && value > 0} size={24} /> : <LI name="edit" size={20} color={CR.ink3} />}
+      </div>
+    </OptionCard>);
+}
+
 // ── Cargar saldo (mock: suma el faltante) ───────────────────────
 function DepositoSheet({ asset, limite, S, bal, onSimulate, onClose }) {
   const chk = M.check(limite, asset, bal, S.prices, S.ratios);
@@ -71,10 +110,10 @@ function DepositoSheet({ asset, limite, S, bal, onSimulate, onClose }) {
         Un límite de <b style={{ fontWeight: 600 }}>{M.fmtArs(limite)}</b> pide <b style={{ fontWeight: 600 }}>{M.fmtUnits(chk.needUnits, asset)}</b> de respaldo en {a.name.toLowerCase()} y tenés {M.fmtUnits(chk.have, asset)}.
       </div>
       <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <Btn variant="brand" leftIcon="buy-and-sell" onClick={onSimulate}>Comprar {M.fmtUnits(chk.faltanteUnits, asset)}</Btn>
+        <Btn variant="brand" leftIcon={asset === 'ARS' ? 'deposit' : 'buy-and-sell'} onClick={onSimulate}>{asset === 'ARS' ? 'Cargar' : 'Comprar'} {M.fmtUnits(chk.faltanteUnits, asset)}</Btn>
         <Btn variant="ghost" onClick={onClose}>Ahora no</Btn>
       </div>
-      <div style={{ font: '400 11px Inter', color: CR.ink3, marginTop: 8, textAlign: 'center' }}>Prototipo: el botón simula la compra y suma el faltante a tu saldo.</div>
+      <div style={{ font: '400 11px Inter', color: CR.ink3, marginTop: 8, textAlign: 'center' }}>Prototipo: el botón suma el faltante a tu saldo.</div>
     </div>);
 }
 
@@ -87,12 +126,18 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
   const value = onChangeProp ? valueProp : localVal;
   const onChange = onChangeProp || setLocalVal;
   const [sheet, setSheet] = useStateCr(null); // { asset, limite }
+  const [otro, setOtro] = useStateCr(() => valueProp != null && !M.LIMIT_PRESETS.includes(valueProp));
   const edit = mode === 'edit';
   const card = S.card;
   // en edición, lo ya dejado como respaldo cuenta como disponible
   const bal = edit ? { ...S.balances, [asset]: M.roundTo(S.balances[asset] + card.respaldoUnits, M.ASSETS[asset].decimals) } : S.balances;
   // piso en edición: lo usado este período + el resumen cerrado sin pagar
   const comprometido = edit ? S.period.consumidoArs + M.saldoImpago(S.statement) : 0;
+  // El techo de «Otro»: lo que tu saldo respalda hoy. En el alta, con la mejor
+  // de tus monedas; editando, con la moneda que ya elegiste.
+  const maxOtro = Math.min(M.LIMIT_MAX, edit
+  ? M.maxAffordableLimit(asset, bal, S.prices, S.ratios)
+  : Math.max(...M.RESPALDO_ASSETS.map((a) => M.maxAffordableLimit(a, bal, S.prices, S.ratios))));
   const assetFor = (l) => edit ? asset : (M.affordableAsset(l, bal, S.prices, S.ratios) || M.closestAsset(l, bal, S.prices, S.ratios));
   const okFor = (l) => M.check(l, assetFor(l), bal, S.prices, S.ratios).ok;
   const affordable = M.LIMIT_PRESETS.filter((l) => okFor(l) && !(edit && l < comprometido));
@@ -101,7 +146,7 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
   useEffectCr(() => {
     if (edit || !CR_PRESEL) return;
     if (value == null || !okFor(value)) onChange(affordable.length ? affordable[affordable.length - 1] : null);
-  }, [S.balances.USDC, S.balances.BTC, S.ratios.USDC, S.ratios.BTC, S.prices.USDC, S.prices.BTC]);
+  }, [S.balances.ARS, S.balances.USDC, S.balances.BTC, S.ratios.USDC, S.ratios.BTC, S.prices.USDC, S.prices.BTC]);
 
   const deltaFor = (l) => {
     const toU = M.respaldoUnits(l, asset, S.prices, S.ratios);
@@ -127,17 +172,17 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
     else if (d && d.dir === 'up') stageLine = T.tpl(T.editar_limite.sub_subir, { unidades: M.fmtUnits(Math.abs(d.deltaUnits), asset) });
     else if (d && d.dir === 'down') { stageLine = T.tpl(T.editar_limite.sub_bajar, { unidades: M.fmtUnits(Math.abs(d.deltaUnits), asset) }); stageColor = 'var(--c-lime-40)'; }
     else stageLine = 'Es el límite que tenés hoy.';
-  } else if (stageOk) stageLine = T.limite[POWER_KEY[value]];
-  else if (value != null) { stageLine = T.limite.locked_reason; stageColor = WARN; }
+  } else if (stageOk) stageLine = T.limite[POWER_KEY[value]] || T.tpl(T.limite.otro_sub, { max: M.fmtArs(maxOtro) });
+  else if (value != null && value > 0) { stageLine = value < M.LIMIT_MIN ? T.tpl(T.limite.otro_min, { min: M.fmtArs(M.LIMIT_MIN) }) : T.limite.locked_reason; stageColor = WARN; }
 
   let footer;
   if (edit) {
     const d = value != null ? deltaFor(value) : null;
     if (value == null || value === card.limit) footer = <Btn variant="primary" disabled>Elegí un límite distinto</Btn>;
     else if (value < comprometido) footer = <Btn variant="primary" disabled>Por debajo de lo que usaste</Btn>;
-    else if (!okFor(value)) footer = <Btn variant="brand" leftIcon="buy-and-sell" onClick={() => setSheet({ asset, limite: value })}>Comprar {M.fmtUnits(M.check(value, asset, bal, S.prices, S.ratios).faltanteUnits, asset)}</Btn>;
+    else if (!okFor(value)) footer = <Btn variant="brand" leftIcon={asset === 'ARS' ? 'deposit' : 'buy-and-sell'} onClick={() => setSheet({ asset, limite: value })}>{asset === 'ARS' ? 'Cargar' : 'Comprar'} {M.fmtUnits(M.check(value, asset, bal, S.prices, S.ratios).faltanteUnits, asset)}</Btn>;
     else footer = <Btn variant="primary" onClick={() => onConfirm(value)}>{T.tpl(d.dir === 'up' ? T.editar_limite.cta_subir : T.editar_limite.cta_bajar, { ars: M.fmtArs(value) })}</Btn>;
-  } else footer = <Btn variant="primary" disabled={value == null || !okFor(value)} onClick={onContinue}>{T.limite.cta}</Btn>;
+  } else footer = <Btn variant="primary" disabled={value == null || value < M.LIMIT_MIN || !okFor(value)} onClick={onContinue}>{T.limite.cta}</Btn>;
 
   return (
     <div style={{ height: '100%', position: 'relative' }}>
@@ -158,12 +203,14 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
               const ok = chk.ok;
               let sub = null, reason = null, action = null;
               if (useBlocked) reason = T.tpl(T.editar_limite.blocked, { ars: M.fmtArs(comprometido) });
-              else if (!ok) { reason = edit ? `Te faltan ${M.fmtUnits(chk.faltanteUnits, a)}` : T.limite.locked_reason; action = edit ? 'Comprar' : T.limite.locked_action; }
+              else if (!ok) { reason = T.tpl(T.limite.locked_reason_units, { faltante: M.fmtUnits(chk.faltanteUnits, a) }); action = M.verboFaltante(a); }
               return (
                 <LimitOption key={l} limite={l} selected={value === l} disabled={!ok || useBlocked} current={isCurrent}
                   reason={reason} action={action} sub={sub}
-                  onSelect={() => onChange(l)} onAction={!ok && !useBlocked ? () => setSheet({ asset: a, limite: l }) : undefined} />);
+                  onSelect={() => { setOtro(false); onChange(l); }} onAction={!ok && !useBlocked ? () => setSheet({ asset: a, limite: l }) : undefined} />);
             })}
+            <OtroMonto open={otro} value={otro ? value : null} max={maxOtro}
+              onOpen={() => { setOtro(true); onChange(null); }} onChange={(v) => onChange(v || null)} />
           </div>
           {!edit &&
           <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>

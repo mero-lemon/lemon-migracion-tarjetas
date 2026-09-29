@@ -26,7 +26,27 @@
   eq('BTC $1M no', M.check(1000000, 'BTC').ok, false);
   eq('máximo prefijado USDC', M.maxAffordablePreset('USDC'), 1000000);
   eq('presets 500k / 1M / 5M', M.LIMIT_PRESETS, [500000, 1000000, 5000000]);
-  eq('respaldo solo USDC y BTC', M.RESPALDO_ASSETS, ['USDC', 'BTC']);
+  // Jero, 29/09: entran los pesos, en el orden de la recomendación
+  eq('respaldan los tres, dólar digital primero', M.RESPALDO_ASSETS, ['USDC', 'ARS', 'BTC']);
+  eq('pesos y dólar digital rinden', [M.ASSETS.ARS.rinde, M.ASSETS.USDC.rinde], [true, true]);
+  eq('Bitcoin no rinde: ahí la propuesta es el precio', !!M.ASSETS.BTC.rinde, false);
+  eq('ARS $500k ok ($720.000 respalda hasta $576.000)', M.check(500000, 'ARS').ok, true);
+  eq('ARS $1M no', M.check(1000000, 'ARS').ok, false);
+  eq('máximo exacto ARS = $550.000', M.maxAffordableLimit('ARS'), 550000);
+
+  // la tarjeta nueva no cobra mantenimiento (Jero, 29/09)
+  eq('sin mantenimiento', M.FEES.mantenimiento, 0);
+  eq('la de hoy cobra $6.500, que es la comparación', M.FEES.mantenimientoHoy, 6500);
+
+  // retirar el respaldo: la cuenta y con qué se puede pagar
+  const rp = (deuda, wallet) => M.retiroPlan({ respaldoUnits: 862.07, asset: 'USDC', deudaArs: deuda, walletArs: wallet });
+  eq('sin deuda, vuelve entero', rp(0, 0).vuelveConWallet, 862.07);
+  eq('sin deuda se puede de las dos formas', [rp(0, 0).conWallet, rp(0, 0).conRespaldo], [true, true]);
+  eq('con saldo en wallet podés pagar de las dos formas', [rp(300000, 500000).conWallet, rp(300000, 500000).conRespaldo], [true, true]);
+  close('pagando con el respaldo vuelve menos', rp(300000, 500000).vuelveConRespaldo, 862.07 - 206.9, 0.02);
+  eq('sin saldo en wallet solo queda el respaldo', rp(300000, 0).conWallet, false);
+  eq('deuda mayor que el respaldo: solo con la wallet', M.retiroPlan({ respaldoUnits: 100, asset: 'USDC', deudaArs: 300000, walletArs: 500000 }).conRespaldo, false);
+  eq('y si tampoco hay wallet, no se puede', M.retiroPlan({ respaldoUnits: 100, asset: 'USDC', deudaArs: 300000, walletArs: 0 }).conWallet, false);
   eq('$500k alcanza (USDC primero)', M.affordableAsset(500000), 'USDC');
   eq('$1M alcanza solo con USDC', M.affordableAsset(1000000), 'USDC');
   eq('$5M no alcanza con nada', M.affordableAsset(5000000), null);
