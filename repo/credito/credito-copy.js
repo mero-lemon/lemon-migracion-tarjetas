@@ -113,6 +113,7 @@
       eyebrow: 'Tu tarjeta física',
       title: 'En camino',
       sub: 'Llega entre el {desde} y el {hasta}',
+      colapsado_sub: 'En camino · llega entre el {desde} y el {hasta}',
       body: 'No hace falta esperarla: con el celu ya pagás.',
       paso_pedida: 'Pedida',
       paso_preparando: 'En preparación',
@@ -173,7 +174,7 @@
     },
     activated: {
       h1: 'Ya podés pagar con el celu',
-      sub: 'Tu Credit Card está en tu billetera. El límite, el cierre y el débito los cambiás cuando quieras, desde la app.',
+      sub: 'Ya tenés los datos para comprar online y la tarjeta en tu billetera para pagar donde quieras.',
       row_limite: 'Límite',
       row_cierre: 'Cierre',
       row_autopay: 'Débito automático',
@@ -189,7 +190,7 @@
       cta_wallet: 'Agregar a Apple Wallet',
       cta_skip: 'Ahora no',
       h1_sin_wallet: 'Tu Credit Card está activa',
-      sub_sin_wallet: 'Ya podés usarla. Sumala a Apple Pay y pagá con el celu, sin esperar la física.'
+      sub_sin_wallet: 'Ya tenés los datos de tu tarjeta para comprar online. Sumala a Apple Pay y usala también para pagar donde quieras.'
     },
     home: {
       title: 'Lemon Card',
@@ -202,6 +203,9 @@
       sec_actividad: 'Actividad',
       resumen_apagar: 'a pagar',
       resumen_cta: 'Pagar',
+      // `sin_resumen` salió de pantalla (Jero, 29/09): antes del primer cierre no
+      // hay nada que decir, y decirlo llenaba de texto la home recién estrenada.
+      // Queda el copy por si el día de mañana se quiere volver a mostrar.
       sin_resumen: 'Tu primer resumen cierra el {fecha}. Hasta entonces, nada que pagar.',
       // El límite acompaña al respaldo solo, en las dos direcciones y desde un
       // 10% (Jero, 29/09). Esto no invita a nada: avisa que ya pasó. El mismo

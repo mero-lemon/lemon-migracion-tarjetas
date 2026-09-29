@@ -76,7 +76,10 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ font: '400 12px Inter', color: inv ? 'rgba(255,255,255,0.6)' : CR.ink3 }}>{a.name}</div>
                     {chk.ok ?
-                    <div style={{ font: `500 ${inv ? 27 : 21}px Geist`, letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: inv ? 3 : 1 }}>{M.fmtUnits(chk.needUnits, id)}</div> :
+                    /* propiedades separadas, no el shorthand `font`: el tamaño cambia
+                       al seleccionar, y mezclar shorthand con lineHeight hace que React
+                       avise y que, según el orden, una pise a la otra */
+                    <div style={{ fontFamily: 'Geist', fontWeight: 500, fontSize: inv ? 27 : 21, letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: inv ? 3 : 1 }}>{M.fmtUnits(chk.needUnits, id)}</div> :
                     <div style={{ font: '400 14px Inter', color: '#854600', marginTop: 3, lineHeight: 1.4 }}>
                       {T().tpl(t.locked_line, { faltante: M.fmtUnits(chk.faltanteUnits, id) })} · <span style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{M.verboFaltante(id)}</span>
                     </div>}
@@ -324,7 +327,7 @@ function ActivadaSheet({ S, onAddWallet, onClose }) {
   const add = () => { setAdding(true); setTimeout(() => { setAdding(false); onAddWallet(); }, 1400); };
   return (
     <div style={{ padding: '2px 2px 2px', textAlign: 'center', position: 'relative' }}>
-      <div style={{ padding: '6px 0 4px', animation: `ob-up .5s ${EASE}` }}>
+      <div style={{ padding: '6px 0 4px', display: 'flex', justifyContent: 'center', animation: `ob-up .5s ${EASE}` }}>
         <CardArt variant="credito" width={190} glow shimmer style={{ transform: 'rotate(-6deg)' }} />
       </div>
       <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink, marginTop: 16, textWrap: 'balance' }}>{c.nfc ? t.h1 : t.h1_sin_wallet}</div>
@@ -377,7 +380,26 @@ function AjusteLimite({ ajuste, onLimite }) {
     </button>);
 }
 
-function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
+// El banner del débito automático (Jero, 29/09): va debajo de «Límite
+// disponible», no arriba de todo. Ahí está pegado al número que le importa.
+function AutopayBanner({ onAutopay }) {
+  const ta = T().home_autopay;
+  return (
+    <Surface pad={18} style={{ marginTop: 20 }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+        <span style={{ width: 36, height: 36, borderRadius: 999, background: CR.okSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <LI name="programed-tx" size={17} color={CR.ok} />
+        </span>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{ta.title}</div>
+          <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 4 }}>{ta.body}</div>
+          <div style={{ marginTop: 12 }}><MiniBtn tone="ghost" icon="programed-tx" onClick={onAutopay}>{ta.cta}</MiniBtn></div>
+        </div>
+      </div>
+    </Surface>);
+}
+
+function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos, onAutopay }) {
   const th = T().home;
   const c = S.card, st = S.statement;
   // El ajuste ya ocurrió: la tarjeta guarda en `ajuste` lo que pasó y desde dónde
@@ -411,6 +433,8 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
         {stateNote && <div style={NOTE_BOX}>{stateNote}</div>}
       </div>
 
+      {onAutopay && <div onClick={(e) => e.stopPropagation()}><AutopayBanner onAutopay={onAutopay} /></div>}
+
       <div style={{ marginTop: 28 }}>
         {st ? (saldo > 0 ?
         <div style={{ background: vencido ? 'var(--c-nebula-80)' : 'var(--c-nebula-70)', borderRadius: 16, padding: 16, color: '#fff', boxShadow: '0 8px 20px rgba(76,48,124,0.18)' }}>
@@ -436,8 +460,7 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
             <LI name="feedback-positive" size={18} color={CR.ok} />
             <span style={{ flex: 1, font: '400 13px Inter', color: CR.ink2 }}>Pagado el {M.fmtDate(st.pagadoEl || S.hoy)}. No debés nada.</span>
             <button onClick={onVerResumen} style={linkBtn(CR.ink)}>Ver resumen</button>
-          </Surface>) :
-        <div style={{ font: '400 13px Inter', color: CR.ink3, lineHeight: 1.45 }}>{T().tpl(th.sin_resumen, { fecha: M.fmtDate(dNext.cierre) })}</div>}
+          </Surface>) : null}
       </div>
     </>);
 }
@@ -493,9 +516,15 @@ function EstadoAviso({ S, onPagar, onReactivar, onRetiro, onRetiroPago }) {
 // ── Seguimiento del plástico: el segundo contenedor de la home ──────
 // El envío es una preocupación aparte de usar la tarjeta, así que tiene su
 // propia caja y su propio ritmo: cuatro pasos, el rango de fechas y nada más.
-function EnvioCard({ S, onSimDelivery }) {
+// El seguimiento del envío nace colapsado (Jero, 29/09): en la home recién
+// creada lo central es la tarjeta virtual, que ya se puede usar, y el plástico
+// va en segundo orden. Es una fila con el estado y un chevron; si el usuario
+// quiere el detalle, la abre. Así el envío está sin robarle la pantalla a lo
+// único que hoy se puede hacer.
+function EnvioCard({ S, onSimDelivery, colapsable }) {
   const t = T().home_envio;
   const c = S.card;
+  const [abierto, setAbierto] = useStateS(!colapsable);
   const desde = M.addDays(S.hoy, 5), hasta = M.addDays(S.hoy, 7);
   const rango = desde.getMonth() === hasta.getMonth()
     ? `${desde.getDate()} y el ${M.fmtDate(hasta)}`
@@ -506,6 +535,21 @@ function EnvioCard({ S, onSimDelivery }) {
     { k: 'preparando', label: t.paso_preparando, done: entregada, now: !entregada },
     { k: 'despachada', label: t.paso_despachada, done: entregada },
     { k: 'entregada', label: t.paso_entregada, done: entregada, now: entregada }];
+  if (colapsable && !abierto)
+  return (
+    <Surface pad={0} style={{ marginTop: 12, overflow: 'hidden' }}>
+      <div role="button" onClick={() => setAbierto(true)} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer' }}>
+        <CardThumb variant="credito" w={32} portrait />
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.eyebrow}</div>
+          <div style={{ font: '400 12.5px Inter', color: CR.ink3, marginTop: 2 }}>
+            {entregada ? t.entregada_title : T().tpl(t.colapsado_sub, { desde: rango.split(' y el ')[0], hasta: rango.split(' y el ')[1] })}
+          </div>
+        </div>
+        <LI name="arrow-expand-more" size={20} color={CR.ink3} />
+      </div>
+    </Surface>);
+
   return (
     <Surface pad={18} style={{ marginTop: 12 }}>
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
@@ -516,7 +560,11 @@ function EnvioCard({ S, onSimDelivery }) {
             {entregada ? t.entregada_sub : T().tpl(t.sub, { desde: rango.split(' y el ')[0], hasta: rango.split(' y el ')[1] })}
           </div>
         </div>
-        <CardThumb variant="credito" w={44} portrait />
+        {colapsable ?
+        <button onClick={() => setAbierto(false)} style={{ border: 0, background: 'transparent', cursor: 'pointer', padding: 4, flexShrink: 0 }}>
+          <LI name="arrow-expand-less" size={20} color={CR.ink3} />
+        </button> :
+        <CardThumb variant="credito" w={44} portrait />}
       </div>
 
       {/* los cuatro pasos, en línea: hecho · en curso · pendiente */}
@@ -549,7 +597,7 @@ function EnvioCard({ S, onSimDelivery }) {
 // header · solapas · card row · aviso · Consumos · Límite disponible ·
 // Resumen · Actividad. Sin tarjeta: solo el promo con el render real.
 function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos, onTogglePause, onSimDelivery, onActivate, onRetiro, onRetiroPago, onTab, onAutopay }) {
-  const th = T().home, tu = T().home_usar, tw = T().home_wallet, ta = T().home_autopay;
+  const th = T().home, tu = T().home_usar, tw = T().home_wallet;
   const c = S.card;
   const n = c ? M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: M.saldoImpago(S.statement) }) : null;
   const aviso = c && c.status !== 'camino' ? EstadoAviso({ S, onPagar, onReactivar: onTogglePause, onRetiro, onRetiroPago }) : null;
@@ -606,32 +654,16 @@ function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos,
             <div style={{ marginTop: 16 }}><Btn variant="primary" onClick={() => onActivate('nfc')} style={{ padding: '16px 20px' }}>{tw.cta}</Btn></div>
           </Surface>}
 
-          {/* Débito automático (equipo, 29/09): salió de la activación y vive
-              acá. Aparece con la tarjeta ya activa, cuando el resumen deja de
-              ser abstracto, y se puede ignorar para siempre sin que pase nada. */}
-          {c.status !== 'camino' && c.status !== 'retiro' && c.status !== 'retiro-pedido' && !(c.autopay && c.autopay.on) && onAutopay &&
-          <Surface pad={18} style={{ marginTop: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-              <span style={{ width: 36, height: 36, borderRadius: 999, background: CR.okSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <LI name="programed-tx" size={17} color={CR.ok} />
-              </span>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{ta.title}</div>
-                <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 4 }}>{ta.body}</div>
-                <div style={{ marginTop: 12 }}><MiniBtn tone="ghost" icon="programed-tx" onClick={onAutopay}>{ta.cta}</MiniBtn></div>
-              </div>
-            </div>
-          </Surface>}
-
           {/* Contenedor 2 · el plástico. Con la tarjeta recién creada va arriba,
               porque es la mitad de la pantalla; con la tarjeta ya andando baja
               debajo de los números (Jero, 29/09): el envío no puede competir
               con lo primero que el usuario viene a mirar. */}
-          {c.status === 'camino' && c.fisica === 'camino' && <EnvioCard S={S} onSimDelivery={onSimDelivery} />}
+          {c.status === 'camino' && c.fisica === 'camino' && <EnvioCard S={S} onSimDelivery={onSimDelivery} colapsable />}
 
           {c.status !== 'camino' &&
           <>
-            <TresNumeros S={S} n={n} onLimite={onLimite} onVerResumen={onVerResumen} onPagar={onPagar} onConsumos={onConsumos} />
+            <TresNumeros S={S} n={n} onLimite={onLimite} onVerResumen={onVerResumen} onPagar={onPagar} onConsumos={onConsumos}
+              onAutopay={c.status !== 'retiro' && c.status !== 'retiro-pedido' && !(c.autopay && c.autopay.on) ? onAutopay : null} />
             {c.fisica === 'camino' && c.status !== 'retiro' && c.status !== 'retiro-pedido' && <div style={{ marginTop: 24 }}><EnvioCard S={S} onSimDelivery={onSimDelivery} /></div>}
             <div style={{ marginTop: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', padding: '0 2px 4px' }}>
