@@ -317,7 +317,7 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
 // mostrar una sola tarjeta y eso es lo esperado.
 // Algunos momentos ya no son una ruta sino un sheet sobre la home (activarla,
 // pagar para liberar el respaldo): la nota tiene que seguirlos igual.
-const SHEET_NOTE = { activada: 'activated', 'retiro-pago': 'limite' };
+const SHEET_NOTE = { activada: 'activated', 'retiro-pago': 'home-retiro' };
 const noteKey = (route, card, sheet) => {
   if (route !== 'home') return route;
   if (sheet && SHEET_NOTE[sheet]) return SHEET_NOTE[sheet];
@@ -409,13 +409,18 @@ const ContextoBody = ({ items, accent }) =>
     })}
   </div>;
 
+// Cada tarjeta aparece solo si tiene algo que decir. Si la pantalla no tiene
+// narrativa ni contexto, no hay aside: el teléfono queda solo, que es la forma
+// más clara de decir que esa pantalla se explica sin ayuda (Jero, 29/09).
 function UxNote({ k }) {
   const n = (window.CreditoNotas || {})[k];
-  if (!n) return null;
+  const narrativa = n && n.lead;
+  const contexto = n && n.contexto && n.contexto.length > 0;
+  if (!narrativa && !contexto) return null;
   return (
     <aside style={{ width: 340, flexShrink: 0, alignSelf: 'flex-start', display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <FlipCard key={k + ':n'} tone="narrativa" note={n} />
-      {n.contexto && n.contexto.length > 0 && <FlipCard key={k + ':c'} tone="contexto" note={n} />}
+      {narrativa && <FlipCard key={k + ':n'} tone="narrativa" note={n} />}
+      {contexto && <FlipCard key={k + ':c'} tone="contexto" note={n} />}
     </aside>);
 }
 

@@ -248,7 +248,8 @@
       retiro_row_respaldo: 'Tu respaldo',
       retiro_row_deuda: 'Lo que debés hoy',
       retiro_row_vuelve: 'Vuelve a tu saldo',
-      retiro_pasos: 'Pedís el retiro · te avisamos lo que debés · lo pagás · se libera el resto.',
+      retiro_pasos: 'Pedís el retiro · te calculamos lo que debés · lo pagás · se libera el resto.',
+      retiro_recalculo: 'El total se calcula el mismo día que lo pedís. Si no lo pagás, al día siguiente se recalcula.',
       retiro_pedir_cta: 'Solicitar el retiro',
       retiro_cta: 'Confirmar el retiro',
       retiro_volver: 'Volver',
@@ -256,6 +257,7 @@
       // Paso 3: con qué saldás la deuda
       pago_h1: 'Pagá lo que debés y liberá tu respaldo',
       pago_sub: 'Elegí de dónde sale. Con el saldo de tu wallet, tu respaldo vuelve entero.',
+      pago_fecha: 'Calculado el {fecha}. Si no lo pagás hoy, mañana se recalcula.',
       retiro_como: '¿Con qué lo pagás?',
       retiro_wallet_title: 'Con el saldo de tu wallet',
       retiro_wallet_body: 'Tu respaldo vuelve entero: {vuelve}.',
@@ -287,7 +289,7 @@
       retiro_body: 'Vuelve a tu saldo en hasta 48 h hábiles. La tarjeta queda dada de baja.',
       // Paso 2: pediste el retiro y falta saldar la deuda
       retiro_pedido_title: 'Pagá {monto} para liberar tu respaldo',
-      retiro_pedido_body: 'Pediste retirar tu respaldo. No pasan compras nuevas. En cuanto pagues lo que debés, el resto vuelve a tu saldo.',
+      retiro_pedido_body: 'Pediste retirar tu respaldo y no pasan compras nuevas. Este total es el de hoy, {fecha}: si no lo pagás, mañana se recalcula. En cuanto pagues, el resto vuelve a tu saldo.',
       retiro_pedido_cta: 'Pagar y liberar'
     },
     editar_limite: {

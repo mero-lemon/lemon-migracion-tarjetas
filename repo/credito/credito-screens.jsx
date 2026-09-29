@@ -432,7 +432,8 @@ function EstadoAviso({ S, onPagar, onReactivar, onRetiro, onRetiroPago }) {
   // El aviso trae el monto adelante, que es lo que el push también dice.
   if (c.status === 'retiro-pedido') {
     const deuda = M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: saldo }).comprometido;
-    return <Notice tone="warn" icon="returns" title={T().tpl(te.retiro_pedido_title, { monto: M.fmtArs(deuda) })} body={te.retiro_pedido_body}
+    return <Notice tone="warn" icon="returns" title={T().tpl(te.retiro_pedido_title, { monto: M.fmtArs(deuda) })}
+      body={T().tpl(te.retiro_pedido_body, { fecha: M.fmtDate(S.hoy) })}
       actions={<MiniBtn onClick={onRetiroPago} tone="dark" icon="deposit">{te.retiro_pedido_cta}</MiniBtn>} />;
   }
   if (c.status === 'congelada' && st) {
@@ -716,7 +717,7 @@ function RetiroSheet({ S, plan, onPedir, onClose }) {
         {!sinDeuda && <InfoRow label={t.retiro_row_deuda} value={`− ${M.fmtArs(plan.deudaArs)}`} sub={`≈ ${M.fmtUnits(plan.deudaUnits, c.asset)}`} />}
         <InfoRow label={t.retiro_row_vuelve} value={M.fmtUnits(sinDeuda ? plan.vuelveConWallet : plan.vuelveConWallet, c.asset)} sub={t.retiro_plazo} last />
       </Surface>
-      {!sinDeuda && <div style={{ ...NOTE_BOX }}>{t.retiro_pasos}</div>}
+      {!sinDeuda && <div style={{ ...NOTE_BOX }}>{t.retiro_pasos} {t.retiro_recalculo}</div>}
       <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
         <Btn variant="primary" onClick={onPedir}>{sinDeuda ? t.retiro_cta : t.retiro_pedir_cta}</Btn>
         <Btn variant="ghost" onClick={onClose}>{t.retiro_volver}</Btn>
@@ -742,6 +743,16 @@ function RetiroPagoSheet({ S, plan, pago, onPago, onConfirm, onClose }) {
     <div style={{ padding: '6px 2px 2px' }}>
       <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.pago_h1}</div>
       <div style={{ font: '400 13px Inter', color: CR.ink3, marginTop: 3, lineHeight: 1.45 }}>{t.pago_sub}</div>
+      {/* El total vale por hoy: se calcula el día del pedido y se recalcula
+          cada día que pasa sin pagar (Jero, 29/09). Decirlo acá evita que el
+          usuario vuelva mañana y encuentre otro número sin aviso. */}
+      <Surface pad={14} style={{ marginTop: 14 }}>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <span style={{ font: '400 13px Inter', color: CR.ink3, flex: 1 }}>{t.retiro_row_deuda}</span>
+          <BigAmount value={plan.deudaArs} size={22} cents={false} />
+        </div>
+        <div style={{ font: '400 11.5px Inter', color: CR.ink3, marginTop: 6, lineHeight: 1.4 }}>{T().tpl(t.pago_fecha, { fecha: M.fmtDate(S.hoy) })}</div>
+      </Surface>
       <div style={{ ...EYEBROW, margin: '18px 2px 8px' }}>{t.retiro_como}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {opciones.map((o) =>

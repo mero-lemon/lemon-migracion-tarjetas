@@ -17,14 +17,17 @@ salen de [`credito-copy.js`](credito-copy.js)**: para cambiar una frase se toca 
 > número a la izquierda y, al lado, **la conclusión que ese número permite afirmar**, el dato completo que la
 > sostiene y la fuente. Sirven para contar primero y respaldar después, sin leer de un papel.
 >
-> **No todas las pantallas llevan las dos.** Narrativa va en las 17: siempre hay algo que queremos que el usuario se
-> lleve. Contexto va solo donde hay **evidencia de verdad** —un número medido, con fuente, que justifica esa decisión
+> **No todas las pantallas llevan las dos, y algunas no llevan ninguna.** Narrativa va donde la pantalla hace una
+> promesa o pide una decisión —algo que el usuario se tiene que llevar y que no le dijimos antes—; no va donde la
+> pantalla es la consecuencia de algo ya contado: una lista, una variante de otra pantalla, una corrección. Si hay
+> que explicarla al lado, algo falló adentro. Contexto va solo donde hay **evidencia de verdad** —un número medido, con fuente, que justifica esa decisión
 > de producto—, que en general son las pantallas que resuelven una de las seis mejoras del caso. Donde lo único que
 > podíamos escribir era una opinión de diseño, no va: eso es «cómo lo contamos» con otro nombre. Tampoco va donde el
 > dato es cierto pero habla del producto en general y no de la decisión que muestra esa pantalla: si el número se
-> cuenta igual de bien en otra, es de esa otra. Hoy son **9 pantallas con las dos tarjetas y 8 con narrativa sola**
-> (el pedido, la home recién creada, Apple Pay, el cierre del alta, la home activa, pausada, consumos y la pantalla
-> suelta de festejo).
+> cuenta igual de bien en otra, es de esa otra. Hoy son **10 pantallas con las dos tarjetas, 4 con narrativa sola**
+> (la home recién creada, el cierre de la activación, la home activa y el retiro) **y 4 sin ninguna** (Apple Pay
+> suelto, la tarjeta pausada, los consumos del período y la pantalla suelta de festejo): ahí el teléfono queda solo,
+> que es la forma más clara de decir que esa pantalla se explica sin ayuda.
 >
 > **Las notas no dicen cómo resolverlo.** La experiencia tiene que explicarse sola, y el «cómo» es justo lo que el
 > equipo de diseño tiene que poder proponer cuando se le presenta la narrativa. Cómo está resuelto hoy se lee acá y
@@ -91,8 +94,8 @@ selector de pantallas, el panel dev y el botón de las notas salieron para que n
 
 - **Mapa** (botón arriba, o `?mapa=1`): todas las pantallas renderizadas en vivo, en grilla, agrupadas por flujo.
   Un clic salta a cualquiera con su estado ya armado, sin recorrer el flujo. Es la navegación del prototipo.
-- **Las tarjetas** de la derecha —*Narrativa* siempre, *Contexto* donde hay un dato medido que lo justifique— se
-  giran con un clic. `?ux=0` las esconde para mostrar la app sola.
+- **Las tarjetas** de la derecha —*Narrativa* donde la pantalla promete o pide algo, *Contexto* donde hay un dato
+  medido que lo justifique— se giran con un clic. Una pantalla puede no tener ninguna. `?ux=0` las esconde todas.
 - **Reiniciar**: vuelve la pantalla actual a su estado inicial.
 - El **panel dev** (saldos, cotizaciones, ratios, estado de la tarjeta) sigue en el código —`DevPanel` en
   [`app.jsx`](app.jsx)— pero no se monta. Para volver a tenerlo alcanza con renderizarlo.
@@ -183,8 +186,8 @@ cambiable en la misma pantalla. Jero la vio **muy cargada** y pidió ir por el e
    (*«Dejás US$ 345 más»* / *«Vuelven US$ 345 a tu saldo»*), la actual queda marcada, y bajar por debajo de lo
    comprometido se bloquea con el porqué.
 10. **Cada pantalla se explica sola, al lado, y cada una es una mejora del caso.** Tarjetas dadas vuelta:
-   **Narrativa** (lo que el usuario se tiene que llevar, en las 17) y **Contexto** (la conclusión que un dato medido
-   permite afirmar, con su fuente, solo en las 9 que tienen evidencia propia). Se giran de a una con un clic: se cuenta la
+   **Narrativa** (lo que el usuario se tiene que llevar, donde hay algo nuevo que contarle) y **Contexto** (la
+   conclusión que un dato medido permite afirmar, con su fuente, solo donde hay evidencia propia). Se giran de a una con un clic: se cuenta la
    pantalla, se gira la narrativa y recién después se respalda con los números. Ninguna
    dice cómo resolverlo —eso se conversa con diseño—. El reparto sigue las seis mejoras: 1 · límite variable
    (límite) · 2 · respaldo en dólar digital (respaldo) · 3 · dólares con dólares, sin el 30% (débito y resumen) ·

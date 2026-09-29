@@ -3,12 +3,24 @@
 //
 //   NARRATIVA · qué le queremos contar al usuario: la idea en una frase (lead)
 //               y un párrafo escrito en la voz con la que se lo diríamos a él
-//               (parrafo). Va en TODAS las pantallas: siempre hay algo que
-//               queremos que se lleve. NO dice cómo resolverlo en pantalla:
-//               esa es la conversación que queremos abrir con diseño.
+//               (parrafo). NO dice cómo resolverlo en pantalla: esa es la
+//               conversación que queremos abrir con diseño.
 //   CONTEXTO  · la evidencia que justifica que esa pantalla exista. Cada ítem
 //               es {n, t, d, f}: el número, la conclusión que ese número
 //               permite afirmar, el dato completo y la fuente.
+//
+// CUÁNDO VA NARRATIVA Y CUÁNDO NO (Jero, 29/09: «si en la pantalla que estás
+// no hace falta mostrar ninguna narrativa, no la mostremos»):
+//   · Va donde la pantalla hace una promesa o pide una decisión: donde hay algo
+//     que el usuario se tiene que llevar y que no le dijimos antes.
+//   · NO va donde la pantalla es la consecuencia de algo ya contado —una lista,
+//     una variante de otra pantalla, una corrección de algo que hoy está mal—.
+//     Ahí la experiencia se explica sola, que es exactamente lo que queremos
+//     demostrar: si hay que explicarla al lado, algo falló adentro.
+//   · Por eso salieron cuatro: Apple Pay suelto (la misma promesa que ya hace
+//     la confirmación de la activación), la tarjeta pausada (una corrección, no
+//     una propuesta), los consumos del período (una lista) y la pantalla suelta
+//     de festejo (una nota para nosotros, no algo para el usuario).
 //
 // CUÁNDO VA CONTEXTO Y CUÁNDO NO (criterio, no capricho):
 //   · Va donde hay evidencia de verdad: un número medido, con fuente, que
@@ -21,10 +33,11 @@
 //     no de la decisión que muestra esa pantalla (Jero, 25/09, sobre la home
 //     activa): si el número se puede contar igual de bien en otra pantalla, es
 //     de esa otra pantalla.
-//   · Por eso hoy son 10 pantallas con las dos tarjetas y 7 con narrativa sola
-//     (home-camino · wallet · activated · home-activa · home-pausada ·
-//     consumos · confirm). Una tarjeta sola no es una pantalla incompleta: es
-//     una pantalla donde la evidencia ya la dimos antes.
+//   · Hoy: 10 pantallas con las dos tarjetas, 4 con narrativa sola (home-camino
+//     · activated · home-activa · home-retiro) y 4 sin ninguna. Una tarjeta
+//     sola no es una pantalla incompleta —la evidencia ya la dimos antes—, y
+//     ninguna tarjeta es la prueba de que esa pantalla no necesita que nadie
+//     la explique.
 //
 // Reglas de edición, para que esto siga sirviendo para pitchear:
 //   · Un dato vive en UNA sola pantalla, la que justifica. No se repite.
@@ -188,11 +201,6 @@
       lead: 'Ya tenés tarjeta: podés estar comprando hoy.',
       parrafo: 'El plástico tarda cinco días; tu tarjeta, cero. Por eso la home separa las dos cosas: de un lado empezás a usarla ahora —una pantalla y ya está en el celu—; del otro seguís el viaje del envío, que va por su cuenta. Mientras la tarjeta es nueva el envío vive arriba, porque es la mitad de lo que pasa; en cuanto empezás a usarla baja debajo de tus números, que es a lo que venís.'
     },
-    wallet: {
-      paso: 'Activación · 3 de 3', titulo: 'Pagá con el celu desde hoy',
-      lead: 'Pagás con el celu hoy, sin esperar el plástico.',
-      parrafo: 'Apoyás el teléfono y la tarjeta que pediste hace cinco minutos funciona. Ese gesto convierte «pedí una tarjeta» en «ya estoy pagando», y es la primera vez que la promesa se toca con la mano. Es un regalo y no un trámite: se puede dejar para después y no se rompe nada.'
-    },
     activated: {
       paso: 'Activación · listo', titulo: 'Ya podés pagar con el celu',
       lead: 'Está activa y ya la podés poner en el celu, acá mismo.',
@@ -201,22 +209,7 @@
     'home-retiro': {
       paso: 'Retiro', titulo: 'Retirar el respaldo',
       lead: 'Irte tiene que ser tan claro como entrar.',
-      parrafo: 'Retirar tu respaldo es un proceso, no un botón: lo pedís, te avisamos cuánto debés, lo pagás y se libera el resto. Y lo importante es cómo lo pagás: siempre podés hacerlo con el saldo de tu wallet, y entonces tu respaldo vuelve entero. Usar el respaldo para saldar la deuda es la opción cómoda, nunca la obligatoria. Nadie tiene que comerse sus ahorros para poder llevárselos.'
-    },
-    'home-pausada': {
-      paso: 'Estados difíciles', titulo: 'La pausaste vos',
-      lead: 'La pausaste vos, y se respeta.',
-      parrafo: 'Mientras está en pausa, tu límite y tu respaldo se siguen viendo tal cual: lo que necesitás confirmar es que tu plata sigue ahí. Pausar es un gesto de control y no cambia nada de lo que elegiste. Volver es un toque, y no hay nada que rehacer.'
-    },
-    consumos: {
-      paso: 'Vivir con ella', titulo: 'Consumos del período',
-      lead: 'Cuánto llevás gastado, qué pagaste y qué pasó antes.',
-      parrafo: 'El período se nombra por su cierre y su vencimiento, así que sabés hasta cuándo suma lo que gastes hoy. Los pagos que hiciste se ven aparte: no suman a lo que vas a deber, lo bajan, y mezclarlos rompería el único número que importa. Y los períodos que ya cerraron quedan acá adentro, no en un mail que hay que buscar.'
-    },
-    confirm: {
-      paso: 'Alternativa', titulo: 'Ya es tuya (pantalla suelta)',
-      lead: 'La celebración entre crear la tarjeta y la home.',
-      parrafo: 'Hoy el flujo va derecho del alta a la home, y el festejo es que la tarjeta ya está ahí. Esta pantalla queda guardada por si, al contarlo, el momento emocional se gana su propio lugar.'
+      parrafo: 'Retirar tu respaldo es un proceso, no un botón: lo pedís, ese mismo día te calculamos cuánto debés, lo pagás y se libera el resto. El total vale por ese día y si no lo pagás se recalcula al siguiente, y te lo decimos con la fecha adelante para que nadie vuelva mañana y encuentre otro número. Lo importante es con qué lo pagás: siempre podés hacerlo con el saldo de tu wallet, y entonces tu respaldo vuelve entero. Usar el respaldo para saldar la deuda es la opción cómoda, nunca la obligatoria. Nadie tiene que comerse sus ahorros para poder llevárselos.'
     }
   };
   root.CreditoNotas = CreditoNotas;
