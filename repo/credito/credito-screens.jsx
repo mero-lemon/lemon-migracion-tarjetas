@@ -58,7 +58,10 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
   const sel = opts.find((o) => o.id === value);
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-      <Screen bg={CR.page} footer={<Btn variant="primary" disabled={!sel || !sel.chk.ok} onClick={onContinue}>{t.cta}</Btn>}>
+      <Screen bg={CR.page} footer={
+      <FooterHelper label={t.helper_label} onClick={() => setSheet('help')}>
+          <Btn variant="primary" disabled={!sel || !sel.chk.ok} onClick={onContinue}>{t.cta}</Btn>
+        </FooterHelper>}>
         <StepHeader title="" onBack={onBack} />
         <div style={{ padding: '4px 16px 8px' }}>
           <div style={H1}>{t.h1}</div>
@@ -67,13 +70,13 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
             {opts.map(({ id, a, chk }) => {
               const inv = value === id && chk.ok;
               return (
-              <OptionCard key={id} selected={inv} onClick={() => chk.ok ? onChange(id) : setSheet(id)} pad="20px 20px" style={invStyle(inv, chk.ok)}>
+              <OptionCard key={id} selected={inv} onClick={() => chk.ok ? onChange(id) : setSheet(id)} pad={inv ? '24px 22px' : '18px 20px'} style={invStyle(inv, chk.ok)}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                  <AssetIcon id={id} size={44} />
+                  <AssetIcon id={id} size={inv ? 52 : 42} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ font: '400 12px Inter', color: inv ? 'rgba(255,255,255,0.6)' : CR.ink3 }}>{a.name}</div>
                     {chk.ok ?
-                    <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: 1 }}>{M.fmtUnits(chk.needUnits, id)}</div> :
+                    <div style={{ font: `500 ${inv ? 27 : 21}px Geist`, letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: inv ? 3 : 1 }}>{M.fmtUnits(chk.needUnits, id)}</div> :
                     <div style={{ font: '400 14px Inter', color: '#854600', marginTop: 3, lineHeight: 1.4 }}>
                       {T().tpl(t.locked_line, { faltante: M.fmtUnits(chk.faltanteUnits, id) })} · <span style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{M.verboFaltante(id)}</span>
                     </div>}
@@ -82,26 +85,28 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
                 </div>
                 {/* El detalle solo en la elegida (Jero, 29/09: «quedan demasiado
                     cargadas cada opción»). Lo que decide es el monto; lo que
-                    tranquiliza —a cuántos pesos equivale y cuánto rinde— aparece
-                    cuando ya elegiste esa moneda. */}
+                    tranquiliza aparece cuando ya elegiste esa moneda. Primero
+                    cuánto rinde —es la noticia buena y lo que nadie espera de un
+                    respaldo— y recién después el equivalente en pesos. */}
                 {inv &&
-                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.14)', display: 'flex', flexDirection: 'column', gap: 7, animation: `screenIn .3s ${EASE}` }}>
-                  {id !== 'ARS' &&
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <LI name="swap" size={13} color="rgba(255,255,255,0.5)" />
-                    <span style={{ font: '400 12.5px Inter', color: 'rgba(255,255,255,0.72)' }}>{T().tpl(t.option_ars, { ars: M.fmtArs(chk.needArs) })}</span>
-                  </div>}
+                <div style={{ marginTop: 16, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.14)', display: 'flex', flexDirection: 'column', gap: 10, animation: `screenIn .3s ${EASE}` }}>
                   {a.rinde &&
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                    <LI name="earn" size={13} color="var(--c-lime-40)" />
-                    <span style={{ font: '500 12.5px Inter', color: 'var(--c-lime-40)' }}>{T().tpl(t.option_rinde, { tna: '≈' + M.fmtTna(a.tna) })}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
+                    <span style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(207,255,46,0.14)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <LI name="earn" size={14} color="var(--c-lime-40)" />
+                    </span>
+                    <span style={{ font: '500 14px Inter', color: 'var(--c-lime-40)' }}>{T().tpl(t.option_rinde, { tna: '≈' + M.fmtTna(a.tna) })}</span>
+                  </div>}
+                  {id !== 'ARS' &&
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
+                    <span style={{ width: 26, height: 26, borderRadius: 999, background: 'rgba(255,255,255,0.09)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <LI name="swap" size={13} color="rgba(255,255,255,0.6)" />
+                    </span>
+                    <span style={{ font: '400 12.5px Inter', lineHeight: 1.45, color: 'rgba(255,255,255,0.7)', paddingTop: 4 }}>{T().tpl(t.option_ars, { ars: M.fmtArs(chk.needArs) })}</span>
                   </div>}
                 </div>}
               </OptionCard>);
             })}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
-            <HelperLink onClick={() => setSheet('help')}>{t.helper_label}</HelperLink>
           </div>
         </div>
       </Screen>
@@ -126,7 +131,10 @@ function OrderSummary({ S, onBack, onContinue }) {
   const [help, setHelp] = useStateS(false);
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-    <Screen bg={CR.page} footer={<Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>}>
+    <Screen bg={CR.page} footer={
+    <FooterHelper label={t.helper_label} onClick={() => setHelp(true)}>
+        <Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>
+      </FooterHelper>}>
       <StepHeader title="" onBack={onBack} />
       <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'center', padding: '18px 0 28px' }}>
@@ -134,9 +142,6 @@ function OrderSummary({ S, onBack, onContinue }) {
         </div>
         <div style={{ font: '500 27px Geist', letterSpacing: '-0.025em', lineHeight: 1.12, color: CR.ink, textAlign: 'center', textWrap: 'balance' }}>{t.h1}</div>
         <div style={{ font: '400 15px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 10, textAlign: 'center', textWrap: 'pretty' }}>{t.sub}</div>
-        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
-          <HelperLink onClick={() => setHelp(true)}>{t.helper_label}</HelperLink>
-        </div>
       </div>
     </Screen>
     <Sheet open={help} onClose={() => setHelp(false)}>
@@ -224,10 +229,10 @@ function AutopayCuanto({ S, value, onChange, onBack, onContinue, onSkip }) {
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       <Screen bg={CR.page} footer={
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+      <FooterHelper label={t.helper_label} onClick={() => setHelp(true)}>
           <Btn variant="ghost" onClick={onSkip}>{t.skip}</Btn>
           <Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>
-        </div>}>
+        </FooterHelper>}>
         <StepHeader title={t.header} onBack={onBack} />
         <div style={{ padding: '4px 16px 12px' }}>
           <div style={H1}>{t.h1}</div>
@@ -243,9 +248,6 @@ function AutopayCuanto({ S, value, onChange, onBack, onContinue, onSkip }) {
                   <Radio on={v.mode === m.id} />
                 </div>
               </OptionCard>)}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 14 }}>
-            <HelperLink onClick={() => setHelp(true)}>{t.helper_label}</HelperLink>
           </div>
         </div>
       </Screen>

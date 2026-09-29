@@ -208,6 +208,15 @@ const HelperLink = ({ children, onClick, style }) =>
     <LI name="view-help" size={16} color={CR.ink2} />{children}
   </button>;
 
+// El helper va SIEMPRE centrado y pegado arriba del botón (Jero, 29/09), nunca
+// suelto en el medio de la pantalla: es lo último que se lee antes de decidir,
+// y así ocupa el mismo lugar en todas las pantallas del flujo.
+const FooterHelper = ({ label, onClick, children }) =>
+<div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+    <div style={{ display: 'flex', justifyContent: 'center' }}><HelperLink onClick={onClick}>{label}</HelperLink></div>
+    {children}
+  </div>;
+
 // Sheet de ayuda: título + viñetas con ícono + cerrar
 const HelperSheet = ({ title, items, close = 'Entendido', onClose }) =>
 <div style={{ padding: '6px 2px 2px' }}>
@@ -271,6 +280,6 @@ const StripBtn = ({ children, onClick, active, icon }) =>
   </button>;
 
 Object.assign(window, {
-  CR, EASE, AssetIcon, BigAmount, AssetAmount, Radio, Check, SelCheck, SectionHead, HeroPill, HelperLink, HelperSheet, CreditoHeroPromo, Toggle, OptionCard, CardStatusPill, VolPill,
+  CR, EASE, AssetIcon, BigAmount, AssetAmount, Radio, Check, SelCheck, SectionHead, HeroPill, HelperLink, FooterHelper, HelperSheet, CreditoHeroPromo, Toggle, OptionCard, CardStatusPill, VolPill,
   InfoRow, Notice, MiniBtn, Flag, DateTimeline, SegTabs, Gauge, useStageScale, PhoneCr, StripBtn
 });

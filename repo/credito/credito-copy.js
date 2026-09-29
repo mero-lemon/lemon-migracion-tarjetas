@@ -58,7 +58,7 @@
       // El equivalente en pesos va acá, en segundo plano (Jero, 29/09): a nivel
       // transparencia suma, pero «dejás $1.250.000 para gastar $1.000.000» es
       // una resta que el usuario puede hacer y que nosotros no le servimos.
-      option_ars: '≈ {ars} de tu saldo',
+      option_ars: 'El equivalente en ARS de tu respaldo es ≈ {ars}',
       option_rinde: 'Rinde {tna} anual, todos los días',
       locked_line: 'Te faltan {faltante}',
       helper_label: '¿Cómo funciona el respaldo?',

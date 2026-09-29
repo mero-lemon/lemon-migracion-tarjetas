@@ -194,7 +194,8 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
 
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-      <Screen bg={CR.page} footer={footer}>
+      <Screen bg={CR.page} footer={edit ? footer :
+      <FooterHelper label={T.limite.helper_label} onClick={() => setSheet('help')}>{footer}</FooterHelper>}>
         <StepHeader title={edit ? T.editar_limite.header : ''} onBack={onBack} />
         <div style={{ padding: '4px 16px 8px' }}>
           <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink }}>{edit ? T.editar_limite.h1 : T.limite.h1}</div>
@@ -222,10 +223,6 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
             <OtroMonto open={otro} value={otro ? value : null} max={maxOtro}
               onOpen={() => { setOtro(true); onChange(null); }} onChange={(v) => onChange(v || null)} />
           </div>
-          {!edit &&
-          <div style={{ display: 'flex', justifyContent: 'center', marginTop: 12 }}>
-            <HelperLink onClick={() => setSheet('help')}>{T.limite.helper_label}</HelperLink>
-          </div>}
         </div>
       </Screen>
       <Sheet open={sheet === 'help'} onClose={() => setSheet(null)}>
