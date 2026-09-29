@@ -46,10 +46,15 @@
   // Cotizaciones mock (ARS por unidad). Editables desde el panel dev.
   const PRICES_DEFAULT = { ARS: 1, USDC: 1450, BTC: 150000000 };
 
-  // Saldos mock del usuario. Con ratio 1,25: $500.000 alcanza con los dos
-  // activos, $1.000.000 solo con dólar digital y $5.000.000 con ninguno —
-  // los tres estados de una opción se ven sin tocar nada.
-  const BALANCES_DEFAULT = { ARS: 720000, USDC: 900, BTC: 0.0045 };
+  // Saldos mock del usuario. Están elegidos para que los tres estados de una
+  // opción se vean sin tocar nada: $500.000 alcanza con los tres activos,
+  // $1.000.000 solo con dólar digital y $5.000.000 con ninguno.
+  //
+  // El dólar digital llega justo a respaldar **$2.500.000** (Jero, 29/09), que
+  // es el techo que muestra «Otro monto». No es un número al azar: $2,5-3 M era
+  // el rango que se había sugerido internamente antes de lanzar, y la V1 salió
+  // con $1.000.000. Con monto libre, ese techo lo pone el saldo y no nosotros.
+  const BALANCES_DEFAULT = { ARS: 720000, USDC: 2160, BTC: 0.0045 };
 
   // Tres montos sugeridos + «Otro» (equipo, 29/09): tres opciones fijas siguen
   // siendo el menú de otro, y es lo último del alta que contradice la bandera.

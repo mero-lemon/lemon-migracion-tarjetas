@@ -21,7 +21,7 @@
   eq('USDC $500k ok', M.check(500000, 'USDC').ok, true);
   eq('USDC $1M ok', M.check(1000000, 'USDC').ok, true);
   eq('USDC $5M no', M.check(5000000, 'USDC').ok, false);
-  close('USDC $5M faltan 3.410,34', M.check(5000000, 'USDC').faltanteUnits, 3410.34, 0.01);
+  close('USDC $5M faltan 2.150,34', M.check(5000000, 'USDC').faltanteUnits, 2150.34, 0.01);
   eq('BTC $500k ok', M.check(500000, 'BTC').ok, true);
   eq('BTC $1M no', M.check(1000000, 'BTC').ok, false);
   eq('máximo prefijado USDC', M.maxAffordablePreset('USDC'), 1000000);
@@ -84,7 +84,8 @@
   eq('$5M no alcanza con nada', M.affordableAsset(5000000), null);
   eq('para $5M el más cercano es USDC', M.closestAsset(5000000), 'USDC');
   eq('máximo prefijado BTC', M.maxAffordablePreset('BTC'), 500000);
-  eq('máximo exacto USDC = $1.000.000 (900 USDC → $1.044.000 → paso de $50.000)', M.maxAffordableLimit('USDC'), 1000000);
+  // El techo de «Otro monto»: 2.160 USDC → $3.132.000 → /1,25 → $2.505.600 → paso de $50.000
+  eq('máximo exacto USDC = $2.500.000', M.maxAffordableLimit('USDC'), 2500000);
 
   // editar límite
   eq('subir pide más', M.limitChange(1000000, 2000000, 'USDC').direction, 'up');
