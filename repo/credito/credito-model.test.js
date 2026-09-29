@@ -39,15 +39,24 @@
   eq('dólar digital ≈4,5% anual', M.ASSETS.USDC.tna, 0.045);
   eq('Bitcoin no lleva tasa', M.ASSETS.BTC.tna, undefined);
 
-  // margen para subir el límite: el límite NO sube solo, se avisa desde el 10%
+  // el límite acompaña al respaldo, en las dos direcciones, desde el 10%
   const card = (limit, rU) => ({ limit, respaldoUnits: rU, asset: 'ARS', ratio: 1.25 });
-  eq('sin margen, no se avisa', M.margenLimite(card(500000, 625000)).vale, false);
-  eq('con el respaldo justo, el posible es el límite', M.margenLimite(card(500000, 625000)).posible, 500000);
-  eq('9% de margen todavía no avisa', M.margenLimite(card(500000, 681250)).vale, false);
-  eq('12% de margen sí avisa', M.margenLimite(card(500000, 700000)).vale, true);
-  eq('y dice hasta cuánto podés subir', M.margenLimite(card(500000, 700000)).posible, 550000);
-  eq('el umbral es 10%', M.MARGEN_AVISO, 0.10);
-  eq('sin tarjeta no rompe', M.margenLimite(null).vale, false);
+  eq('el umbral es 10%', M.AJUSTE_UMBRAL, 0.10);
+  eq('con el respaldo justo no se mueve', M.ajusteLimite(card(500000, 625000)).ajusta, false);
+  eq('y el posible es el límite que ya tiene', M.ajusteLimite(card(500000, 625000)).posible, 500000);
+  eq('9% para arriba todavía no ajusta', M.ajusteLimite(card(500000, 681250)).ajusta, false);
+  eq('12% para arriba sí ajusta', M.ajusteLimite(card(500000, 700000)).ajusta, true);
+  eq('y sube a', M.ajusteLimite(card(500000, 700000)).posible, 550000);
+  eq('el respaldo cae 20%: el límite baja', M.ajusteLimite(card(500000, 500000)).dir, 'down');
+  eq('y baja a', M.ajusteLimite(card(500000, 500000)).posible, 400000);
+  // con paso de $50.000, una caída chica se ve mejor sobre un límite grande
+  eq('una caída del 5% no mueve nada', M.ajusteLimite(card(1000000, 1200000)).ajusta, false);
+  eq('y el límite se queda donde está', M.ajusteLimite(card(1000000, 1200000)).dir, 'down');
+  // el borde: no baja por debajo de lo que ya usaste
+  eq('con $450.000 usados, se planta ahí', M.ajusteLimite(card(500000, 500000), null, null, 450000).posible, 450000);
+  eq('y lo marca', M.ajusteLimite(card(500000, 500000), null, null, 450000).piso, true);
+  eq('si no hay piso, no lo marca', M.ajusteLimite(card(500000, 500000), null, null, 100000).piso, false);
+  eq('sin tarjeta no rompe', M.ajusteLimite(null).ajusta, false);
 
   // la tarjeta nueva no cobra mantenimiento (Jero, 29/09)
   eq('sin mantenimiento', M.FEES.mantenimiento, 0);

@@ -87,13 +87,20 @@ const justCreated = ({ status = 'camino', nfc = false, cierre = null, autopay = 
 // `autopay` va aparte porque desde el 29/09 activar NO lo configura: una
 // tarjeta activa sin débito automático es el estado normal, no un caso raro.
 const activada = (nfc, autopay = { ...M.AUTOPAY_DEFAULT }) => justCreated({ status: 'activa', nfc, cierre: 3, autopay });
-// Una tarjeta con tiempo encima: respaldó $625.000 en pesos y, entre intereses
-// y meses, el respaldo ya es $760.000 → alcanza para un límite de $600.000, un
-// 20% más. El límite NO se movió solo (Jero, 29/09): sigue en $500.000 y la app
-// se limita a avisar. Es el preset que muestra ese aviso.
-const conMargen = () => {
-  const s = withActiveCard(baseState(), { asset: 'ARS', limit: 500000, consumido: 120000, pagado: true });
-  return { ...s, card: { ...s.card, respaldoUnits: 760000 } };
+// El límite acompaña al respaldo solo, en las dos direcciones, cuando el valor
+// se mueve más de un 10% (Jero, 29/09). `card.ajuste` guarda lo que YA pasó,
+// que es lo que muestra el aviso de la home: el límite de la tarjeta ya es el
+// ajustado. Dos escenarios:
+//  · conAjusteArriba: respaldó $625.000 en pesos, los intereses lo llevaron a
+//    $760.000 y el límite subió solo de $500.000 a $600.000.
+//  · conAjusteAbajo: respaldó en Bitcoin y el precio cayó; el límite bajó.
+const conAjusteArriba = () => {
+  const s = withActiveCard(baseState(), { asset: 'ARS', limit: 600000, consumido: 120000, pagado: true });
+  return { ...s, card: { ...s.card, respaldoUnits: 760000, ajuste: { dir: 'up', posible: 600000, desde: 500000, piso: false } } };
+};
+const conAjusteAbajo = () => {
+  const s = withActiveCard(baseState(), { asset: 'BTC', limit: 800000, consumido: 120000, pagado: true });
+  return { ...s, card: { ...s.card, respaldoUnits: 0.00666667, ajuste: { dir: 'down', posible: 800000, desde: 1000000, piso: false } } };
 };
 const PRESETS = [
 { group: 'Flujo 1 · Alta', id: 'home-vacia', name: 'Tarjetas sin crédito', route: 'home', make: baseState },
@@ -115,8 +122,9 @@ const PRESETS = [
 { group: 'Flujo 3 · Landing', id: 'limite', name: 'Límite y respaldo', route: 'limite', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 3 · Landing', id: 'statement', name: 'Resumen (con deuda anterior)', route: 'statement', make: () => withActiveCard(baseState(), { status: 'congelada', cierre: 1, hoy: new Date(2026, 8, 14) }) },
 { group: 'Flujo 3 · Landing', id: 'pay', name: 'Pagar el resumen', route: 'home', make: () => ({ ...withActiveCard(baseState()), sheet: 'pagar-total' }) },
-{ group: 'Flujo 4 · Editar límite', id: 'home-margen', name: 'La home avisa que hay margen', route: 'home', make: conMargen },
-{ group: 'Flujo 4 · Editar límite', id: 'limite-margen', name: 'Límite y respaldo · con margen', route: 'limite', make: conMargen },
+{ group: 'Flujo 4 · Editar límite', id: 'ajuste-arriba', name: 'El límite subió solo', route: 'home', make: conAjusteArriba },
+{ group: 'Flujo 4 · Editar límite', id: 'ajuste-abajo', name: 'El límite bajó solo', route: 'home', make: conAjusteAbajo },
+{ group: 'Flujo 4 · Editar límite', id: 'limite-ajuste', name: 'Límite y respaldo · la regla', route: 'limite', make: conAjusteArriba },
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit', name: 'Editar el límite', route: 'edit-limit', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit-low', name: 'Bajar por debajo de lo usado', route: 'edit-limit', make: () => withActiveCard(baseState(), { consumido: 640000, pagado: true }) }];
 const presetById = (id) => PRESETS.find((p) => p.id === id) || PRESETS[0];

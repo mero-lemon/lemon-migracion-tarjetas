@@ -220,7 +220,7 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
       </Screen>
       <Sheet open={sheet === 'help'} onClose={() => setSheet(null)}>
         <HelperSheet title={T.limite.helper_title} close={T.limite.helper_close} onClose={() => setSheet(null)}
-          items={[['edit', T.limite.helper_b1], ['return-money', T.limite.helper_b2], ['lock', T.limite.helper_b3]]} />
+          items={[['edit', T.limite.helper_b1], ['return-money', T.limite.helper_b2], ['earn', T.limite.helper_b4], ['lock', T.limite.helper_b3]]} />
       </Sheet>
       <Sheet open={!!sheet && sheet !== 'help'} onClose={() => setSheet(null)}>
         {sheet && sheet !== 'help' && <DepositoSheet asset={sheet.asset} limite={sheet.limite} S={S} bal={bal} onSimulate={simulate} onClose={() => setSheet(null)} />}

@@ -22,10 +22,8 @@
   // respaldo** —no van a la wallet—. Rinden los pesos (≈20%) y el dólar digital
   // (≈4,5%); con Bitcoin la propuesta es el precio, no el rendimiento.
   //
-  // OJO con la consecuencia: el respaldo crece, pero **el límite NO sube solo**
-  // (Jero, 29/09). Subirlo es una decisión del usuario, que entra a «Límite y
-  // respaldo» y lo actualiza a mano. Lo único que hace el producto es avisarle
-  // cuando tiene margen: ver `margenLimite` y MARGEN_AVISO.
+  // El respaldo crece, y el límite lo acompaña solo: ver `ajusteLimite` y
+  // AJUSTE_UMBRAL. Los intereses no se retiran, se acumulan como respaldo.
   const ASSETS = {
     ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, rinde: true, tna: 0.20, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
       why: 'Es la misma moneda que tu deuda: tu límite no se mueve.' },
@@ -145,20 +143,28 @@
     };
   };
 
-  // ── Margen para subir el límite ─────────────────────────────────
-  // El respaldo crece —por los intereses, o porque subió el precio del activo—
-  // y en algún momento alcanza para un límite más alto que el que tenés. El
-  // límite NO se mueve solo: lo sube el usuario cuando quiere (Jero, 29/09).
-  // Lo que sí hace el producto es avisar, y solo cuando vale la pena: a partir
-  // de un 10% de margen, para que el aviso no sea ruido de todos los días.
-  const MARGEN_AVISO = 0.10;
-  const margenLimite = (card, prices, ratios) => {
-    if (!card) return { posible: 0, delta: 0, pct: 0, vale: false };
+  // ── El límite acompaña al respaldo ──────────────────────────────
+  // El respaldo se mueve: crece por los intereses, sube o baja por el precio
+  // del activo. El límite lo acompaña **solo** (Jero, 29/09) y en las dos
+  // direcciones, porque la alternativa era asimétrica: pedir permiso para
+  // subir y bajar sin pedirlo. El umbral es 10% para que el límite no tiemble
+  // todos los días por un movimiento de precio. Cada ajuste se avisa, in-app y
+  // por push.
+  //
+  // El único borde: **no puede bajar por debajo de lo que ya usaste**, que es
+  // la misma regla que en «Editar límite». Si el respaldo cae más que eso, el
+  // límite se planta ahí (`piso: true`) y no se convierte en una deuda que ya
+  // no entra en su propio techo.
+  const AJUSTE_UMBRAL = 0.10;
+  const ajusteLimite = (card, prices, ratios, comprometido = 0) => {
+    if (!card) return { posible: 0, delta: 0, pct: 0, ajusta: false, dir: 'same', piso: false };
     const r = card.ratio != null ? card.ratio : ratioOf(card.asset, ratios);
-    const posible = Math.max(0, Math.min(LIMIT_MAX, Math.floor(unitsToArs(card.respaldoUnits, card.asset, prices) / r / LIMIT_STEP) * LIMIT_STEP));
+    const bruto = Math.max(0, Math.min(LIMIT_MAX, Math.floor(unitsToArs(card.respaldoUnits, card.asset, prices) / r / LIMIT_STEP) * LIMIT_STEP));
+    const piso = bruto < comprometido;
+    const posible = Math.max(bruto, comprometido);
     const delta = posible - card.limit;
     const pct = card.limit > 0 ? delta / card.limit : 0;
-    return { posible, delta, pct, vale: pct >= MARGEN_AVISO };
+    return { posible, delta, pct, ajusta: Math.abs(pct) >= AJUSTE_UMBRAL, dir: delta > 0 ? 'up' : delta < 0 ? 'down' : 'same', piso };
   };
 
   // El verbo para conseguir lo que falta: los pesos se cargan, lo demás se compra
@@ -301,7 +307,7 @@
 
   const CreditoModel = {
     HOY, PRODUCT, ASSETS, ASSET_ORDER, RESPALDO_ASSETS, PRICES_DEFAULT, BALANCES_DEFAULT, LIMIT_PRESETS, LIMIT_MIN, LIMIT_MAX, LIMIT_STEP, limitShare,
-    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, MARGEN_AVISO, margenLimite, tresNumeros, saldoImpago,
+    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, AJUSTE_UMBRAL, ajusteLimite, tresNumeros, saldoImpago,
     CIERRE_GROUPS, FERIADOS, isFeriado, nextBusinessDay, nextClose, cycleDates, previousCycleDates, addDays, sameDay, daysBetween,
     AUTOPAY_MODES, AUTOPAY_SOURCES, AUTOPAY_DEFAULT, FEES,
     roundTo, fmtInt, fmtArs, fmtUnits, fmtPct, fmtTna, fmtDate, fmtDateShort, fmtDateDow, MESES, MESES_CORTO

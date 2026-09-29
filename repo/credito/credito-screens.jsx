@@ -327,19 +327,23 @@ function ActivatedScreen({ S, onGo, onAddWallet, onAutopay }) {
 //  · LÍMITE DISPONIBLE = número grande verde + «Límite total $X» → abre «Límite y respaldo»
 //  · RESUMEN = tarjeta violeta tipo comprobante con «Pagar» (lo que DEBÉS)
 // Nunca se muestra el límite en 0 con la tarjeta pausada ni congelada.
-// El aviso de margen (Jero, 29/09): el límite NO sube solo. Cuando el respaldo
-// alcanza para uno al menos 10% más alto, la home invita a entrar y subirlo;
-// decidir sigue siendo del usuario, que es toda la bandera del producto.
-function MargenLimite({ margen, onLimite }) {
+// El aviso del ajuste (Jero, 29/09): el límite acompaña al respaldo solo, en
+// las dos direcciones, cuando el valor se mueve más de un 10%. Esto no invita
+// a nada —ya pasó—: informa, con el monto nuevo y el porqué. El mismo aviso
+// sale por push; acá va su versión in-app.
+function AjusteLimite({ ajuste, onLimite }) {
   const th = T().home;
+  const up = ajuste.dir === 'up';
   return (
-    <button onClick={onLimite} style={{ width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', marginTop: 12, background: 'var(--c-lime-5, #F4FBD9)', borderRadius: 16, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 11 }}>
+    <button onClick={onLimite} style={{ width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', marginTop: 12, background: up ? 'var(--c-lime-5, #F4FBD9)' : CR.infoSoft, borderRadius: 16, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 11 }}>
       <span style={{ width: 32, height: 32, borderRadius: 999, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-        <LI name="earn" size={16} color="var(--text-brand)" />
+        <LI name={up ? 'earn' : 'stocks'} size={16} color={up ? 'var(--text-brand)' : 'var(--c-nebula-60)'} />
       </span>
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T().tpl(th.margen_title, { ars: M.fmtArs(margen.posible) })}</span>
-        <span style={{ display: 'block', font: '400 12px Inter', color: CR.ink2, lineHeight: 1.4, marginTop: 2 }}>{th.margen_body}</span>
+        <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T().tpl(up ? th.ajuste_up_title : th.ajuste_down_title, { ars: M.fmtArs(ajuste.posible) })}</span>
+        <span style={{ display: 'block', font: '400 12px Inter', color: CR.ink2, lineHeight: 1.4, marginTop: 2 }}>
+          {up ? th.ajuste_up_body : th.ajuste_down_body}{ajuste.piso ? ' ' + T().tpl(th.ajuste_piso, { ars: M.fmtArs(ajuste.posible) }) : ''}
+        </span>
       </span>
       <LI name="arrow-foward" size={16} color={CR.ink3} />
     </button>);
@@ -348,7 +352,8 @@ function MargenLimite({ margen, onLimite }) {
 function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
   const th = T().home;
   const c = S.card, st = S.statement;
-  const margen = M.margenLimite(c, S.prices, S.ratios);
+  // El ajuste ya ocurrió: la tarjeta guarda en `ajuste` lo que pasó y desde dónde
+  const ajuste = c && c.ajuste ? c.ajuste : null;
   const dNext = M.cycleDates(c.cierre, S.hoy);
   const saldo = M.saldoImpago(st);
   const diasVto = st ? M.daysBetween(S.hoy, st.vencimiento) : null;
@@ -374,7 +379,7 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
         <SectionHead label={retiro ? 'Ya no podés gastar: retiro en curso' : frozen ? 'Disponible cuando la descongeles' : th.sec_disponible} />
         <div style={{ marginTop: 6 }}><BigAmount value={n.disponible} size={40} color={offline ? CR.ink3 : CR.disponible} cents={false} /></div>
         <div style={{ marginTop: 6, font: '400 13px Inter', color: CR.ink3 }}>{th.sec_limite_total} <b style={{ color: CR.limite, fontWeight: 500 }}>{M.fmtArs(n.limite)}</b></div>
-        {!offline && margen.vale && <div onClick={(e) => e.stopPropagation()}><MargenLimite margen={margen} onLimite={onLimite} /></div>}
+        {!offline && ajuste && <div onClick={(e) => e.stopPropagation()}><AjusteLimite ajuste={ajuste} onLimite={onLimite} /></div>}
         {stateNote && <div style={NOTE_BOX}>{stateNote}</div>}
       </div>
 
@@ -614,7 +619,6 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
   const [pagoRetiro, setPagoRetiro] = useStateS(() => plan.conWallet ? 'wallet' : 'respaldo');
   const offline = c.status === 'congelada' || c.status === 'retiro';
   const ratio = c.ratio != null ? c.ratio : M.ratioOf(c.asset, S.ratios);
-  const margen = M.margenLimite(c, S.prices, S.ratios);
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       <Screen bg={CR.page}>
@@ -648,14 +652,12 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
                 </div>}
               </div>
             </div>
-            {/* El respaldo creció y alcanza para más límite. Subirlo sigue
-                siendo del usuario (Jero, 29/09): acá se lo decimos y se lo
-                dejamos a un toque, pero no lo movemos nosotros. */}
-            {!offline && margen.vale &&
+            {/* La regla, dicha donde vive el respaldo: el límite lo sigue solo
+                (Jero, 29/09), y cambiarlo a mano sigue estando a un toque. */}
+            {!offline &&
             <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${CR.hair}` }}>
-              <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T().tpl(t.margen_title, { ars: M.fmtArs(margen.posible) })}</div>
-              <div style={{ font: '400 12.5px Inter', color: CR.ink3, lineHeight: 1.45, marginTop: 4 }}>{t.margen_body}</div>
-              <div style={{ marginTop: 12 }}><Btn variant="light" leftIcon="edit" onClick={onEditLimit}>{T().tpl(t.margen_cta, { ars: M.fmtArs(margen.posible) })}</Btn></div>
+              <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.ajuste_title}</div>
+              <div style={{ font: '400 12.5px Inter', color: CR.ink3, lineHeight: 1.45, marginTop: 4 }}>{t.ajuste_body}</div>
             </div>}
             <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
               {c.status !== 'retiro' && <MiniBtn tone="ghost" icon="returns" onClick={() => setSheet('retiro')}>{t.retirar_cta}</MiniBtn>}

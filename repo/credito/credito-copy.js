@@ -46,6 +46,7 @@
       helper_b1: 'Sí: lo subís o lo bajás cuando quieras, las veces que quieras, desde la app.',
       helper_b2: 'Subirlo pide un poco más de respaldo. Bajarlo devuelve la diferencia a tu saldo.',
       helper_b3: 'Lo único que no podés es bajarlo por debajo de lo que ya usaste en el período.',
+      helper_b4: 'Y se mueve solo con tu respaldo: si su valor cambia más de un 10%, tu límite lo acompaña y te avisamos. Nunca baja de lo que ya usaste.',
       helper_close: 'Entendido',
       cta: 'Continuar'
     },
@@ -190,11 +191,15 @@
       resumen_apagar: 'a pagar',
       resumen_cta: 'Pagar',
       sin_resumen: 'Tu primer resumen cierra el {fecha}. Hasta entonces, nada que pagar.',
-      // Tu respaldo creció y alcanza para un límite más alto. El límite no sube
-      // solo (Jero, 29/09): esto invita, no decide. Aparece desde un 10%.
-      margen_title: 'Podés subir tu límite a {ars}',
-      margen_body: 'Tu respaldo creció y ya alcanza para más. Subilo cuando quieras.',
-      margen_cta: 'Ver mi límite'
+      // El límite acompaña al respaldo solo, en las dos direcciones y desde un
+      // 10% (Jero, 29/09). Esto no invita a nada: avisa que ya pasó. El mismo
+      // aviso sale por push.
+      ajuste_up_title: 'Tu límite subió a {ars}',
+      ajuste_up_body: 'Tu respaldo creció y tu límite lo acompaña. No tenés que hacer nada.',
+      ajuste_down_title: 'Tu límite bajó a {ars}',
+      ajuste_down_body: 'Tu respaldo vale menos hoy y tu límite lo acompaña. Cuando vuelva a subir, sube con él.',
+      ajuste_piso: 'No baja de lo que ya usaste: {ars}.',
+      ajuste_cta: 'Ver mi límite'
     },
     // Consumos del período (equipo, 29/09): los pagos que hiciste van acá, pero
     // NO suman al número grande —esa sección responde cuánto vas a deber—, y el
@@ -225,9 +230,8 @@
       apartaste_sub: '≈ {ars} hoy · sigue siendo tuyo',
       apartaste_sub_ars: 'Sigue siendo tuyo', // con pesos no hay equivalente que mostrar
       rinde_row: 'Rinde {tna} anual, como en Earn',
-      margen_title: 'Tu respaldo alcanza para un límite de {ars}',
-      margen_body: 'Creció desde que lo dejaste. El límite no sube solo: subilo vos cuando quieras.',
-      margen_cta: 'Subir a {ars}',
+      ajuste_title: 'Tu límite sigue a tu respaldo',
+      ajuste_body: 'Cuando tu respaldo cambia de valor más de un 10%, tu límite se ajusta solo y te avisamos. Podés cambiarlo vos cuando quieras.',
       retirar_cta: 'Retirar respaldo',
       // Retirar da de baja la tarjeta. Antes hay que saldar lo que debés, y con
       // qué lo saldás es una elección (equipo, 29/09).
