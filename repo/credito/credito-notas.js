@@ -158,8 +158,8 @@
     },
     summary: {
       paso: 'Alta · 3 de 3', titulo: 'Tu Lemon Credit Card',
-      lead: 'Al tocar el botón, la tarjeta ya es tuya. Y no te cuesta nada.',
-      parrafo: 'Ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar. Lo único que sumamos acá es lo que todavía no sabés: cuánto cuesta tenerla. No cuesta nada, ni ahora ni cuando la actives. Lo único que dejás es tu respaldo, y sigue siendo tuyo.',
+      lead: 'Al tocar el botón, la tarjeta ya es tuya.',
+      parrafo: 'Es la única pantalla del alta que no pide nada: ya elegiste todo, así que no te lo volvemos a preguntar ni te lo volvemos a mostrar. Queda la tarjeta y una frase que dice para qué es. Lo que cuesta —nada— está a un toque, en el helper: no es un argumento de venta, es la respuesta para el que pregunta. Poner el cero en la cara de la pantalla lo convertía en el tema, y el tema es la tarjeta.',
       contexto: [
         { n: '$6.500', t: 'Hoy la tarjeta cobra mantenimiento. La propuesta es dejar de cobrarlo.',
           d: 'Pedir respaldo ya es fricción suficiente; cobrar por encima de eso no es estratégico para un producto que todavía tiene que probar que convierte.', f: HOY + ' · mantenimiento mensual' }
@@ -186,7 +186,7 @@
     'home-camino': {
       paso: 'Recién creada', titulo: 'La home, con la tarjeta ya tuya',
       lead: 'Ya tenés tarjeta: podés estar comprando hoy.',
-      parrafo: 'El plástico tarda cinco días; tu tarjeta, cero. Por eso la home separa las dos cosas: de un lado empezás a usarla ahora —una pantalla y ya está en el celu—; del otro seguís el viaje del envío, que va por su cuenta. Nada de lo que viene por correo puede frenar lo que ya tenés en la mano.'
+      parrafo: 'El plástico tarda cinco días; tu tarjeta, cero. Por eso la home separa las dos cosas: de un lado empezás a usarla ahora —una pantalla y ya está en el celu—; del otro seguís el viaje del envío, que va por su cuenta. Mientras la tarjeta es nueva el envío vive arriba, porque es la mitad de lo que pasa; en cuanto empezás a usarla baja debajo de tus números, que es a lo que venís.'
     },
     wallet: {
       paso: 'Activación · 3 de 3', titulo: 'Pagá con el celu desde hoy',
@@ -196,7 +196,12 @@
     activated: {
       paso: 'Activación · listo', titulo: 'Ya podés pagar con el celu',
       lead: 'Está activa y ya la podés poner en el celu, acá mismo.',
-      parrafo: 'Sumarla a Apple Pay no es un paso más: es el botón de esta pantalla, así «ya es tuya» y «ya podés pagar» son el mismo momento. Las fechas quedaron fijas y el límite es el que pusiste. El débito automático todavía no está configurado y no pasa nada: lo activás desde acá o desde la home, cuando tengas ganas. Nada de lo que decidiste hoy queda cerrado.'
+      parrafo: 'No es una pantalla más: es una hoja que sube sobre tu home, con la tarjeta y un botón. No repite el límite ni las fechas porque las acabás de elegir, y lo único que queda por hacer cabe en un gesto. Así «ya es tuya» y «ya podés pagar» son el mismo momento. El débito automático todavía no está configurado y no pasa nada: lo activás cuando tengas ganas.'
+    },
+    'home-retiro': {
+      paso: 'Retiro', titulo: 'Retirar el respaldo',
+      lead: 'Irte tiene que ser tan claro como entrar.',
+      parrafo: 'Retirar tu respaldo es un proceso, no un botón: lo pedís, te avisamos cuánto debés, lo pagás y se libera el resto. Y lo importante es cómo lo pagás: siempre podés hacerlo con el saldo de tu wallet, y entonces tu respaldo vuelve entero. Usar el respaldo para saldar la deuda es la opción cómoda, nunca la obligatoria. Nadie tiene que comerse sus ahorros para poder llevárselos.'
     },
     'home-pausada': {
       paso: 'Estados difíciles', titulo: 'La pausaste vos',

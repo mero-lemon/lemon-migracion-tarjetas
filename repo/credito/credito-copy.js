@@ -73,13 +73,17 @@
     },
     pedido: {
       h1: 'Tu Lemon Credit Card',
-      sub: 'Al crearla ya es tuya. Cuándo cierra tu resumen lo elegís cuando la actives.',
-      row_mantenimiento: 'Mantenimiento',
-      // Jero, 29/09: la tarjeta no cobra mantenimiento. El cero deja de ser
-      // letra chica y pasa a ser lo que la pantalla tiene para decir.
-      mantenimiento_valor: 'Sin costo',
-      mantenimiento_sub: 'No tiene costo de mantenimiento: ni ahora ni cuando la actives. Lo único que dejás es tu respaldo, y sigue siendo tuyo.',
-      tag_gratis: 'Gratis',
+      // Jero, 29/09: esta pantalla no habla de plata. Es el momento en que la
+      // tarjeta nace y lo único que tiene que hacer es dar ganas. Lo que cuesta
+      // (nada) vive en el helper, a un toque: no es un argumento de venta, es
+      // una respuesta para el que pregunta.
+      sub: 'Creala y empezá a manejar tu día a día con la plata que ya tenés. Sin venderla, sin pedirle permiso a nadie.',
+      helper_label: '¿Tiene algún costo?',
+      helper_title: 'Lo que cuesta tu Credit Card',
+      helper_b1: 'Crearla no cuesta nada, y tenerla tampoco: no cobramos mantenimiento, ni ahora ni cuando la actives.',
+      helper_b2: 'Tu respaldo no es un costo: es tuyo, rinde mientras respalda y vuelve a tu saldo cuando bajás el límite o das de baja la tarjeta.',
+      helper_b3: 'Lo único que se cobra es financiar: si pagás solo el mínimo, lo que quede para el próximo resumen paga {tna} anual. Pagando el total, no pagás intereses.',
+      helper_close: 'Entendido',
       cta: 'Crear mi Credit Card'
     },
     confirm: {
@@ -233,24 +237,34 @@
       ajuste_title: 'Tu límite sigue a tu respaldo',
       ajuste_body: 'Miramos el valor de tu respaldo una vez por día. Si cambió más de un 10%, tu límite se ajusta solo y te avisamos. Nunca baja de lo que ya usaste, y podés cambiarlo vos cuando quieras.',
       retirar_cta: 'Retirar respaldo',
-      // Retirar da de baja la tarjeta. Antes hay que saldar lo que debés, y con
-      // qué lo saldás es una elección (equipo, 29/09).
+      // El retiro es un proceso, no un botón (Jero, 29/09): pedís el retiro,
+      // te avisamos lo que debés, lo pagás —con el saldo de tu wallet o con
+      // parte del respaldo— y recién ahí se libera el resto. Pagar con la
+      // wallet SIEMPRE está disponible: nadie está obligado a saldar su deuda
+      // comiéndose el respaldo.
       retiro_h1: 'Retirar tu respaldo',
-      retiro_sub: 'La tarjeta se da de baja. Antes hay que saldar lo que debés:',
-      retiro_sin_deuda: 'No debés nada: tu respaldo vuelve entero a tu saldo.',
+      retiro_sub: 'La tarjeta se da de baja y tu respaldo vuelve a tu saldo. Así queda la cuenta:',
+      retiro_sin_deuda: 'No debés nada, así que tu respaldo vuelve entero.',
       retiro_row_respaldo: 'Tu respaldo',
       retiro_row_deuda: 'Lo que debés hoy',
       retiro_row_vuelve: 'Vuelve a tu saldo',
+      retiro_pasos: 'Pedís el retiro · te avisamos lo que debés · lo pagás · se libera el resto.',
+      retiro_pedir_cta: 'Solicitar el retiro',
+      retiro_cta: 'Confirmar el retiro',
+      retiro_volver: 'Volver',
+      retiro_plazo: 'Hasta 48 h hábiles',
+      // Paso 3: con qué saldás la deuda
+      pago_h1: 'Pagá lo que debés y liberá tu respaldo',
+      pago_sub: 'Elegí de dónde sale. Con el saldo de tu wallet, tu respaldo vuelve entero.',
       retiro_como: '¿Con qué lo pagás?',
       retiro_wallet_title: 'Con el saldo de tu wallet',
       retiro_wallet_body: 'Tu respaldo vuelve entero: {vuelve}.',
-      retiro_wallet_falta: 'Te faltan {falta} en tu wallet',
+      retiro_wallet_falta: 'Te faltan {falta}. Los cargás y pagás en el mismo paso.',
       retiro_respaldo_title: 'Con parte de tu respaldo',
       retiro_respaldo_body: 'Se descuentan {deuda} y vuelve el resto: {vuelve}.',
       retiro_respaldo_no_alcanza: 'Tu respaldo no alcanza para cubrir lo que debés',
-      retiro_plazo: 'Hasta 48 h hábiles',
-      retiro_cta: 'Confirmar el retiro',
-      retiro_volver: 'Volver',
+      pago_cta: 'Pagar {ars} y liberar',
+      pago_cta_cargar: 'Cargar {falta} y pagar',
       saber_mas: '¿Cómo funciona?',
       saber_title: 'Así te cuida tu respaldo',
       saber_b1: 'Sigue siendo tuyo. No se vende ni se mueve, y vuelve a tu saldo si bajás el límite o das de baja la tarjeta.',
@@ -270,7 +284,11 @@
       vence_title: 'Tu resumen vence {cuando}',
       vence_body: 'Con el mínimo ({minimo}) antes del {fecha} alcanza para que no se congele. Si podés, pagá el total: lo que quede financiado paga {tna} anual.',
       retiro_title: 'Tu respaldo está volviendo',
-      retiro_body: 'Si debías algo, se paga con el respaldo; el resto vuelve a tu saldo en hasta 48 h hábiles. La tarjeta queda dada de baja.'
+      retiro_body: 'Vuelve a tu saldo en hasta 48 h hábiles. La tarjeta queda dada de baja.',
+      // Paso 2: pediste el retiro y falta saldar la deuda
+      retiro_pedido_title: 'Pagá {monto} para liberar tu respaldo',
+      retiro_pedido_body: 'Pediste retirar tu respaldo. No pasan compras nuevas. En cuanto pagues lo que debés, el resto vuelve a tu saldo.',
+      retiro_pedido_cta: 'Pagar y liberar'
     },
     editar_limite: {
       header: 'Editar límite',

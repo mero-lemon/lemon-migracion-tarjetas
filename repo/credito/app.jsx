@@ -117,8 +117,8 @@ const PRESETS = [
 { group: 'Flujo 1 · Alta', id: 'home-camino', name: '4 · La home, ya con tarjeta', route: 'home', make: () => justCreated() },
 { group: 'Flujo 1 · Alta', id: 'confirm', name: 'Alt · Ya es tuya (suelta)', route: 'confirm', make: () => justCreated() },
 { group: 'Flujo 2 · Activación', id: 'cierre', name: '1 · Cuándo cierra', route: 'cierre', make: () => ({ ...justCreated(), draftCierre: 3 }) },
-{ group: 'Flujo 2 · Activación', id: 'activated', name: '2 · Activa + Apple Pay', route: 'activated', make: () => activada(false, null) },
-{ group: 'Flujo 2 · Activación', id: 'activated-nfc', name: 'Alt · Ya está en el celu', route: 'activated', make: () => activada(true) },
+{ group: 'Flujo 2 · Activación', id: 'activated', name: '2 · Activa + Apple Pay', route: 'home', make: () => ({ ...activada(false, null), sheet: 'activada' }) },
+{ group: 'Flujo 2 · Activación', id: 'activated-nfc', name: 'Alt · Ya está en el celu', route: 'home', make: () => ({ ...activada(true), sheet: 'activada' }) },
 { group: 'Flujo 2 · Activación', id: 'wallet', name: 'Alt · Apple Pay (suelta)', route: 'wallet', make: () => activada(false) },
 { group: 'Flujo 3 · Landing', id: 'home-sin-autopay', name: 'Activa · sin débito', route: 'home', make: () => activada(true, null) },
 { group: 'Flujo 3 · Landing', id: 'autopay-cuanto', name: 'Débito automático (después)', route: 'autopay-cuanto', make: () => ({ ...activada(true, null), draftAutopay: { ...M.AUTOPAY_DEFAULT } }) },
@@ -129,6 +129,9 @@ const PRESETS = [
 { group: 'Flujo 3 · Landing', id: 'limite', name: 'Límite y respaldo', route: 'limite', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 3 · Landing', id: 'statement', name: 'Resumen (con deuda anterior)', route: 'statement', make: () => withActiveCard(baseState(), { status: 'congelada', cierre: 1, hoy: new Date(2026, 8, 14) }) },
 { group: 'Flujo 3 · Landing', id: 'pay', name: 'Pagar el resumen', route: 'home', make: () => ({ ...withActiveCard(baseState()), sheet: 'pagar-total' }) },
+{ group: 'Flujo 5 · Retiro', id: 'retiro-pedido', name: '2 · Pagá y liberá tu respaldo', route: 'home', make: () => withActiveCard(baseState(), { status: 'retiro-pedido' }) },
+{ group: 'Flujo 5 · Retiro', id: 'retiro-pago', name: '3 · Con qué lo pagás', route: 'home', make: () => ({ ...withActiveCard(baseState(), { status: 'retiro-pedido' }), sheet: 'retiro-pago' }) },
+{ group: 'Flujo 5 · Retiro', id: 'retiro-curso', name: '4 · Tu respaldo está volviendo', route: 'home', make: () => withActiveCard(baseState(), { status: 'retiro', pagado: true }) },
 { group: 'Flujo 4 · Editar límite', id: 'ajuste-arriba', name: 'El límite subió solo', route: 'home', make: conAjusteArriba },
 { group: 'Flujo 4 · Editar límite', id: 'ajuste-abajo', name: 'El límite bajó solo', route: 'home', make: conAjusteAbajo },
 { group: 'Flujo 4 · Editar límite', id: 'ajuste-piso', name: 'Bajó, pero no de lo usado', route: 'home', make: conAjustePiso },
@@ -136,6 +139,16 @@ const PRESETS = [
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit', name: 'Editar el límite', route: 'edit-limit', make: () => withActiveCard(baseState()) },
 { group: 'Flujo 4 · Editar límite', id: 'edit-limit-low', name: 'Bajar por debajo de lo usado', route: 'edit-limit', make: () => withActiveCard(baseState(), { consumido: 640000, pagado: true }) }];
 const presetById = (id) => PRESETS.find((p) => p.id === id) || PRESETS[0];
+
+// Paso 3 del retiro: el sheet que elige con qué se salda la deuda. Vive acá
+// porque se abre desde la home, no desde «Límite y respaldo».
+function RetiroPago({ S, onConfirm, onClose }) {
+  const c = S.card;
+  const deuda = M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: M.saldoImpago(S.statement) }).comprometido;
+  const plan = M.retiroPlan({ respaldoUnits: c.respaldoUnits, asset: c.asset, deudaArs: deuda, walletArs: S.balances.ARS, prices: S.prices });
+  const [pago, setPago] = useStateA('wallet');
+  return <RetiroPagoSheet S={S} plan={plan} pago={pago} onPago={setPago} onConfirm={onConfirm} onClose={onClose} />;
+}
 
 // ── La app adentro del teléfono ─────────────────────────────────
 // `dev` = { balances, prices, ratios } vive afuera (persiste entre presets).
@@ -151,7 +164,7 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
   if (apiRef) apiRef.current = { patch, setRoute, S, route };
   // la nota de UX de al lado sigue a la pantalla (y al estado de la tarjeta)
   const cardStatus = S.card ? S.card.status : null;
-  useEffectA(() => { if (onRoute) onRoute(route, S.card); }, [route, cardStatus]);
+  useEffectA(() => { if (onRoute) onRoute(route, S.card, S.sheet); }, [route, cardStatus, S.sheet]);
 
   // estado completo que ven las pantallas: lo de adentro + lo del panel dev
   const SS = { ...S, ...dev };
@@ -185,9 +198,11 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
   // son concretas —no gastaste nada— y el 3,5% que se liquida por mes se ataca
   // mejor cuando el resumen ya existe. Queda `autopay: null` = sin configurar.
   const startActivate = (via) => { patch({ activateVia: via, draftCierre: null }); go('cierre'); };
+  // Termina en la home con el sheet encima (Jero, 29/09): «Ya podés pagar» es
+  // un bottom sheet, no una pantalla, y no repite lo que se acaba de mostrar.
   const finishActivate = () => {
-    patch((s) => ({ card: { ...s.card, status: 'activa', cierre: s.draftCierre } }));
-    go('activated'); // Apple Pay vive en esa misma pantalla
+    patch((s) => ({ card: { ...s.card, status: 'activa', cierre: s.draftCierre }, sheet: 'activada' }));
+    go('home');
   };
   // El débito, después: desde el banner de la home o desde «Ya podés pagar»
   const startAutopay = () => { patch((s) => ({ draftAutopay: s.card.autopay && s.card.autopay.on ? s.card.autopay : { ...M.AUTOPAY_DEFAULT } })); go('autopay-cuanto'); };
@@ -196,7 +211,7 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     go('home');
   };
   const gotPlastico = () => patch((s) => ({ card: { ...s.card, fisica: 'entregada' } }));
-  const addWallet = () => { patch((s) => ({ card: { ...s.card, nfc: true } })); if (route !== 'activated') go('activated'); };
+  const addWallet = () => { patch((s) => ({ card: { ...s.card, nfc: true } })); if (route === 'wallet') { patch({ sheet: 'activada' }); go('home'); } };
   const togglePause = () => patch((s) => ({ card: { ...s.card, status: s.card.status === 'activa' ? 'pausada' : 'activa' } }));
   const pay = (amount) => {
     adjBalance('ARS', -amount);
@@ -219,14 +234,23 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     patch((s) => ({ card: { ...s.card, limit: newLimit, ratio: M.ratioOf(c.asset, dev.ratios), respaldoUnits: toU }, period: { ...s.period, movs: [respaldoMov(Math.abs(deltaUnits), c.asset, deltaUnits > 0 ? '−' : '+'), ...s.period.movs] } }));
     go('limite'); // se editó desde «Límite y respaldo»: volvemos ahí a ver el medidor nuevo
   };
-  // `pago` = 'wallet' | 'respaldo': con qué se salda lo que debías (equipo, 29/09)
-  const retiro = (pago) => {
-    patch((s) => {
-      const deuda = M.tresNumeros({ limit: s.card.limit, consumido: s.period.consumidoArs, saldoImpago: M.saldoImpago(s.statement) }).comprometido;
-      if (pago === 'wallet' && deuda > 0) adjBalance('ARS', -deuda);
-      return { card: { ...s.card, status: 'retiro', retiroPago: pago || 'wallet' }, openRetiro: false };
-    });
+  // El retiro es un proceso (Jero, 29/09): pedirlo → saber qué debés → pagarlo
+  // → que se libere el resto. Sin deuda, los dos primeros pasos no existen.
+  const deudaDe = (s) => M.tresNumeros({ limit: s.card.limit, consumido: s.period.consumidoArs, saldoImpago: M.saldoImpago(s.statement) }).comprometido;
+  const pedirRetiro = () => {
+    patch((s) => ({ card: { ...s.card, status: deudaDe(s) > 0 ? 'retiro-pedido' : 'retiro' }, openRetiro: false, sheet: null }));
     go('home');
+  };
+  // `pago` = 'wallet' | 'respaldo'. Con la wallet, si falta saldo se carga en el
+  // mismo paso: pagar sin comerse el respaldo siempre tiene que ser posible.
+  const pagarRetiro = (pago) => {
+    const deuda = deudaDe(S);
+    if (pago === 'wallet' && deuda > 0) adjBalance('ARS', -Math.min(deuda, dev.balances.ARS));
+    // La deuda quedó saldada: el resumen se marca pagado y el período, en cero
+    patch((s) => ({
+      card: { ...s.card, status: 'retiro', retiroPago: pago }, sheet: null,
+      statement: s.statement ? { ...s.statement, pagado: s.statement.totalArs + s.statement.deudaAnterior, pagadoEl: s.hoy } : s.statement,
+      period: { ...s.period, consumidoArs: 0, consumidoUsd: 0 } }));
   };
 
   const setOrder = (p) => patch((s) => ({ order: { ...s.order, ...p } }));
@@ -240,10 +264,10 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
   else if (route === 'cierre') over = <CierrePicker S={SS} value={S.draftCierre} onChange={(v) => patch({ draftCierre: v })} onBack={() => go('home')} onContinue={finishActivate} />;
   else if (route === 'autopay-cuanto') over = <AutopayCuanto S={SS} value={S.draftAutopay} onChange={(v) => patch({ draftAutopay: v })} onBack={() => go('home')} onSkip={() => finishAutopay(true)} onContinue={() => finishAutopay(false)} />;
   else if (route === 'wallet') over = <WalletScreen S={SS} onBack={() => go('home')} onAdd={addWallet} onSkip={() => go('home')} />;
-  else if (route === 'activated') over = <ActivatedScreen S={SS} onGo={() => go('home')} onAddWallet={addWallet} onAutopay={startAutopay} />;
+
   else if (route === 'edit-limit') over = <LimitPicker S={SS} mode="edit" asset={S.card.asset} value={S.card.limit} onBack={() => go('limite')} onConfirm={applyLimit} onAddFunds={adjBalance} />;
   else if (route === 'statement') over = <StatementScreen S={SS} onBack={() => go('home')} onPagar={(k) => patch({ sheet: 'pagar-' + k })} />;
-  else if (route === 'limite') over = <LimiteRespaldoScreen S={SS} openRetiro={!!S.openRetiro} onBack={() => go('home')} onRetiro={retiro} onEditLimit={() => go('edit-limit')} />;
+  else if (route === 'limite') over = <LimiteRespaldoScreen S={SS} openRetiro={!!S.openRetiro} onBack={() => go('home')} onRetiro={pedirRetiro} onEditLimit={() => go('edit-limit')} />;
   else if (route === 'consumos') over = <ConsumosScreen S={SS} onBack={() => go('home')} onVerResumen={() => go('statement')} />;
 
   const home =
@@ -252,7 +276,7 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
     onLimite={() => { patch({ openRetiro: false }); go('limite'); }} onVerResumen={() => go('statement')} onPagar={(k) => patch({ sheet: 'pagar-' + k })}
     onConsumos={() => go('consumos')} onTogglePause={togglePause}
     onSimDelivery={gotPlastico} onActivate={(via) => (S.card && S.card.status === 'camino' ? startActivate(via) : go('wallet'))} onRetiro={() => { patch({ openRetiro: true }); go('limite'); }} onTab={() => patch({ sheet: 'prepaga' })}
-    onAutopay={startAutopay} />;
+    onAutopay={startAutopay} onRetiroPago={() => patch({ sheet: 'retiro-pago' })} />;
 
   return (
     <div style={{ height: '100%', position: 'relative', overflow: 'hidden', background: '#0a0a0a', pointerEvents: inert ? 'none' : 'auto' }}>
@@ -264,6 +288,12 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
           <div key={route} style={{ height: '100%', animation: `screenIn .35s ${EASE}` }}>{over}</div>
         </div>}
       {/* sheets globales */}
+      <Sheet open={S.sheet === 'activada'} onClose={() => patch({ sheet: null })}>
+        {S.sheet === 'activada' && S.card && <ActivadaSheet S={SS} onAddWallet={addWallet} onClose={() => patch({ sheet: null })} />}
+      </Sheet>
+      <Sheet open={S.sheet === 'retiro-pago'} onClose={() => patch({ sheet: null })}>
+        {S.sheet === 'retiro-pago' && S.card && <RetiroPago S={SS} onConfirm={pagarRetiro} onClose={() => patch({ sheet: null })} />}
+      </Sheet>
       <Sheet open={!!S.sheet && S.sheet.startsWith('pagar')} onClose={() => patch({ sheet: null })}>
         {S.sheet && S.sheet.startsWith('pagar') && S.statement && <PagarSheet S={SS} initial={S.sheet.split('-')[1]} onClose={() => patch({ sheet: null })} onPay={pay} onAddFunds={adjBalance} />}
       </Sheet>
@@ -285,10 +315,14 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
 // pantallas; CONTEXTO solo en las que una medición justifica —el criterio y el
 // contenido viven arriba de credito-notas.js—, así que una pantalla puede
 // mostrar una sola tarjeta y eso es lo esperado.
-const noteKey = (route, card) => {
+// Algunos momentos ya no son una ruta sino un sheet sobre la home (activarla,
+// pagar para liberar el respaldo): la nota tiene que seguirlos igual.
+const SHEET_NOTE = { activada: 'activated', 'retiro-pago': 'limite' };
+const noteKey = (route, card, sheet) => {
   if (route !== 'home') return route;
+  if (sheet && SHEET_NOTE[sheet]) return SHEET_NOTE[sheet];
   if (!card) return 'home-vacia';
-  return { camino: 'home-camino', pausada: 'home-pausada', congelada: 'home-congelada' }[card.status] || 'home-activa';
+  return { camino: 'home-camino', pausada: 'home-pausada', congelada: 'home-congelada', 'retiro-pedido': 'home-retiro', retiro: 'home-retiro' }[card.status] || 'home-activa';
 };
 const NOTE_TONE = {
   narrativa: { label: 'Narrativa', hint: 'Qué le queremos contar al usuario', bg: '#141414', fg: '#fff', dim: 'rgba(255,255,255,0.62)', accent: 'var(--c-lime-40)' },
@@ -516,7 +550,7 @@ function CreditoStage() {
         <div style={{ flex: 1, display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: mapa ? 0 : '24px 24px 28px', overflow: 'auto' }}>
           {mapa ? <MapView dev={dev} onJump={jump} /> :
           <div style={{ display: 'flex', gap: 28, alignItems: 'flex-start' }}>
-            <PhoneCr scale={scale}><CreditoApp key={presetId + ':' + rk} preset={preset} dev={dev} setDev={setDev} apiRef={apiRef} onRoute={(r, card) => setUxKey(noteKey(r, card))} /></PhoneCr>
+            <PhoneCr scale={scale}><CreditoApp key={presetId + ':' + rk} preset={preset} dev={dev} setDev={setDev} apiRef={apiRef} onRoute={(r, card, sheet) => setUxKey(noteKey(r, card, sheet))} /></PhoneCr>
             {ux && <UxNote k={uxKey} />}
           </div>}
         </div>

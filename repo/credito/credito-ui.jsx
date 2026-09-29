@@ -120,6 +120,7 @@ const CardStatusPill = ({ status }) => {
     congelada: ['#E8F1FF', '#274BBE', 'Congelada'],
     camino: ['#FDF4ED', '#F0A20B', 'Sin activar'],
     pedida: ['#FDF4ED', '#F0A20B', 'Pedido en curso'],
+    'retiro-pedido': ['#FDF4ED', '#F0A20B', 'Retiro pendiente'],
     retiro: ['var(--c-gray-20)', 'var(--c-gray-70)', 'Retiro en curso']
   }[status] || ['#E6FEF0', '#1CB854', status];
   return <span style={{ display: 'inline-flex', alignItems: 'center', background: m[0], color: m[1], font: '500 12px Inter', padding: '3px 9px', borderRadius: 999, whiteSpace: 'nowrap' }}>{m[2]}</span>;

@@ -21,22 +21,22 @@ const POWER_KEY = { 5000000: 'power_5M', 1000000: 'power_1M', 500000: 'power_500
 // y el negro es el color de la tarjeta. El monto se reanima en cada cambio.
 function LimitStage({ label, amount, line, lineColor, dim, empty }) {
   return (
-    <div style={{ position: 'relative', borderRadius: 26, overflow: 'hidden', background: '#0B0B0B', minHeight: 150, boxShadow: '0 20px 44px -22px rgba(11,11,11,0.6)', animation: `ob-up .45s ${EASE}` }}>
-      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(85% 120% at 86% 6%, rgba(207,255,46,0.20), transparent 62%)' }} />
-      <div style={{ position: 'absolute', right: -30, bottom: -52, filter: 'drop-shadow(0 18px 28px rgba(0,0,0,0.55))' }}>
-        <CardArt variant="credito" width={176} style={{ transform: 'rotate(-16deg)' }} />
+    <div style={{ position: 'relative', borderRadius: 24, overflow: 'hidden', background: '#0B0B0B', minHeight: 126, boxShadow: '0 14px 30px -20px rgba(11,11,11,0.5)', animation: `ob-up .45s ${EASE}` }}>
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(85% 120% at 86% 6%, rgba(207,255,46,0.13), transparent 62%)' }} />
+      <div style={{ position: 'absolute', right: -26, bottom: -46, filter: 'drop-shadow(0 14px 22px rgba(0,0,0,0.5))' }}>
+        <CardArt variant="credito" width={146} style={{ transform: 'rotate(-16deg)' }} />
       </div>
-      <div style={{ position: 'relative', padding: '20px 104px 22px 20px' }}>
+      <div style={{ position: 'relative', padding: '17px 92px 18px 18px' }}>
         <div style={{ font: '600 11px Inter', letterSpacing: '0.09em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)' }}>{label}</div>
         {amount != null ?
         <>
           <div key={amount} style={{ marginTop: 6, animation: `ob-up .4s ${EASE}` }}>
-            <BigAmount value={amount} size={36} color={dim ? 'rgba(255,255,255,0.55)' : '#fff'} cents={false} />
+            <BigAmount value={amount} size={31} color={dim ? 'rgba(255,255,255,0.55)' : '#fff'} cents={false} />
           </div>
           {line &&
           <div key={String(line)} style={{ marginTop: 8, font: '400 13px Inter', lineHeight: 1.4, color: lineColor || 'rgba(255,255,255,0.72)', animation: `ob-up .45s .04s ${EASE} backwards` }}>{line}</div>}
         </> :
-        <div style={{ marginTop: 10, font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: 'rgba(255,255,255,0.45)' }}>{empty}</div>}
+        <div style={{ marginTop: 8, font: '500 21px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: 'rgba(255,255,255,0.45)' }}>{empty}</div>}
       </div>
     </div>);
 }
@@ -44,18 +44,21 @@ function LimitStage({ label, amount, line, lineColor, dim, empty }) {
 // ── Una opción: el monto y su estado. Tres estados ───────────────
 //  · elegida:    borde tinta + check negro (el monto vive arriba, en el escenario)
 //  · disponible: card blanca + radio vacío
-//  · apagada:    gris, candado, y la única segunda línea de la pantalla
+//  · apagada:    gris y candado, sin decir cuánto falta
+// El monto de la lista es más chico que el del escenario (Jero, 29/09: «ese
+// banner compite demasiado con lo que elegís abajo»). Arriba se decide, abajo
+// se elige: el mismo número a dos tamaños distintos ordena la jerarquía.
 function LimitOption({ limite, selected, disabled, current, reason, action, sub, onSelect, onAction }) {
   const tappable = !current && !(disabled && !onAction);
   const click = () => { if (current) return; if (disabled) { onAction && onAction(); return; } onSelect(); };
   return (
-    <OptionCard selected={selected && !disabled && !current} onClick={tappable ? click : undefined} pad="16px 18px"
+    <OptionCard selected={selected && !disabled && !current} onClick={tappable ? click : undefined} pad="14px 18px"
       style={{ background: disabled ? 'var(--bg-layer-02)' : '#fff', boxShadow: disabled ? 'none' : undefined, opacity: 1 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <BigAmount value={limite} size={26} cents={false} color={disabled ? CR.ink3 : CR.ink} />
+          <BigAmount value={limite} size={20} cents={false} color={disabled ? CR.ink3 : CR.ink} />
           {disabled && reason &&
-          <div style={{ font: '400 13px Inter', color: '#854600', marginTop: 6, lineHeight: 1.4 }}>{reason}{action && <> · <span style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{action}</span></>}</div>}
+          <div style={{ font: '400 12.5px Inter', color: CR.ink3, marginTop: 4, lineHeight: 1.4 }}>{reason}{action && <> · <span style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{action}</span></>}</div>}
           {!disabled && sub &&
           <div style={{ font: '400 13px Inter', color: CR.ink3, marginTop: 4, lineHeight: 1.4 }}>{sub}</div>}
         </div>
@@ -76,27 +79,32 @@ function OtroMonto({ open, value, max, onOpen, onChange }) {
   const tooLow = value != null && value > 0 && value < M.LIMIT_MIN;
   const tooHigh = value != null && value > max;
   return (
-    <OptionCard selected={open} onClick={open ? undefined : onOpen} pad="16px 18px" style={{ background: '#fff' }}>
+    // Cerrada no es una opción más: es una puerta, y pesa lo que pesa una
+    // puerta (Jero, 29/09). Recién al abrirla toma el lugar de una opción.
+    open ?
+    <OptionCard selected pad="14px 18px" style={{ background: '#fff' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
         <div style={{ flex: 1, minWidth: 0 }}>
-          {open ?
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-            <span style={{ font: '500 26px Geist', letterSpacing: '-0.02em', color: shown ? CR.ink : CR.ink3 }}>$</span>
+            <span style={{ font: '500 20px Geist', letterSpacing: '-0.02em', color: shown ? CR.ink : CR.ink3 }}>$</span>
             <input ref={ref} inputMode="numeric" value={shown} placeholder={T.limite.otro_placeholder}
               onChange={(e) => onChange(Number(digits(e.target.value)) || 0)}
-              style={{ flex: 1, minWidth: 0, width: '100%', border: 0, outline: 'none', background: 'transparent', padding: 0, font: '500 26px Geist', letterSpacing: '-0.02em', color: CR.ink }} />
-          </div> :
-          <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T.limite.otro_label}</div>}
-          <div style={{ font: '400 13px Inter', color: tooLow || tooHigh ? '#854600' : CR.ink3, marginTop: 5, lineHeight: 1.4 }}>
+              style={{ flex: 1, minWidth: 0, width: '100%', border: 0, outline: 'none', background: 'transparent', padding: 0, font: '500 20px Geist', letterSpacing: '-0.02em', color: CR.ink }} />
+          </div>
+          <div style={{ font: '400 12.5px Inter', color: tooLow || tooHigh ? '#854600' : CR.ink3, marginTop: 4, lineHeight: 1.4 }}>
             {tooLow ? T.tpl(T.limite.otro_min, { min: M.fmtArs(M.LIMIT_MIN) })
             : tooHigh ? T.tpl(T.limite.otro_max, { max: M.fmtArs(max) })
             : max > 0 ? T.tpl(T.limite.otro_sub, { max: M.fmtArs(max) })
             : T.limite.otro_sub_vacio}
           </div>
         </div>
-        {open ? <Check on={!tooLow && !tooHigh && value > 0} size={24} /> : <LI name="edit" size={20} color={CR.ink3} />}
+        <Check on={!tooLow && !tooHigh && value > 0} size={24} />
       </div>
-    </OptionCard>);
+    </OptionCard> :
+    <button onClick={onOpen} style={{ width: '100%', border: 0, background: 'transparent', cursor: 'pointer', padding: '12px 4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+      <LI name="edit" size={15} color={CR.ink3} />
+      <span style={{ font: '600 13px Inter', color: CR.ink2 }}>{T.limite.otro_label}</span>
+    </button>);
 }
 
 // ── Cargar saldo (mock: suma el faltante) ───────────────────────
@@ -203,7 +211,9 @@ function LimitPicker({ S, mode = 'create', asset, value: valueProp, onChange: on
               const ok = chk.ok;
               let sub = null, reason = null, action = null;
               if (useBlocked) reason = T.tpl(T.editar_limite.blocked, { ars: M.fmtArs(comprometido) });
-              else if (!ok) { reason = T.tpl(T.limite.locked_reason_units, { faltante: M.fmtUnits(chk.faltanteUnits, a) }); action = M.verboFaltante(a); }
+              // Jero, 29/09: «que sea un poco más misterioso». El monto que falta
+              // y cómo conseguirlo viven en el sheet, al tocar la opción.
+              else if (!ok) reason = T.limite.locked_reason;
               return (
                 <LimitOption key={l} limite={l} selected={value === l} disabled={!ok || useBlocked} current={isCurrent}
                   reason={reason} action={action} sub={sub}

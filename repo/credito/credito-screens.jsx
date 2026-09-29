@@ -73,22 +73,30 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ font: '400 12px Inter', color: inv ? 'rgba(255,255,255,0.6)' : CR.ink3 }}>{a.name}</div>
                     {chk.ok ?
-                    <>
-                      <div style={{ font: '500 22px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: 1 }}>{M.fmtUnits(chk.needUnits, id)}</div>
-                      {id !== 'ARS' &&
-                      <div style={{ font: '400 12px Inter', color: inv ? 'rgba(255,255,255,0.55)' : CR.ink3, marginTop: 3 }}>{T().tpl(t.option_ars, { ars: M.fmtArs(chk.needArs) })}</div>}
-                      {a.rinde &&
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 7 }}>
-                        <LI name="earn" size={13} color={inv ? 'var(--c-lime-40)' : 'var(--text-brand)'} />
-                        <span style={{ font: '500 12px Inter', color: inv ? 'var(--c-lime-40)' : 'var(--text-brand)' }}>{T().tpl(t.option_rinde, { tna: '≈' + M.fmtTna(a.tna) })}</span>
-                      </div>}
-                    </> :
+                    <div style={{ font: '500 21px Geist', letterSpacing: '-0.02em', lineHeight: 1.2, color: inv ? '#fff' : CR.ink, marginTop: 1 }}>{M.fmtUnits(chk.needUnits, id)}</div> :
                     <div style={{ font: '400 14px Inter', color: '#854600', marginTop: 3, lineHeight: 1.4 }}>
                       {T().tpl(t.locked_line, { faltante: M.fmtUnits(chk.faltanteUnits, id) })} · <span style={{ fontWeight: 600, color: 'var(--text-brand)' }}>{M.verboFaltante(id)}</span>
                     </div>}
                   </div>
                   {inv ? <SelCheck /> : chk.ok ? <Radio on={false} size={24} /> : <LI name="lock" size={20} color={CR.ink3} />}
                 </div>
+                {/* El detalle solo en la elegida (Jero, 29/09: «quedan demasiado
+                    cargadas cada opción»). Lo que decide es el monto; lo que
+                    tranquiliza —a cuántos pesos equivale y cuánto rinde— aparece
+                    cuando ya elegiste esa moneda. */}
+                {inv &&
+                <div style={{ marginTop: 14, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.14)', display: 'flex', flexDirection: 'column', gap: 7, animation: `screenIn .3s ${EASE}` }}>
+                  {id !== 'ARS' &&
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <LI name="swap" size={13} color="rgba(255,255,255,0.5)" />
+                    <span style={{ font: '400 12.5px Inter', color: 'rgba(255,255,255,0.72)' }}>{T().tpl(t.option_ars, { ars: M.fmtArs(chk.needArs) })}</span>
+                  </div>}
+                  {a.rinde &&
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                    <LI name="earn" size={13} color="var(--c-lime-40)" />
+                    <span style={{ font: '500 12.5px Inter', color: 'var(--c-lime-40)' }}>{T().tpl(t.option_rinde, { tna: '≈' + M.fmtTna(a.tna) })}</span>
+                  </div>}
+                </div>}
               </OptionCard>);
             })}
           </div>
@@ -115,25 +123,27 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
 // ser letra chica y pasa a ser lo que la pantalla tiene para decir.
 function OrderSummary({ S, onBack, onContinue }) {
   const t = T().pedido;
+  const [help, setHelp] = useStateS(false);
   return (
+    <div style={{ height: '100%', position: 'relative' }}>
     <Screen bg={CR.page} footer={<Btn variant="primary" onClick={onContinue}>{t.cta}</Btn>}>
       <StepHeader title="" onBack={onBack} />
       <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 22px' }}>
-          <CardArt variant="credito" width={236} glow style={{ boxShadow: '0 24px 48px -12px rgba(20,20,20,0.35)' }} />
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '18px 0 28px' }}>
+          <CardArt variant="credito" width={252} glow shimmer style={{ boxShadow: '0 24px 48px -12px rgba(20,20,20,0.35)' }} />
         </div>
-        <div style={{ ...H1, textAlign: 'center' }}>{t.h1}</div>
-        <div style={{ ...SUB, textAlign: 'center' }}>{t.sub}</div>
-        <Surface pad={16} style={{ marginTop: 22 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ font: '400 14px Inter', color: CR.ink2, flex: 1 }}>{t.row_mantenimiento}</span>
-            <span style={{ font: '500 16px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.mantenimiento_valor}</span>
-            <span style={{ whiteSpace: 'nowrap' }}><Tag tone="positive">{t.tag_gratis}</Tag></span>
-          </div>
-          <div style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink2, marginTop: 10, paddingTop: 10, borderTop: `1px solid ${CR.hair}` }}>{t.mantenimiento_sub}</div>
-        </Surface>
+        <div style={{ font: '500 27px Geist', letterSpacing: '-0.025em', lineHeight: 1.12, color: CR.ink, textAlign: 'center', textWrap: 'balance' }}>{t.h1}</div>
+        <div style={{ font: '400 15px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 10, textAlign: 'center', textWrap: 'pretty' }}>{t.sub}</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: 20 }}>
+          <HelperLink onClick={() => setHelp(true)}>{t.helper_label}</HelperLink>
+        </div>
       </div>
-    </Screen>);
+    </Screen>
+    <Sheet open={help} onClose={() => setHelp(false)}>
+      <HelperSheet title={t.helper_title} close={t.helper_close} onClose={() => setHelp(false)}
+        items={[['card-on', t.helper_b1], ['earn', t.helper_b2], ['percent', T().tpl(t.helper_b3, { tna: M.fmtTna(M.FEES.tnaFinanciacion) })]]} />
+    </Sheet>
+    </div>);
 }
 
 // ── Ya tenés tu Lemon Credit Card: el momento de bienvenida ────────
@@ -281,46 +291,33 @@ function WalletScreen({ S, onBack, onAdd, onSkip }) {
 }
 
 // ── Ya podés pagar con el celu ──────────────────────────────────
-// Es la confirmación de la activación y, si todavía no sumó la tarjeta al
-// celu, también es la pantalla de Apple Pay (equipo, 29/09): así «ya es tuya»
-// y «ya podés pagar» son el mismo momento y no dos pantallas seguidas.
-function ActivatedScreen({ S, onGo, onAddWallet, onAutopay }) {
+// Bottom sheet sobre la home, no pantalla (Jero, 29/09). Y sin repetir límite,
+// cierre ni débito: se los acaba de mostrar. Lo único que queda por hacer es
+// ponerla en el celu, así que el sheet es ese botón y nada más.
+function ActivadaSheet({ S, onAddWallet, onClose }) {
   const t = T().activated;
   const c = S.card;
-  const d = M.cycleDates(c.cierre, S.hoy);
-  const ap = c.autopay && c.autopay.on ? c.autopay : null;
   const [adding, setAdding] = useStateS(false);
-  const addWallet = () => { setAdding(true); setTimeout(() => { setAdding(false); onAddWallet(); }, 1400); };
+  const add = () => { setAdding(true); setTimeout(() => { setAdding(false); onAddWallet(); }, 1400); };
   return (
-    <div style={{ height: '100%', position: 'relative' }}>
-    <Screen bg={CR.page} footer={c.nfc || !onAddWallet ?
-    <Btn variant="primary" onClick={onGo}>{t.cta}</Btn> :
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <WalletBtn label={t.cta_wallet} onClick={addWallet} />
-        <Btn variant="ghost" onClick={onGo}>{t.cta_skip}</Btn>
-      </div>}>
-      <div style={{ padding: '12px 16px 8px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 18 }}>
-        {c.nfc ?
-        <div style={{ position: 'relative', width: '100%', height: 230, borderRadius: 24, overflow: 'hidden', animation: `ob-up .5s ${EASE}` }}>
-            <img src="assets/nfc-hero.png" alt="" style={{ display: 'block', width: '100%', height: '100%', objectFit: 'cover', objectPosition: '50% 30%' }} />
-            <HeroPill icon="feedback-positive">En tu billetera</HeroPill>
-          </div> :
-        <div style={{ padding: '18px 0 6px', animation: `ob-up .5s ${EASE}` }}><CardArt variant="credito" width={240} glow style={{ transform: 'rotate(-6deg)' }} /></div>}
-        <div style={{ font: '500 26px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink, textWrap: 'balance', animation: `ob-up .5s .08s ${EASE} backwards` }}>{c.nfc ? t.h1 : t.h1_sin_wallet}</div>
-        <div style={{ font: '400 15px Inter', lineHeight: 1.5, color: CR.ink2, maxWidth: 300, marginTop: -8, animation: `ob-up .5s .16s ${EASE} backwards` }}>{c.nfc ? t.sub : t.sub_sin_wallet}</div>
-        <Surface pad={16} style={{ width: '100%', textAlign: 'left', animation: `ob-up .5s .24s ${EASE} backwards` }}>
-          <InfoRow label={t.row_limite} value={M.fmtArs(c.limit)} />
-          <InfoRow label={t.row_cierre} value={M.fmtDate(d.cierre)} sub={T().tpl(t.row_cierre_sub, { vto: M.fmtDate(d.vencimiento) })} />
-          <InfoRow label={t.row_autopay} value={ap ? autopayTitle(ap.mode) : t.autopay_off} sub={ap ? T().tpl(autopaySub(ap.mode), { tna: M.fmtTna(M.FEES.tnaFinanciacion) }) : t.autopay_off_sub} last
-            onClick={!ap && onAutopay ? onAutopay : undefined} />
-        </Surface>
+    <div style={{ padding: '2px 2px 2px', textAlign: 'center', position: 'relative' }}>
+      <div style={{ padding: '6px 0 4px', animation: `ob-up .5s ${EASE}` }}>
+        <CardArt variant="credito" width={190} glow shimmer style={{ transform: 'rotate(-6deg)' }} />
       </div>
-    </Screen>
-    {adding &&
-    <div style={{ position: 'absolute', inset: 0, zIndex: 60, background: 'rgba(8,8,9,0.82)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 22, animation: `screenIn .3s ${EASE}` }}>
-        <div style={{ animation: 'lc-float 3s ease-in-out infinite' }}><CardArt variant="credito" width={200} glow shimmer /></div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 9, color: '#fff', font: '600 15px Inter' }}>
-          <span style={{ width: 18, height: 18, borderRadius: 999, border: '3px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', animation: 'cr-spin .8s linear infinite' }} /> Agregando a Apple Pay…
+      <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink, marginTop: 16, textWrap: 'balance' }}>{c.nfc ? t.h1 : t.h1_sin_wallet}</div>
+      <div style={{ font: '400 14px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 8, textWrap: 'pretty' }}>{c.nfc ? t.sub : t.sub_sin_wallet}</div>
+      <div style={{ marginTop: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {c.nfc ? <Btn variant="primary" onClick={onClose}>{t.cta}</Btn> :
+        <>
+          <WalletBtn label={t.cta_wallet} onClick={add} />
+          <Btn variant="ghost" onClick={onClose}>{t.cta_skip}</Btn>
+        </>}
+      </div>
+      {adding &&
+      <div style={{ position: 'absolute', inset: -18, zIndex: 60, background: 'rgba(255,255,255,0.94)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, borderRadius: 20 }}>
+        <div style={{ animation: 'lc-float 3s ease-in-out infinite' }}><CardArt variant="credito" width={150} glow shimmer /></div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 9, color: CR.ink, font: '600 14px Inter' }}>
+          <span style={{ width: 16, height: 16, borderRadius: 999, border: '3px solid rgba(20,20,20,0.18)', borderTopColor: CR.ink, animation: 'cr-spin .8s linear infinite' }} /> Agregando a Apple Pay…
         </div>
       </div>}
     </div>);
@@ -366,7 +363,7 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
   const saldo = M.saldoImpago(st);
   const diasVto = st ? M.daysBetween(S.hoy, st.vencimiento) : null;
   const vencido = st && saldo > 0 && diasVto < 0;
-  const frozen = c.status === 'congelada', retiro = c.status === 'retiro', offline = frozen || retiro;
+  const frozen = c.status === 'congelada', retiro = c.status === 'retiro' || c.status === 'retiro-pedido', offline = frozen || retiro;
   const stateNote = c.status === 'pausada' ? <>Pausada: no se aprueban compras, pero <b style={{ fontWeight: 500 }}>tu límite sigue siendo {M.fmtArs(n.limite)}</b>.</>
     : frozen ? <>Congelada: no se aprueban compras, pero <b style={{ fontWeight: 500 }}>tu límite sigue siendo {M.fmtArs(n.limite)}</b>. Vuelve al pagar el mínimo.</>
     : retiro ? <>Tu límite era <b style={{ fontWeight: 500 }}>{M.fmtArs(n.limite)}</b>. El respaldo vuelve a tu saldo cuando termine el retiro.</> : null;
@@ -423,10 +420,21 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
 }
 
 // Aviso in-app según estado (lo que hoy sale solo por push)
-function EstadoAviso({ S, onPagar, onReactivar, onRetiro }) {
+function EstadoAviso({ S, onPagar, onReactivar, onRetiro, onRetiroPago }) {
   const te = T().estados;
   const c = S.card, st = S.statement;
   const saldo = M.saldoImpago(st);
+  // El retiro manda sobre cualquier otro aviso: una tarjeta que se está dando
+  // de baja no tiene que recibir recordatorios de débito automático.
+  if (c.status === 'retiro')
+  return <Notice tone="info" icon="returns" title={te.retiro_title} body={te.retiro_body} />;
+  // Paso 2 del retiro (Jero, 29/09): pediste retirar y falta saldar la deuda.
+  // El aviso trae el monto adelante, que es lo que el push también dice.
+  if (c.status === 'retiro-pedido') {
+    const deuda = M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: saldo }).comprometido;
+    return <Notice tone="warn" icon="returns" title={T().tpl(te.retiro_pedido_title, { monto: M.fmtArs(deuda) })} body={te.retiro_pedido_body}
+      actions={<MiniBtn onClick={onRetiroPago} tone="dark" icon="deposit">{te.retiro_pedido_cta}</MiniBtn>} />;
+  }
   if (c.status === 'congelada' && st) {
     const dias = Math.max(0, M.daysBetween(S.hoy, st.liquida));
     return (
@@ -455,8 +463,6 @@ function EstadoAviso({ S, onPagar, onReactivar, onRetiro }) {
       return <Notice tone="warn" icon="alert-time" title={`El débito automático del ${M.fmtDateShort(st.vencimiento)} no alcanza`} body={`${bi ? 'Entre tus pesos y tu dólar digital tenés' : 'En pesos tenés'} ${M.fmtArs(Math.round(haveArs))} y se van a debitar ${M.fmtArs(need)}: te faltan ${M.fmtArs(need - Math.round(haveArs))}. Cargá saldo antes del ${M.fmtDate(st.vencimiento)} o pagá ahora.`} actions={<MiniBtn onClick={() => onPagar(ap.mode === 'minimo' ? 'minimo' : 'total')} tone="dark">Pagar ahora</MiniBtn>} />;
     }
   }
-  if (c.status === 'retiro')
-  return <Notice tone="info" icon="returns" title={te.retiro_title} body={te.retiro_body} />;
   return null;
 }
 
@@ -518,11 +524,11 @@ function EnvioCard({ S, onSimDelivery }) {
 // La landing «Lemon Card · Crédito», con la estructura de la app de hoy:
 // header · solapas · card row · aviso · Consumos · Límite disponible ·
 // Resumen · Actividad. Sin tarjeta: solo el promo con el render real.
-function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos, onTogglePause, onSimDelivery, onActivate, onRetiro, onTab, onAutopay }) {
+function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos, onTogglePause, onSimDelivery, onActivate, onRetiro, onRetiroPago, onTab, onAutopay }) {
   const th = T().home, tu = T().home_usar, tw = T().home_wallet, ta = T().home_autopay;
   const c = S.card;
   const n = c ? M.tresNumeros({ limit: c.limit, consumido: S.period.consumidoArs, saldoImpago: M.saldoImpago(S.statement) }) : null;
-  const aviso = c && c.status !== 'camino' ? EstadoAviso({ S, onPagar, onReactivar: onTogglePause, onRetiro }) : null;
+  const aviso = c && c.status !== 'camino' ? EstadoAviso({ S, onPagar, onReactivar: onTogglePause, onRetiro, onRetiroPago }) : null;
   const chip = { background: '#fff', boxShadow: 'var(--shadow-card)' };
   return (
     <Screen bg={CR.page}>
@@ -569,7 +575,7 @@ function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos,
           {aviso && <div style={{ marginTop: 12 }}>{aviso}</div>}
 
           {/* ya activa: lo único pendiente es el celu */}
-          {!c.nfc && c.status !== 'camino' && c.status !== 'retiro' &&
+          {!c.nfc && c.status !== 'camino' && c.status !== 'retiro' && c.status !== 'retiro-pedido' &&
           <Surface pad={20} style={{ marginTop: 12, textAlign: 'center' }}>
             <div style={{ font: '500 20px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink }}>{tw.title}</div>
             <div style={{ font: '400 13px Inter', color: CR.ink2, lineHeight: 1.45, marginTop: 8 }}>{tw.body}</div>
@@ -579,7 +585,7 @@ function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos,
           {/* Débito automático (equipo, 29/09): salió de la activación y vive
               acá. Aparece con la tarjeta ya activa, cuando el resumen deja de
               ser abstracto, y se puede ignorar para siempre sin que pase nada. */}
-          {c.status !== 'camino' && c.status !== 'retiro' && !(c.autopay && c.autopay.on) && onAutopay &&
+          {c.status !== 'camino' && c.status !== 'retiro' && c.status !== 'retiro-pedido' && !(c.autopay && c.autopay.on) && onAutopay &&
           <Surface pad={18} style={{ marginTop: 12 }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
               <span style={{ width: 36, height: 36, borderRadius: 999, background: CR.okSoft, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -593,12 +599,16 @@ function TarjetasHome({ S, onPedir, onLimite, onVerResumen, onPagar, onConsumos,
             </div>
           </Surface>}
 
-          {/* Contenedor 2 · el plástico, con su propio seguimiento */}
-          {c.fisica === 'camino' && c.status !== 'retiro' && <EnvioCard S={S} onSimDelivery={onSimDelivery} />}
+          {/* Contenedor 2 · el plástico. Con la tarjeta recién creada va arriba,
+              porque es la mitad de la pantalla; con la tarjeta ya andando baja
+              debajo de los números (Jero, 29/09): el envío no puede competir
+              con lo primero que el usuario viene a mirar. */}
+          {c.status === 'camino' && c.fisica === 'camino' && <EnvioCard S={S} onSimDelivery={onSimDelivery} />}
 
           {c.status !== 'camino' &&
           <>
             <TresNumeros S={S} n={n} onLimite={onLimite} onVerResumen={onVerResumen} onPagar={onPagar} onConsumos={onConsumos} />
+            {c.fisica === 'camino' && c.status !== 'retiro' && c.status !== 'retiro-pedido' && <div style={{ marginTop: 24 }}><EnvioCard S={S} onSimDelivery={onSimDelivery} /></div>}
             <div style={{ marginTop: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', padding: '0 2px 4px' }}>
                 <span style={EYEBROW}>{th.sec_actividad}</span>
@@ -624,7 +634,7 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
   // Con qué saldás lo que debés antes de retirar (equipo, 29/09). Arranca en la
   // wallet: es la opción que devuelve el respaldo entero.
   const plan = M.retiroPlan({ respaldoUnits: c.respaldoUnits, asset: c.asset, deudaArs: deudaTotal, walletArs: S.balances.ARS, prices: S.prices });
-  const [pagoRetiro, setPagoRetiro] = useStateS(() => plan.conWallet ? 'wallet' : 'respaldo');
+
   const offline = c.status === 'congelada' || c.status === 'retiro';
   const ratio = c.ratio != null ? c.ratio : M.ratioOf(c.asset, S.ratios);
   return (
@@ -668,7 +678,7 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
               <div style={{ font: '400 12.5px Inter', color: CR.ink3, lineHeight: 1.45, marginTop: 4 }}>{t.ajuste_body}</div>
             </div>}
             <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
-              {c.status !== 'retiro' && <MiniBtn tone="ghost" icon="returns" onClick={() => setSheet('retiro')}>{t.retirar_cta}</MiniBtn>}
+              {c.status !== 'retiro' && c.status !== 'retiro-pedido' && <MiniBtn tone="ghost" icon="returns" onClick={() => setSheet('retiro')}>{t.retirar_cta}</MiniBtn>}
               <button onClick={() => setSheet('saber')} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: CR.ink3, padding: '8px 6px' }}>{t.saber_mas}</button>
             </div>
           </Surface>
@@ -676,7 +686,7 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
       </Screen>
 
       <Sheet open={sheet === 'retiro'} onClose={() => setSheet(null)}>
-        <RetiroSheet S={S} plan={plan} pago={pagoRetiro} onPago={setPagoRetiro} onConfirm={() => { setSheet(null); onRetiro(pagoRetiro); }} onClose={() => setSheet(null)} />
+        <RetiroSheet S={S} plan={plan} onPedir={() => { setSheet(null); onRetiro(); }} onClose={() => setSheet(null)} />
       </Sheet>
       <Sheet open={sheet === 'saber'} onClose={() => setSheet(null)}>
         <HelperSheet title={t.saber_title} close={t.saber_close} onClose={() => setSheet(null)}
@@ -685,22 +695,18 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
     </div>);
 }
 
-// ── Retirar el respaldo: la cuenta y con qué la saldás ──────────
-// Retirar da de baja la tarjeta. Lo que debés hay que saldarlo antes, y con
-// qué es una elección (equipo, 29/09): con el saldo de tu wallet, y el
-// respaldo vuelve entero, o con parte del propio respaldo. Si la deuda es más
-// grande que el respaldo, la segunda opción no existe.
-function RetiroSheet({ S, plan, pago, onPago, onConfirm, onClose }) {
+// ── Retirar el respaldo: un proceso de cuatro pasos ─────────────
+// Jero, 29/09: «siempre hay que dar la opción de que el usuario retire el
+// respaldo sin pagar su deuda con el respaldo». El paso a paso es: pedís el
+// retiro → te avisamos lo que debés → lo pagás (con el saldo de tu wallet o
+// con parte del respaldo) → se libera el resto. Por eso son dos sheets, no uno:
+// pedirlo y pagarlo son momentos distintos, y entre medio la tarjeta queda en
+// «Retiro pendiente» con el aviso en la home.
+
+// Paso 1 · la cuenta y el pedido. Todavía no se elige nada: se ve y se pide.
+function RetiroSheet({ S, plan, onPedir, onClose }) {
   const t = T().limite_respaldo, c = S.card;
   const sinDeuda = plan.deudaArs <= 0;
-  const vuelve = pago === 'wallet' ? plan.vuelveConWallet : plan.vuelveConRespaldo;
-  const ok = sinDeuda || (pago === 'wallet' ? plan.conWallet : plan.conRespaldo);
-  const opciones = [
-    { id: 'wallet', title: t.retiro_wallet_title, ok: plan.conWallet,
-      body: plan.conWallet ? T().tpl(t.retiro_wallet_body, { vuelve: M.fmtUnits(plan.vuelveConWallet, c.asset) }) : T().tpl(t.retiro_wallet_falta, { falta: M.fmtArs(plan.faltaWalletArs) }) },
-    { id: 'respaldo', title: t.retiro_respaldo_title, ok: plan.conRespaldo,
-      body: plan.conRespaldo ? T().tpl(t.retiro_respaldo_body, { deuda: M.fmtUnits(plan.deudaUnits, c.asset), vuelve: M.fmtUnits(plan.vuelveConRespaldo, c.asset) }) : t.retiro_respaldo_no_alcanza }
-  ];
   return (
     <div style={{ padding: '6px 2px 2px' }}>
       <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.retiro_h1}</div>
@@ -708,27 +714,55 @@ function RetiroSheet({ S, plan, pago, onPago, onConfirm, onClose }) {
       <Surface pad={16} style={{ marginTop: 14 }}>
         <InfoRow label={t.retiro_row_respaldo} value={M.fmtUnits(c.respaldoUnits, c.asset)} />
         {!sinDeuda && <InfoRow label={t.retiro_row_deuda} value={`− ${M.fmtArs(plan.deudaArs)}`} sub={`≈ ${M.fmtUnits(plan.deudaUnits, c.asset)}`} />}
+        <InfoRow label={t.retiro_row_vuelve} value={M.fmtUnits(sinDeuda ? plan.vuelveConWallet : plan.vuelveConWallet, c.asset)} sub={t.retiro_plazo} last />
+      </Surface>
+      {!sinDeuda && <div style={{ ...NOTE_BOX }}>{t.retiro_pasos}</div>}
+      <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
+        <Btn variant="primary" onClick={onPedir}>{sinDeuda ? t.retiro_cta : t.retiro_pedir_cta}</Btn>
+        <Btn variant="ghost" onClick={onClose}>{t.retiro_volver}</Btn>
+      </div>
+    </div>);
+}
+
+// Paso 3 · con qué saldás la deuda. La wallet NUNCA se bloquea: si no alcanza,
+// se carga la diferencia en el mismo paso. Pagar con el respaldo es la opción
+// cómoda, no la obligatoria.
+function RetiroPagoSheet({ S, plan, pago, onPago, onConfirm, onClose }) {
+  const t = T().limite_respaldo, c = S.card;
+  const falta = plan.faltaWalletArs > 0;
+  const opciones = [
+    { id: 'wallet', title: t.retiro_wallet_title, ok: true,
+      body: plan.conWallet ? T().tpl(t.retiro_wallet_body, { vuelve: M.fmtUnits(plan.vuelveConWallet, c.asset) }) : T().tpl(t.retiro_wallet_falta, { falta: M.fmtArs(plan.faltaWalletArs) }) },
+    { id: 'respaldo', title: t.retiro_respaldo_title, ok: plan.conRespaldo,
+      body: plan.conRespaldo ? T().tpl(t.retiro_respaldo_body, { deuda: M.fmtUnits(plan.deudaUnits, c.asset), vuelve: M.fmtUnits(plan.vuelveConRespaldo, c.asset) }) : t.retiro_respaldo_no_alcanza }
+  ];
+  const vuelve = pago === 'wallet' ? plan.vuelveConWallet : plan.vuelveConRespaldo;
+  const cargando = pago === 'wallet' && falta;
+  return (
+    <div style={{ padding: '6px 2px 2px' }}>
+      <div style={{ font: '500 20px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{t.pago_h1}</div>
+      <div style={{ font: '400 13px Inter', color: CR.ink3, marginTop: 3, lineHeight: 1.45 }}>{t.pago_sub}</div>
+      <div style={{ ...EYEBROW, margin: '18px 2px 8px' }}>{t.retiro_como}</div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {opciones.map((o) =>
+        <OptionCard key={o.id} selected={pago === o.id && o.ok} onClick={o.ok ? () => onPago(o.id) : undefined} pad={14}
+          style={{ background: o.ok ? '#fff' : 'var(--bg-layer-02)', boxShadow: o.ok ? undefined : 'none' }}>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: o.ok ? CR.ink : CR.ink3 }}>{o.title}</div>
+                <div style={{ font: '400 12.5px Inter', lineHeight: 1.45, color: o.ok ? CR.ink3 : '#854600', marginTop: 4 }}>{o.body}</div>
+              </div>
+              {o.ok ? <Radio on={pago === o.id} /> : <LI name="lock" size={18} color={CR.ink3} />}
+            </div>
+          </OptionCard>)}
+      </div>
+      <Surface pad={16} style={{ marginTop: 14 }}>
         <InfoRow label={t.retiro_row_vuelve} value={M.fmtUnits(vuelve, c.asset)} sub={t.retiro_plazo} last />
       </Surface>
-      {!sinDeuda &&
-      <>
-        <div style={{ ...EYEBROW, margin: '18px 2px 8px' }}>{t.retiro_como}</div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-          {opciones.map((o) =>
-          <OptionCard key={o.id} selected={pago === o.id && o.ok} onClick={o.ok ? () => onPago(o.id) : undefined} pad={14}
-            style={{ background: o.ok ? '#fff' : 'var(--bg-layer-02)', boxShadow: o.ok ? undefined : 'none' }}>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ font: '500 15px Geist', letterSpacing: '-0.01em', color: o.ok ? CR.ink : CR.ink3 }}>{o.title}</div>
-                  <div style={{ font: '400 12.5px Inter', lineHeight: 1.45, color: o.ok ? CR.ink3 : '#854600', marginTop: 4 }}>{o.body}</div>
-                </div>
-                {o.ok ? <Radio on={pago === o.id} /> : <LI name="lock" size={18} color={CR.ink3} />}
-              </div>
-            </OptionCard>)}
-        </div>
-      </>}
       <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 8 }}>
-        <Btn variant="primary" disabled={!ok} onClick={onConfirm}>{t.retiro_cta}</Btn>
+        <Btn variant="primary" onClick={() => onConfirm(pago)}>
+          {cargando ? T().tpl(t.pago_cta_cargar, { falta: M.fmtArs(plan.faltaWalletArs) }) : T().tpl(t.pago_cta, { ars: M.fmtArs(plan.deudaArs) })}
+        </Btn>
         <Btn variant="ghost" onClick={onClose}>{t.retiro_volver}</Btn>
       </div>
     </div>);
@@ -862,4 +896,4 @@ function ConsumosScreen({ S, onBack, onVerResumen }) {
     </Screen>);
 }
 
-Object.assign(window, { AUTOPAY_SHORT, RetiroSheet, RespaldoPicker, OrderSummary, OrderConfirm, CierrePicker, AutopayCuanto, WalletScreen, ActivatedScreen, TresNumeros, EstadoAviso, TarjetasHome, LimiteRespaldoScreen, StatementScreen, PagarSheet, ConsumosScreen });
+Object.assign(window, { AUTOPAY_SHORT, RetiroSheet, RetiroPagoSheet, RespaldoPicker, OrderSummary, OrderConfirm, CierrePicker, AutopayCuanto, WalletScreen, ActivadaSheet, TresNumeros, EstadoAviso, TarjetasHome, LimiteRespaldoScreen, StatementScreen, PagarSheet, ConsumosScreen });
