@@ -161,7 +161,7 @@
     },
     // El banner de la home: el único empujón, y se puede ignorar para siempre
     home_autopay: {
-      title: 'Que se pague solo',
+      title: 'Que tu resumen se pague solo',
       body: 'Elegí cuánto se debita el día del vencimiento y no tenés que acordarte de nada.',
       cta: 'Configurar'
     },
@@ -220,13 +220,22 @@
     // Consumos del período (equipo, 29/09): los pagos que hiciste van acá, pero
     // NO suman al número grande —esa sección responde cuánto vas a deber—, y el
     // historial deja de vivir en un mail.
+    // Sigue la estructura de la pantalla que existe hoy (Jero, 29/09): el
+    // título «Consumiste hasta el momento», los dos montos con su moneda al
+    // lado, cierre y vencimiento en una fila, las acciones, y las secciones
+    // PAGOS ADELANTADOS Y DEVOLUCIONES y CONSUMOS con la aclaración al pie.
+    // Lo agregado por esta propuesta son los períodos anteriores.
     consumos: {
       header: 'Consumos del período',
-      periodo: 'Cierra el {cierre} · vence el {vto}',
+      titulo: 'Consumiste hasta el momento',
+      cierre_label: 'Cierre: {fecha}',
+      vto_label: 'Vto: {fecha}',
+      cta_pagar: 'Pagar',
+      cta_resumen: 'Ver mi resumen',
+      sec_creditos: 'Pagos adelantados y devoluciones',
       sec_consumos: 'Consumos',
-      sec_pagos: 'Pagos que hiciste',
-      pagos_sub: 'No suman a lo que vas a deber: lo bajan.',
-      sin_pagos: 'Todavía no hiciste pagos en este período.',
+      sin_creditos: 'Todavía no hay pagos adelantados ni devoluciones en este período.',
+      nota: 'Hay consumos que podés ver listados acá y no entran en el resumen, pero disminuyen tu monto disponible para hacer compras. Algunas bonificaciones podrían no verse reflejadas en los totales.',
       anteriores: 'Períodos anteriores',
       anteriores_sub: 'Los resúmenes que ya cerraron, acá adentro.',
       anterior_row: 'Resumen de {mes}',

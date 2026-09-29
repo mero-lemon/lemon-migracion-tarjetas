@@ -327,8 +327,13 @@ function ActivadaSheet({ S, onAddWallet, onClose }) {
   const add = () => { setAdding(true); setTimeout(() => { setAdding(false); onAddWallet(); }, 1400); };
   return (
     <div style={{ padding: '2px 2px 2px', textAlign: 'center', position: 'relative' }}>
-      <div style={{ padding: '6px 0 4px', display: 'flex', justifyContent: 'center', animation: `ob-up .5s ${EASE}` }}>
-        <CardArt variant="credito" width={190} glow shimmer style={{ transform: 'rotate(-6deg)' }} />
+      {/* La foto del pago con el celu, recortada (Jero, 29/09). Si todavía no
+          está el recorte, cae en la que ya teníamos, que es la misma escena
+          con fondo: así la pantalla nunca queda vacía. */}
+      <div style={{ padding: '2px 0 0', display: 'flex', justifyContent: 'center', animation: `ob-up .5s ${EASE}` }}>
+        <img src="assets/nfc-pos.png" alt=""
+          onError={(e) => { if (!e.target.dataset.fb) { e.target.dataset.fb = '1'; e.target.src = 'assets/nfc-hero.png'; e.target.style.borderRadius = '18px'; e.target.style.objectFit = 'cover'; e.target.style.objectPosition = '50% 38%'; } }}
+          style={{ display: 'block', width: '100%', maxWidth: 300, height: 176, objectFit: 'contain', objectPosition: 'center' }} />
       </div>
       <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', lineHeight: 1.15, color: CR.ink, marginTop: 16, textWrap: 'balance' }}>{c.nfc ? t.h1 : t.h1_sin_wallet}</div>
       <div style={{ font: '400 14px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 8, textWrap: 'pretty' }}>{c.nfc ? t.sub : t.sub_sin_wallet}</div>
@@ -911,46 +916,70 @@ function PagarSheet({ S, initial = 'total', onClose, onPay, onAddFunds }) {
     </div>);
 }
 
-// ── Consumos del período (lista) ────────────────────────────────
-// Dos agregados del equipo (29/09): los PAGOS que hiciste se ven acá —aparte,
-// porque no suman a lo que vas a deber: lo bajan— y los PERÍODOS ANTERIORES
-// dejan de vivir en un mail. Es la misma idea que el resumen adentro de la
-// app, estirada hacia atrás en el tiempo.
-function ConsumosScreen({ S, onBack, onVerResumen }) {
+// ── Consumos del período ────────────────────────────────────────
+// Sigue la estructura de la pantalla que existe hoy (Jero, 29/09, con el
+// detalle del diseño en mano): «Consumiste hasta el momento», los dos montos
+// con su moneda al lado, cierre y vencimiento en una fila, las dos acciones, y
+// después PAGOS ADELANTADOS Y DEVOLUCIONES y CONSUMOS, con la aclaración al
+// pie. Lo que suma esta propuesta son los PERÍODOS ANTERIORES: el historial
+// deja de vivir en un mail.
+const TAG_ARS = '#2F6FE0', TAG_USD = '#0E9F57';
+
+const MontoMoneda = ({ value, prefix, moneda, color }) =>
+<div style={{ display: 'flex', alignItems: 'flex-end', gap: 6 }}>
+    <BigAmount value={value} prefix={prefix} size={30} cents />
+    <span style={{ font: '400 15px Inter', color, paddingBottom: 4 }}>{moneda}</span>
+  </div>;
+
+function ConsumosScreen({ S, onBack, onVerResumen, onPagar }) {
   const t = T().consumos;
   const c = S.card, d = M.cycleDates(c.cierre, S.hoy);
   const movs = S.period.movs || [];
   const consumos = movs.filter((m) => m.kind === 'consumo');
-  const pagos = movs.filter((m) => m.kind === 'pago');
+  // Pagos adelantados y devoluciones: todo lo que suma a favor del usuario
+  const creditos = movs.filter((m) => m.kind === 'credito' || m.kind === 'pago');
   const prev = M.previousCycleDates(c.cierre, S.hoy);
   const st = S.statement;
-  // El historial: el ciclo cerrado más los dos anteriores, nombrados por su mes
-  const anteriores = st ? [{ mes: st.periodo, cierre: prev.cierre, pagado: M.saldoImpago(st) <= 0, total: st.totalArs }] : [];
+  const saldo = M.saldoImpago(st);
+  const anteriores = st ? [{ mes: st.periodo, pagado: saldo <= 0, total: st.totalArs }] : [];
   for (let i = 1; i <= 2; i++) {
     const cl = new Date(prev.cierre.getFullYear(), prev.cierre.getMonth() - i, prev.cierre.getDate());
-    anteriores.push({ mes: M.MESES[cl.getMonth()], cierre: cl, pagado: true, total: null });
+    anteriores.push({ mes: M.MESES[cl.getMonth()], pagado: true, total: null });
   }
+  const lista = (items) => items.map((m, i) =>
+  <React.Fragment key={i}>{i > 0 && <Divider />}
+      <MoveRow icon={m.icon} coin={m.coin} title={m.title} date={m.date} amount={m.amount} sub={m.sub} estado={m.estado} sign={m.sign} />
+    </React.Fragment>);
+
   return (
     <Screen bg={CR.page}>
       <StepHeader title={t.header} onBack={onBack} />
       <div style={{ padding: '4px 16px 16px' }}>
-        <BigAmount value={S.period.consumidoArs} size={36} />
-        <div style={{ font: '400 12px Inter', color: CR.ink3, marginTop: 4 }}>Desde el {M.fmtDate(M.addDays(prev.cierre, 1))} · {T().tpl(t.periodo, { cierre: M.fmtDate(d.cierre), vto: M.fmtDate(d.vencimiento) })}</div>
+        <div style={{ font: '500 16px Inter', color: CR.ink }}>{t.titulo}</div>
+        <div style={{ marginTop: 8, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <MontoMoneda value={S.period.consumidoArs} moneda="ARS" color={TAG_ARS} />
+          <MontoMoneda value={S.period.consumidoUsd} prefix="US$ " moneda="USD" color={TAG_USD} />
+        </div>
+        <div style={{ display: 'flex', gap: 24, marginTop: 14, font: '500 14px Inter', color: CR.ink3 }}>
+          <span>{T().tpl(t.cierre_label, { fecha: M.fmtDate(d.cierre) })}</span>
+          <span>{T().tpl(t.vto_label, { fecha: M.fmtDate(d.vencimiento) })}</span>
+        </div>
+        <div style={{ display: 'flex', gap: 10, marginTop: 16 }}>
+          {saldo > 0 && <MiniBtn tone="dark" icon="deposit" onClick={() => onPagar && onPagar('total')}>{t.cta_pagar}</MiniBtn>}
+          <MiniBtn tone="light" icon="receipt" onClick={onVerResumen}>{t.cta_resumen}</MiniBtn>
+        </div>
 
-        <div style={{ ...EYEBROW, margin: '22px 2px 8px' }}>{t.sec_consumos}</div>
-        <Surface pad={0} style={{ padding: '2px 16px' }}>
-          {consumos.map((m, i) => <React.Fragment key={i}>{i > 0 && <Divider />}<MoveRow icon={m.icon} title={m.title} date={m.date} amount={m.amount} sign={m.sign} /></React.Fragment>)}
+        <div style={{ ...EYEBROW, margin: '30px 2px 8px' }}>{t.sec_creditos}</div>
+        <Surface pad={0} style={{ padding: creditos.length ? '2px 16px' : '16px' }}>
+          {creditos.length ? lista(creditos) :
+          <div style={{ font: '400 13px Inter', color: CR.ink3, lineHeight: 1.45 }}>{t.sin_creditos}</div>}
         </Surface>
 
-        <div style={{ ...EYEBROW, margin: '22px 2px 4px' }}>{t.sec_pagos}</div>
-        <div style={{ font: '400 12px Inter', color: CR.ink3, margin: '0 2px 8px', lineHeight: 1.45 }}>{t.pagos_sub}</div>
-        <Surface pad={0} style={{ padding: pagos.length ? '2px 16px' : '16px' }}>
-          {pagos.length ?
-          pagos.map((m, i) => <React.Fragment key={i}>{i > 0 && <Divider />}<MoveRow icon={m.icon} title={m.title} date={m.date} amount={m.amount} sign={m.sign} /></React.Fragment>) :
-          <div style={{ font: '400 13px Inter', color: CR.ink3, lineHeight: 1.45 }}>{t.sin_pagos}</div>}
-        </Surface>
+        <div style={{ ...EYEBROW, margin: '26px 2px 8px' }}>{t.sec_consumos}</div>
+        <Surface pad={0} style={{ padding: '2px 16px' }}>{lista(consumos)}</Surface>
+        <div style={{ font: '400 12px Inter', color: CR.ink3, lineHeight: 1.5, margin: '14px 2px 0' }}>{t.nota}</div>
 
-        <div style={{ ...EYEBROW, margin: '22px 2px 4px' }}>{t.anteriores}</div>
+        <div style={{ ...EYEBROW, margin: '30px 2px 4px' }}>{t.anteriores}</div>
         <div style={{ font: '400 12px Inter', color: CR.ink3, margin: '0 2px 8px', lineHeight: 1.45 }}>{t.anteriores_sub}</div>
         <Surface pad={16}>
           {anteriores.map((p, i) =>

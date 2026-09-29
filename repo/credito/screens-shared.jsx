@@ -30,7 +30,10 @@ const StatCards = () =>
 
 
 // fila de movimiento (estilo Figma: avatar 32, Comercio Geist 14, monto +/−)
-const MoveRow = ({ icon, coin, title, date, amount, sign = '−' }) =>
+// `sub`: el segundo monto, en gris, debajo del principal (la otra moneda del
+// consumo). `estado`: 'Rechazado' y similares — el monto se apaga y el estado
+// va en rojo debajo. Los dos existen en la app de hoy.
+const MoveRow = ({ icon, coin, title, date, amount, sub, estado, sign = '−' }) =>
 <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '12px 0' }}>
     <div style={{ position: 'relative', width: 32, height: 32, borderRadius: 999, background: 'rgba(8,8,9,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
       <LI name={icon} size={18} color="#141414" />
@@ -41,7 +44,11 @@ const MoveRow = ({ icon, coin, title, date, amount, sign = '−' }) =>
       <div style={{ font: '500 14px Geist', color: '#141414', letterSpacing: '-0.01em' }}>{title}</div>
       <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>{date}</div>
     </div>
-    <div style={{ font: '500 14px Geist', color: sign === '+' ? '#00AA18' : '#141414', letterSpacing: '-0.01em' }}>{sign} {amount}</div>
+    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+      <div style={{ font: '500 14px Geist', color: estado ? 'rgba(20,20,20,0.3)' : sign === '+' ? '#00AA18' : '#141414', letterSpacing: '-0.01em', textDecoration: estado ? 'line-through' : 'none' }}>{sign} {amount}</div>
+      {estado ? <div style={{ font: '400 12px Inter', color: '#D2402A', marginTop: 1 }}>{estado}</div>
+      : sub ? <div style={{ font: '400 12px Inter', color: '#818181', marginTop: 1 }}>{sub}</div> : null}
+    </div>
   </div>;
 
 

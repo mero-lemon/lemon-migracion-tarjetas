@@ -14,9 +14,14 @@ window.__CR_NOTAS = qs.get('notas') !== '0';
 // suman $340.000 (el consumido default); si el panel dev lo cambia, la
 // diferencia aparece como "Otros consumos".
 const MOVS_PERIODO = [ // ago = días antes de hoy
+// `sub` = la otra moneda del consumo · `estado` = rechazado y similares ·
+// kind 'credito' = pagos adelantados y devoluciones (suman, no restan).
+// Las tres formas existen en la app de hoy.
 { kind: 'consumo', icon: 'food', title: 'Rappi', ago: 0, amount: '$23.900', sign: '−', v: 23900 },
 { kind: 'consumo', icon: 'shopping-cart', title: 'Coto Digital', ago: 1, amount: '$86.400', sign: '−', v: 86400 },
-{ kind: 'consumo', icon: 'streaming', title: 'Netflix', ago: 1, amount: 'US$ 15,99', sign: '−', v: 0 },
+{ kind: 'consumo', icon: 'streaming', title: 'Netflix', ago: 1, amount: 'US$ 15,99', sub: '≈ $22.706', sign: '−', v: 0 },
+{ kind: 'credito', icon: 'returns', title: 'Devolución Mercado Libre', ago: 1, amount: '$34.200', sign: '+', v: -34200 },
+{ kind: 'consumo', icon: 'tech', title: 'Iplan Network', ago: 2, amount: '$48.500', sign: '−', estado: 'Rechazado', v: 0 },
 { kind: 'consumo', icon: 'car', title: 'YPF', ago: 2, amount: '$62.000', sign: '−', v: 62000 },
 { kind: 'consumo', icon: 'clothes', title: 'Zara', ago: 2, amount: '$167.700', sign: '−', v: 167700 }];
 const MOVS_RESUMEN = [ // before = días antes del cierre del resumen
@@ -268,7 +273,7 @@ function CreditoApp({ preset, dev, setDev, apiRef, inert, onRoute }) {
   else if (route === 'edit-limit') over = <LimitPicker S={SS} mode="edit" asset={S.card.asset} value={S.card.limit} onBack={() => go('limite')} onConfirm={applyLimit} onAddFunds={adjBalance} />;
   else if (route === 'statement') over = <StatementScreen S={SS} onBack={() => go('home')} onPagar={(k) => patch({ sheet: 'pagar-' + k })} />;
   else if (route === 'limite') over = <LimiteRespaldoScreen S={SS} openRetiro={!!S.openRetiro} onBack={() => go('home')} onRetiro={pedirRetiro} onEditLimit={() => go('edit-limit')} />;
-  else if (route === 'consumos') over = <ConsumosScreen S={SS} onBack={() => go('home')} onVerResumen={() => go('statement')} />;
+  else if (route === 'consumos') over = <ConsumosScreen S={SS} onBack={() => go('home')} onVerResumen={() => go('statement')} onPagar={(k) => patch({ sheet: 'pagar-' + k })} />;
 
   const home =
   <TarjetasHome S={SS}
