@@ -34,6 +34,21 @@
   eq('ARS $1M no', M.check(1000000, 'ARS').ok, false);
   eq('máximo exacto ARS = $550.000', M.maxAffordableLimit('ARS'), 550000);
 
+  // el respaldo rinde a la tasa de Earn (Jero, 29/09)
+  eq('pesos ≈20% anual', M.ASSETS.ARS.tna, 0.20);
+  eq('dólar digital ≈4,5% anual', M.ASSETS.USDC.tna, 0.045);
+  eq('Bitcoin no lleva tasa', M.ASSETS.BTC.tna, undefined);
+
+  // margen para subir el límite: el límite NO sube solo, se avisa desde el 10%
+  const card = (limit, rU) => ({ limit, respaldoUnits: rU, asset: 'ARS', ratio: 1.25 });
+  eq('sin margen, no se avisa', M.margenLimite(card(500000, 625000)).vale, false);
+  eq('con el respaldo justo, el posible es el límite', M.margenLimite(card(500000, 625000)).posible, 500000);
+  eq('9% de margen todavía no avisa', M.margenLimite(card(500000, 681250)).vale, false);
+  eq('12% de margen sí avisa', M.margenLimite(card(500000, 700000)).vale, true);
+  eq('y dice hasta cuánto podés subir', M.margenLimite(card(500000, 700000)).posible, 550000);
+  eq('el umbral es 10%', M.MARGEN_AVISO, 0.10);
+  eq('sin tarjeta no rompe', M.margenLimite(null).vale, false);
+
   // la tarjeta nueva no cobra mantenimiento (Jero, 29/09)
   eq('sin mantenimiento', M.FEES.mantenimiento, 0);
   eq('la de hoy cobra $6.500, que es la comparación', M.FEES.mantenimientoHoy, 6500);
@@ -92,6 +107,8 @@
   eq('limiteHoy USDC', M.limiteHoy(862.07, 'USDC'), 1000000);
   eq('limiteHoy: si el respaldo vale menos, el límite baja', M.limiteHoy(862.07, 'USDC', { USDC: 1160 }), 800000);
   eq('fmtPct', M.fmtPct(0.55), '55%');
+  eq('fmtTna entero', M.fmtTna(0.20), '20%');
+  eq('fmtTna con decimal: 4,5% no es 5%', M.fmtTna(0.045), '4,5%');
   eq('fmtDateDow', M.fmtDateDow(new Date(2026, 9, 26)), 'lunes 26 de octubre');
 
   const failed = results.filter((r) => !r.ok);

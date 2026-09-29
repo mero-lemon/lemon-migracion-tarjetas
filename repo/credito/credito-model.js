@@ -17,19 +17,22 @@
   // colchón). Editable desde el panel dev: es un parámetro de producto, no
   // de diseño.
   //
-  // `rinde` (Jero, 29/09): el respaldo NO es plata quieta, genera intereses,
-  // y esos intereses **se quedan dentro del respaldo** —no van a la wallet—.
-  // Consecuencia de producto, no de copy: si el respaldo crece, el límite
-  // crece con él, porque el límite es el 80% del respaldo. Rinden los pesos y
-  // el dólar digital; con Bitcoin la propuesta es el precio, no el rendimiento
-  // (supuesto S32: falta la tasa, así que ninguna pantalla promete un número).
+  // `rinde` / `tna` (Jero, 29/09): el respaldo NO es plata quieta, genera
+  // intereses **a la tasa de Earn**, y esos intereses **se quedan dentro del
+  // respaldo** —no van a la wallet—. Rinden los pesos (≈20%) y el dólar digital
+  // (≈4,5%); con Bitcoin la propuesta es el precio, no el rendimiento.
+  //
+  // OJO con la consecuencia: el respaldo crece, pero **el límite NO sube solo**
+  // (Jero, 29/09). Subirlo es una decisión del usuario, que entra a «Límite y
+  // respaldo» y lo actualiza a mano. Lo único que hace el producto es avisarle
+  // cuando tiene margen: ver `margenLimite` y MARGEN_AVISO.
   const ASSETS = {
-    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, rinde: true, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
+    ARS: { id: 'ARS', name: 'Pesos', long: 'Pesos', symbol: '$', unit: 'ARS', ratio: 1.25, decimals: 0, volatil: false, rinde: true, tna: 0.20, icon: 'currency-peso', color: 'var(--c-lemon-50)', soft: 'var(--c-lemon-5)',
       why: 'Es la misma moneda que tu deuda: tu límite no se mueve.' },
     // Unidad de los montos (Jero, 21/09): el dólar digital se muestra como
     // «US$ 862», no «862 USDC» — la voz dice «dólar digital» en todas las
     // pantallas y el ticker la contradecía. Bitcoin sí lleva su unidad.
-    USDC: { id: 'USDC', name: 'Dólar digital', long: 'Dólar digital', symbol: 'US$', prefix: 'US$ ', unit: 'USDC', ratio: 1.25, decimals: 2, volatil: false, rinde: true, icon: 'currency-dollar', color: 'var(--c-sky-40)', soft: '#EAF1FE',
+    USDC: { id: 'USDC', name: 'Dólar digital', long: 'Dólar digital', symbol: 'US$', prefix: 'US$ ', unit: 'USDC', ratio: 1.25, decimals: 2, volatil: false, rinde: true, tna: 0.045, icon: 'currency-dollar', color: 'var(--c-sky-40)', soft: '#EAF1FE',
       why: 'Sigue al dólar: tu límite se mueve mucho menos que con Bitcoin.' },
     BTC: { id: 'BTC', name: 'Bitcoin', long: 'Bitcoin', symbol: '', unit: 'BTC', ratio: 1.25, decimals: 8, volatil: true, rinde: false, icon: 'currency-bitcoin', color: 'var(--c-bitcoin-40)', soft: 'var(--c-bitcoin-5)',
       why: 'Su precio cambia todos los días: tu límite se mueve con él.' }
@@ -140,6 +143,22 @@
       vuelveConRespaldo: conRespaldo ? roundTo(rU - deudaUnits, dec) : 0,
       faltaWalletArs: Math.max(0, deudaArs - walletArs)
     };
+  };
+
+  // ── Margen para subir el límite ─────────────────────────────────
+  // El respaldo crece —por los intereses, o porque subió el precio del activo—
+  // y en algún momento alcanza para un límite más alto que el que tenés. El
+  // límite NO se mueve solo: lo sube el usuario cuando quiere (Jero, 29/09).
+  // Lo que sí hace el producto es avisar, y solo cuando vale la pena: a partir
+  // de un 10% de margen, para que el aviso no sea ruido de todos los días.
+  const MARGEN_AVISO = 0.10;
+  const margenLimite = (card, prices, ratios) => {
+    if (!card) return { posible: 0, delta: 0, pct: 0, vale: false };
+    const r = card.ratio != null ? card.ratio : ratioOf(card.asset, ratios);
+    const posible = Math.max(0, Math.min(LIMIT_MAX, Math.floor(unitsToArs(card.respaldoUnits, card.asset, prices) / r / LIMIT_STEP) * LIMIT_STEP));
+    const delta = posible - card.limit;
+    const pct = card.limit > 0 ? delta / card.limit : 0;
+    return { posible, delta, pct, vale: pct >= MARGEN_AVISO };
   };
 
   // El verbo para conseguir lo que falta: los pesos se cargan, lo demás se compra
@@ -267,6 +286,11 @@
     return a.prefix ? `${a.prefix}${str}` : `${str} ${a.unit}`;
   };
   const fmtPct = (r) => Math.round(r * 100) + '%';
+  // Las tasas piden un decimal: fmtPct convertía 4,5% en 5% y eso ya es otra tasa
+  const fmtTna = (r) => {
+    const v = r * 100;
+    return (Number.isInteger(v) ? String(v) : v.toFixed(1).replace('.', ',')) + '%';
+  };
   const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
   const MESES_CORTO = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
   const DIAS = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
@@ -277,10 +301,10 @@
 
   const CreditoModel = {
     HOY, PRODUCT, ASSETS, ASSET_ORDER, RESPALDO_ASSETS, PRICES_DEFAULT, BALANCES_DEFAULT, LIMIT_PRESETS, LIMIT_MIN, LIMIT_MAX, LIMIT_STEP, limitShare,
-    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, tresNumeros, saldoImpago,
+    ratioOf, respaldoArs, respaldoUnits, unitsToArs, limiteHoy, check, maxAffordablePreset, affordableAsset, closestAsset, maxAffordableLimit, limitChange, retiroPlan, verboFaltante, MARGEN_AVISO, margenLimite, tresNumeros, saldoImpago,
     CIERRE_GROUPS, FERIADOS, isFeriado, nextBusinessDay, nextClose, cycleDates, previousCycleDates, addDays, sameDay, daysBetween,
     AUTOPAY_MODES, AUTOPAY_SOURCES, AUTOPAY_DEFAULT, FEES,
-    roundTo, fmtInt, fmtArs, fmtUnits, fmtPct, fmtDate, fmtDateShort, fmtDateDow, MESES, MESES_CORTO
+    roundTo, fmtInt, fmtArs, fmtUnits, fmtPct, fmtTna, fmtDate, fmtDateShort, fmtDateDow, MESES, MESES_CORTO
   };
   if (typeof module !== 'undefined' && module.exports) module.exports = CreditoModel;
   root.CreditoModel = CreditoModel;

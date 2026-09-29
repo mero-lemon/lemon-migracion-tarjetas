@@ -91,7 +91,7 @@
     'respaldo-pick': {
       paso: 'Alta · 2 de 3', titulo: 'Elegí tu respaldo',
       lead: 'Tu plata te respalda, sigue siendo tuya y sigue rindiendo.',
-      parrafo: 'Respaldás con lo que tengas: pesos, dólar digital o Bitcoin. No se venden ni se mueven, quedan cubriéndote las espaldas, y vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Y no queda quieto: tus pesos y tus dólares siguen generando intereses mientras respaldan, los intereses se suman al respaldo, y como tu límite es el 80% de lo que dejás, tu límite crece solo.',
+      parrafo: 'Respaldás con lo que tengas: pesos, dólar digital o Bitcoin. No se venden ni se mueven, quedan cubriéndote las espaldas, y vuelven a tu saldo cuando bajás el límite o das de baja la tarjeta. Solo los tocamos si no pagás, y te avisamos varias veces antes. Y no queda quieto: rinde a la misma tasa que en Earn —los pesos cerca del 20% anual, el dólar digital cerca del 4,5%— y los intereses se suman a tu respaldo. Cuando eso alcanza para un límite más alto, te avisamos: subirlo lo decidís vos.',
       contexto: [
         { n: '+5.892', t: 'Aceptar dólar digital casi triplica el universo elegible.',
           d: 'El universo pasa de 3.040 a 8.932 usuarios, sin tocar el modelo de riesgo. Con pesos crece todavía más.', f: 'Base de usuarios · saldos al 10/09/2026' },
@@ -101,8 +101,8 @@
           d: '52% preferiría dejar el respaldo en pesos y solo 14% elegiría Bitcoin. Con pesos el límite no se mueve nunca: es la misma moneda que la deuda.', f: 'Encuesta COPS · posterior a la V1' },
         { n: '7 de 12', t: 'Las stables ya son el resguardo de valor de nuestros usuarios.',
           d: '7 de 12 entrevistados las nombran así; a Bitcoin lo mencionan 3.', f: 'Discovery previo a la V1 · entrevistas' },
-        { n: '24%', t: 'Y pedían que el límite se ajustara solo. Rindiendo, se ajusta solo.',
-          d: '24% se mostró interesado en que su límite se ajuste automáticamente. Si los intereses se quedan en el respaldo, el límite sube sin que el usuario haga nada.', f: 'Encuesta COPS · posterior a la V1' }
+        { n: '24%', t: 'Pedían que el límite se ajustara solo. Le damos el aviso, no la decisión.',
+          d: '24% se mostró interesado en que su límite se ajuste automáticamente. Con el respaldo rindiendo, el margen aparece solo; subir el límite sigue siendo del usuario, porque un límite que se mueve sin permiso vuelve a ser el límite de un banco.', f: 'Encuesta COPS · posterior a la V1' }
       ]
     },
     cierre: {
@@ -150,7 +150,7 @@
     'edit-limit': {
       paso: 'Después', titulo: 'Elegí tu nuevo límite',
       lead: 'El control no se termina en el alta: subís o bajás cuando quieras.',
-      parrafo: 'Cambiar el límite es la misma decisión del primer día, con la misma pantalla. Antes de confirmar ves qué implica en tu plata: cuánto más dejás si subís, cuánto vuelve a tu saldo si bajás. Lo hacés las veces que quieras, y el único borde es no bajarlo por debajo de lo que ya usaste.',
+      parrafo: 'Cambiar el límite es la misma decisión del primer día, con la misma pantalla. Antes de confirmar ves qué implica en tu plata: cuánto más dejás si subís, cuánto vuelve a tu saldo si bajás. Y como tu respaldo rinde, cada tanto vas a poder subirlo sin poner un peso más: cuando el margen pasa el 10% te lo decimos en la home, con el monto al que podés llegar. El aviso lo ponemos nosotros; el límite lo seguís moviendo vos.',
       contexto: [
         { n: '9,9%', t: 'Hoy, pedir más límite es una conversación con Ops.',
           d: '9,9% del soporte de la tarjeta es sobre límites, con 11 pedidos explícitos de aumento.', f: 'COPS · 820 conversaciones, 90 días' }

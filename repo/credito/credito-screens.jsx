@@ -72,7 +72,7 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
                       {a.rinde &&
                       <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 7 }}>
                         <LI name="earn" size={13} color={inv ? 'var(--c-lime-40)' : 'var(--text-brand)'} />
-                        <span style={{ font: '500 12px Inter', color: inv ? 'var(--c-lime-40)' : 'var(--text-brand)' }}>{t.option_rinde}</span>
+                        <span style={{ font: '500 12px Inter', color: inv ? 'var(--c-lime-40)' : 'var(--text-brand)' }}>{T().tpl(t.option_rinde, { tna: '≈' + M.fmtTna(a.tna) })}</span>
                       </div>}
                     </> :
                     <div style={{ font: '400 14px Inter', color: '#854600', marginTop: 3, lineHeight: 1.4 }}>
@@ -327,9 +327,28 @@ function ActivatedScreen({ S, onGo, onAddWallet, onAutopay }) {
 //  · LÍMITE DISPONIBLE = número grande verde + «Límite total $X» → abre «Límite y respaldo»
 //  · RESUMEN = tarjeta violeta tipo comprobante con «Pagar» (lo que DEBÉS)
 // Nunca se muestra el límite en 0 con la tarjeta pausada ni congelada.
+// El aviso de margen (Jero, 29/09): el límite NO sube solo. Cuando el respaldo
+// alcanza para uno al menos 10% más alto, la home invita a entrar y subirlo;
+// decidir sigue siendo del usuario, que es toda la bandera del producto.
+function MargenLimite({ margen, onLimite }) {
+  const th = T().home;
+  return (
+    <button onClick={onLimite} style={{ width: '100%', textAlign: 'left', border: 0, cursor: 'pointer', marginTop: 12, background: 'var(--c-lime-5, #F4FBD9)', borderRadius: 16, padding: '13px 15px', display: 'flex', alignItems: 'center', gap: 11 }}>
+      <span style={{ width: 32, height: 32, borderRadius: 999, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <LI name="earn" size={16} color="var(--text-brand)" />
+      </span>
+      <span style={{ flex: 1, minWidth: 0 }}>
+        <span style={{ display: 'block', font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T().tpl(th.margen_title, { ars: M.fmtArs(margen.posible) })}</span>
+        <span style={{ display: 'block', font: '400 12px Inter', color: CR.ink2, lineHeight: 1.4, marginTop: 2 }}>{th.margen_body}</span>
+      </span>
+      <LI name="arrow-foward" size={16} color={CR.ink3} />
+    </button>);
+}
+
 function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
   const th = T().home;
   const c = S.card, st = S.statement;
+  const margen = M.margenLimite(c, S.prices, S.ratios);
   const dNext = M.cycleDates(c.cierre, S.hoy);
   const saldo = M.saldoImpago(st);
   const diasVto = st ? M.daysBetween(S.hoy, st.vencimiento) : null;
@@ -355,6 +374,7 @@ function TresNumeros({ S, n, onLimite, onVerResumen, onPagar, onConsumos }) {
         <SectionHead label={retiro ? 'Ya no podés gastar: retiro en curso' : frozen ? 'Disponible cuando la descongeles' : th.sec_disponible} />
         <div style={{ marginTop: 6 }}><BigAmount value={n.disponible} size={40} color={offline ? CR.ink3 : CR.disponible} cents={false} /></div>
         <div style={{ marginTop: 6, font: '400 13px Inter', color: CR.ink3 }}>{th.sec_limite_total} <b style={{ color: CR.limite, fontWeight: 500 }}>{M.fmtArs(n.limite)}</b></div>
+        {!offline && margen.vale && <div onClick={(e) => e.stopPropagation()}><MargenLimite margen={margen} onLimite={onLimite} /></div>}
         {stateNote && <div style={NOTE_BOX}>{stateNote}</div>}
       </div>
 
@@ -594,6 +614,7 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
   const [pagoRetiro, setPagoRetiro] = useStateS(() => plan.conWallet ? 'wallet' : 'respaldo');
   const offline = c.status === 'congelada' || c.status === 'retiro';
   const ratio = c.ratio != null ? c.ratio : M.ratioOf(c.asset, S.ratios);
+  const margen = M.margenLimite(c, S.prices, S.ratios);
   return (
     <div style={{ height: '100%', position: 'relative' }}>
       <Screen bg={CR.page}>
@@ -619,9 +640,23 @@ function LimiteRespaldoScreen({ S, onBack, onEditLimit, onRetiro, openRetiro }) 
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ font: '400 12px Inter', color: CR.ink3 }}>{t.apartaste_label}</div>
                 <div style={{ font: '500 24px Geist', letterSpacing: '-0.02em', color: CR.ink, lineHeight: 1.2 }}>{M.fmtUnits(c.respaldoUnits, c.asset)}</div>
-                <div style={{ font: '400 12px Inter', color: CR.ink3, marginTop: 2 }}>{T().tpl(t.apartaste_sub, { ars: M.fmtArs(rArs), pct: M.fmtPct(M.limitShare(ratio)) })}</div>
+                <div style={{ font: '400 12px Inter', color: CR.ink3, marginTop: 2 }}>{c.asset === 'ARS' ? t.apartaste_sub_ars : T().tpl(t.apartaste_sub, { ars: M.fmtArs(rArs), pct: M.fmtPct(M.limitShare(ratio)) })}</div>
+                {a.rinde &&
+                <div style={{ display: 'flex', alignItems: 'center', gap: 5, marginTop: 6 }}>
+                  <LI name="earn" size={13} color="var(--text-brand)" />
+                  <span style={{ font: '500 12px Inter', color: 'var(--text-brand)' }}>{T().tpl(t.rinde_row, { tna: '≈' + M.fmtTna(a.tna) })}</span>
+                </div>}
               </div>
             </div>
+            {/* El respaldo creció y alcanza para más límite. Subirlo sigue
+                siendo del usuario (Jero, 29/09): acá se lo decimos y se lo
+                dejamos a un toque, pero no lo movemos nosotros. */}
+            {!offline && margen.vale &&
+            <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${CR.hair}` }}>
+              <div style={{ font: '500 14px Geist', letterSpacing: '-0.01em', color: CR.ink }}>{T().tpl(t.margen_title, { ars: M.fmtArs(margen.posible) })}</div>
+              <div style={{ font: '400 12.5px Inter', color: CR.ink3, lineHeight: 1.45, marginTop: 4 }}>{t.margen_body}</div>
+              <div style={{ marginTop: 12 }}><Btn variant="light" leftIcon="edit" onClick={onEditLimit}>{T().tpl(t.margen_cta, { ars: M.fmtArs(margen.posible) })}</Btn></div>
+            </div>}
             <div style={{ display: 'flex', gap: 8, marginTop: 14, alignItems: 'center' }}>
               {c.status !== 'retiro' && <MiniBtn tone="ghost" icon="returns" onClick={() => setSheet('retiro')}>{t.retirar_cta}</MiniBtn>}
               <button onClick={() => setSheet('saber')} style={{ border: 0, background: 'transparent', cursor: 'pointer', font: '600 12px Inter', color: CR.ink3, padding: '8px 6px' }}>{t.saber_mas}</button>
