@@ -77,7 +77,8 @@
       // tarjeta nace y lo único que tiene que hacer es dar ganas. Lo que cuesta
       // (nada) vive en el helper, a un toque: no es un argumento de venta, es
       // una respuesta para el que pregunta.
-      sub: 'Creala y empezá a manejar tu día a día con la plata que ya tenés. Sin venderla, sin pedirle permiso a nadie.',
+      eyebrow: 'Ya es tuya',
+      sub: 'Gastá cuando lo necesites y pagá cuando te quede cómodo. Mientras tanto, tu plata rinde.',
       helper_label: '¿Tiene algún costo?',
       helper_title: 'Lo que cuesta tu Credit Card',
       helper_b1: 'Crearla no cuesta nada, y tenerla tampoco: no cobramos mantenimiento, ni ahora ni cuando la actives.',

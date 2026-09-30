@@ -334,12 +334,13 @@ const BigHeader = ({ title, onBack, right }) =>
 
 
 // Compact centered header (in-flow)
-const StepHeader = ({ title, onBack, onClose }) =>
+// `tone="dark"`: el mismo header sobre una pantalla negra
+const StepHeader = ({ title, onBack, onClose, tone }) =>
 <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', height: 52 }}>
     <button onClick={onBack} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40 }}>
-      <LI name="arrow-back" size={22} color={LX.text1} />
+      <LI name="arrow-back" size={22} color={tone === 'dark' ? '#fff' : LX.text1} />
     </button>
-    <div style={{ flex: 1, textAlign: 'center', font: '600 16px Inter', color: LX.text1 }}>{title}</div>
+    <div style={{ flex: 1, textAlign: 'center', font: '600 16px Inter', color: tone === 'dark' ? '#fff' : LX.text1 }}>{title}</div>
     <button onClick={onClose} style={{ border: 0, background: 'transparent', cursor: 'pointer', width: 40, height: 40, opacity: onClose ? 1 : 0 }}>
       <LI name="close" size={22} color={LX.text2} />
     </button>

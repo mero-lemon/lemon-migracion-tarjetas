@@ -58,10 +58,14 @@ const Radio = ({ on, color = CR.ink, size = 22 }) =>
 
 // Casillero cuadrado: se usa para aceptar, no para elegir. La forma distinta
 // del Check redondo importa —aceptar términos no es seleccionar una opción—.
-const CheckBox = ({ on, size = 22 }) =>
-<span style={{ width: size, height: size, borderRadius: 7, background: on ? CR.ink : 'transparent', border: `2px solid ${on ? CR.ink : '#C9C9C4'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .2s' }}>
-    {on && <LI name="selected" size={size - 8} color="#fff" />}
-  </span>;
+const CheckBox = ({ on, size = 22, tone }) => {
+  const dark = tone === 'dark';
+  const fill = dark ? '#fff' : CR.ink, mark = dark ? '#0B0B0B' : '#fff', off = dark ? 'rgba(255,255,255,0.35)' : '#C9C9C4';
+  return (
+    <span style={{ width: size, height: size, borderRadius: 7, background: on ? fill : 'transparent', border: `2px solid ${on ? fill : off}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .2s' }}>
+      {on && <LI name="selected" size={size - 8} color={mark} />}
+    </span>);
+};
 const Check = ({ on, size = 22 }) =>
 <span style={{ width: size, height: size, borderRadius: 999, background: on ? CR.ink : 'transparent', border: `2px solid ${on ? CR.ink : '#C9C9C4'}`, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, transition: 'all .2s' }}>
     {on && <LI name="selected" size={size - 8} color="#fff" />}
@@ -209,17 +213,17 @@ const DateTimeline = ({ dates, compact, keys = ['cierre', 'vencimiento'], approx
 };
 
 // Link de ayuda tocable («¿Cómo funciona el respaldo?») que abre una sheet
-const HelperLink = ({ children, onClick, style }) =>
-<button onClick={onClick} style={{ border: 0, background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, font: '500 13px Inter', color: CR.ink2, padding: '10px 4px', ...style }}>
-    <LI name="view-help" size={16} color={CR.ink2} />{children}
+const HelperLink = ({ children, onClick, style, color = CR.ink2 }) =>
+<button onClick={onClick} style={{ border: 0, background: 'transparent', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 6, font: '500 13px Inter', color, padding: '10px 4px', ...style }}>
+    <LI name="view-help" size={16} color={color} />{children}
   </button>;
 
 // El helper va SIEMPRE centrado y pegado arriba del botón (Jero, 29/09), nunca
 // suelto en el medio de la pantalla: es lo último que se lee antes de decidir,
 // y así ocupa el mismo lugar en todas las pantallas del flujo.
-const FooterHelper = ({ label, onClick, children }) =>
+const FooterHelper = ({ label, onClick, color, children }) =>
 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-    <div style={{ display: 'flex', justifyContent: 'center' }}><HelperLink onClick={onClick}>{label}</HelperLink></div>
+    <div style={{ display: 'flex', justifyContent: 'center' }}><HelperLink onClick={onClick} color={color}>{label}</HelperLink></div>
     {children}
   </div>;
 

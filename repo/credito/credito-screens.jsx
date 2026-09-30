@@ -124,41 +124,57 @@ function RespaldoPicker({ S, limit, value, onChange, onBack, onContinue, onAddFu
     </div>);
 }
 
-// ── Tu Lemon Credit Card: la tarjeta y lo único que falta decir ─
-// Ni límite ni respaldo: los acaba de elegir y repetirlos convierte un
-// momento en una factura (Jero, 21/09). Lo único nuevo es el costo, y desde el
-// 29/09 el costo es cero: la tarjeta no cobra mantenimiento. El cero deja de
-// ser letra chica y pasa a ser lo que la pantalla tiene para decir.
+// ── Tu Lemon Credit Card: el momento en que nace ────────────────
+// Ni límite ni respaldo: los acaba de elegir y repetirlos convierte un momento
+// en una factura (Jero, 21/09). Tampoco habla de plata (29/09): lo que cuesta
+// —nada— vive en el helper.
+//
+// Y va en NEGRO (Jero, 30/09: «no me convence la UI de esta pantalla»). Es la
+// única pantalla del alta donde no se decide nada, así que se gana ser un
+// momento en vez de un formulario: el mismo lenguaje del promo de la home y del
+// escenario del límite —negro, la tarjeta flotando, el resplandor lima— para
+// que el alta cierre donde empezó. La tarjeta grande es el protagonista; el
+// texto la acompaña.
 function OrderSummary({ S, onBack, onContinue }) {
   const t = T().pedido;
   const [help, setHelp] = useStateS(false);
   const [tyc, setTyc] = useStateS(false);
   const [verTyc, setVerTyc] = useStateS(false);
+  const DIM = 'rgba(255,255,255,0.72)';
   return (
     <div style={{ height: '100%', position: 'relative' }}>
-    <Screen bg={CR.page} footer={
-    <FooterHelper label={t.helper_label} onClick={() => setHelp(true)}>
+    <Screen bg="#0B0B0B" footer={
+    <FooterHelper label={t.helper_label} onClick={() => setHelp(true)} color={DIM}>
         {/* Aceptar los términos es lo último antes de crear la tarjeta, y va
             sin tildar: si lo dejáramos marcado, el usuario no estaría
             aceptando nada. El botón espera hasta que lo haga. */}
         <div onClick={() => setTyc((v) => !v)} role="checkbox" aria-checked={tyc}
-          style={{ display: 'flex', alignItems: 'center', gap: 11, cursor: 'pointer', padding: '4px 2px 12px' }}>
-          <CheckBox on={tyc} size={21} />
-          <span style={{ font: '400 13px Inter', lineHeight: 1.45, color: CR.ink2 }}>
+          style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 11, cursor: 'pointer', padding: '4px 2px 12px' }}>
+          <CheckBox on={tyc} size={21} tone="dark" />
+          <span style={{ font: '400 13px Inter', lineHeight: 1.45, color: DIM }}>
             {t.tyc_pre}
             <button onClick={(e) => { e.stopPropagation(); setVerTyc(true); }}
-              style={{ border: 0, background: 'transparent', padding: 0, cursor: 'pointer', font: '600 13px Inter', color: CR.ink, textDecoration: 'underline', textUnderlineOffset: 3 }}>{t.tyc_link}</button>
+              style={{ border: 0, background: 'transparent', padding: 0, cursor: 'pointer', font: '600 13px Inter', color: '#fff', textDecoration: 'underline', textUnderlineOffset: 3 }}>{t.tyc_link}</button>
           </span>
         </div>
-        <Btn variant="primary" disabled={!tyc} onClick={onContinue}>{t.cta}</Btn>
+        <Btn variant="primary" disabled={!tyc} onClick={onContinue}
+          style={tyc ? { background: '#fff', color: '#141414' } : { background: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.4)' }}>{t.cta}</Btn>
       </FooterHelper>}>
-      <StepHeader title="" onBack={onBack} />
-      <div style={{ padding: '4px 16px 16px', display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '18px 0 28px' }}>
-          <CardArt variant="credito" width={252} glow shimmer style={{ boxShadow: '0 24px 48px -12px rgba(20,20,20,0.35)' }} />
+      <StepHeader title="" onBack={onBack} tone="dark" />
+      <div style={{ position: 'relative', height: '100%' }}>
+        {/* el resplandor: el mismo de «Elegí el límite», acá a pantalla completa */}
+        <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(70% 46% at 50% 30%, rgba(207,255,46,0.18), transparent 68%)', pointerEvents: 'none' }} />
+        <div style={{ position: 'relative', padding: '0 20px 16px', display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+          <div style={{ padding: '10px 0 4px', animation: `ob-up .6s ${EASE}` }}>
+            <div style={{ animation: 'lc-float 5s ease-in-out infinite' }}>
+              <CardArt variant="credito" width={290} glow shimmer style={{ transform: 'rotate(-6deg)' }} />
+            </div>
+            <div style={{ width: 190, height: 20, margin: '20px auto 0', borderRadius: '50%', filter: 'blur(11px)', background: 'radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,0.55), transparent 72%)' }} />
+          </div>
+          <div style={{ ...EYEBROW, color: 'var(--c-lime-40)', marginTop: 20, animation: `ob-up .5s .08s ${EASE} backwards` }}>{t.eyebrow}</div>
+          <div style={{ font: '500 30px Geist', letterSpacing: '-0.025em', lineHeight: 1.1, color: '#fff', marginTop: 8, textWrap: 'balance', animation: `ob-up .5s .14s ${EASE} backwards` }}>{t.h1}</div>
+          <div style={{ font: '400 15px Inter', lineHeight: 1.5, color: DIM, marginTop: 12, maxWidth: 300, textWrap: 'pretty', animation: `ob-up .5s .22s ${EASE} backwards` }}>{t.sub}</div>
         </div>
-        <div style={{ font: '500 27px Geist', letterSpacing: '-0.025em', lineHeight: 1.12, color: CR.ink, textAlign: 'center', textWrap: 'balance' }}>{t.h1}</div>
-        <div style={{ font: '400 15px Inter', lineHeight: 1.5, color: CR.ink2, marginTop: 10, textAlign: 'center', textWrap: 'pretty' }}>{t.sub}</div>
       </div>
     </Screen>
     <Sheet open={help} onClose={() => setHelp(false)}>
